@@ -1,0 +1,180 @@
+[package]
+name = "holonic_realms"
+version = "9.0.0"
+edition = "2021"
+authors = ["Ishan Parihar <ishanbestdabang@gmail.com>"]
+description = "A comprehensive simulation of the Law of One cosmological principles"
+license = "MIT"
+
+[features]
+default = []
+sdl2_gui = ["sdl2"]
+
+[lib]
+name = "holonic_realms"
+path = "src/lib.rs"
+
+[dependencies]
+# Core dependencies
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rayon = "1.8"
+lru = "0.12"
+libc = "0.2"
+termion = "4.0"
+uuid = { version = "1.0", features = ["v4"] }
+num_cpus = "1.16"
+ctrlc = "3.4"
+
+# GUI Dependencies - SDL2 + WGPU
+wgpu = "0.20"
+egui = "0.27"
+egui-wgpu = "0.27"
+# Keep winit for backward compatibility during migration
+winit = "0.29"
+egui-winit = "0.27"
+nalgebra-glm = "0.19"
+tokio = { version = "1.35", features = ["full"] }
+pollster = "0.3"
+bytemuck = "1.14"
+
+# SDL2 - Primary windowing system (replaces Winit) - optional feature
+sdl2 = { version = "0.37", default-features = false, features = ["use-pkgconfig", "raw-window-handle", "mixer"], optional = true }
+
+# Raw window handle for SDL2-WGPU integration
+raw-window-handle = { version = "0.6" }
+
+[dev-dependencies]
+# Test dependencies can be added here
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[profile.dev]
+opt-level = 0
+
+[[bin]]
+name = "audit_runner"
+path = "src/audit_runner.rs"
+
+[[bin]]
+name = "physical_manifestation_demo"
+path = "src/physical_manifestation_demo.rs"
+
+[[bin]]
+name = "holonic_realms"
+path = "src/main.rs"
+
+[[bin]]
+name = "holonic_gui"
+path = "src/gui_main.rs"
+
+[[bin]]
+name = "holonic_windowed"
+path = "src/holonic_gui_windowed.rs"
+
+[[bin]]
+name = "real_gui"
+path = "src/real_windowed_gui.rs"
+
+[[bin]]
+name = "gui_week2"
+path = "src/gui_windowed_week2.rs"
+
+[[bin]]
+name = "gui_week3"
+path = "src/gui_windowed_week3.rs"
+
+[[bin]]
+name = "gui_week4"
+path = "src/gui_windowed_week4.rs"
+
+[[bin]]
+name = "gui_week5"
+path = "src/gui_windowed_week5.rs"
+
+[[bin]]
+name = "gui_week6"
+path = "src/gui_windowed_week6.rs"
+
+[[bin]]
+name = "interactive_terminal"
+path = "src/interactive_terminal.rs"
+
+[[bin]]
+name = "simple_terminal"
+path = "src/simple_terminal.rs"
+
+[[bin]]
+name = "visual_terminal"
+path = "src/visual_terminal.rs"
+
+[[bin]]
+name = "gui_week7"
+path = "src/gui_windowed_week7.rs"
+
+[[bin]]
+name = "gui_week8"
+path = "src/gui_windowed_week8.rs"
+
+[[bin]]
+name = "gui_week9"
+path = "src/gui_windowed_week9.rs"
+
+[[bin]]
+name = "holonic_gui_complete"
+path = "src/holonic_gui_complete.rs"
+
+[[bin]]
+name = "working_gui"
+path = "src/working_gui.rs"
+
+[[bin]]
+name = "minimal_window_test"
+path = "src/minimal_window_test.rs"
+
+[[bin]]
+name = "aggressive_window_test"
+path = "src/aggressive_window_test.rs"
+
+[[bin]]
+name = "wayland_fixed_gui"
+path = "src/wayland_fixed_gui.rs"
+
+[[bin]]
+name = "sdl2_wgpu_test"
+path = "src/sdl2_wgpu_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "sdl2_basic_test"
+path = "src/bin/sdl2_basic_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "sdl2_gamepad_test"
+path = "src/bin/sdl2_gamepad_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "sdl2_input_test"
+path = "sdl2_input_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "sdl2_mouse_test"
+path = "src/bin/sdl2_mouse_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "sdl2_keyboard_test"
+path = "src/bin/sdl2_keyboard_test.rs"
+required-features = ["sdl2"]
+
+[[bin]]
+name = "holonic_sdl2"
+path = "src/bin/holonic_sdl2.rs"
+required-features = ["sdl2"]
