@@ -53,6 +53,7 @@
 //! > "All mechanics operate on holographic principles - resonance, not proximity"
 
 use crate::entity_layer7::layer7::EntityId;
+use crate::simulation_v3::density_mechanics::{Density, Polarity};
 use crate::simulation_v3::holographic_inventory::ItemId;
 use crate::types::Float;
 
@@ -165,181 +166,6 @@ impl FactionId {
 impl std::fmt::Display for FactionId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "Faction-{}", self.0)
-    }
-}
-
-// ============================================================================
-// POLARITY ENUM
-// ============================================================================
-
-/// Entity polarization orientation
-///
-/// From COSMOLOGICAL-ARCHITECTURE.md:
-/// "Archetype 22 (The Choice): Creates polarity by choosing between
-/// Service-to-Others (STO) and Service-to-Self (STS)"
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Polarity {
-    /// Service-to-Others: Positive polarization (51%+ for harvest)
-    ServiceToOthers,
-    /// Service-to-Self: Negative polarization (95%+ for harvest)
-    ServiceToSelf,
-    /// Balanced: Neither strongly STO nor STS
-    Balanced,
-}
-
-impl Polarity {
-    /// Check if this is Service-to-Others polarity
-    pub fn is_sto(&self) -> bool {
-        matches!(self, Polarity::ServiceToOthers)
-    }
-
-    /// Check if this is Service-to-Self polarity
-    pub fn is_sts(&self) -> bool {
-        matches!(self, Polarity::ServiceToSelf)
-    }
-
-    /// Check if this is balanced polarity
-    pub fn is_balanced(&self) -> bool {
-        matches!(self, Polarity::Balanced)
-    }
-
-    /// Get the polarity value (-1.0 for STS, 0.0 for Balanced, 1.0 for STO)
-    pub fn as_f64(&self) -> f64 {
-        match self {
-            Polarity::ServiceToOthers => 1.0,
-            Polarity::ServiceToSelf => -1.0,
-            Polarity::Balanced => 0.0,
-        }
-    }
-
-    /// Get the display name for this polarity
-    pub fn display_name(&self) -> &'static str {
-        match self {
-            Polarity::ServiceToOthers => "Service-to-Others",
-            Polarity::ServiceToSelf => "Service-to-Self",
-            Polarity::Balanced => "Balanced",
-        }
-    }
-
-    /// Check if two polarities are compatible
-    /// STO and STS are incompatible, Balanced is compatible with both
-    pub fn is_compatible_with(&self, other: &Polarity) -> bool {
-        match (self, other) {
-            (Polarity::ServiceToOthers, Polarity::ServiceToSelf) => false,
-            (Polarity::ServiceToSelf, Polarity::ServiceToOthers) => false,
-            _ => true,
-        }
-    }
-
-    /// Calculate compatibility score between two polarities
-    /// Returns 1.0 for same polarity, 0.5 for balanced, 0.0 for opposing
-    pub fn compatibility_with(&self, other: &Polarity) -> f64 {
-        match (self, other) {
-            (Polarity::ServiceToOthers, Polarity::ServiceToOthers) => 1.0,
-            (Polarity::ServiceToSelf, Polarity::ServiceToSelf) => 1.0,
-            (Polarity::Balanced, _) => 0.5,
-            (_, Polarity::Balanced) => 0.5,
-            _ => 0.0,
-        }
-    }
-}
-
-impl std::fmt::Display for Polarity {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.display_name())
-    }
-}
-
-// ============================================================================
-// DENSITY TYPE
-// ============================================================================
-
-/// Density level (1-8) representing consciousness evolution stage
-///
-/// From COSMOLOGICAL-ARCHITECTURE.md:
-/// "The Density Octave: Eight densities representing stages of consciousness evolution"
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Density(pub u8);
-
-impl Density {
-    /// First density: Elements (Red Ray)
-    pub const FIRST: Density = Density(1);
-    /// Second density: Biological life (Orange Ray)
-    pub const SECOND: Density = Density(2);
-    /// Third density: Self-aware consciousness (Yellow Ray)
-    pub const THIRD: Density = Density(3);
-    /// Fourth density: Love/understanding (Green Ray)
-    pub const FOURTH: Density = Density(4);
-    /// Fifth density: Light/wisdom (Blue Ray)
-    pub const FIFTH: Density = Density(5);
-    /// Sixth density: Unity/one-with-all (Indigo Ray)
-    pub const SIXTH: Density = Density(6);
-    /// Seventh density: Gateway to Intelligent Infinity (Violet Ray)
-    pub const SEVENTH: Density = Density(7);
-    /// Eighth density: Return to Intelligent Infinity
-    pub const EIGHTH: Density = Density(8);
-
-    /// Create a new Density, clamped to valid range (1-8)
-    pub fn new(value: u8) -> Self {
-        Self(value.clamp(1, 8))
-    }
-
-    /// Get the density value as u8
-    pub fn value(&self) -> u8 {
-        self.0
-    }
-
-    /// Get the density as usize for array indexing
-    pub fn as_usize(&self) -> usize {
-        self.0 as usize
-    }
-
-    /// Check if this density is harvestable (can transition to next density)
-    /// 3rd density is the density of choice - requires 51%+ STO or 95%+ STS
-    pub fn is_harvestable(&self) -> bool {
-        self.0 >= 3
-    }
-
-    /// Get the display name for this density
-    pub fn display_name(&self) -> &'static str {
-        match self.0 {
-            1 => "First Density",
-            2 => "Second Density",
-            3 => "Third Density",
-            4 => "Fourth Density",
-            5 => "Fifth Density",
-            6 => "Sixth Density",
-            7 => "Seventh Density",
-            8 => "Eighth Density",
-            _ => "Unknown Density",
-        }
-    }
-
-    /// Get the ray color for this density
-    pub fn ray_color(&self) -> &'static str {
-        match self.0 {
-            1 => "Red",
-            2 => "Orange",
-            3 => "Yellow",
-            4 => "Green",
-            5 => "Blue",
-            6 => "Indigo",
-            7 => "Violet",
-            8 => "Infinite",
-            _ => "Unknown",
-        }
-    }
-}
-
-impl Default for Density {
-    fn default() -> Self {
-        Density::FIRST
-    }
-}
-
-impl std::fmt::Display for Density {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.display_name())
     }
 }
 
@@ -825,9 +651,9 @@ pub fn meets_density_requirements(
     // Check polarization requirements for 3rd density and above
     if target_density.value() >= 3 {
         let required_polarization = match polarization {
-            Polarity::ServiceToOthers => 0.51,  // 51% for STO
-            Polarity::ServiceToSelf => 0.95,    // 95% for STS
-            Polarity::Balanced => return false, // Balanced cannot progress beyond 3rd
+            Polarity::ServiceToOthers => 0.51, // 51% for STO
+            Polarity::ServiceToSelf => 0.95,   // 95% for STS
+            Polarity::Balanced | Polarity::Undecided => return false, // Balanced/Undecided cannot progress beyond 3rd
         };
 
         if polarization_strength < required_polarization {

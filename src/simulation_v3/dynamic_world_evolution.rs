@@ -233,13 +233,17 @@ impl DynamicWorldEvolution {
         trigger: EvolutionTrigger,
         world: &HolographicWorld,
     ) -> Result<EvolutionEvent, WorldEvolutionError> {
-        let evolution = self
-            .world_evolution
-            .get_mut(&world_id)
-            .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
+        // Get evolution and extract current spectrum before mutations
+        let (previous_spectrum, new_spectrum) = {
+            let evolution = self
+                .world_evolution
+                .get_mut(&world_id)
+                .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
 
-        let previous_spectrum = evolution.current_spectrum;
-        let new_spectrum = self.compute_new_spectrum(world_id, &trigger, world)?;
+            let previous_spectrum = evolution.current_spectrum.clone();
+            let new_spectrum = self.compute_new_spectrum(world_id, &trigger, world)?;
+            (previous_spectrum, new_spectrum)
+        };
 
         let spectrum_delta = self.compute_spectrum_delta(&previous_spectrum, &new_spectrum);
 
@@ -247,17 +251,24 @@ impl DynamicWorldEvolution {
             return Err(WorldEvolutionError::InvalidSpectrumChange);
         }
 
+        // Compute values that need self methods before mutable borrow
+        let affected_regions = self.compute_affected_regions(world_id, &trigger, world);
+        let event_id = self.generate_event_id();
+        let holographic_signature = HolographicSignature::from_spectrum(&new_spectrum);
+
+        // Now get mutable borrow again to modify evolution
+        let evolution = self
+            .world_evolution
+            .get_mut(&world_id)
+            .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
+
         evolution.evolution_status = EvolutionStatus::InProgress { progress: 0.0 };
         evolution.evolution_progress = 0.0;
 
-        let affected_regions = self.compute_affected_regions(world_id, &trigger, world);
-
-        let holographic_signature = HolographicSignature::from_spectrum(&new_spectrum);
-
         let event = EvolutionEvent {
-            event_id: self.generate_event_id(),
+            event_id,
             timestamp: SystemTime::now(),
-            trigger,
+            trigger: trigger.clone(),
             previous_spectrum,
             new_spectrum,
             evolution_progress: 0.0,
@@ -279,6 +290,23 @@ impl DynamicWorldEvolution {
         world_id: WorldId,
         delta_progress: Float,
     ) -> Result<Float, WorldEvolutionError> {
+        // First check if we need holographic integrity (before mutable borrow)
+        let current_progress = {
+            let evolution = self
+                .world_evolution
+                .get(&world_id)
+                .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
+            evolution.evolution_progress
+        };
+
+        let will_complete =
+            (current_progress + delta_progress).min(1.0) >= EVOLUTION_COMPLETION_THRESHOLD;
+        let holographic_integrity = if will_complete {
+            Some(self.compute_holographic_integrity(world_id))
+        } else {
+            None
+        };
+
         let evolution = self
             .world_evolution
             .get_mut(&world_id)
@@ -288,7 +316,9 @@ impl DynamicWorldEvolution {
 
         if evolution.evolution_progress >= EVOLUTION_COMPLETION_THRESHOLD {
             evolution.evolution_status = EvolutionStatus::Completed;
-            evolution.holographic_integrity = self.compute_holographic_integrity(world_id);
+            if let Some(hi) = holographic_integrity {
+                evolution.holographic_integrity = hi;
+            }
         } else {
             evolution.evolution_status = EvolutionStatus::InProgress {
                 progress: evolution.evolution_progress,
@@ -303,23 +333,32 @@ impl DynamicWorldEvolution {
         world_id: WorldId,
         world: &HolographicWorld,
     ) -> Result<WorldSnapshot, WorldEvolutionError> {
-        let evolution = self
-            .world_evolution
-            .get(&world_id)
-            .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
+        // Clone data needed before mutations
+        let (current_spectrum, holographic_integrity, holographic_completeness) = {
+            let evolution = self
+                .world_evolution
+                .get(&world_id)
+                .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
+            (
+                evolution.current_spectrum.clone(),
+                evolution.holographic_integrity,
+                evolution.holographic_integrity, // Use integrity as completeness for now
+            )
+        };
 
         let region_states = self.capture_region_states(world);
+        let dominant_density = self.compute_dominant_density(world);
 
         let snapshot = WorldSnapshot {
             snapshot_id: self.generate_snapshot_id(),
             world_id,
             timestamp: SystemTime::now(),
-            spectrum_configuration: evolution.current_spectrum,
-            dominant_density: self.compute_dominant_density(world),
-            holographic_signature: HolographicSignature::from_spectrum(&evolution.current_spectrum),
+            spectrum_configuration: current_spectrum.clone(),
+            dominant_density,
+            holographic_signature: HolographicSignature::from_spectrum(&current_spectrum),
             region_states,
             entity_count: world.entity_count(),
-            holographic_completeness: evolution.holographic_integrity,
+            holographic_completeness,
         };
 
         let snapshots = self.world_snapshots.get_mut(&world_id).unwrap();
@@ -328,6 +367,12 @@ impl DynamicWorldEvolution {
         if snapshots.len() > MAX_WORLD_HISTORY_SNAPSHOTS {
             snapshots.remove(0);
         }
+
+        // Now get mutable evolution to update current_snapshot
+        let evolution = self
+            .world_evolution
+            .get_mut(&world_id)
+            .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
 
         evolution.current_snapshot = Some(snapshot.clone());
         self.statistics.total_snapshots += 1;
@@ -380,7 +425,7 @@ impl DynamicWorldEvolution {
             .as_secs_f64()
             / 3600.0;
 
-        let mut signature = closest_snapshot.holographic_signature;
+        let mut signature = closest_snapshot.holographic_signature.clone();
         for i in 0..22 {
             signature.interference_pattern[i] *= (1.0 + position_factor * 0.001)
                 * (1.0 + scale_factor * 0.1)
@@ -525,7 +570,7 @@ impl DynamicWorldEvolution {
     pub fn get_evolution_status(&self, world_id: WorldId) -> Option<EvolutionStatus> {
         self.world_evolution
             .get(&world_id)
-            .map(|e| e.evolution_status)
+            .map(|e| e.evolution_status.clone())
     }
 
     pub fn get_current_spectrum(&self, world_id: WorldId) -> Option<SpectrumRatio> {
@@ -709,7 +754,9 @@ impl DynamicWorldEvolution {
             blueprint_id: blueprint.blueprint_id,
             archetypical_pattern: self
                 .encode_archetypical_pattern(&blueprint.base_archetypical_pattern),
-            spectrum_base: self.encode_spectrum(&blueprint.base_spectrum_configuration),
+            spectrum_base: self
+                .encode_spectrum(&blueprint.base_spectrum_configuration)
+                .to_vec(),
             holographic_completeness: blueprint.holographic_completeness,
         }
     }

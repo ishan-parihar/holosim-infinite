@@ -51,8 +51,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub mod distributed_holographic_field;
 pub mod free_will_replication;
-pub mod observer_effect_sync;
 pub mod multiplayer_features;
+pub mod observer_effect_sync;
 
 // ============================================================================
 // Shared Newtype Wrappers
@@ -151,6 +151,11 @@ impl ChoiceId {
     pub fn as_u64(self) -> u64 {
         self.0
     }
+
+    /// Returns the underlying u64 as bytes (little-endian)
+    pub fn to_le_bytes(self) -> [u8; 8] {
+        self.0.to_le_bytes()
+    }
 }
 
 impl fmt::Display for ChoiceId {
@@ -168,6 +173,12 @@ impl Default for ChoiceId {
 impl From<u64> for ChoiceId {
     fn from(id: u64) -> Self {
         ChoiceId(id)
+    }
+}
+
+impl std::ops::AddAssign<u64> for ChoiceId {
+    fn add_assign(&mut self, rhs: u64) {
+        self.0 += rhs;
     }
 }
 

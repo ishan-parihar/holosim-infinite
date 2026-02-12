@@ -429,7 +429,30 @@ impl ScaleTransitionOptimizer {
         transition.metrics.frame_count += 1;
 
         if self.progressive_refinement {
-            self.update_progressive_refinement(transition)?;
+            // Inline progressive refinement to avoid borrow conflict
+            let refinement = &mut transition.refinement_state;
+            let progress = transition.progress;
+
+            if refinement.steps_completed < refinement.total_steps {
+                let target_step = (progress * refinement.total_steps as Float)
+                    .min(refinement.total_steps as Float)
+                    as usize;
+
+                while refinement.steps_completed < target_step {
+                    refinement.steps_completed += 1;
+                    transition.metrics.refinement_steps += 1;
+                    self.stats.progressive_refinements += 1;
+
+                    let level_fraction =
+                        refinement.steps_completed as Float / refinement.total_steps as Float;
+                    let level_delta = (refinement.target_level as Float
+                        - refinement.current_level as Float)
+                        * level_fraction;
+                    refinement.current_level =
+                        (refinement.current_level as Float + level_delta) as usize;
+                    refinement.progress = level_fraction;
+                }
+            }
         }
 
         if transition.progress >= 1.0 {
@@ -518,8 +541,8 @@ impl ScaleTransitionOptimizer {
         for i in 1..=intermediate_levels {
             let fraction = i as Float / (intermediate_levels + 1) as Float;
             let level_index = key.from_scale.index()
-                + (key.to_scale.index() as i32 - key.from_scale.index() as i32) as Float
-                    * fraction as usize;
+                + ((key.to_scale.index() as i32 - key.from_scale.index() as i32) as Float
+                    * fraction) as usize;
             let intermediate_scale = ScaleLevel::from_index(level_index);
 
             if let Some(scale) = intermediate_scale {
@@ -556,7 +579,7 @@ impl ScaleTransitionOptimizer {
     ) -> Result<FractalData, TransitionOptimizerError> {
         let view = self
             .predictive_loader
-            .get_view(scale, position_log)
+            .get_view(scale, position_log, (5.0, 5.0, 5.0))
             .map_err(|e| TransitionOptimizerError::PreLoadFailed(format!("{:?}", e)))?;
 
         Ok(FractalData {

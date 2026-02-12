@@ -48,6 +48,23 @@ pub enum Density {
 }
 
 impl Density {
+    /// First density: Elements (Red Ray)
+    pub const FIRST: Density = Density::First;
+    /// Second density: Biological life (Orange Ray)
+    pub const SECOND: Density = Density::Second;
+    /// Third density: Self-aware consciousness (Yellow Ray)
+    pub const THIRD: Density = Density::Third;
+    /// Fourth density: Love/understanding (Green Ray)
+    pub const FOURTH: Density = Density::Fourth;
+    /// Fifth density: Light/wisdom (Blue Ray)
+    pub const FIFTH: Density = Density::Fifth;
+    /// Sixth density: Unity/one-with-all (Indigo Ray)
+    pub const SIXTH: Density = Density::Sixth;
+    /// Seventh density: Gateway to Intelligent Infinity (Violet Ray)
+    pub const SEVENTH: Density = Density::Seventh;
+    /// Eighth density: Return to Intelligent Infinity
+    pub const EIGHTH: Density = Density::Eighth;
+
     /// Get density number
     pub fn value(&self) -> usize {
         *self as usize
@@ -122,6 +139,33 @@ impl Density {
             8 => Density::Eighth,
             _ => Density::Third,
         }
+    }
+
+    /// Create a new Density, clamped to valid range (1-8)
+    pub fn new(value: u8) -> Self {
+        Self::from_u8(value.clamp(1, 8))
+    }
+
+    /// Get the display name for this density (alias for name())
+    pub fn display_name(&self) -> &str {
+        self.name()
+    }
+
+    /// Get the density as usize for array indexing
+    pub fn as_usize(&self) -> usize {
+        self.value()
+    }
+
+    /// Check if this density is harvestable (can transition to next density)
+    /// 3rd density is the density of choice - requires 51%+ STO or 95%+ STS
+    pub fn is_harvestable(&self) -> bool {
+        self.value() >= 3
+    }
+}
+
+impl std::fmt::Display for Density {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.display_name())
     }
 }
 
@@ -481,6 +525,72 @@ pub enum Polarity {
     ServiceToOthers,
     ServiceToSelf,
     Undecided,
+    /// Balanced: Neither strongly STO nor STS (added for compatibility with advanced_game_mechanics)
+    Balanced,
+}
+
+impl Polarity {
+    /// Check if this is Service-to-Others polarity
+    pub fn is_sto(&self) -> bool {
+        matches!(self, Polarity::ServiceToOthers)
+    }
+
+    /// Check if this is Service-to-Self polarity
+    pub fn is_sts(&self) -> bool {
+        matches!(self, Polarity::ServiceToSelf)
+    }
+
+    /// Check if this is balanced polarity
+    pub fn is_balanced(&self) -> bool {
+        matches!(self, Polarity::Balanced) || matches!(self, Polarity::Undecided)
+    }
+
+    /// Get the polarity value (-1.0 for STS, 0.0 for Balanced/Undecided, 1.0 for STO)
+    pub fn as_f64(&self) -> f64 {
+        match self {
+            Polarity::ServiceToOthers => 1.0,
+            Polarity::ServiceToSelf => -1.0,
+            Polarity::Balanced | Polarity::Undecided => 0.0,
+        }
+    }
+
+    /// Get the display name for this polarity
+    pub fn display_name(&self) -> &str {
+        match self {
+            Polarity::ServiceToOthers => "Service-to-Others",
+            Polarity::ServiceToSelf => "Service-to-Self",
+            Polarity::Balanced => "Balanced",
+            Polarity::Undecided => "Undecided",
+        }
+    }
+
+    /// Check if two polarities are compatible
+    /// STO and STS are incompatible, Balanced/Undecided is compatible with both
+    pub fn is_compatible_with(&self, other: &Polarity) -> bool {
+        match (self, other) {
+            (Polarity::ServiceToOthers, Polarity::ServiceToSelf) => false,
+            (Polarity::ServiceToSelf, Polarity::ServiceToOthers) => false,
+            _ => true,
+        }
+    }
+
+    /// Calculate compatibility score between two polarities
+    /// Returns 1.0 for same polarity, 0.5 for balanced/undecided, 0.0 for opposing
+    pub fn compatibility_with(&self, other: &Polarity) -> f64 {
+        match (self, other) {
+            (Polarity::ServiceToOthers, Polarity::ServiceToOthers) => 1.0,
+            (Polarity::ServiceToSelf, Polarity::ServiceToSelf) => 1.0,
+            (Polarity::Balanced, _) | (_, Polarity::Balanced) => 0.5,
+            (Polarity::Undecided, _) | (_, Polarity::Undecided) => 0.5,
+            _ => 0.0,
+        }
+    }
+}
+
+impl std::fmt::Display for Polarity {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.display_name())
+    }
 }
 
 /// Catalyst for evolution

@@ -16,6 +16,9 @@ use crate::types::Float;
 // Re-export Density and Polarity from simulation_v3's density_mechanics
 pub use crate::simulation_v3::density_mechanics::{Density, Polarity};
 
+// Re-export ChoiceId from parent module
+pub use super::ChoiceId;
+
 // Type aliases for clarity
 pub type RuleId = u64;
 pub type LogEntryId = u64;
@@ -114,7 +117,7 @@ fn polarity_to_internal(p: Polarity) -> InternalPolarity {
     match p {
         Polarity::ServiceToOthers => InternalPolarity::STO,
         Polarity::ServiceToSelf => InternalPolarity::STS,
-        Polarity::Undecided => InternalPolarity::Unpolarized,
+        Polarity::Undecided | Polarity::Balanced => InternalPolarity::Unpolarized,
     }
 }
 
@@ -398,7 +401,7 @@ impl FreeWillChoice {
                 "Insufficient data for choice_id".to_string(),
             ));
         }
-        let choice_id = u64::from_le_bytes([
+        let choice_id_val = u64::from_le_bytes([
             data[offset],
             data[offset + 1],
             data[offset + 2],
@@ -408,6 +411,7 @@ impl FreeWillChoice {
             data[offset + 6],
             data[offset + 7],
         ]);
+        let choice_id = ChoiceId(choice_id_val);
         offset += 8;
 
         // Read entity_id
@@ -1653,7 +1657,7 @@ impl FreeWillReplicationSystem {
             pending_choices: HashMap::new(),
             validated_choices: HashMap::new(),
             statistics: ChoiceStatistics::new(),
-            next_choice_id: 1,
+            next_choice_id: ChoiceId(1),
         }
     }
 

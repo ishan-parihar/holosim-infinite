@@ -44,7 +44,7 @@ impl Dimensionality {
 }
 
 /// Represents the spectrum position (space/time side or time/space side)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SpectrumSide {
     /// Space/Time side (Many-ness dominant)
     SpaceTime,
@@ -64,7 +64,7 @@ pub enum SpectrumQuality {
 }
 
 /// Represents a spectrum ratio (space/time or time/space)
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SpectrumRatio {
     /// Space component (1D or 3D)
     pub space_component: f64,
@@ -150,6 +150,17 @@ impl SpectrumRatio {
             SpectrumSide::SpaceTime => Dimensionality::OneDimensional,
             SpectrumSide::TimeSpace => Dimensionality::ThreeDimensional,
         }
+    }
+}
+
+impl Eq for SpectrumRatio {}
+
+impl std::hash::Hash for SpectrumRatio {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Convert f64 to u64 using to_bits() for hashing
+        self.space_component.to_bits().hash(state);
+        self.time_component.to_bits().hash(state);
+        self.side.hash(state);
     }
 }
 

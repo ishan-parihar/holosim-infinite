@@ -75,6 +75,19 @@ pub struct ArchetypicalItemSignature {
     pub resonance_frequency: Float,
 }
 
+impl PartialEq for ArchetypicalItemSignature {
+    fn eq(&self, other: &Self) -> bool {
+        self.density_affinity == other.density_affinity
+            && self.polarity_bias == other.polarity_bias
+            && self.resonance_frequency == other.resonance_frequency
+            && self
+                .archetype_pattern
+                .iter()
+                .zip(other.archetype_pattern.iter())
+                .all(|(a, b)| a == b)
+    }
+}
+
 impl ArchetypicalItemSignature {
     pub fn new() -> Self {
         Self {
@@ -117,7 +130,7 @@ impl ArchetypicalItemSignature {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ResonancePattern {
     pub pattern: [Float; 8],
     pub stability: Float,

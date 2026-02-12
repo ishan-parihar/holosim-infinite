@@ -43,6 +43,8 @@ pub enum StructureType {
     CommunityCenter,
     /// Custom structure with user-defined purpose
     Custom,
+    /// Structure that collects and amplifies resonance (added for advanced_game_mechanics)
+    ResonanceCollector,
 }
 
 impl StructureType {
@@ -62,6 +64,7 @@ impl StructureType {
             StructureType::Monument => 45.0,
             StructureType::Temple => 50.0,
             StructureType::Custom => 30.0,
+            StructureType::ResonanceCollector => 35.0,
         }
     }
 }
@@ -533,6 +536,7 @@ impl HolographicStructure {
             StructureType::HealingSanctuary => 180.0,
             StructureType::CreativeStudio => 160.0,
             StructureType::Custom => 250.0,
+            StructureType::ResonanceCollector => 200.0,
         };
 
         // Scale by signature magnitude
@@ -588,16 +592,17 @@ impl HolographicStructure {
         structure_type: StructureType,
     ) -> [(u8, u8, u8); 5] {
         let base_hue = match structure_type {
-            StructureType::Temple => 0.8,            // Purple
-            StructureType::Monument => 0.5,          // Gold
-            StructureType::Library => 0.7,           // Blue
-            StructureType::CommunityCenter => 0.3,   // Green
-            StructureType::Habitat => 0.2,           // Orange
-            StructureType::EnergyAnchor => 0.9,      // Violet
-            StructureType::CommunicationHub => 0.4,  // Cyan
-            StructureType::HealingSanctuary => 0.15, // Rose
-            StructureType::CreativeStudio => 0.55,   // Pink
-            StructureType::Custom => 0.6,            // Indigo
+            StructureType::Temple => 0.8,              // Purple
+            StructureType::Monument => 0.5,            // Gold
+            StructureType::Library => 0.7,             // Blue
+            StructureType::CommunityCenter => 0.3,     // Green
+            StructureType::Habitat => 0.2,             // Orange
+            StructureType::EnergyAnchor => 0.9,        // Violet
+            StructureType::CommunicationHub => 0.4,    // Cyan
+            StructureType::HealingSanctuary => 0.15,   // Rose
+            StructureType::CreativeStudio => 0.55,     // Pink
+            StructureType::Custom => 0.6,              // Indigo
+            StructureType::ResonanceCollector => 0.75, // Purple
         };
 
         let mut palette = [(0, 0, 0); 5];
@@ -663,6 +668,7 @@ impl HolographicStructure {
                 StructureType::HealingSanctuary => (25, 6.0, 2.0, 400, 300.0),
                 StructureType::CreativeStudio => (10, 3.0, 1.8, 150, 150.0),
                 StructureType::Custom => (20, 5.0, 2.0, 500, 500.0),
+                StructureType::ResonanceCollector => (8, 12.0, 4.0, 200, 1500.0),
             };
 
         // Scale by signature magnitude and complexity

@@ -273,6 +273,18 @@ impl Default for ResonancePattern {
     }
 }
 
+impl Eq for ResonancePattern {}
+
+impl std::hash::Hash for ResonancePattern {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Convert f64 to u64 using to_bits() for hashing
+        self.frequency.to_bits().hash(state);
+        self.amplitude.to_bits().hash(state);
+        self.phase.to_bits().hash(state);
+        self.coherence.to_bits().hash(state);
+    }
+}
+
 /// 3D coordinate in the holographic field
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Coordinate3D {
@@ -299,6 +311,17 @@ impl Coordinate3D {
         let dy = self.y - other.y;
         let dz = self.z - other.z;
         (dx * dx + dy * dy + dz * dz).sqrt()
+    }
+}
+
+impl Eq for Coordinate3D {}
+
+impl std::hash::Hash for Coordinate3D {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Convert f64 to u64 using to_bits() for hashing
+        self.x.to_bits().hash(state);
+        self.y.to_bits().hash(state);
+        self.z.to_bits().hash(state);
     }
 }
 

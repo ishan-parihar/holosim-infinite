@@ -398,7 +398,7 @@ impl ResonanceExchange {
             TradeId::new(offer.offer_id.as_u64() + 1000000), // Generate agreement ID from offer ID
             offer.offer_id,
             acceptor_id,
-            offer.offerer_id,
+            offer.offerer_id.clone(),
             offer.offered_items.clone(),
             offer.requested_items.clone(),
             compatibility,
@@ -442,7 +442,7 @@ impl TradeMatcher {
     /// Register a new trade offer
     pub fn register_offer(&mut self, offer: TradeOffer) {
         let offer_id = offer.offer_id;
-        let offerer_id = offer.offerer_id;
+        let offerer_id = offer.offerer_id.clone();
 
         self.active_offers.insert(offer_id, offer);
         self.offers_by_offerer
@@ -756,8 +756,8 @@ impl MultiPartyTrade {
         let mut distribution: HashMap<EntityId, Vec<ItemId>> = HashMap::new();
 
         // Initialize empty vectors for all participants
-        for &participant in &self.participants {
-            distribution.insert(participant, Vec::new());
+        for participant in &self.participants {
+            distribution.insert(participant.clone(), Vec::new());
         }
 
         // For each item, find the most compatible participant
@@ -766,7 +766,7 @@ impl MultiPartyTrade {
                 let mut best_participant = None;
                 let mut best_compatibility = 0.0;
 
-                for (&entity_id, participant_resonance) in &self.participant_resonances {
+                for (entity_id, participant_resonance) in &self.participant_resonances {
                     let compatibility = ResonanceExchange::calculate_resonance_compatibility(
                         item_resonance,
                         participant_resonance,
@@ -780,7 +780,10 @@ impl MultiPartyTrade {
 
                 // Assign item to the most compatible participant
                 if let Some(entity_id) = best_participant {
-                    distribution.entry(entity_id).or_default().push(*item_id);
+                    distribution
+                        .entry(entity_id.clone())
+                        .or_default()
+                        .push(*item_id);
                 }
             }
         }
@@ -798,15 +801,18 @@ impl MultiPartyTrade {
         }
 
         // Initialize empty vectors for all participants
-        for &participant in &self.participants {
-            distribution.insert(participant, Vec::new());
+        for participant in &self.participants {
+            distribution.insert(participant.clone(), Vec::new());
         }
 
         // Distribute items round-robin
         for (index, item_id) in self.item_pool.iter().enumerate() {
             let participant_index = index % participant_count;
-            let entity_id = self.participants[participant_index];
-            distribution.entry(entity_id).or_default().push(*item_id);
+            let entity_id = &self.participants[participant_index];
+            distribution
+                .entry(entity_id.clone())
+                .or_default()
+                .push(*item_id);
         }
 
         distribution
@@ -1251,7 +1257,7 @@ impl ResonanceTrading {
     pub fn get_trade_history(&self, entity_id: EntityId) -> Vec<TradeAgreement> {
         self.trade_history
             .iter()
-            .filter(|agreement| agreement.involves_entity(entity_id))
+            .filter(|agreement| agreement.involves_entity(entity_id.clone()))
             .cloned()
             .collect()
     }

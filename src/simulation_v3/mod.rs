@@ -1,5 +1,4 @@
 pub mod advanced_game_mechanics;
-pub mod distributed_system;
 pub mod archetype_basis;
 pub mod archetype_interference_cache;
 pub mod archetypical_crafting;
@@ -16,6 +15,7 @@ pub mod density_mechanics;
 pub mod density_region_generator;
 pub mod density_switching;
 pub mod density_transition_system;
+pub mod distributed_system;
 pub mod dynamic_world_evolution;
 pub mod emergent_behavior;
 pub mod emergent_behavior_visualizer;
@@ -234,14 +234,13 @@ mod tests {
 
 // Advanced Game Mechanics (Phase 6, Week 93-96)
 pub use advanced_game_mechanics::{
-    AdvancedGameMechanicsError, ArchetypeId, CatalystAmount, CombatId, Density, FactionId,
-    Polarity, QuestId, ResonanceCompatibility, Result as AdvancedMechanicsResult, Timestamp,
-    TradeId,
+    AdvancedGameMechanicsError, ArchetypeId, CatalystAmount, CombatId, FactionId, QuestId,
+    ResonanceCompatibility, Result as AdvancedMechanicsResult, Timestamp, TradeId,
 };
 
 // Distributed System (Phase 7, Weeks 97-112)
 pub use distributed_system::{
-    PeerId, UpdateId, ChoiceId, ObservationId, SessionId, Version, FieldSignature, Latency,
-    ConnectionStatus, NetworkError, NetworkConfig, MessagePriority,
-    Result as DistributedSystemResult,
+    ChoiceId, ConnectionStatus, FieldSignature, Latency, MessagePriority, NetworkConfig,
+    NetworkError, ObservationId, PeerId, Result as DistributedSystemResult, SessionId, UpdateId,
+    Version,
 };

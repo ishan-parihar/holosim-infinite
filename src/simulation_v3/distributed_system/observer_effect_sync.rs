@@ -133,6 +133,16 @@ impl Default for Complex {
     }
 }
 
+impl Eq for Complex {}
+
+impl std::hash::Hash for Complex {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Convert f64 to u64 using to_bits() for hashing
+        self.real.to_bits().hash(state);
+        self.imaginary.to_bits().hash(state);
+    }
+}
+
 impl fmt::Display for Complex {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.imaginary >= 0.0 {
@@ -200,7 +210,7 @@ impl fmt::Display for ObservationType {
 // ============================================================================
 
 /// Probability of entity being at a specific position
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct PositionProbability {
     pub position: Coordinate3D,
     pub probability: Float,
@@ -227,8 +237,18 @@ impl PositionProbability {
     }
 }
 
+impl Eq for PositionProbability {}
+
+impl std::hash::Hash for PositionProbability {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.position.hash(state);
+        self.probability.to_bits().hash(state);
+        self.amplitude.hash(state);
+    }
+}
+
 /// Probability of entity having a specific resonance pattern
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct ResonanceProbability {
     pub resonance_pattern: ResonancePattern,
     pub probability: Float,
@@ -255,8 +275,18 @@ impl ResonanceProbability {
     }
 }
 
+impl Eq for ResonanceProbability {}
+
+impl std::hash::Hash for ResonanceProbability {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.resonance_pattern.hash(state);
+        self.probability.to_bits().hash(state);
+        self.amplitude.hash(state);
+    }
+}
+
 /// Probability of entity having a specific spectrum ratio
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SpectrumProbability {
     pub spectrum_ratio: SpectrumRatio,
     pub probability: Float,
@@ -283,8 +313,18 @@ impl SpectrumProbability {
     }
 }
 
+impl Eq for SpectrumProbability {}
+
+impl std::hash::Hash for SpectrumProbability {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.spectrum_ratio.hash(state);
+        self.probability.to_bits().hash(state);
+        self.amplitude.hash(state);
+    }
+}
+
 /// The state of an entity before observation (in superposition)
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct SuperpositionState {
     pub entity_id: EntityId,
     pub possible_positions: Vec<PositionProbability>,
@@ -322,10 +362,13 @@ impl SuperpositionState {
         let selected_position = self.select_position();
         let selected_resonance = self.select_resonance();
         let selected_spectrum = self.select_spectrum();
-        let density = self.infer_density(&selected_spectrum);
+        let density = selected_spectrum
+            .as_ref()
+            .map(|s| self.infer_density(s))
+            .unwrap_or(Density::First);
 
         let archetype_activation = if collapse_strength > 0.8 {
-            Some(ArchetypeId::new((self.entity_id % 22) + 1))
+            Some(ArchetypeId::new(((self.entity_id % 22) + 1) as u8))
         } else {
             None
         };
@@ -478,12 +521,34 @@ impl Default for SuperpositionState {
     }
 }
 
+impl Eq for SuperpositionState {}
+
+impl std::hash::Hash for SuperpositionState {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.entity_id.hash(state);
+        // Hash vectors using their length and element hashes
+        self.possible_positions.len().hash(state);
+        for pos in &self.possible_positions {
+            pos.hash(state);
+        }
+        self.possible_resonances.len().hash(state);
+        for res in &self.possible_resonances {
+            res.hash(state);
+        }
+        self.possible_spectrums.len().hash(state);
+        for spec in &self.possible_spectrums {
+            spec.hash(state);
+        }
+        self.coherence.to_bits().hash(state);
+    }
+}
+
 // ============================================================================
 // Collapsed State
 // ============================================================================
 
 /// The definite state of an entity after observation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct CollapsedState {
     pub entity_id: EntityId,
     pub position: Coordinate3D,
@@ -513,7 +578,7 @@ impl CollapsedState {
         let density_entropy = self.density.as_u8() as Float * 0.5;
         let resonance_entropy = (1.0 - self.resonance_pattern.coherence) * 2.0;
 
-        let spectrum_ratio = self.spectrum_ratio.ratio();
+        let spectrum_ratio = self.spectrum_ratio.calculate_ratio();
         let spectrum_entropy = (spectrum_ratio.log2().abs() / 8.0).clamp(0.0, 1.0);
 
         density_entropy + resonance_entropy + spectrum_entropy
@@ -577,6 +642,20 @@ impl Default for CollapsedState {
             archetype_activation: None,
             collapse_timestamp: current_timestamp(),
         }
+    }
+}
+
+impl Eq for CollapsedState {}
+
+impl std::hash::Hash for CollapsedState {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.entity_id.hash(state);
+        self.position.hash(state);
+        self.resonance_pattern.hash(state);
+        self.spectrum_ratio.hash(state);
+        self.density.hash(state);
+        self.archetype_activation.hash(state);
+        self.collapse_timestamp.to_bits().hash(state);
     }
 }
 
@@ -774,7 +853,7 @@ impl ObserverState {
             .observed_entities
             .values()
             .map(|obs| obs.observation_timestamp)
-            .max();
+            .max_by(|a, b| a.total_cmp(b));
 
         ObservationSummary {
             entities_observed,
@@ -991,7 +1070,7 @@ impl ObservationConflict {
                 let chosen = self
                     .conflicting_observations
                     .iter()
-                    .min_by_key(|obs| obs.observation_timestamp)
+                    .min_by(|a, b| a.observation_timestamp.total_cmp(&b.observation_timestamp))
                     .unwrap()
                     .clone();
                 ObservationResolution::new(
@@ -1005,7 +1084,7 @@ impl ObservationConflict {
                 let chosen = self
                     .conflicting_observations
                     .iter()
-                    .max_by_key(|obs| obs.observation_timestamp)
+                    .max_by(|a, b| a.observation_timestamp.total_cmp(&b.observation_timestamp))
                     .unwrap()
                     .clone();
                 ObservationResolution::new(
@@ -1198,7 +1277,7 @@ impl ObservationConflict {
 
         let best_position = position_amplitudes
             .into_iter()
-            .max_by_key(|(_, amp)| amp.magnitude())
+            .max_by(|a, b| a.1.magnitude().total_cmp(&b.1.magnitude()))
             .map(|((x, y, z), _)| {
                 Coordinate3D::new(x as Float / 10.0, y as Float / 10.0, z as Float / 10.0)
             })
@@ -1206,7 +1285,7 @@ impl ObservationConflict {
 
         let best_resonance = resonance_amplitudes
             .into_iter()
-            .max_by_key(|(_, amp)| amp.magnitude())
+            .max_by(|a, b| a.1.magnitude().total_cmp(&b.1.magnitude()))
             .map(|((freq, amp, phase, coh), _)| {
                 ResonancePattern::new(
                     freq as Float / 10.0,
@@ -1579,7 +1658,7 @@ impl PredictionSystem {
             .observation_history
             .iter()
             .filter(|obs| obs.entity_id == entity_id)
-            .max_by_key(|obs| obs.observation_timestamp);
+            .max_by(|a, b| a.observation_timestamp.total_cmp(&b.observation_timestamp));
 
         if let Some(observation) = current_state {
             let input =
@@ -1781,7 +1860,7 @@ impl ConflictDetector {
         let distance = obs_a
             .observed_state
             .position
-            .distance_to(&obs_b.observed_state);
+            .distance_to(&obs_b.observed_state.position);
         distance > 1.0
     }
 

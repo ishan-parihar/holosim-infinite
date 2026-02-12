@@ -231,7 +231,7 @@ impl Default for QuestObjective {
 // ============================================================================
 
 /// Criteria for completing a quest stage
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum CompletionCriteria {
     /// Complete all objectives in the stage
     AllObjectives,
@@ -881,7 +881,7 @@ impl QuestProgress {
 
 impl Default for QuestProgress {
     fn default() -> Self {
-        Self::new(EntityId::new(0))
+        Self::new(EntityId::new("default".to_string()))
     }
 }
 
@@ -1205,7 +1205,7 @@ impl ArchetypicalQuests {
         // Get or create entity progress
         let progress = self
             .entity_progress
-            .entry(entity_id)
+            .entry(entity_id.clone())
             .or_insert_with(|| QuestProgress::new(entity_id));
 
         // Start the quest
@@ -1268,6 +1268,9 @@ impl ArchetypicalQuests {
             return Err(QuestError::StageNotComplete);
         }
 
+        // Clone catalyst_accumulated before mutable borrow
+        let catalyst_accumulated = active.catalyst_accumulated;
+
         // Get stage progress
         let stage_progress = active
             .get_stage_progress_mut(stage_id)
@@ -1279,7 +1282,7 @@ impl ArchetypicalQuests {
         // Check if stage can be completed
         if !stage
             .completion_criteria
-            .is_complete(&stage.objectives, active.catalyst_accumulated)
+            .is_complete(&stage.objectives, catalyst_accumulated)
         {
             return Err(QuestError::StageNotComplete);
         }
@@ -1448,7 +1451,7 @@ impl ArchetypicalQuests {
                 .with_catalyst_threshold(50.0 * (i + 1) as Float);
 
             // Add objectives based on archetype
-            let objectives = self.generate_objectives_for_archetype(archetype_id, i);
+            let objectives = self.generate_objectives_for_archetype(archetype_id, i as usize);
             for objective in objectives {
                 stage.objectives.push(objective);
             }

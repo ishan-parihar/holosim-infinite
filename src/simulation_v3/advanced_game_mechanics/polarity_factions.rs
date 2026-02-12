@@ -129,12 +129,12 @@ impl Default for TradeBenefits {
 
 impl Polarity {
     /// Get the opposite polarity
-    /// STO <-> STS, Balanced stays Balanced
+    /// STO <-> STS, Balanced/Undecided stays the same
     pub fn opposite(&self) -> Self {
         match self {
             Polarity::ServiceToOthers => Polarity::ServiceToSelf,
             Polarity::ServiceToSelf => Polarity::ServiceToOthers,
-            Polarity::Balanced => Polarity::Balanced,
+            Polarity::Balanced | Polarity::Undecided => *self,
         }
     }
 
@@ -142,17 +142,6 @@ impl Polarity {
     /// Returns true if polarities are not opposing
     pub fn is_compatible(&self, other: &Polarity) -> bool {
         self.is_compatible_with(other)
-    }
-
-    /// Calculate compatibility score (0.0-1.0) with another polarity
-    pub fn compatibility_with(&self, other: &Polarity) -> Float {
-        match (self, other) {
-            (Polarity::ServiceToOthers, Polarity::ServiceToOthers) => 1.0,
-            (Polarity::ServiceToSelf, Polarity::ServiceToSelf) => 1.0,
-            (Polarity::Balanced, _) => 0.5,
-            (_, Polarity::Balanced) => 0.5,
-            _ => 0.0,
-        }
     }
 }
 
@@ -787,7 +776,7 @@ impl Faction {
 
     /// Remove a member from the faction
     pub fn remove_member(&mut self, entity_id: EntityId) {
-        self.members.retain(|&id| id != entity_id);
+        self.members.retain(|id| id != &entity_id);
     }
 
     /// Check if entity is a member
@@ -921,6 +910,8 @@ pub enum FactionError {
         territory_id: TerritoryId,
         controlling_faction: FactionId,
     },
+    /// Invalid operation
+    InvalidOperation { operation: String, reason: String },
 }
 
 impl std::fmt::Display for FactionError {
@@ -992,11 +983,24 @@ impl std::fmt::Display for FactionError {
                     territory_id, controlling_faction
                 )
             }
+            FactionError::InvalidOperation { operation, reason } => {
+                write!(f, "Invalid operation '{}': {}", operation, reason)
+            }
         }
     }
 }
 
 impl std::error::Error for FactionError {}
+
+// Implement From conversion for AdvancedGameMechanicsError
+impl From<AdvancedGameMechanicsError> for FactionError {
+    fn from(err: AdvancedGameMechanicsError) -> Self {
+        FactionError::InvalidOperation {
+            operation: "Advanced game mechanics operation".to_string(),
+            reason: err.to_string(),
+        }
+    }
+}
 
 // ============================================================================
 // POLARITY FACTIONS SYSTEM
@@ -1058,19 +1062,20 @@ impl PolarityFactions {
             faction = faction.with_ray(r);
         }
 
-        // Founder is automatically added as first member
-        faction.add_member(founder_id);
-
         // Create faction resonance
         let faction_resonance = FactionResonance::new(faction.resonance_signature.clone());
         self.faction_resonances
             .insert(faction_id, faction_resonance);
 
         // Create founder's membership
-        let mut membership = FactionMembership::new(founder_id, faction_id, self.current_time);
+        let mut membership =
+            FactionMembership::new(founder_id.clone(), faction_id, self.current_time);
         membership.rank = FactionRank::Founder;
         membership.loyalty_score = 1.0; // Founder has maximum loyalty
-        self.memberships.insert(founder_id, membership);
+        self.memberships.insert(founder_id.clone(), membership);
+
+        // Founder is automatically added as first member
+        faction.add_member(founder_id);
 
         self.factions.insert(faction_id, faction.clone());
 
@@ -1107,13 +1112,14 @@ impl PolarityFactions {
         // Check if entity's current faction has this faction as enemy
         // (This would require tracking entity polarity separately)
 
+        // Create membership
+        let membership = FactionMembership::new(entity_id.clone(), faction_id, self.current_time);
+        self.memberships
+            .insert(entity_id.clone(), membership.clone());
+
         // Add member to faction
         let faction = self.factions.get_mut(&faction_id).unwrap();
         faction.add_member(entity_id);
-
-        // Create membership
-        let membership = FactionMembership::new(entity_id, faction_id, self.current_time);
-        self.memberships.insert(entity_id, membership.clone());
 
         Ok(membership)
     }
@@ -1129,13 +1135,13 @@ impl PolarityFactions {
             self.memberships
                 .get(&entity_id)
                 .ok_or(FactionError::NotFactionMember {
-                    entity_id,
+                    entity_id: entity_id.clone(),
                     faction_id,
                 })?;
 
         if membership.faction_id != faction_id {
             return Err(FactionError::NotFactionMember {
-                entity_id,
+                entity_id: entity_id.clone(),
                 faction_id,
             });
         }
@@ -1143,19 +1149,19 @@ impl PolarityFactions {
         // Check if leader trying to leave
         if membership.rank == FactionRank::Leader || membership.rank == FactionRank::Founder {
             return Err(FactionError::CannotLeaveAsLeader {
-                entity_id,
+                entity_id: entity_id.clone(),
                 faction_id,
             });
         }
 
         // Remove from faction
         if let Some(faction) = self.factions.get_mut(&faction_id) {
-            faction.remove_member(entity_id);
+            faction.remove_member(entity_id.clone());
         }
 
         // Remove from faction resonance
         if let Some(resonance) = self.faction_resonances.get_mut(&faction_id) {
-            let _ = resonance.remove_member_contribution(entity_id);
+            let _ = resonance.remove_member_contribution(entity_id.clone());
         }
 
         // Remove membership
@@ -1176,13 +1182,13 @@ impl PolarityFactions {
             self.memberships
                 .get(&entity_id)
                 .ok_or(FactionError::NotFactionMember {
-                    entity_id,
+                    entity_id: entity_id.clone(),
                     faction_id,
                 })?;
 
         if membership.faction_id != faction_id {
             return Err(FactionError::NotFactionMember {
-                entity_id,
+                entity_id: entity_id.clone(),
                 faction_id,
             });
         }
@@ -1210,24 +1216,25 @@ impl PolarityFactions {
         contribution: ResonanceContribution,
     ) -> std::result::Result<(), FactionError> {
         // Check membership
+        let entity_id_clone = entity_id.clone();
         let membership =
             self.memberships
                 .get(&entity_id)
                 .ok_or(FactionError::NotFactionMember {
-                    entity_id,
+                    entity_id: entity_id_clone.clone(),
                     faction_id,
                 })?;
 
         if membership.faction_id != faction_id {
             return Err(FactionError::NotFactionMember {
-                entity_id,
+                entity_id: entity_id_clone,
                 faction_id,
             });
         }
 
         // Add contribution to faction resonance
         if let Some(resonance) = self.faction_resonances.get_mut(&faction_id) {
-            resonance.add_member_contribution(entity_id, contribution)?;
+            resonance.add_member_contribution(entity_id.clone(), contribution)?;
         }
 
         // Update member's contribution score
@@ -1245,7 +1252,8 @@ impl PolarityFactions {
     ) -> std::result::Result<(), FactionError> {
         if faction_a == faction_b {
             return Err(FactionError::InvalidOperation {
-                message: "Cannot form alliance with self".to_string(),
+                operation: "form_alliance".to_string(),
+                reason: "Cannot form alliance with self".to_string(),
             }
             .into());
         }
@@ -1294,7 +1302,8 @@ impl PolarityFactions {
     ) -> std::result::Result<(), FactionError> {
         if faction_a == faction_b {
             return Err(FactionError::InvalidOperation {
-                message: "Cannot declare enmity with self".to_string(),
+                operation: "declare_enmity".to_string(),
+                reason: "Cannot declare enmity with self".to_string(),
             }
             .into());
         }
@@ -1388,7 +1397,8 @@ impl PolarityFactions {
         // Can't contest if already controlled by this faction
         if territory.controlling_faction == Some(faction_id) {
             return Err(FactionError::InvalidOperation {
-                message: "Cannot contest territory already controlled".to_string(),
+                operation: "contest_territory".to_string(),
+                reason: "Cannot contest territory already controlled".to_string(),
             }
             .into());
         }
@@ -2758,17 +2768,11 @@ impl FactionError {
 
 // Add InvalidOperation variant helper
 impl FactionError {
-    fn invalid_operation(message: &str) -> Self {
+    fn invalid_operation(operation: &str, reason: &str) -> Self {
         FactionError::InvalidOperation {
-            message: message.to_string(),
+            operation: operation.to_string(),
+            reason: reason.to_string(),
         }
-    }
-}
-
-// Add missing InvalidOperation variant to FactionError
-impl FactionError {
-    const fn invalid_op(message: String) -> Self {
-        FactionError::InvalidOperation { message }
     }
 }
 

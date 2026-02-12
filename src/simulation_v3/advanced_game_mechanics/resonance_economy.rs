@@ -1330,9 +1330,10 @@ impl ResonanceEconomy {
         amount: CatalystAmount,
         pattern: ResonancePattern,
     ) -> Result<ResonanceTransaction> {
+        let from_id_clone = from_id.clone();
         let transaction = ResonanceTransaction::new(
             self.ledger.next_transaction_id(),
-            from_id,
+            from_id_clone.clone(),
             to_id,
             amount,
             pattern.clone(),
@@ -1346,7 +1347,7 @@ impl ResonanceEconomy {
         let flow = ResonanceFlow::new(
             self.next_flow_id,
             ResonanceSource::Trading,
-            from_id.as_u64(),
+            from_id_clone.as_u64(),
             amount,
             pattern.clone(),
             self.current_time,
@@ -1674,16 +1675,18 @@ impl ResonanceEconomy {
                 break;
             }
 
-            let balance = self.ledger.get_account_balance(*entity_id);
+            let balance = self.ledger.get_account_balance(entity_id.clone());
             let to_remove = (balance * 0.1).min(remaining);
 
             if to_remove > 0.0 {
-                let patterns = self.ledger.get_account_resonance_patterns(*entity_id);
+                let patterns = self
+                    .ledger
+                    .get_account_resonance_patterns(entity_id.clone());
                 if !patterns.is_empty() {
                     let pattern = patterns[0].clone();
                     let transaction = ResonanceTransaction::new(
                         self.ledger.next_transaction_id(),
-                        *entity_id,
+                        entity_id.clone(),
                         EntityId::new("decay".to_string()), // System
                         to_remove,
                         pattern,

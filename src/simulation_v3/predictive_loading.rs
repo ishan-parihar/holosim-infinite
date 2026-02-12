@@ -602,7 +602,7 @@ impl PredictiveLoader {
 
         let view = self
             .field
-            .get_view(task.scale, task.position.0)
+            .get_view(task.scale, task.position.0, task.position)
             .map_err(|e| PredictiveLoaderError::FieldError(format!("{:?}", e)))?;
 
         let data = FractalData {
@@ -613,12 +613,14 @@ impl PredictiveLoader {
             size_bytes: view.field_data.len() * std::mem::size_of::<Float>(),
         };
 
+        let size_bytes = data.size_bytes;
+
         if let Err(e) = self.cache.insert(task.cache_key.clone(), scale_index, data) {
             return Err(PredictiveLoaderError::CacheError(format!("{:?}", e)));
         }
 
         self.stats.successful_loads += 1;
-        self.stats.total_bytes_loaded += data.size_bytes;
+        self.stats.total_bytes_loaded += size_bytes;
 
         Ok(())
     }
@@ -640,6 +642,7 @@ impl PredictiveLoader {
         &mut self,
         scale: ScaleLevel,
         position_log: Float,
+        dimensions_log: (Float, Float, Float),
     ) -> Result<HolographicView, PredictiveLoaderError> {
         let cache_key = FractalCacheKey {
             entity_id: 0,
@@ -655,13 +658,13 @@ impl PredictiveLoader {
         }
 
         self.field
-            .get_view(scale, position_log)
+            .get_view(scale, position_log, dimensions_log)
             .map_err(|e| PredictiveLoaderError::FieldError(format!("{:?}", e)))
     }
 
     /// Get cache statistics
     pub fn cache_statistics(&self) -> FractalCacheStatistics {
-        self.cache.statistics()
+        self.cache.statistics().clone()
     }
 
     /// Get predictive loader statistics
