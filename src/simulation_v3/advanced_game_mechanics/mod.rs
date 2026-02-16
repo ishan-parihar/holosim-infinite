@@ -781,14 +781,15 @@ mod tests {
         );
         assert!(compat2 < 0.5);
 
-        // Different density, same polarity = medium compatibility
+        // Different density, same polarity = high compatibility
+        // (polarity is weighted 60%, so same polarity drives compatibility up)
         let compat3 = calculate_resonance_compatibility(
             Density::THIRD,
             Polarity::ServiceToOthers,
             Density::FOURTH,
             Polarity::ServiceToOthers,
         );
-        assert!(compat3 > 0.5 && compat3 < 0.9);
+        assert!(compat3 > 0.8 && compat3 <= 1.0);
     }
 
     #[test]

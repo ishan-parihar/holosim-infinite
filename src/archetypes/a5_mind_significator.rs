@@ -94,7 +94,9 @@ impl SignificatorMindArchetype {
     /// Create a new Significator archetype with default values
     pub fn new() -> Self {
         // Initialize with optimal lambda value (middle of healthy range)
-        let lambda = LambdaMeasurement::new(0.75, LambdaMeasurementType::SignificatorCoherence);
+        let mut lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::SignificatorCoherence);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
 
         let tarot_correlation = TarotCorrelation::new(format!(
             "The Hierophant (V): The choosing entity at the heart of the mind complex"

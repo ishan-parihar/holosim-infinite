@@ -102,7 +102,9 @@ pub struct MatrixSpiritArchetype {
 impl MatrixSpiritArchetype {
     /// Create a new Matrix of Spirit archetype with healthy initial values
     pub fn new() -> Self {
-        let initial_lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::MatrixRigidity);
+        let mut lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::MatrixRigidity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
 
         let mut activation_levels = HashMap::new();
         activation_levels.insert(Rung::R1, 0.4);
@@ -116,7 +118,7 @@ impl MatrixSpiritArchetype {
         MatrixSpiritArchetype {
             archetype_id: 15,
             active: true,
-            lambda: initial_lambda,
+            lambda: lambda,
             tarot_correlation: TarotCorrelation::new(format!("The Devil (XV): Materialism, bondage, shadow work, liberation through facing darkness")),
 
             // A15-specific fields - healthy initial values

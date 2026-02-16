@@ -151,7 +151,7 @@ impl SimulationGuiIntegration {
             };
 
             // Clone necessary data
-            let entities = simulation.entities().clone();
+            let entities = simulation.gui_entities().clone();
             let collectives = simulation.collectives().clone();
             let emergence_metrics = simulation.emergence_metrics().clone();
             let veil_transparency = simulation.veil_transparency();

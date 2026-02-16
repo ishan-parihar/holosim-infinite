@@ -10,6 +10,7 @@
 
 use crate::energy_fields::Vector3;
 use crate::matter::particle::Nucleus;
+use crate::matter::particle::Vector3D;
 use crate::matter::{Atom, Coordinate3D, Particle};
 use crate::physics::PhysicsMode;
 use crate::physics_derivation::initialize_global_physics_system;
@@ -728,14 +729,11 @@ mod tests {
     #[test]
     fn test_kinetic_energy() {
         let engine = PhysicsEngine::earth_like();
-        // TODO: Use Particle::from_archetype_activation() instead of Particle::new()
-        // let particle = Particle::new(
-        //     ParticleType::Electron,
-        //     Vector3::new(0.0, 0.0, 0.0),
-        //     Vector3::new(1000.0, 0.0, 0.0),
-        // );
-        let particle =
+        let mut particle =
             Particle::from_archetype_activation(1, [1.0; 22], Coordinate3D::new(0.0, 0.0, 0.0));
+
+        // Set velocity to have non-zero kinetic energy
+        particle.velocity = Vector3D::new(1000.0, 0.0, 0.0);
 
         let ke = engine.kinetic_energy(&particle);
         assert!(ke > 0.0);
@@ -759,32 +757,42 @@ mod tests {
 
     #[test]
     fn test_lorentz_force() {
-        use crate::entity_layer7::holographic_blueprint::{
-            HolographicSeed, HolographicSeedReference,
-        };
-        use crate::light::photon::Photon;
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Catalyst archetypes (A3, A10, A17) determine transformation potential"
+        // We need a charged particle to test Lorentz force: F = q(v × B)
+        // Charge emerges from Matrix (A1, A8, A15), Catalyst (A3, A10, A17), and Significator (A5, A12, A19) archetypes
+        let mut archetype_activation = [0.5; 22];
+        // Matrix archetypes - determine charge magnitude
+        archetype_activation[0] = 0.8; // A1 - Mind Matrix
+        archetype_activation[7] = 0.8; // A8 - Body Matrix
+        archetype_activation[14] = 0.8; // A15 - Spirit Matrix
+                                        // Catalyst archetypes - determine charge type (positive/negative)
+        archetype_activation[2] = 0.8; // A3 - Mind Catalyst (higher → positive charge)
+        archetype_activation[9] = 0.8; // A10 - Body Catalyst (higher → positive charge)
+        archetype_activation[16] = 0.8; // A17 - Spirit Catalyst (higher → positive charge)
+                                        // Significator archetypes - determine charge identity/quantization
+        archetype_activation[4] = 0.8; // A5 - Mind Significator
+        archetype_activation[11] = 0.8; // A12 - Body Significator
+        archetype_activation[18] = 0.8; // A19 - Spirit Significator
 
         let engine = PhysicsEngine::earth_like();
-
-        // Create a particle using the new emergent method
-        let holographic_ref =
-            HolographicSeedReference::new(std::sync::Arc::new(HolographicSeed::new_from_source()));
-        let photon = Photon::new_with_holographic_reference(holographic_ref.clone(), 8.187e-14);
-        let mut particle = Particle::emerge_from_light(
+        let mut particle = Particle::from_archetype_activation(
             1,                                // ParticleID
-            [0.5; 22],                        // archetype_activation
+            archetype_activation,             // archetype_activation
             Coordinate3D::new(0.0, 0.0, 0.0), // position
         );
 
-        // Set custom velocity for the test
+        // Set custom velocity for the test (velocity in x-direction)
         particle.velocity = crate::matter::particle::Vector3D::new(1000.0, 0.0, 0.0);
 
+        // Magnetic field in z-direction
         let b_field = Vector3::new(0.0, 0.0, 0.01);
 
         let force = engine.lorentz_force(&particle, &b_field);
         assert!(force.magnitude() > 0.0);
 
         // Force should be perpendicular to both velocity and B-field
+        // v × B: (1000, 0, 0) × (0, 0, 0.01) = (0, -10, 0)
+        // Force direction depends on charge sign: F = q(v × B)
         let v_dot_f = particle
             .velocity
             .dot(&crate::matter::particle::Vector3D::from_vector3(&force));

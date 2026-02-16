@@ -182,12 +182,16 @@ impl HardcodedPhysicsEngine {
         let mass = derive_mass_from_archetypes(activation);
         let charge = derive_charge_from_archetypes(activation);
         let spin = derive_spin_from_archetypes(activation);
-        let lifetime = derive_lifetime_from_archetypes(activation).unwrap_or(1e-10); // Handle Option
+        let lifetime_opt = derive_lifetime_from_archetypes(activation);
+
+        // Convert Option<Float> lifetime to Float for ParticleProperties struct
+        // Use a very large value for stable particles (effectively infinite)
+        let lifetime = lifetime_opt.unwrap_or(1e100);
 
         // Calculate stability from mass and lifetime
         // Stable particles have long lifetimes
-        let stability_score = if lifetime > 1e-6 {
-            1.0 - (1.0 / (1.0 + lifetime * 1e6))
+        let stability_score = if lifetime > 1e6 {
+            1.0 - (1.0 / (1.0 + lifetime))
         } else {
             0.5
         };
@@ -205,16 +209,46 @@ impl HardcodedPhysicsEngine {
     /// Calculate force between two particles (simplified)
     pub fn calculate_force(
         &self,
-        _pos1: [Float; 3],
-        _mass1: Float,
-        _charge1: Float,
-        _pos2: [Float; 3],
-        _mass2: Float,
-        _charge2: Float,
+        pos1: [Float; 3],
+        mass1: Float,
+        charge1: Float,
+        pos2: [Float; 3],
+        mass2: Float,
+        charge2: Float,
     ) -> [Float; 3] {
-        // Simplified force calculation
-        // In a full implementation, this would use the physics_engine.rs
-        [0.0, 0.0, 0.0]
+        // Calculate distance vector
+        let dx = pos2[0] - pos1[0];
+        let dy = pos2[1] - pos1[1];
+        let dz = pos2[2] - pos1[2];
+        let distance_sq = dx * dx + dy * dy + dz * dz;
+
+        // Avoid division by zero
+        if distance_sq < 1e-20 {
+            return [0.0, 0.0, 0.0];
+        }
+
+        let distance = distance_sq.sqrt();
+
+        // Calculate electromagnetic force (Coulomb's law)
+        // F = k * q1 * q2 / r^2
+        const K_COULOMB: Float = 8.9875517923e9;
+        let em_force_mag = K_COULOMB * charge1 * charge2 / distance_sq;
+
+        // Calculate gravitational force
+        // F = G * m1 * m2 / r^2
+        const G_GRAVITY: Float = 6.674e-11;
+        let grav_force_mag = G_GRAVITY * mass1 * mass2 / distance_sq;
+
+        // Combine forces (both are attractive/repulsive along the same line)
+        // EM force dominates for charged particles
+        let total_force_mag = em_force_mag + grav_force_mag;
+
+        // Calculate force vector (direction from pos1 to pos2)
+        let fx = total_force_mag * dx / distance;
+        let fy = total_force_mag * dy / distance;
+        let fz = total_force_mag * dz / distance;
+
+        [fx, fy, fz]
     }
 }
 
@@ -333,9 +367,9 @@ impl HolographicPhysicsEngine {
         activation: &[Float; 22],
     ) -> Float {
         // Mass emerges from configuration position and internal structure
-        // Use resonance score to modulate mass
+        // Use resonance score to modulate mass (small variation for stability)
         let base_mass = derive_mass_from_archetypes(activation);
-        base_mass * (0.9 + config.resonance_score * 0.2) // 0.9 to 1.1 range
+        base_mass * (0.95 + config.resonance_score * 0.1) // 0.95 to 1.05 range (5% variation)
     }
 
     /// Extract charge from configuration
@@ -345,9 +379,11 @@ impl HolographicPhysicsEngine {
         activation: &[Float; 22],
     ) -> Float {
         // Charge emerges from configuration position
-        // Use interference alignment to modulate charge
+        // Use interference alignment to modulate charge (clamp to maintain sign)
         let base_charge = derive_charge_from_archetypes(activation);
-        base_charge * config.interference_alignment
+        let sign = base_charge.signum();
+        let magnitude = base_charge.abs() * config.interference_alignment.abs().min(1.05);
+        sign * magnitude
     }
 
     /// Extract spin from configuration
@@ -357,10 +393,11 @@ impl HolographicPhysicsEngine {
         activation: &[Float; 22],
     ) -> Float {
         // Spin emerges from configuration internal structure
-        // Use spatial frequency to modulate spin
+        // Use spatial frequency to modulate spin (but keep within reasonable range)
         let base_spin = derive_spin_from_archetypes(activation);
-        let frequency_factor = config.spatial_frequency / 1000.0;
-        base_spin * frequency_factor
+        let base_sign = base_spin.signum();
+        let frequency_factor = (config.spatial_frequency / 1000.0).max(0.95).min(1.05);
+        base_sign * base_spin.abs() * frequency_factor
     }
 
     /// Extract lifetime from configuration

@@ -2007,7 +2007,7 @@ mod tests {
     fn test_field_change_compatible_with() {
         let change1 = FieldChange {
             change_type: ChangeType::EntityModified,
-            entity_id: Some(EntityId::new(1)),
+            entity_id: Some(EntityId::new("entity-1".to_string())),
             resonance_pattern: Some(ResonancePattern::default()),
             position: None,
             spectrum_ratio: None,
@@ -2015,7 +2015,7 @@ mod tests {
 
         let change2 = FieldChange {
             change_type: ChangeType::EntityModified,
-            entity_id: Some(EntityId::new(2)),
+            entity_id: Some(EntityId::new("entity-2".to_string())),
             resonance_pattern: Some(ResonancePattern::default()),
             position: None,
             spectrum_ratio: None,
@@ -2075,7 +2075,7 @@ mod tests {
     fn test_field_update_merge_with() {
         let change1 = FieldChange {
             change_type: ChangeType::EntityModified,
-            entity_id: Some(EntityId::new(1)),
+            entity_id: Some(EntityId::new("entity-1".to_string())),
             resonance_pattern: Some(ResonancePattern::default()),
             position: None,
             spectrum_ratio: None,
@@ -2083,7 +2083,7 @@ mod tests {
 
         let change2 = FieldChange {
             change_type: ChangeType::EntityModified,
-            entity_id: Some(EntityId::new(2)),
+            entity_id: Some(EntityId::new("entity-2".to_string())),
             resonance_pattern: None,
             position: Some(Coordinate3D::origin()),
             spectrum_ratio: None,
@@ -2489,13 +2489,11 @@ mod tests {
     fn test_distributed_holographic_field_get_local_view() {
         let field_id = FieldId::new(1);
         let local_field = create_test_field();
+        let spatial_frequency = local_field.spatial_frequency;
         let distributed_field = DistributedHolographicField::new(field_id, local_field);
 
         let local_view = distributed_field.get_local_view();
-        assert_eq!(
-            local_view.spatial_frequency(),
-            local_field.spatial_frequency()
-        );
+        assert_eq!(local_view.spatial_frequency, spatial_frequency);
     }
 
     #[test]

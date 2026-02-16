@@ -519,8 +519,9 @@ impl HolographicStructure {
         let variance: Float = signature.iter().map(|x| (x - mean).powi(2)).sum::<Float>() / 22.0;
         let std_dev = variance.sqrt();
 
-        // Normalize complexity to [0.1, 1.0]
-        (0.1 + std_dev * 2.0).max(0.1).min(1.0)
+        // Normalize complexity to [0.3, 1.0]
+        // Increased minimum to 0.3 to ensure structures have meaningful complexity
+        (0.3 + std_dev * 2.0).max(0.3).min(1.0)
     }
 
     /// Calculate size based on structure type and signature
@@ -686,6 +687,7 @@ impl HolographicStructure {
 
     /// Calculate required resonance for structure completion
     ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md: "Resonance is the binding force that holds holographic patterns together"
     /// Combines base requirement from structure type with property-based scaling.
     fn calculate_required_resonance(
         structure_type: StructureType,
@@ -699,12 +701,24 @@ impl HolographicStructure {
         let complexity_factor = properties.complexity;
 
         // Apply coherence penalty (lower coherence requires more resonance)
-        let coherence_factor = 2.0 - resonance_result.coherence;
+        // coherence_factor: higher = more resonance needed (low coherence = high penalty)
+        // Modified to have stronger impact: range 1.0 to 4.0 for more noticeable difference
+        let coherence_factor = 1.0 + 3.0 * (1.0 - resonance_result.coherence);
 
-        base_requirement * size_factor * complexity_factor * coherence_factor
+        // Calculate total requirement with coherence adjustment
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Lower coherence requires more resonance to manifest"
+        // The formula ensures that coherence differences are always preserved
+        let result = base_requirement * size_factor * complexity_factor * coherence_factor;
+
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Structures must meet their minimum resonance threshold"
+        // Ensure result is always at least the base requirement
+        // Coherence differences multiply the result, so applying floor after multiplication preserves differences
+        result.max(base_requirement)
     }
 
     /// Update build progress based on added resonance
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md: "Resonance is the binding force that holds holographic patterns together"
     ///
     /// # Arguments
     /// * `added_resonance` - Amount of resonance to add
@@ -1306,7 +1320,17 @@ mod tests {
             &low_coherence,
         );
 
+        // Debug output
+        println!("High coherence (0.9): {}", high_required);
+        println!("Low coherence (0.3): {}", low_required);
+        println!("Low > High: {}", low_required > high_required);
+
         // Low coherence should require more resonance
-        assert!(low_required > high_required);
+        assert!(
+            low_required > high_required,
+            "low_required ({}) should be > high_required ({})",
+            low_required,
+            high_required
+        );
     }
 }

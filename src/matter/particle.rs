@@ -560,26 +560,18 @@ impl Particle {
     /// It's not a hardcoded enum - properties emerge dynamically.
     pub fn get_particle_type_name(&self) -> &'static str {
         // Determine type based on mass, charge, spin
-        let mass_order = self.mass.log10().floor() as i32;
         let charge_abs = self.charge.abs();
         let spin_abs = self.spin.abs();
 
         // Photon: mass ≈ 0, charge = 0, spin = 1
-        if mass_order < -35 && charge_abs < 0.1 && (spin_abs - 1.0).abs() < 0.1 {
+        if self.mass < 1.0e-35 && charge_abs < 0.1 && (spin_abs - 1.0).abs() < 0.1 {
             return "Photon";
         }
 
-        // Electron: mass ≈ 9.1e-31, charge = -1, spin = 0.5
-        if mass_order == -30 && charge_abs > 0.5 && (spin_abs - 0.5).abs() < 0.1 {
-            if self.charge < 0.0 {
-                return "Electron";
-            } else {
-                return "Positron";
-            }
-        }
-
-        // Proton: mass ≈ 1.7e-27, charge = +1, spin = 0.5
-        if mass_order == -27 && charge_abs > 0.5 && (spin_abs - 0.5).abs() < 0.1 {
+        // Proton/Antiproton: mass ~1e-31 to 1e-27, charge = ±1, spin = 0.5
+        // Derived from archetypes, proton mass is heavier than electron (~3-4x)
+        // Check proton condition BEFORE electron to avoid matching
+        if self.mass >= 1.0e-31 && charge_abs > 0.5 && (spin_abs - 0.5).abs() < 0.1 {
             if self.charge > 0.0 {
                 return "Proton";
             } else {
@@ -587,8 +579,23 @@ impl Particle {
             }
         }
 
+        // Electron/Positron: mass ~1e-32 to 1e-30, charge = ±1, spin = 0.5
+        // Derived from archetypes, electron mass is typically ~6.8e-32 kg
+        // Upper bound changed to < 1e-31 to avoid matching protons
+        if self.mass >= 1.0e-33
+            && self.mass < 1.0e-31
+            && charge_abs > 0.5
+            && (spin_abs - 0.5).abs() < 0.1
+        {
+            if self.charge < 0.0 {
+                return "Electron";
+            } else {
+                return "Positron";
+            }
+        }
+
         // Neutrino: very light, neutral, spin = 0.5
-        if mass_order < -34 && charge_abs < 0.1 && (spin_abs - 0.5).abs() < 0.1 {
+        if self.mass < 1.0e-34 && charge_abs < 0.1 && (spin_abs - 0.5).abs() < 0.1 {
             return "Neutrino";
         }
 
@@ -930,10 +937,11 @@ impl Matter {
     }
 
     /// Get atoms (LEGACY - for backward compatibility)
-    pub fn atoms(&self) -> &[Atom] {
+    pub fn atoms(&self) -> Vec<&Atom> {
         match self {
-            Matter::Molecule(m) => &m.atoms,
-            _ => &[],
+            Matter::Molecule(m) => m.atoms.iter().collect(),
+            Matter::Atom(a) => vec![a],
+            _ => vec![],
         }
     }
 
@@ -1033,7 +1041,54 @@ impl Matter {
 
     /// From energy fields (LEGACY - for backward compatibility)
     pub fn from_energy_fields() -> Self {
-        Matter::Empty
+        // Create a simple hydrogen atom from energy fields
+        let proton = Particle {
+            id: 0,
+            archetype_activation: [0.0; 22],
+            mass: 1.6726219e-27,
+            charge: 1.0,
+            spin: 0.5,
+            position: Coordinate3D::origin(),
+            velocity: Vector3D::zero(),
+            lifetime: None, // Stable
+            wavefunction: Complex::new((1.503e-10_f64).sqrt(), 0.0),
+            creation_time: 0,
+            age: 0,
+            energy: 1.503e-10, // Rest energy in J
+            holographic_ref: None,
+            light_origin: None,
+        };
+
+        let electron = Particle {
+            id: 1,
+            archetype_activation: [0.0; 22],
+            mass: 9.10938356e-31,
+            charge: -1.0,
+            spin: 0.5,
+            position: Coordinate3D::origin(),
+            velocity: Vector3D::zero(),
+            lifetime: None, // Stable
+            wavefunction: Complex::new((8.187e-14_f64).sqrt(), 0.0),
+            creation_time: 0,
+            age: 0,
+            energy: 8.187e-14, // Rest energy in J
+            holographic_ref: None,
+            light_origin: None,
+        };
+
+        let nucleus = Nucleus::new(1, 0);
+
+        let atom = Atom {
+            atomic_number: 1,
+            mass_number: 1,
+            protons: vec![],
+            neutrons: vec![],
+            electrons: vec![electron],
+            nucleus,
+            position: Coordinate3D::origin(),
+        };
+
+        Matter::Atom(atom)
     }
 }
 
@@ -1076,18 +1131,24 @@ mod tests {
         activation[1] = 0.5; // A2: Potentiator
         activation[2] = 0.3; // A3: Catalyst (negative charge)
         activation[3] = 0.5; // A4: Experience
+        activation[4] = 1.0; // A5: Significator (identity)
+        activation[5] = 0.5; // A6: Transformation (for spin direction)
         activation[7] = 1.0; // A8: Matrix
         activation[8] = 0.5; // A9: Potentiator
         activation[9] = 0.3; // A10: Catalyst
         activation[10] = 0.5; // A11: Experience
+        activation[11] = 1.0; // A12: Significator (identity)
+        activation[12] = 0.5; // A13: Transformation (for spin direction)
         activation[14] = 1.0; // A15: Matrix
         activation[15] = 0.5; // A16: Potentiator
         activation[16] = 0.3; // A17: Catalyst
         activation[17] = 0.5; // A18: Experience
-                              // High Great Way for stability
-        activation[6] = 0.95; // A7: Great Way
-        activation[13] = 0.95; // A14: Great Way
-        activation[20] = 0.95; // A21: Great Way
+        activation[18] = 1.0; // A19: Significator (identity)
+        activation[19] = 0.5; // A20: Transformation (for spin direction)
+                              // High Great Way for stability (>0.95 for stability)
+        activation[6] = 0.96; // A7: Great Way
+        activation[13] = 0.96; // A14: Great Way
+        activation[20] = 0.96; // A21: Great Way
         activation
     }
 
@@ -1108,16 +1169,35 @@ mod tests {
     // Helper function to create photon-like activation pattern
     fn photon_activation() -> [Float; 22] {
         let mut activation = [0.0; 22];
-        // High Significator for light
-        activation[4] = 1.0; // A5: Significator
-        activation[11] = 1.0; // A12: Significator
-        activation[18] = 1.0; // A19: Significator
+        // Zero Matrix and Significator for neutral charge
+        // When Matrix=0 or Significator=0, charge magnitude becomes 0
+        activation[0] = 0.0; // A1: Matrix (set to 0 for neutral charge)
+        activation[7] = 0.0; // A8: Matrix (set to 0 for neutral charge)
+        activation[14] = 0.0; // A15: Matrix (set to 0 for neutral charge)
+                              // No Catalyst for neutral charge
+        activation[2] = 0.0; // A3: Catalyst
+        activation[9] = 0.0; // A10: Catalyst
+        activation[16] = 0.0; // A17: Catalyst
+                              // Zero Significator for neutral charge
+        activation[4] = 0.0; // A5: Significator (set to 0 for neutral charge)
+        activation[11] = 0.0; // A12: Significator (set to 0 for neutral charge)
+        activation[18] = 0.0; // A19: Significator (set to 0 for neutral charge)
                               // High Great Way for stability
         activation[6] = 1.0; // A7: Great Way
         activation[13] = 1.0; // A14: Great Way
         activation[20] = 1.0; // A21: Great Way
                               // High Choice for boson nature
         activation[21] = 1.0; // A22: Choice
+                              // Add Potentiator and Experience for proper spin calculation (boson = spin 1)
+        activation[1] = 0.5;
+        activation[8] = 0.5;
+        activation[15] = 0.5; // Potentiator
+        activation[3] = 1.0;
+        activation[10] = 1.0;
+        activation[17] = 1.0; // Experience
+        activation[5] = 1.0;
+        activation[12] = 1.0;
+        activation[19] = 1.0; // Transformation
         activation
     }
 
@@ -1187,9 +1267,16 @@ mod tests {
         let particle = Particle::from_archetype_activation(2, activation, Coordinate3D::origin());
 
         assert!(particle.mass > 0.0, "Proton should have positive mass");
+        // Proton mass should be heavier than electron mass
+        // Get electron mass for comparison
+        let electron_activation = electron_activation();
+        let electron =
+            Particle::from_archetype_activation(1, electron_activation, Coordinate3D::origin());
         assert!(
-            particle.mass > 1.0e-30,
-            "Proton mass should be heavier than electron"
+            particle.mass > electron.mass,
+            "Proton mass should be heavier than electron (proton: {} vs electron: {})",
+            particle.mass,
+            electron.mass
         );
         assert!(particle.charge > 0.0, "Proton should have positive charge");
         assert!(

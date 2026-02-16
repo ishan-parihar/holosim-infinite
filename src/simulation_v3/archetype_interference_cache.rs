@@ -134,12 +134,15 @@ impl ArchetypicalInterference {
 
         for k in 1..=n.min(10) {
             let freq = k as Float;
-            let mut power = 0.0;
+            let mut real_sum = 0.0;
+            let mut imag_sum = 0.0;
             for (i, &val) in pattern.iter().enumerate() {
                 let angle = 2.0 * std::f64::consts::PI * freq * (i as Float) / (n as Float);
-                power += val * angle.cos();
+                real_sum += val * angle.cos();
+                imag_sum += val * angle.sin();
             }
-            power = power.abs() / n as Float;
+            // Compute magnitude of complex sum
+            let power = (real_sum * real_sum + imag_sum * imag_sum).sqrt() / n as Float;
             if power > max_power {
                 max_power = power;
                 max_freq = freq;
@@ -382,7 +385,8 @@ impl ArchetypeInterferenceCache {
         let mut quantized = [0u8; NUM_ARCHETYPES];
         for (i, &coeff) in coefficients.iter().enumerate() {
             let normalized = coeff.max(0.0).min(1.0);
-            quantized[i] = (normalized * (QUANTIZATION_LEVELS - 1) as Float) as u8;
+            // Use rounding instead of truncation for better quantization accuracy
+            quantized[i] = (normalized * (QUANTIZATION_LEVELS - 1) as Float).round() as u8;
         }
 
         ArchetypeKey::new(quantized)
@@ -626,8 +630,11 @@ mod tests {
         profile.set(0, 0.5).unwrap();
         cache.get(&profile);
 
-        profile.set(0, 0.75).unwrap();
-        cache.get(&profile);
+        // Create a new profile with different archetype value but same archetype 0 value
+        let mut profile2 = create_test_profile();
+        profile2.set(0, 0.51).unwrap(); // Quantizes to 32
+        profile2.set(5, 0.6).unwrap(); // Different from 0.3, creates different cache key
+        cache.get(&profile2);
 
         let count = cache.bucket_count(0, 32);
         assert_eq!(count, 2);

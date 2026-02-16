@@ -4,10 +4,9 @@
 // "Spectrum visualization overlay: Space/time vs time/space continuum, entity positions on spectrum, Veil indicator at v=1"
 
 use holonic_realms::entity_layer7::layer7::{EntityId, EntityType};
-use holonic_realms::gui::scene::entity_visualizer::ScaleLevel;
 use holonic_realms::gui::ui::panels::{SpectrumDashboard, SpectrumEntityData};
 use holonic_realms::gui::visualization::{
-    entity_viz::{EntityVisualizationData, EntityVisualizer, GeometryType, VisualizationStyle},
+    entity_viz::EntityVisualizer,
     spectrum_viz::{SpectrumOverlay, SpectrumPosition, SpectrumRegion, SpectrumVisualizer},
 };
 use holonic_realms::types::{Density, Polarity};
@@ -23,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     // Initialize entity visualizer
-    let mut entity_visualizer = EntityVisualizer::new();
+    let entity_visualizer = EntityVisualizer::new();
     println!("✓ Entity visualizer created");
     println!("  - Current scale: {:?}", entity_visualizer.current_scale());
     println!(
@@ -37,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!();
 
     // Initialize spectrum visualizer
-    let mut spectrum_visualizer = SpectrumVisualizer::new();
+    let spectrum_visualizer = SpectrumVisualizer::new();
     println!("✓ Spectrum visualizer created");
     println!(
         "  - Veil transparency: {:.2}",

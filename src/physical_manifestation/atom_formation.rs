@@ -613,16 +613,34 @@ impl AtomFormationSystem {
 
     /// Calculate valence electrons for a given atomic number
     fn calculate_valence_electrons(&self, atomic_number: u8) -> u8 {
-        // Simplified valence electron calculation
-        // In a full implementation, this would use the electron configuration
+        // Valence electron calculation based on periodic table position
+        // This follows the octet rule for main group elements
 
         match atomic_number {
-            1 => 1,                               // H
-            2 => 2,                               // He
-            3..=10 => (atomic_number % 10) % 8,   // Li to Ne
-            11..=18 => (atomic_number % 10) % 8,  // Na to Ar
-            19..=36 => (atomic_number % 18) % 18, // K to Kr (simplified)
-            _ => (atomic_number % 8) % 8,         // Simplified for heavier elements
+            1 => 1, // H
+            2 => 2, // He
+            // Period 2: Li to Ne
+            3 => 1,  // Li
+            4 => 2,  // Be
+            5 => 3,  // B
+            6 => 4,  // C
+            7 => 5,  // N
+            8 => 6,  // O
+            9 => 7,  // F
+            10 => 8, // Ne
+            // Period 3: Na to Ar
+            11 => 1, // Na
+            12 => 2, // Mg
+            13 => 3, // Al
+            14 => 4, // Si
+            15 => 5, // P
+            16 => 6, // S
+            17 => 7, // Cl
+            18 => 8, // Ar
+            // Period 4: K to Kr (simplified - includes transition metals)
+            19..=36 => (atomic_number % 18) % 18,
+            // Simplified for heavier elements
+            _ => (atomic_number % 8) % 8,
         }
     }
 

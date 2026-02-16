@@ -366,9 +366,9 @@ impl HolographicWorldGenerator {
         }
 
         self.apply_spectrum_configuration(&mut world, &blueprint)?;
-        self.apply_observer_collapse(&mut world, observer)?;
         self.unfold_all_scales(&mut world, &blueprint)?;
         self.unfold_density_regions(&mut world, &blueprint)?;
+        self.apply_observer_collapse(&mut world, observer)?;
 
         let unfolding_time = start_time.elapsed().unwrap_or(Duration::ZERO);
         self.update_statistics(unfolding_time);
@@ -607,7 +607,7 @@ mod tests {
 
     #[test]
     fn test_blueprint_interference_computation() {
-        let blueprint = HolographicBlueprint::new(1, 42);
+        let mut blueprint = HolographicBlueprint::new(1, 42);
         blueprint.base_archetypical_pattern[0] = 1.0;
 
         let interference = blueprint.compute_interference_at_point([1.0, 0.0, 0.0]);
@@ -763,7 +763,7 @@ mod tests {
         let mut generator = HolographicWorldGenerator::new();
         let blueprint = HolographicBlueprint::new(1, 42);
 
-        let observer_key = ObserverKey::new(1, 2);
+        let observer_key = ObserverKey::new(1, 2, b"test_context");
         let world = generator.unfold(blueprint, Some(observer_key));
 
         assert!(world.is_ok());

@@ -336,7 +336,8 @@ impl CrossTermMatrix {
         }
 
         if count > 0 {
-            coherence / count as Float
+            // Normalize to [0, 1] range since average of cos values can be negative
+            (coherence / count as Float).abs()
         } else {
             0.0
         }

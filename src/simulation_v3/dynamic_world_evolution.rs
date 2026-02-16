@@ -610,7 +610,8 @@ impl DynamicWorldEvolution {
                 (*resonance_shift * 0.2, *resonance_shift * 0.15)
             }
             EvolutionTrigger::TimeProgression { duration_millis } => {
-                let time_factor = (*duration_millis as Float) / 100000.0;
+                // From COSMOLOGICAL-ARCHITECTURE.md: "Time progression naturally shifts spectrum balance"
+                let time_factor = (*duration_millis as Float) / 1000.0;
                 (time_factor * 0.01, time_factor * 0.02)
             }
             EvolutionTrigger::DensityShift { .. } => (0.0, 0.0),
@@ -856,9 +857,12 @@ mod tests {
             blueprint: HolographicBlueprint::new(1, 42),
             spectrum_configuration: SpectrumRatio::new(1.0, 1.0),
             regions: HashMap::new(),
-            entities: Vec::new(),
+            scale_worlds: HashMap::new(),
+            world_memory: HolographicMemorySystem::new(),
             observer_keys: Vec::new(),
-            unfolding_progress: 1.0,
+            world_age: Duration::ZERO,
+            evolution_stage: 1.0,
+            holographic_coherence: 1.0,
         }
     }
 
@@ -904,7 +908,7 @@ mod tests {
             delta_time_space: 0.05,
         };
 
-        let result = evolution.trigger_evolution(world_id, trigger, &world);
+        let result = evolution.trigger_evolution(world_id, trigger.clone(), &world);
         assert!(result.is_ok());
 
         let event = result.unwrap();
@@ -929,7 +933,7 @@ mod tests {
             intensity: 0.5,
         };
 
-        let result = evolution.trigger_evolution(world_id, trigger, &world);
+        let result = evolution.trigger_evolution(world_id, trigger.clone(), &world);
         assert!(result.is_ok());
 
         let event = result.unwrap();

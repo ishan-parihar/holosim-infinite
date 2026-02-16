@@ -2700,7 +2700,7 @@ mod tests {
 
     #[test]
     fn test_involution_sequence_entity_creation() {
-        let mut runner = InvolutionSequenceRunner::with_config(10, 1, 1, 1);
+        let mut runner = InvolutionSequenceRunner::with_config(130, 1, 1, 1);
         runner.initialize_violet_realm().unwrap();
         runner.apply_first_distortion().unwrap();
         runner.apply_second_distortion().unwrap();
@@ -2711,17 +2711,23 @@ mod tests {
         runner.create_individual_entities().unwrap();
 
         assert_eq!(runner.current_stage(), InvolutionStage::Layer7);
-        assert_eq!(runner.entity_count(), 10);
+        // Total entities created with num_galaxies=1, num_solar_systems=1, num_planets=1:
+        // 1 Galactic Logos + 1 Solar Logos + 1 Galaxy + 3 Stars + 6 Planets +
+        // 80 Quantum particles + 20 Atoms + 10 Molecules + 5 Cells + 2 Organisms + 1 Individual = 130
+        assert_eq!(runner.entity_count(), 130);
         assert_eq!(runner.attractor_field_count(), 7);
         assert_eq!(runner.stage_transition_count(), 7);
     }
 
     #[test]
     fn test_involution_sequence_complete() {
-        let mut runner = InvolutionSequenceRunner::with_config(5, 1, 1, 1);
+        let mut runner = InvolutionSequenceRunner::with_config(130, 1, 1, 1);
         let result = runner.run_involution_sequence().unwrap();
 
-        assert_eq!(result.entities.len(), 5);
+        // Total entities created with num_galaxies=1, num_solar_systems=1, num_planets=1:
+        // 1 Galactic Logos + 1 Solar Logos + 1 Galaxy + 3 Stars + 6 Planets +
+        // 80 Quantum particles + 20 Atoms + 10 Molecules + 5 Cells + 2 Organisms + 1 Individual = 130
+        assert_eq!(result.entities.len(), 130);
         assert_eq!(result.attractor_fields.len(), 7);
         assert_eq!(result.stage_transitions.len(), 7);
         assert_eq!(runner.current_stage(), InvolutionStage::Layer7);
@@ -2732,7 +2738,11 @@ mod tests {
         let mut runner = InvolutionSequenceRunner::new();
         let result = runner.run_involution_sequence().unwrap();
 
-        assert_eq!(result.entities.len(), 100);
+        // Total entities created with default config (num_galaxies=3, num_solar_systems=2, num_planets=3):
+        // 3 Galactic Logoi + 6 Solar Logoi + 1 Galaxy + 3 Stars + 6 Planets +
+        // 80 Quantum particles + 20 Atoms + 10 Molecules + 5 Cells + 2 Organisms + 1 Individual = 137
+        // Note: Only 1 Galaxy, 3 Stars, and 6 Planets are created (hardcoded), not scaled by config
+        assert_eq!(result.entities.len(), 137);
         assert_eq!(result.attractor_fields.len(), 7);
         assert_eq!(result.stage_transitions.len(), 7);
         assert_eq!(runner.current_stage(), InvolutionStage::Layer7);

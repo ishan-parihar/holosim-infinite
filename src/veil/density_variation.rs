@@ -287,18 +287,14 @@ mod tests {
     fn test_density_transparency_transparency() {
         let dt = DensityTransparency::new();
         // Transparency = 1.0 - thickness
-        assert_eq!(
-            dt.transparency(&Density::First(Density1SubLevel::Atomic)),
-            0.10
+        assert!((dt.transparency(&Density::First(Density1SubLevel::Atomic)) - 0.10).abs() < 1e-9);
+        assert!(
+            (dt.transparency(&Density::Second(Density2SubLevel::Cellular)) - 0.25).abs() < 1e-9
         );
-        assert_eq!(
-            dt.transparency(&Density::Second(Density2SubLevel::Cellular)),
-            0.25
-        );
-        assert_eq!(dt.transparency(&Density::Third), 0.40);
-        assert_eq!(dt.transparency(&Density::Fourth), 0.55);
-        assert_eq!(dt.transparency(&Density::Fifth), 0.70);
-        assert_eq!(dt.transparency(&Density::Sixth), 0.85);
+        assert!((dt.transparency(&Density::Third) - 0.40).abs() < 1e-9);
+        assert!((dt.transparency(&Density::Fourth) - 0.55).abs() < 1e-9);
+        assert!((dt.transparency(&Density::Fifth) - 0.70).abs() < 1e-9);
+        assert!((dt.transparency(&Density::Sixth) - 0.85).abs() < 1e-9);
         assert_eq!(dt.transparency(&Density::Seventh), 1.00);
     }
 
@@ -560,17 +556,17 @@ mod tests {
         let dt = DensityTransparency::new();
         let pa = PolarizationAccess::new();
 
-        // D3 has base thickness 0.8
+        // D3 has base thickness 0.60
         // STO polarization at 0.5 intensity thins by 0.15
-        // Final thickness: 0.8 - 0.15 = 0.65
+        // Final thickness: 0.60 - 0.15 = 0.45
         let base_thickness = dt.base_thickness(&Density::Third);
         let polarization = PolarizationState::sto(0.5);
         let thinning = pa.calculate_thinning(&polarization);
         let final_thickness = base_thickness - thinning;
 
-        assert_eq!(base_thickness, 0.8);
+        assert_eq!(base_thickness, 0.60);
         assert_eq!(thinning, 0.15);
-        assert_eq!(final_thickness, 0.65);
+        assert!((final_thickness - 0.45).abs() < 1e-9);
     }
 
     #[test]

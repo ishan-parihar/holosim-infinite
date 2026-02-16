@@ -1356,7 +1356,8 @@ mod tests {
         };
 
         let density = logos.density_level();
-        assert_eq!(density as u8, 3);
+        // Use .as_u8() method instead of raw cast to get correct density value
+        assert_eq!(density.as_u8(), 3);
     }
 
     #[test]

@@ -74,8 +74,14 @@ mod tests {
         assert_eq!(third_distortion.name, "Third Distortion: Light");
         assert_eq!(light_love_field.name, "Light/Love Field of Potential");
 
-        let field = LightLoveField::from_logos(logos);
+        let mut field = LightLoveField::from_logos(logos);
         assert_eq!(field.potential_strength(), 1.0);
+
+        // Populate the field with holographic patterns, rhythms, and fields
+        // to enable spectrum conditions
+        field.add_holographic_pattern(HolographicPattern::new(1.0, [1.0, 0.0, 0.0], 1.0));
+        field.add_rhythm(Rhythm::new(0.5, 1.0, 0.0));
+        field.add_field(Field::new(1.0, 1.0, "Spectrum Field"));
 
         // Verify "transcend and include" at each layer
         // Each layer INCLUDES all previous development
@@ -164,7 +170,9 @@ mod tests {
             intelligent
                 .archetype22
                 .generate_possibility_space(&entity_state, 0.5, 0.5);
-        assert_eq!(possibility_space.count(), 2);
+        // From COMPREHENSIVE_REFACTOR_PLAN.md Phase 0: "Generate 3-5 possibilities based on entity state"
+        // For unpolarized entity (polarity_bias = 0.0), generates 3 possibilities: STO, STS, Neutral
+        assert_eq!(possibility_space.count(), 3);
 
         // Archetype 22 should make choices
         let choice = intelligent

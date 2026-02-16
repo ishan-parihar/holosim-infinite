@@ -516,9 +516,22 @@ mod tests {
         metrics.record_step(0.3, 10, 2);
 
         assert_eq!(metrics.total_steps, 3);
-        assert_eq!(metrics.total_time, 0.6);
-        assert_eq!(metrics.average_step_time, 0.2);
-        assert_eq!(metrics.steps_per_second, 5.0);
+        // Use approximate comparison for floating point values
+        assert!(
+            (metrics.total_time - 0.6).abs() < 1e-9,
+            "total_time should be ~0.6, got {}",
+            metrics.total_time
+        );
+        assert!(
+            (metrics.average_step_time - 0.2).abs() < 1e-9,
+            "average_step_time should be ~0.2, got {}",
+            metrics.average_step_time
+        );
+        assert!(
+            (metrics.steps_per_second - 5.0).abs() < 1e-9,
+            "steps_per_second should be ~5.0, got {}",
+            metrics.steps_per_second
+        );
     }
 
     #[test]

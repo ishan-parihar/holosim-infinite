@@ -35,6 +35,7 @@
 /// 7. Choice = non-deterministic selection from possibility space
 use crate::foundation::transcend_include::{AttractorField, Feature};
 use crate::foundation::violet_realm::VioletRealm;
+use rand::Rng;
 use std::fmt;
 
 /// Polarity Choice - the fundamental choice of polarity
@@ -366,10 +367,14 @@ impl Archetype22 {
             .iter()
             .map(|possibility| {
                 // Evaluation is based on:
-                // - Probability (influenced by entity state)
+                // - Probability (influenced by entity state and polarity preference) - HIGH WEIGHT
                 // - Archetype influence alignment
                 // - Consciousness level
                 // - Experience accumulation
+                //
+                // Note: Probability gets 80% weight because polarity preference bias
+                // is applied through probability in apply_polarity_preference_bias.
+                // This ensures Free Will choices align with polarity preferences.
 
                 let base_score = possibility.probability;
                 let archetype_alignment_score = self
@@ -377,10 +382,10 @@ impl Archetype22 {
                 let consciousness_score = entity_state.consciousness_level;
                 let experience_score = entity_state.experience_accumulation / 100.0;
 
-                (base_score * 0.4
-                    + archetype_alignment_score * 0.3
-                    + consciousness_score * 0.2
-                    + experience_score * 0.1)
+                (base_score * 0.8
+                    + archetype_alignment_score * 0.1
+                    + consciousness_score * 0.05
+                    + experience_score * 0.05)
                     .clamp(0.0, 1.0)
             })
             .collect()
@@ -416,19 +421,67 @@ impl Archetype22 {
         let evaluations =
             self.evaluate_possibilities(&possibility_space.possibilities, entity_state);
 
-        // Select the possibility with highest evaluation score
-        // In a real implementation, this would be non-deterministic selection
-        let mut best_index = 0;
-        let mut best_score = evaluations[0];
+        // Non-deterministic selection (not random, not predetermined)
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Choice = non-deterministic selection from possibility space"
+        // Use weighted selection based on evaluation scores
+        let mut rng = rand::thread_rng();
+        let mut weights: Vec<f64> = evaluations.iter().map(|&e| e.max(0.0)).collect();
 
-        for (i, &score) in evaluations.iter().enumerate() {
-            if score > best_score {
-                best_score = score;
-                best_index = i;
+        // Normalize weights
+        let total_weight: f64 = weights.iter().sum();
+        if total_weight > 0.0 {
+            for w in &mut weights {
+                *w /= total_weight;
+            }
+        } else {
+            // Fallback to uniform weights if all evaluations are zero
+            let uniform = 1.0 / weights.len() as f64;
+            for w in &mut weights {
+                *w = uniform;
             }
         }
 
-        possibility_space.possibilities[best_index].outcome
+        // Weighted random selection
+        let mut cumulative = 0.0;
+        let r: f64 = rng.gen();
+
+        let mut best_index = 0;
+        for (i, &weight) in weights.iter().enumerate() {
+            cumulative += weight;
+            if r <= cumulative {
+                best_index = i;
+                break;
+            }
+        }
+
+        let choice = possibility_space.possibilities[best_index].outcome;
+
+        // Archetype 22 (The Choice) forces a polarity decision for completely unpolarized entities
+        // If the entity is completely unpolarized and Neutral was selected, choose between STO and STS instead
+        if choice == PolarityChoice::Neutral
+            && entity_state.polarity_state.polarity_bias.abs() < 0.1
+        {
+            // Find the best STO or STS option
+            let mut polarized_best_index = None;
+            let mut polarized_best_score = 0.0;
+
+            for (i, possibility) in possibility_space.possibilities.iter().enumerate() {
+                if matches!(
+                    possibility.outcome,
+                    PolarityChoice::ServiceToOthers | PolarityChoice::ServiceToSelf
+                ) && evaluations[i] > polarized_best_score
+                {
+                    polarized_best_score = evaluations[i];
+                    polarized_best_index = Some(i);
+                }
+            }
+
+            if let Some(index) = polarized_best_index {
+                return possibility_space.possibilities[index].outcome;
+            }
+        }
+
+        choice
     }
 }
 
@@ -512,6 +565,16 @@ impl IntelligentInfinity {
         The undistorted unity of all that is, existing as potential and kinetic aspects. \
         The gateway where infinity becomes accessible. The primal awakening of consciousness."
             .to_string()
+    }
+}
+
+impl Default for IntelligentInfinity {
+    fn default() -> Self {
+        IntelligentInfinity {
+            violet_realm: VioletRealm::default(),
+            awareness: 0.0,
+            archetype22: Archetype22::new(),
+        }
     }
 }
 

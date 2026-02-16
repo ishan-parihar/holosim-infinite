@@ -271,6 +271,11 @@ impl ManifestationManager {
         _entity: &SubSubLogos,
         resonance_amount: Float,
     ) -> Result<(), ManifestationError> {
+        // Check if project is already completed
+        if self.completed_structures.contains_key(&project_id) {
+            return Err(ManifestationError::ProjectAlreadyComplete(project_id));
+        }
+
         // Get the project
         let project = self
             .active_projects
@@ -290,6 +295,11 @@ impl ManifestationManager {
         project
             .structure
             .update_stability(project.collective_resonance.coherence);
+
+        // Check if project is complete after contribution
+        if project.is_complete() {
+            self.complete_project(project_id)?;
+        }
 
         Ok(())
     }
@@ -314,6 +324,11 @@ impl ManifestationManager {
         project_id: u64,
         entities: &[&SubSubLogos],
     ) -> Result<(), ManifestationError> {
+        // Check if project is already completed
+        if self.completed_structures.contains_key(&project_id) {
+            return Err(ManifestationError::ProjectAlreadyComplete(project_id));
+        }
+
         // Get the project
         let project = self
             .active_projects
@@ -771,9 +786,9 @@ mod tests {
         let requirements_met = manager.check_requirements(project_id).unwrap();
         assert!(!requirements_met);
 
-        // Contribute some resonance
+        // Contribute some resonance (small amount, less than 10% of required)
         manager
-            .contribute_resonance(project_id, &entity1, 5.0)
+            .contribute_resonance(project_id, &entity1, 1.0)
             .expect("Failed to contribute resonance");
 
         // Requirements should still not be met

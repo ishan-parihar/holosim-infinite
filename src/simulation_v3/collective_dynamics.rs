@@ -1818,13 +1818,12 @@ pub struct CollectiveResonanceStatistics {
 #[cfg(test)]
 mod phase6_tests {
     use super::*;
-    use crate::entity_layer7::{
-        DensityLevel, EntityId, EntitySpectrumAccess, EntityState, EntityType, SubSubLogos,
-    };
+    use crate::entity_layer7::{DensityLevel, EntityId, EntityState, EntityType, SubSubLogos};
     use crate::evolution_density_octave::density_octave::Density;
     use crate::polarization::{PolarityDirection, PolarizationProgress};
     use crate::simulation_v3::catalyst_system::PolarityChoice;
     use crate::spectrum::veil::Veil;
+    use crate::IndividualSpectrumConfiguration;
     use std::collections::HashMap;
 
     /// Helper function to create a test entity
@@ -1833,12 +1832,44 @@ mod phase6_tests {
         consciousness_level: f64,
         archetype_activations: [f64; 22],
     ) -> SubSubLogos {
-        // TODO: Implement proper entity creation with SubSubLogos::new()
-        // This requires creating all 7 realms and IndividualSpectrumConfiguration
-        // For now, return a placeholder to allow compilation
-        // Note: archetype_activations parameter is not used directly
-        // because SubSubLogos generates them dynamically based on entity state
-        panic!("TODO: Implement create_test_entity with SubSubLogos::new() - requires creating all 7 realms and spectrum configuration");
+        use crate::foundation::{BlueRealm, GreenRealm, IndigoRealm, VioletRealm};
+        use crate::spectrum::{OrangeRealm, RedRealm, SpectrumRatio, SpectrumSide, YellowRealm};
+
+        let violet = VioletRealm::new();
+        let indigo = IndigoRealm::new();
+        let blue = BlueRealm::new();
+        let green = GreenRealm::new();
+        let yellow = YellowRealm::new(green.clone());
+        let orange = OrangeRealm::new(yellow.clone());
+        let red = RedRealm::new(orange.clone());
+
+        let ratio = SpectrumRatio::new(1.5, SpectrumSide::SpaceTime);
+        let spectrum_config = IndividualSpectrumConfiguration::new(ratio);
+
+        let mut entity = SubSubLogos::new(
+            EntityId::new(id),
+            crate::entity_layer7::layer7::EntityType::Individual,
+            None,   // parent_id
+            vec![], // composition
+            None,   // environment_id
+            violet,
+            indigo,
+            blue,
+            green,
+            yellow,
+            orange,
+            red,
+            spectrum_config,
+        );
+
+        // Set entity to 5th density for holographic connection tests
+        use crate::evolution_density_octave::density_octave::Density;
+        entity.current_density = Density::Fifth;
+        entity.current_state.vibrational_state.density = Density::Fifth;
+        entity.veil_transparency = 0.5;
+        entity.current_state.consciousness_level = consciousness_level;
+
+        entity
     }
 
     /// Helper function to create a test collective behavior

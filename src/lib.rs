@@ -14,6 +14,7 @@ pub mod free_will_capacity;
 pub mod free_will_integration;
 
 // Evolution and Density
+pub mod evolution;
 pub mod evolution_chain;
 pub mod evolution_density_octave;
 pub mod involution;
@@ -28,6 +29,9 @@ pub mod energy_fields;
 pub mod energy_flow_system;
 pub mod energy_ray_centers;
 pub mod holographic;
+pub mod template;
+pub mod compression;
+pub mod sacred_geometry;
 
 // Simulation and Entity Management
 pub mod entity;
@@ -126,6 +130,10 @@ pub mod transformation_engine;
 // Adapters for compatibility
 pub mod adapters;
 
+// Performance testing infrastructure (Phase 8)
+#[cfg(test)]
+pub mod performance_tests;
+
 // Core systems
 pub mod complex;
 pub mod creation_engine;
@@ -176,3 +184,48 @@ pub use hpo::{
 pub use hpo::fitness_evaluator::FitnessStatistics;
 pub use hpo::hpo_system::OptimizationResult;
 pub use hpo::selection::{ConvergenceStatus, SelectionStatistics};
+
+// ============================================================================
+// SIMULATION V3 EXPORTS (Complete Cosmological Architecture)
+// ============================================================================
+
+// ============================================================================
+// SIMULATION V3 EXPORTS (Complete Cosmological Architecture)
+// ============================================================================
+
+// Main simulation runner
+pub use simulation_v3::simulation_runner::{
+    SimulationRunner as V3SimulationRunner, 
+    SimulationParameters, 
+    SimulationResult as V3SimulationResult,
+};
+
+// Involution sequence
+pub use simulation_v3::involution_sequence::{
+    InvolutionSequenceRunner, InvolutionResult, InvolutionStage,
+};
+
+// Entity lifecycle
+pub use simulation_v3::entity_lifecycle::{
+    EntityLifecycleManager, EvolutionResult, LifecycleStatistics,
+};
+
+// Holographic field
+pub use simulation_v3::holographic_field::{
+    HolographicFieldManager, HolographicFieldResult, HolographicFieldConfig,
+};
+
+// Collective dynamics
+pub use simulation_v3::collective_dynamics::CollectiveDynamicsManager;
+
+// Scale physics
+pub use simulation_v3::scale_physics::{
+    ScaleSpecificPhysics, SimulationResult as ScaleSimulationResult,
+};
+
+// Statistics
+pub use simulation_v3::statistics::{
+    SimulationStatistics as V3SimulationStatistics, 
+    PolarizationDistribution as V3PolarityDistribution, 
+    EmergentProperties,
+};

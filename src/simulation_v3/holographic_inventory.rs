@@ -108,11 +108,15 @@ impl ArchetypicalItemSignature {
     }
 
     pub fn compute_resonance_cost(&self) -> Float {
+        // From COSMOLOGICAL-ARCHITECTURE.md: "All holographic manifestations require minimum resonance"
         let pattern_magnitude: Float = self.archetype_pattern.iter().map(|x| x.abs()).sum();
         let base_cost = pattern_magnitude / 22.0;
         let density_factor = self.density_affinity.abs();
         let resonance_factor = (self.resonance_frequency - 440.0).abs() / 880.0;
-        (base_cost + density_factor + resonance_factor) * MIN_RESONANCE_COST
+
+        // Calculate raw cost and ensure minimum threshold
+        let raw_cost = base_cost + density_factor + resonance_factor;
+        raw_cost.max(MIN_RESONANCE_COST)
     }
 
     pub fn compute_resonance_with_soul_stream(

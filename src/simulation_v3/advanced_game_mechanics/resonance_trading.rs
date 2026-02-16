@@ -1350,18 +1350,19 @@ mod tests {
 
     #[test]
     fn test_trade_offer_creation() {
+        let offerer_id = EntityId::new("offerer-1".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1), ItemId::new(2)],
-            vec![ItemId::new(3)],
+            offerer_id.clone(),
+            vec![1u64, 2u64],
+            vec![3u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
         );
 
         assert_eq!(offer.offer_id.as_u64(), 1);
-        assert_eq!(offer.offerer_id, 100);
+        assert_eq!(offer.offerer_id, offerer_id);
         assert_eq!(offer.offered_items.len(), 2);
         assert_eq!(offer.requested_items.len(), 1);
         assert_eq!(offer.status, TradeStatus::Open);
@@ -1371,11 +1372,12 @@ mod tests {
 
     #[test]
     fn test_trade_offer_with_compatibility_threshold() {
+        let offerer_id = EntityId::new("offerer-2".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -1387,11 +1389,12 @@ mod tests {
 
     #[test]
     fn test_trade_offer_time_remaining() {
+        let offerer_id = EntityId::new("offerer-3".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -1407,11 +1410,12 @@ mod tests {
         pattern.pattern[0] = 0.8;
         pattern.stability = 0.9;
 
+        let offerer_id = EntityId::new("offerer-4".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
@@ -1435,46 +1439,53 @@ mod tests {
 
     #[test]
     fn test_trade_agreement_creation() {
+        let offerer_id = EntityId::new("offerer-5".to_string());
+        let acceptor_id = EntityId::new("acceptor-5".to_string());
+        let entity_300 = EntityId::new("entity-300".to_string());
         let agreement = TradeAgreement::new(
             TradeId::new(1),
             TradeId::new(2),
-            200, // acceptor
-            100, // offerer
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            acceptor_id.clone(),
+            offerer_id.clone(),
+            vec![1u64],
+            vec![2u64],
             0.85,
             500.0,
         );
 
         assert_eq!(agreement.agreement_id.as_u64(), 1);
         assert_eq!(agreement.offer_id.as_u64(), 2);
-        assert_eq!(agreement.acceptor_id, 200);
-        assert_eq!(agreement.offerer_id, 100);
+        assert_eq!(agreement.acceptor_id, acceptor_id);
+        assert_eq!(agreement.offerer_id, offerer_id);
         assert_eq!(agreement.resonance_compatibility, 0.85);
         assert_eq!(agreement.total_items_exchanged(), 2);
-        assert!(agreement.involves_entity(100));
-        assert!(agreement.involves_entity(200));
-        assert!(!agreement.involves_entity(300));
+        assert!(agreement.involves_entity(offerer_id.clone()));
+        assert!(agreement.involves_entity(acceptor_id.clone()));
+        assert!(!agreement.involves_entity(entity_300));
     }
 
     #[test]
     fn test_trade_efficiency_calculation() {
+        let offerer_id = EntityId::new("offerer-6a".to_string());
+        let acceptor_id = EntityId::new("acceptor-6a".to_string());
         let agreement_high = TradeAgreement::new(
             TradeId::new(1),
             TradeId::new(2),
-            200,
-            100,
+            acceptor_id.clone(),
+            offerer_id.clone(),
             vec![],
             vec![],
             1.0, // Perfect compatibility
             500.0,
         );
 
+        let offerer_id2 = EntityId::new("offerer-6b".to_string());
+        let acceptor_id2 = EntityId::new("acceptor-6b".to_string());
         let agreement_low = TradeAgreement::new(
             TradeId::new(2),
             TradeId::new(3),
-            200,
-            100,
+            acceptor_id2.clone(),
+            offerer_id2.clone(),
             vec![],
             vec![],
             0.0, // No compatibility
@@ -1517,11 +1528,12 @@ mod tests {
     #[test]
     fn test_validate_trade_compatibility() {
         let pattern = ResonancePattern::new();
+        let offerer_id = EntityId::new("offerer-7".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
@@ -1536,38 +1548,42 @@ mod tests {
     #[test]
     fn test_execute_trade_success() {
         let pattern = ResonancePattern::new();
+        let offerer_id = EntityId::new("offerer-8".to_string());
+        let acceptor_id = EntityId::new("acceptor-8".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id.clone(),
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
         );
 
-        let result = ResonanceExchange::execute_trade(&offer, 200, &pattern, 500.0);
+        let result = ResonanceExchange::execute_trade(&offer, acceptor_id.clone(), &pattern, 500.0);
 
         assert!(result.is_ok());
         let agreement = result.unwrap();
-        assert_eq!(agreement.acceptor_id, 200);
-        assert_eq!(agreement.offerer_id, 100);
+        assert_eq!(agreement.acceptor_id, acceptor_id);
+        assert_eq!(agreement.offerer_id, offerer_id);
     }
 
     #[test]
     fn test_execute_trade_expired() {
         let pattern = ResonancePattern::new();
+        let offerer_id = EntityId::new("offerer-9".to_string());
+        let acceptor_id = EntityId::new("acceptor-9".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
         );
 
-        let result = ResonanceExchange::execute_trade(&offer, 200, &pattern, 1000.0);
+        let result = ResonanceExchange::execute_trade(&offer, acceptor_id, &pattern, 1000.0);
 
         assert!(result.is_err());
         match result.unwrap_err() {
@@ -1586,18 +1602,21 @@ mod tests {
         pattern2.pattern = [0.0; 8]; // All zeros
         pattern2.stability = 1.0;
 
+        let offerer_id = EntityId::new("offerer-10".to_string());
+        let acceptor_id = EntityId::new("acceptor-10".to_string());
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            offerer_id,
+            vec![1u64],
+            vec![2u64],
             pattern1,
             1000.0,
             0.0,
         )
         .with_compatibility_threshold(0.9); // High threshold
 
-        let result = ResonanceExchange::execute_trade(&offer, 200, &pattern2, 500.0);
+        let result =
+            ResonanceExchange::execute_trade(&offer, acceptor_id.clone(), &pattern2, 500.0);
 
         assert!(result.is_err());
         match result.unwrap_err() {
@@ -1620,9 +1639,9 @@ mod tests {
         let mut matcher = TradeMatcher::new();
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -1638,9 +1657,9 @@ mod tests {
         let mut matcher = TradeMatcher::new();
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -1660,9 +1679,9 @@ mod tests {
 
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
@@ -1682,9 +1701,9 @@ mod tests {
 
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
@@ -1705,9 +1724,9 @@ mod tests {
 
         let offer1 = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern1.clone(),
             1000.0,
             0.0,
@@ -1716,9 +1735,9 @@ mod tests {
 
         let offer2 = TradeOffer::new(
             TradeId::new(2),
-            200,
-            vec![ItemId::new(2)],
-            vec![ItemId::new(1)],
+            EntityId::new("offerer-200".to_string()),
+            vec![2u64],
+            vec![1u64],
             pattern2.clone(),
             1000.0,
             0.0,
@@ -1734,9 +1753,9 @@ mod tests {
         let matcher = TradeMatcher::new();
         let original_offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -1745,15 +1764,15 @@ mod tests {
 
         let counter = matcher.create_counter_offer(
             &original_offer,
-            200,
-            vec![ItemId::new(3)],
-            vec![ItemId::new(4)],
+            EntityId::new("counter-200".to_string()),
+            vec![3u64],
+            vec![4u64],
             ResonancePattern::new(),
             2000.0,
             100.0,
         );
 
-        assert_eq!(counter.offerer_id, 200);
+        assert_eq!(counter.offerer_id, EntityId::new("counter-200".to_string()));
         assert!(counter.terms.as_ref().unwrap().contains("Counter-offer"));
     }
 
@@ -1764,9 +1783,9 @@ mod tests {
 
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern,
             1000.0,
             0.0,
@@ -1787,8 +1806,12 @@ mod tests {
     fn test_multi_party_trade_creation() {
         let trade = MultiPartyTrade::new(
             TradeId::new(1),
-            vec![100, 200, 300],
-            vec![ItemId::new(1), ItemId::new(2), ItemId::new(3)],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+                EntityId::new("participant-300".to_string()),
+            ],
+            vec![1u64, 2u64, 3u64],
             0.0,
         );
 
@@ -1800,43 +1823,68 @@ mod tests {
 
     #[test]
     fn test_multi_party_add_participant_resonance() {
-        let mut trade =
-            MultiPartyTrade::new(TradeId::new(1), vec![100, 200], vec![ItemId::new(1)], 0.0);
+        let mut trade = MultiPartyTrade::new(
+            TradeId::new(1),
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
+            vec![1u64],
+            0.0,
+        );
 
         let mut pattern = ResonancePattern::new();
         pattern.pattern[0] = 0.8;
 
-        trade.add_participant_resonance(100, pattern.clone());
+        trade.add_participant_resonance(
+            EntityId::new("participant-100".to_string()),
+            pattern.clone(),
+        );
 
-        assert!(trade.participant_resonances.contains_key(&100));
+        assert!(trade
+            .participant_resonances
+            .contains_key(&EntityId::new("participant-100".to_string())));
     }
 
     #[test]
     fn test_multi_party_distribute_items_equally() {
         let trade = MultiPartyTrade::new(
             TradeId::new(1),
-            vec![100, 200],
             vec![
-                ItemId::new(1),
-                ItemId::new(2),
-                ItemId::new(3),
-                ItemId::new(4),
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
             ],
+            vec![1u64, 2u64, 3u64, 4u64],
             0.0,
         );
 
         let distribution = trade.distribute_items_equally();
 
-        assert_eq!(distribution.get(&100).unwrap().len(), 2);
-        assert_eq!(distribution.get(&200).unwrap().len(), 2);
+        assert_eq!(
+            distribution
+                .get(&EntityId::new("participant-100".to_string()))
+                .unwrap()
+                .len(),
+            2
+        );
+        assert_eq!(
+            distribution
+                .get(&EntityId::new("participant-200".to_string()))
+                .unwrap()
+                .len(),
+            2
+        );
     }
 
     #[test]
     fn test_multi_party_distribute_items_by_resonance() {
         let mut trade = MultiPartyTrade::new(
             TradeId::new(1),
-            vec![100, 200],
-            vec![ItemId::new(1), ItemId::new(2)],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
+            vec![1u64, 2u64],
             0.0,
         );
 
@@ -1847,48 +1895,66 @@ mod tests {
         let mut pattern2 = ResonancePattern::new();
         pattern2.pattern[0] = 0.0; // Low in first dimension
 
-        trade.add_participant_resonance(100, pattern1.clone());
-        trade.add_participant_resonance(200, pattern2.clone());
+        trade.add_participant_resonance(
+            EntityId::new("participant-100".to_string()),
+            pattern1.clone(),
+        );
+        trade.add_participant_resonance(
+            EntityId::new("participant-200".to_string()),
+            pattern2.clone(),
+        );
 
         // Set up item resonances
         let mut item_resonances = HashMap::new();
 
         let mut item1_pattern = ResonancePattern::new();
         item1_pattern.pattern[0] = 0.9; // Similar to pattern1
-        item_resonances.insert(ItemId::new(1), item1_pattern);
+        item_resonances.insert(1u64, item1_pattern);
 
         let mut item2_pattern = ResonancePattern::new();
         item2_pattern.pattern[0] = 0.1; // Similar to pattern2
-        item_resonances.insert(ItemId::new(2), item2_pattern);
+        item_resonances.insert(2u64, item2_pattern);
 
         let distribution = trade.distribute_items_by_resonance(&item_resonances);
 
         // Item 1 should go to entity 100, item 2 to entity 200
-        assert!(distribution.get(&100).unwrap().contains(&ItemId::new(1)));
-        assert!(distribution.get(&200).unwrap().contains(&ItemId::new(2)));
+        assert!(distribution
+            .get(&EntityId::new("participant-100".to_string()))
+            .unwrap()
+            .contains(&1u64));
+        assert!(distribution
+            .get(&EntityId::new("participant-200".to_string()))
+            .unwrap()
+            .contains(&2u64));
     }
 
     #[test]
     fn test_calculate_fairness_score() {
         let trade = MultiPartyTrade::new(
             TradeId::new(1),
-            vec![100, 200],
-            vec![ItemId::new(1), ItemId::new(2)],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
+            vec![1u64, 2u64],
             0.0,
         );
 
         // Fair distribution (1 item each)
         let mut fair_distribution = HashMap::new();
-        fair_distribution.insert(100, vec![ItemId::new(1)]);
-        fair_distribution.insert(200, vec![ItemId::new(2)]);
+        fair_distribution.insert(EntityId::new("participant-100".to_string()), vec![1u64]);
+        fair_distribution.insert(EntityId::new("participant-200".to_string()), vec![2u64]);
 
         let fair_score = trade.calculate_fairness_score(&fair_distribution);
         assert_eq!(fair_score, 1.0);
 
         // Unfair distribution (2 items to one, 0 to other)
         let mut unfair_distribution = HashMap::new();
-        unfair_distribution.insert(100, vec![ItemId::new(1), ItemId::new(2)]);
-        unfair_distribution.insert(200, vec![]);
+        unfair_distribution.insert(
+            EntityId::new("participant-100".to_string()),
+            vec![1u64, 2u64],
+        );
+        unfair_distribution.insert(EntityId::new("participant-200".to_string()), vec![]);
 
         let unfair_score = trade.calculate_fairness_score(&unfair_distribution);
         assert!(unfair_score < 1.0);
@@ -1896,8 +1962,15 @@ mod tests {
 
     #[test]
     fn test_multi_party_complete() {
-        let mut trade =
-            MultiPartyTrade::new(TradeId::new(1), vec![100, 200], vec![ItemId::new(1)], 0.0);
+        let mut trade = MultiPartyTrade::new(
+            TradeId::new(1),
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
+            vec![1u64],
+            0.0,
+        );
 
         trade.complete(1000.0);
 
@@ -1941,9 +2014,9 @@ mod tests {
         let pattern = ResonancePattern::new();
 
         let result = trading.create_trade_offer(
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("trader-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern,
             1000.0,
             0.0,
@@ -1960,9 +2033,9 @@ mod tests {
         let pattern = ResonancePattern::new();
 
         let result = trading.create_trade_offer(
-            100,
+            EntityId::new("trader-100".to_string()),
             vec![], // Empty items
-            vec![ItemId::new(2)],
+            vec![2u64],
             pattern,
             1000.0,
             0.0,
@@ -1979,9 +2052,9 @@ mod tests {
         // Create offer
         let offer = trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
@@ -1989,7 +2062,12 @@ mod tests {
             .unwrap();
 
         // Accept offer
-        let result = trading.accept_trade_offer(offer.offer_id, 200, &pattern, 500.0);
+        let result = trading.accept_trade_offer(
+            offer.offer_id,
+            EntityId::new("accepter-200".to_string()),
+            &pattern,
+            500.0,
+        );
 
         assert!(result.is_ok());
         assert_eq!(trading.trade_history.len(), 1);
@@ -2003,17 +2081,22 @@ mod tests {
 
         let offer = trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
             )
             .unwrap();
 
-        // Try to accept own offer
-        let result = trading.accept_trade_offer(offer.offer_id, 100, &pattern, 500.0);
+        // Try to accept own offer (same entity ID as offerer)
+        let result = trading.accept_trade_offer(
+            offer.offer_id,
+            EntityId::new("trader-100".to_string()),
+            &pattern,
+            500.0,
+        );
 
         assert!(result.is_err());
     }
@@ -2025,16 +2108,17 @@ mod tests {
 
         let offer = trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern,
                 1000.0,
                 0.0,
             )
             .unwrap();
 
-        let result = trading.cancel_trade_offer(offer.offer_id, 100);
+        let result =
+            trading.cancel_trade_offer(offer.offer_id, EntityId::new("trader-100".to_string()));
 
         assert!(result.is_ok());
         assert_eq!(trading.trade_matcher.active_offer_count(), 0);
@@ -2047,9 +2131,9 @@ mod tests {
 
         let offer = trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern,
                 1000.0,
                 0.0,
@@ -2057,7 +2141,8 @@ mod tests {
             .unwrap();
 
         // Try to cancel as different entity
-        let result = trading.cancel_trade_offer(offer.offer_id, 200);
+        let result =
+            trading.cancel_trade_offer(offer.offer_id, EntityId::new("canceler-200".to_string()));
 
         assert!(result.is_err());
     }
@@ -2069,9 +2154,9 @@ mod tests {
 
         trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
@@ -2088,8 +2173,12 @@ mod tests {
         let mut trading = ResonanceTrading::new();
 
         let result = trading.execute_multi_party_trade(
-            vec![100, 200, 300],
-            vec![ItemId::new(1), ItemId::new(2)],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+                EntityId::new("participant-300".to_string()),
+            ],
+            vec![1u64, 2u64],
             0.0,
         );
 
@@ -2103,8 +2192,8 @@ mod tests {
         let mut trading = ResonanceTrading::new();
 
         let result = trading.execute_multi_party_trade(
-            vec![100], // Only 1 participant
-            vec![ItemId::new(1)],
+            vec![EntityId::new("participant-100".to_string())], // Only 1 participant
+            vec![1u64],
             0.0,
         );
 
@@ -2116,7 +2205,10 @@ mod tests {
         let mut trading = ResonanceTrading::new();
 
         let result = trading.execute_multi_party_trade(
-            vec![100, 200],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
             vec![], // No items
             0.0,
         );
@@ -2132,9 +2224,9 @@ mod tests {
         // Create and accept a trade
         let offer = trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
@@ -2142,13 +2234,18 @@ mod tests {
             .unwrap();
 
         trading
-            .accept_trade_offer(offer.offer_id, 200, &pattern, 500.0)
+            .accept_trade_offer(
+                offer.offer_id,
+                EntityId::new("accepter-200".to_string()),
+                &pattern,
+                500.0,
+            )
             .unwrap();
 
-        // Check history for both entities
-        let history_100 = trading.get_trade_history(100);
-        let history_200 = trading.get_trade_history(200);
-        let history_300 = trading.get_trade_history(300);
+        // Check history for both entities (offerer and acceptor)
+        let history_100 = trading.get_trade_history(EntityId::new("trader-100".to_string()));
+        let history_200 = trading.get_trade_history(EntityId::new("accepter-200".to_string()));
+        let history_300 = trading.get_trade_history(EntityId::new("trader-300".to_string()));
 
         assert_eq!(history_100.len(), 1);
         assert_eq!(history_200.len(), 1);
@@ -2162,9 +2259,9 @@ mod tests {
 
         trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern,
                 1000.0,
                 0.0,
@@ -2184,9 +2281,9 @@ mod tests {
 
         trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
@@ -2205,7 +2302,14 @@ mod tests {
 
         // Create multi-party trade
         let trade = trading
-            .execute_multi_party_trade(vec![100, 200], vec![ItemId::new(1), ItemId::new(2)], 0.0)
+            .execute_multi_party_trade(
+                vec![
+                    EntityId::new("participant-100".to_string()),
+                    EntityId::new("participant-200".to_string()),
+                ],
+                vec![1u64, 2u64],
+                0.0,
+            )
             .unwrap();
 
         // Set up participant resonances
@@ -2216,8 +2320,10 @@ mod tests {
         pattern2.pattern[0] = 0.0;
 
         if let Some(trade_ref) = trading.get_multi_party_trade_mut(trade.trade_id) {
-            trade_ref.add_participant_resonance(100, pattern1);
-            trade_ref.add_participant_resonance(200, pattern2);
+            trade_ref
+                .add_participant_resonance(EntityId::new("participant-100".to_string()), pattern1);
+            trade_ref
+                .add_participant_resonance(EntityId::new("participant-200".to_string()), pattern2);
         }
 
         // Set up item resonances
@@ -2225,11 +2331,11 @@ mod tests {
 
         let mut item1_pattern = ResonancePattern::new();
         item1_pattern.pattern[0] = 0.9;
-        item_resonances.insert(ItemId::new(1), item1_pattern);
+        item_resonances.insert(1u64, item1_pattern);
 
         let mut item2_pattern = ResonancePattern::new();
         item2_pattern.pattern[0] = 0.1;
-        item_resonances.insert(ItemId::new(2), item2_pattern);
+        item_resonances.insert(2u64, item2_pattern);
 
         // Complete the trade
         let result = trading.complete_multi_party_trade(trade.trade_id, &item_resonances, 1000.0);
@@ -2289,9 +2395,9 @@ mod tests {
 
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern.clone(),
             1000.0,
             0.0,
@@ -2313,9 +2419,9 @@ mod tests {
 
         trading
             .create_trade_offer(
-                100,
-                vec![ItemId::new(1)],
-                vec![ItemId::new(2)],
+                EntityId::new("trader-100".to_string()),
+                vec![1u64],
+                vec![2u64],
                 pattern.clone(),
                 1000.0,
                 0.0,
@@ -2332,16 +2438,33 @@ mod tests {
     fn test_multi_party_trade_with_contributions() {
         let mut trade = MultiPartyTrade::new(
             TradeId::new(1),
-            vec![100, 200],
-            vec![ItemId::new(1), ItemId::new(2)],
+            vec![
+                EntityId::new("participant-100".to_string()),
+                EntityId::new("participant-200".to_string()),
+            ],
+            vec![1u64, 2u64],
             0.0,
         );
 
-        trade.add_contribution(100, vec![ItemId::new(1)]);
-        trade.add_contribution(200, vec![ItemId::new(2)]);
+        trade.add_contribution(EntityId::new("participant-100".to_string()), vec![1u64]);
+        trade.add_contribution(EntityId::new("participant-200".to_string()), vec![2u64]);
 
-        assert_eq!(trade.contributions.get(&100).unwrap().len(), 1);
-        assert_eq!(trade.contributions.get(&200).unwrap().len(), 1);
+        assert_eq!(
+            trade
+                .contributions
+                .get(&EntityId::new("participant-100".to_string()))
+                .unwrap()
+                .len(),
+            1
+        );
+        assert_eq!(
+            trade
+                .contributions
+                .get(&EntityId::new("participant-200".to_string()))
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[test]
@@ -2350,9 +2473,9 @@ mod tests {
 
         let offer1 = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -2360,9 +2483,9 @@ mod tests {
 
         let offer2 = TradeOffer::new(
             TradeId::new(2),
-            100,
-            vec![ItemId::new(3)],
-            vec![ItemId::new(4)],
+            EntityId::new("offerer-100".to_string()),
+            vec![3u64],
+            vec![4u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -2370,9 +2493,9 @@ mod tests {
 
         let offer3 = TradeOffer::new(
             TradeId::new(3),
-            200,
-            vec![ItemId::new(5)],
-            vec![ItemId::new(6)],
+            EntityId::new("offerer-200".to_string()),
+            vec![5u64],
+            vec![6u64],
             ResonancePattern::new(),
             1000.0,
             0.0,
@@ -2382,9 +2505,9 @@ mod tests {
         matcher.register_offer(offer2);
         matcher.register_offer(offer3);
 
-        let offers_100 = matcher.get_offers_by_offerer(100);
-        let offers_200 = matcher.get_offers_by_offerer(200);
-        let offers_300 = matcher.get_offers_by_offerer(300);
+        let offers_100 = matcher.get_offers_by_offerer(EntityId::new("offerer-100".to_string()));
+        let offers_200 = matcher.get_offers_by_offerer(EntityId::new("offerer-200".to_string()));
+        let offers_300 = matcher.get_offers_by_offerer(EntityId::new("offerer-300".to_string()));
 
         assert_eq!(offers_100.len(), 2);
         assert_eq!(offers_200.len(), 1);
@@ -2401,9 +2524,9 @@ mod tests {
 
         let offer = TradeOffer::new(
             TradeId::new(1),
-            100,
-            vec![ItemId::new(1)],
-            vec![ItemId::new(2)],
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64],
+            vec![2u64],
             pattern1,
             1000.0,
             0.0,
@@ -2420,17 +2543,17 @@ mod tests {
         let agreement = TradeAgreement::new(
             TradeId::new(1),
             TradeId::new(2),
-            200,
-            100,
-            vec![ItemId::new(1), ItemId::new(2)],
-            vec![ItemId::new(3)],
+            EntityId::new("acceptor-200".to_string()),
+            EntityId::new("offerer-100".to_string()),
+            vec![1u64, 2u64],
+            vec![3u64],
             0.75,
             500.0,
         );
 
         assert_eq!(agreement.total_items_exchanged(), 3);
-        assert!(agreement.involves_entity(100));
-        assert!(agreement.involves_entity(200));
-        assert!(!agreement.involves_entity(300));
+        assert!(agreement.involves_entity(EntityId::new("offerer-100".to_string())));
+        assert!(agreement.involves_entity(EntityId::new("acceptor-200".to_string())));
+        assert!(!agreement.involves_entity(EntityId::new("offerer-300".to_string())));
     }
 }

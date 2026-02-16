@@ -283,6 +283,9 @@ impl SubDensityProgression {
             self.current = EncodedSubDensity::encode(density, next_sub_level.level())?;
             Some(self.current)
         } else {
+            // At the last sub-density, mark it as completed
+            let index = (current_sub_level.level() - 1) as usize;
+            self.stages_completed[index] = true;
             None
         }
     }
@@ -294,8 +297,15 @@ impl SubDensityProgression {
 
     /// Check if ready to advance to next density
     pub fn ready_for_next_density(&self) -> bool {
-        self.current.sub_level().map_or(false, |sd| sd.is_last())
-            && self.stages_completed.iter().all(|&completed| completed)
+        if let Some(sub_level) = self.current.sub_level() {
+            if sub_level.is_last() {
+                // Check if all previous stages are completed
+                let all_previous_completed =
+                    (0..(sub_level.level() - 1) as usize).all(|i| self.stages_completed[i]);
+                return all_previous_completed;
+            }
+        }
+        false
     }
 
     /// Update time spent in current sub-density
@@ -681,11 +691,13 @@ mod tests {
     #[test]
     fn test_sub_density_progression_completion_percentage() {
         let prog = SubDensityProgression::new(Density::Fourth).unwrap();
-        assert_eq!(prog.completion_percentage(), 100.0 / 7.0);
+        let expected = (1.0 / 7.0) * 100.0;
+        assert!((prog.completion_percentage() - expected).abs() < 1e-10);
 
         let mut prog = prog.clone();
         prog.advance();
-        assert_eq!(prog.completion_percentage(), 200.0 / 7.0);
+        let expected = (2.0 / 7.0) * 100.0;
+        assert!((prog.completion_percentage() - expected).abs() < 1e-10);
     }
 
     #[test]

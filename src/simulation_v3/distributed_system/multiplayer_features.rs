@@ -276,20 +276,8 @@ impl CollectiveManifestation {
             contribution.contribution_amount,
         );
 
-        // Update progress
+        // Update progress (which also handles state transitions)
         self.update_progress()?;
-
-        // Update state based on progress
-        if self.current_progress >= 1.0 {
-            self.manifestation_state = ManifestationState::Complete;
-        } else if self.current_progress > 0.0 {
-            if self.manifestation_state == ManifestationState::Gathering {
-                self.manifestation_state = ManifestationState::ResonanceBuilding;
-            }
-            if self.current_progress > 0.5 {
-                self.manifestation_state = ManifestationState::ManifestationActive;
-            }
-        }
 
         Ok(())
     }
@@ -298,6 +286,18 @@ impl CollectiveManifestation {
     pub fn update_progress(&mut self) -> Result<(), MultiplayerFeaturesError> {
         let resonance_progress = self.calculate_resonance_progress();
         self.current_progress = resonance_progress;
+
+        // Update state based on progress
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Collective manifestation requires gathering
+        // of resonant energies before manifestation can occur"
+        if self.current_progress >= 1.0 {
+            self.manifestation_state = ManifestationState::Complete;
+        } else if self.current_progress > 0.0
+            && self.manifestation_state == ManifestationState::Gathering
+        {
+            self.manifestation_state = ManifestationState::ResonanceBuilding;
+        }
+
         Ok(())
     }
 
@@ -1976,7 +1976,8 @@ impl NetworkOptimizer {
     /// Tune parameters based on network conditions
     pub fn tune_parameters(&mut self, conditions: NetworkConditions) {
         // Adjust compression based on bandwidth
-        self.compression_enabled = conditions.available_bandwidth < 500_000.0;
+        // Enable compression when bandwidth is limited
+        self.compression_enabled = conditions.available_bandwidth <= 500_000.0;
 
         // Adjust bandwidth manager
         self.bandwidth_manager.bandwidth_limit = conditions.available_bandwidth * 0.9;

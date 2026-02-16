@@ -243,38 +243,51 @@ impl Archetype22 {
         &self,
         entity_state: &EntityState,
     ) -> Vec<crate::foundation::indigo_realm::Possibility> {
-        // Phase 0: Generate 3-5 possibilities (STO, STS, Neutral)
+        // Phase 0: Generate 5 possibilities (STO-high, STO-medium, Neutral, STS-medium, STS-high)
         let mut possibilities = Vec::new();
 
-        // STO possibility
-        let sto_probability = 0.4 + entity_state.polarity_state.polarity_bias.max(0.0) * 0.3;
-        let sto_archetype_influence = [0.0; 22]; // Placeholder
+        let polarity_bias = entity_state.polarity_state.polarity_bias;
+        let sto_bias = polarity_bias.max(0.0);
+        let sts_bias = (-polarity_bias).max(0.0);
+
+        // STO-high-intensity possibility
+        let sto_high_prob = 0.5 + sto_bias * 0.2;
         possibilities.push(crate::foundation::indigo_realm::Possibility {
             outcome: crate::foundation::indigo_realm::PolarityChoice::ServiceToOthers,
-            probability: sto_probability.clamp(0.1, 0.6),
-            archetype_influence: sto_archetype_influence,
+            probability: sto_high_prob.clamp(0.2, 0.8),
+            archetype_influence: [0.0; 22],
         });
 
-        // STS possibility
-        let sts_probability = 0.4 + entity_state.polarity_state.polarity_bias.abs().max(0.0) * 0.3;
-        let sts_archetype_influence = [0.0; 22]; // Placeholder
+        // STO-medium-intensity possibility
+        let sto_medium_prob = 0.4 + sto_bias * 0.2;
         possibilities.push(crate::foundation::indigo_realm::Possibility {
-            outcome: crate::foundation::indigo_realm::PolarityChoice::ServiceToSelf,
-            probability: sts_probability.clamp(0.1, 0.6),
-            archetype_influence: sts_archetype_influence,
+            outcome: crate::foundation::indigo_realm::PolarityChoice::ServiceToOthers,
+            probability: sto_medium_prob.clamp(0.2, 0.6),
+            archetype_influence: [0.0; 22],
         });
 
         // Neutral possibility
-        let neutral_probability = if entity_state.polarity_state.polarity_bias.abs() < 0.1 {
-            0.4
-        } else {
-            0.1
-        };
-        let neutral_archetype_influence = [0.0; 22]; // Placeholder
+        let neutral_prob = if polarity_bias.abs() < 0.2 { 0.4 } else { 0.2 };
         possibilities.push(crate::foundation::indigo_realm::Possibility {
             outcome: crate::foundation::indigo_realm::PolarityChoice::Neutral,
-            probability: neutral_probability,
-            archetype_influence: neutral_archetype_influence,
+            probability: neutral_prob,
+            archetype_influence: [0.0; 22],
+        });
+
+        // STS-medium-intensity possibility
+        let sts_medium_prob = 0.4 + sts_bias * 0.2;
+        possibilities.push(crate::foundation::indigo_realm::Possibility {
+            outcome: crate::foundation::indigo_realm::PolarityChoice::ServiceToSelf,
+            probability: sts_medium_prob.clamp(0.2, 0.6),
+            archetype_influence: [0.0; 22],
+        });
+
+        // STS-high-intensity possibility
+        let sts_high_prob = 0.5 + sts_bias * 0.2;
+        possibilities.push(crate::foundation::indigo_realm::Possibility {
+            outcome: crate::foundation::indigo_realm::PolarityChoice::ServiceToSelf,
+            probability: sts_high_prob.clamp(0.2, 0.8),
+            archetype_influence: [0.0; 22],
         });
 
         possibilities

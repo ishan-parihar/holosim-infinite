@@ -151,6 +151,19 @@ impl SpectrumRatio {
             SpectrumSide::TimeSpace => Dimensionality::ThreeDimensional,
         }
     }
+
+    /// Checks if this is a quantum collision (very high interference or balanced spectrum)
+    pub fn is_quantum(&self) -> bool {
+        let ratio = self.calculate_ratio();
+        // Quantum when extremely close to veil transition (v = 1.0 exactly)
+        // More strict threshold to allow interference_strength to control collision type
+        (ratio - 1.0).abs() < 0.01
+    }
+
+    /// Checks if this is time/space dominant (oneness side)
+    pub fn is_time_space_dominant(&self) -> bool {
+        self.side == SpectrumSide::TimeSpace
+    }
 }
 
 impl Eq for SpectrumRatio {}

@@ -72,7 +72,9 @@ pub struct GreatWayBodyArchetype {
 impl GreatWayBodyArchetype {
     /// Create a new Great Way of Body archetype with healthy initial values
     pub fn new() -> Self {
-        let initial_lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::GreatWayClarity);
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::GreatWayClarity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
 
         let mut activation_levels = HashMap::new();
         activation_levels.insert(Rung::R1, 0.4);
@@ -86,9 +88,9 @@ impl GreatWayBodyArchetype {
         GreatWayBodyArchetype {
             archetype_id: 14,
             active: true,
-            lambda: initial_lambda,
+            lambda,
             tarot_correlation: TarotCorrelation::new(
-                "Temperance (XIV): Balance, harmony, integration, alchemical transformation".to_string(),
+                "Temperance (XIV): Balance, harmony, moderation, and equilibrium".to_string(),
             ),
 
             // A14-specific fields - healthy initial values
@@ -100,7 +102,7 @@ impl GreatWayBodyArchetype {
             environmental_conditions: 0.65,
 
             // Developmental tracking
-            developmental_position: DevelopmentalPosition::new_with_octant_rung(Octant::O4, 4),
+            developmental_position: DevelopmentalPosition::Significator,
             activated_rungs: vec![Rung::R1, Rung::R2, Rung::R3, Rung::R4],
             activation_levels,
 
@@ -324,7 +326,7 @@ impl ArchetypeTrait for GreatWayBodyArchetype {
     }
 
     fn name(&self) -> &str {
-        "The Great Way of the Body"
+        "Great Way of Body (The Alchemist)"
     }
 
     fn activate(&mut self, intensity: Float) {
@@ -348,7 +350,7 @@ impl ArchetypeTrait for GreatWayBodyArchetype {
 
     fn health_status(&self) -> HealthStatus {
         if self.is_healthy() {
-            HealthStatus::Balanced
+            HealthStatus::Healthy
         } else if self.lambda.value < self.lambda.healthy_min {
             HealthStatus::PathologicalLow
         } else {
@@ -375,7 +377,7 @@ impl LambdaMeasurable for GreatWayBodyArchetype {
     }
 
     fn healthy_range(&self) -> (Float, Float) {
-        (0.5, 1.0)
+        (0.5, 0.8)
     }
 
     fn pathological_indicators(&self) -> Vec<String> {
@@ -426,7 +428,7 @@ impl Developmental for GreatWayBodyArchetype {
         self.developmental_position = position;
 
         // Update activation levels based on new rung
-        let rung_level = position.rung_level() as Float / 7.0;
+        let rung_level = position.actual_rung() as Float / 7.0;
         let all_rungs = vec![
             Rung::R1,
             Rung::R2,
@@ -438,7 +440,7 @@ impl Developmental for GreatWayBodyArchetype {
         ];
         for rung in all_rungs {
             let current_level = self.activation_levels.get(&rung).unwrap_or(&0.0);
-            let target_level = if rung.value() <= position.rung_level() {
+            let target_level = if rung.value() <= position.actual_rung() {
                 rung_level
             } else {
                 *current_level * 0.95
@@ -457,7 +459,7 @@ impl Developmental for GreatWayBodyArchetype {
             Rung::R7,
         ]
         .into_iter()
-        .filter(|r| r.value() <= position.rung_level())
+        .filter(|r| r.value() <= position.actual_rung())
         .collect();
     }
 
@@ -803,8 +805,8 @@ mod tests {
     fn test_great_way_body_initial_values() {
         let great_way = GreatWayBodyArchetype::new();
 
-        // Check lambda initial value
-        assert!((great_way.lambda.value - 0.65).abs() < 0.01);
+        // Check lambda initial value (set to 0.5 in new())
+        assert!((great_way.lambda.value - 0.5).abs() < 0.01);
         assert_eq!(great_way.lambda.healthy_min, 0.5);
         assert_eq!(great_way.lambda.healthy_max, 0.8);
 
@@ -932,11 +934,14 @@ mod tests {
 
         assert_eq!(
             great_way.developmental_position(),
-            DevelopmentalPosition::Significator
-        ); // rung 6 % 4 = 2 (Experience, but wraps to Significator)
+            DevelopmentalPosition::Experience
+        ); // rung 6 % 4 = 2 (Experience)
 
-        // Check that R6 is now activated
-        assert!(great_way.activated_rungs().contains(&Rung::R6));
+        // Check that R3 is now activated (Experience position maps to actual_rung=3)
+        assert!(great_way.activated_rungs().contains(&Rung::R3));
+        // All rungs <= 3 should be activated
+        assert!(great_way.activated_rungs().contains(&Rung::R1));
+        assert!(great_way.activated_rungs().contains(&Rung::R2));
     }
 
     #[test]
@@ -955,7 +960,8 @@ mod tests {
         let tension = great_way.calculate_pair_tension(&significator);
 
         // Tension should be the absolute difference
-        assert!((tension - 0.05).abs() < 0.01); // |0.65 - 0.60| ≈ 0.05
+        // great_way.lambda.value is 0.5, significator.lambda.value is 0.6
+        assert!((tension - 0.1).abs() < 0.01); // |0.5 - 0.6| = 0.1
     }
 
     #[test]
@@ -1032,8 +1038,10 @@ mod tests {
         great_way.process(0.5, crate::archetypes::common::DevelopmentalPosition::Input);
 
         // Process should update clarity and lambda
+        // Clarity changes slightly (blended with harmony)
         assert!((great_way.great_way_clarity - initial_clarity).abs() < 0.1);
-        assert!((great_way.lambda.value - initial_lambda).abs() < 0.1);
+        // Lambda changes from 0.5 to ~0.65 (harmony value)
+        assert!((great_way.lambda.value - initial_lambda).abs() < 0.2);
     }
 
     #[test]

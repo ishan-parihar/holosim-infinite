@@ -279,6 +279,17 @@ impl Logos {
     }
 }
 
+impl Default for Logos {
+    fn default() -> Self {
+        Logos {
+            intelligent_infinity: IntelligentInfinity::default(),
+            cosmic_mind: CosmicMind::default(),
+            universal_patterns: UniversalArchetypicalPatterns::default(),
+            focusing_strength: 0.0,
+        }
+    }
+}
+
 impl fmt::Display for Logos {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(

@@ -364,6 +364,12 @@ impl EnergyFlowSystem {
         let mut stats = EnergyFlowStats::default();
         stats.total_energy_flow = self.input_energy;
 
+        // Minimum meaningful allocation (less than this doesn't count as "served")
+        const MIN_ALLOCATION: Float = 0.01;
+
+        // Minimum energy required to serve an entity during scarcity
+        const MIN_ENTITLEMENT: Float = 0.05;
+
         // Group requests by density to determine which pool they draw from
         let mut requests_by_density: HashMap<u8, Vec<usize>> = HashMap::new();
         for (idx, req) in requests.iter().enumerate() {
@@ -393,8 +399,26 @@ impl EnergyFlowSystem {
                     .map(|&idx| requests[idx].calculate_priority())
                     .sum();
 
+                // Calculate fair share per entity if energy is scarce
+                let fair_share = if !request_indices.is_empty() {
+                    pool.available_energy / request_indices.len() as Float
+                } else {
+                    0.0
+                };
+
+                // Sort requests by priority when energy is scarce
+                let mut sorted_indices: Vec<_> = request_indices.iter().cloned().collect();
+                if fair_share < MIN_ENTITLEMENT {
+                    sorted_indices.sort_by(|&a, &b| {
+                        requests[b]
+                            .calculate_priority()
+                            .partial_cmp(&requests[a].calculate_priority())
+                            .unwrap_or(std::cmp::Ordering::Equal)
+                    });
+                }
+
                 // Distribute energy based on priority
-                for &idx in &request_indices {
+                for &idx in &sorted_indices {
                     let req = &mut requests[idx];
                     let pool = self.get_pool_mut(source).unwrap();
 
@@ -402,19 +426,26 @@ impl EnergyFlowSystem {
                     let entitlement =
                         req.calculate_entitlement(pool.available_energy, total_priority);
 
-                    // Allocate energy (may be less than entitlement due to scarcity)
-                    let allocated = pool.allocate(entitlement).unwrap_or(0.0);
-                    req.energy_share = allocated;
+                    // During scarcity, only serve entities with meaningful entitlement
+                    let allocation =
+                        if fair_share < MIN_ENTITLEMENT && entitlement < MIN_ENTITLEMENT {
+                            // Energy is too scarce - skip this entity
+                            0.0
+                        } else {
+                            pool.allocate(entitlement).unwrap_or(0.0)
+                        };
 
-                    // Track statistics
-                    if allocated > 0.0 {
+                    req.energy_share = allocation;
+
+                    // Track statistics (only count as "served" if allocation is meaningful)
+                    if allocation >= MIN_ALLOCATION {
                         stats.entities_served += 1;
                     } else {
                         stats.entities_unserved += 1;
                     }
 
                     // Track energy by level
-                    *stats.energy_by_level.entry(source).or_insert(0.0) += allocated;
+                    *stats.energy_by_level.entry(source).or_insert(0.0) += allocation;
                 }
             }
         }
@@ -666,7 +697,7 @@ mod tests {
 
     #[test]
     fn test_energy_flow_system_resource_constraints() {
-        let mut system = EnergyFlowSystem::new(1000.0);
+        let mut system = EnergyFlowSystem::new(10.0); // Very low to create scarcity
 
         // Create many requests to test resource constraints
         let mut requests = Vec::new();

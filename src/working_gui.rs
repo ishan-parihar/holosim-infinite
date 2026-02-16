@@ -8,11 +8,11 @@
 
 use std::sync::Arc;
 use std::time::Instant;
-use wgpu::{Device, Instance, Queue, RenderPipeline, Surface, TextureView};
+use wgpu::{Device, Instance, Queue, RenderPipeline, Surface};
 use winit::{
     dpi::PhysicalSize,
-    event::{ElementState, Event, MouseButton, MouseScrollDelta, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
+    event::{ElementState, Event, WindowEvent},
+    event_loop::EventLoop,
     keyboard::KeyCode,
     window::{Window, WindowBuilder},
 };

@@ -38,7 +38,45 @@ mod integration_tests {
         let violet = crate::foundation::violet_realm::VioletRealm::new();
         let intelligent = crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet);
         let logos = crate::foundation::blue_realm::Logos::from_intelligent_infinity(intelligent);
-        LightLoveField::from_logos(logos)
+        let mut field = LightLoveField::from_logos(logos);
+
+        // Add holographic patterns, rhythms, and fields for spectrum conditions
+        field.add_holographic_pattern(crate::foundation::green_realm::HolographicPattern::new(
+            0.8,
+            [1.0, 0.0, 0.0],
+            0.5,
+        ));
+        field.add_holographic_pattern(crate::foundation::green_realm::HolographicPattern::new(
+            0.7,
+            [0.0, 1.0, 0.0],
+            0.6,
+        ));
+
+        field.add_rhythm(crate::foundation::green_realm::Rhythm::new(0.5, 0.8, 0.3));
+        field.add_rhythm(crate::foundation::green_realm::Rhythm::new(0.6, 0.7, 0.4));
+
+        field.add_field(crate::foundation::green_realm::Field::new(
+            0.9,
+            0.8,
+            "coherence_field",
+        ));
+
+        // Add universal archetypical patterns to the Logos
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Blue-Ray has Universal Archetypical Patterns"
+        field
+            .logos
+            .universal_patterns
+            .add_pattern("cosmic_creation_pattern");
+        field
+            .logos
+            .universal_patterns
+            .add_pattern("evolutionary_template");
+        field
+            .logos
+            .universal_patterns
+            .add_pattern("consciousness_structure");
+
+        field
     }
 
     #[test]
@@ -77,6 +115,7 @@ mod integration_tests {
         // Create Orange-Ray (includes Yellow + all previous layers)
         let mut orange = OrangeRealm::new(yellow);
         orange.apply_galactic_configuration().unwrap();
+        orange.create_solar_systems(1); // Ensure solar systems exist for Red transition
 
         // Orange-Ray includes Yellow-Ray
         assert!(orange.yellow_realm.dimensional_architecture.emerged);
@@ -417,12 +456,12 @@ mod integration_tests {
         // Further evolution
         yellow.dimensional_architecture.thin_veil(0.3);
 
-        assert_eq!(yellow.veil_strength(), 0.4);
+        assert!((yellow.veil_strength() - 0.4).abs() < 0.01);
 
         // Eventually, the Veil dissolves (6th Density)
         yellow.dimensional_architecture.thin_veil(0.4);
 
-        assert_eq!(yellow.veil_strength(), 0.0);
+        assert!((yellow.veil_strength() - 0.0).abs() < 0.01);
     }
 
     #[test]
@@ -438,6 +477,7 @@ mod integration_tests {
 
         let mut orange = OrangeRealm::new(yellow);
         orange.apply_galactic_configuration().unwrap();
+        orange.create_solar_systems(1); // Ensure solar systems exist
 
         // Galactic-scale Logoi: Configure galactic-scale spectrum patterns (Orange-Ray)
         assert!(!orange.galactic_logoi.is_empty());

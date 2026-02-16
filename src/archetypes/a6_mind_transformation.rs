@@ -85,7 +85,9 @@ pub enum DeepMindAttitude {
 impl TransformationMindArchetype {
     /// Create a new Transformation archetype with default values
     pub fn new() -> Self {
-        let lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::TransformationVelocity);
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::TransformationVelocity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
 
         let tarot_correlation = TarotCorrelation::new(format!(
             "The Lovers (VI): Catalyst processed and transformed into new understanding"
@@ -121,7 +123,7 @@ impl TransformationMindArchetype {
             protection_level: 0.0,
             deep_mind_attitude: DeepMindAttitude::Undecided,
 
-            developmental_position: DevelopmentalPosition::new_with_octant_rung(Octant::O5, 3),
+            developmental_position: DevelopmentalPosition::Experience,
             activated_rungs: vec![Rung::R3],
             activation_levels,
             description: "The Transformation of Mind represents the student of the mysteries being transformed by the need to choose betwixt the light and the dark in mind — the process of choosing between service-to-others and service-to-self paths.".to_string(),
@@ -1126,7 +1128,7 @@ mod tests {
 
         assert_eq!(
             transformation.developmental_position(),
-            DevelopmentalPosition::Experience
+            DevelopmentalPosition::Input
         ); // rung 4 % 4 = 0 (Input)
 
         // Set activation level for R4 (simulating development)

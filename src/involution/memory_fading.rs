@@ -285,7 +285,9 @@ impl MemoryFadingSystem {
     /// # Returns
     /// Memory retention percentage (0.0 to 1.0)
     pub fn calculate_memory_retention(&self, density: Density) -> Float {
-        self.memory_retention_curve[density.as_usize() - 1]
+        // Index: D7 -> index 0, D6 -> index 1, ..., D1 -> index 6
+        let index = 7 - density.as_usize();
+        self.memory_retention_curve[index]
     }
 
     /// Fade memory for an entity based on veil thickness

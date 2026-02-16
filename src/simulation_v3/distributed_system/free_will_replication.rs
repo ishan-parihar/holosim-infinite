@@ -163,12 +163,29 @@ impl ResonancePattern {
 
     /// Calculate compatibility with another pattern
     pub fn compatibility_with(&self, other: &ResonancePattern) -> Float {
-        let freq_diff = (self.frequency - other.frequency).abs();
+        // For phase and amplitude (0.0-1.0 range), use simple difference
         let phase_diff = (self.phase - other.phase).abs();
         let amp_diff = (self.amplitude - other.amplitude).abs();
 
-        // Higher compatibility when values are closer
-        1.0 - (freq_diff + phase_diff + amp_diff) / 3.0
+        // For frequency, use logarithmic ratio to handle musical frequency relationships
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Resonance patterns can interact at various
+        // levels of compatibility, from total dissonance to perfect harmony. Even frequencies
+        // that differ by octaves maintain some harmonic relationship."
+        let freq_ratio = if self.frequency == 0.0 && other.frequency == 0.0 {
+            0.0
+        } else if self.frequency == 0.0 || other.frequency == 0.0 {
+            1.0
+        } else {
+            // Use log ratio normalized to 0-1 range
+            let ratio = (self.frequency / other.frequency).max(other.frequency / self.frequency);
+            (ratio.ln() / 2.0_f64.ln()).min(1.0) // Log base 2, normalized
+        };
+
+        // Combine metrics: phase and amplitude use direct difference, frequency uses log ratio
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Harmonic relationships exist even at different
+        // frequencies, representing the holographic principle of part-whole correspondence"
+        let compat = 1.0 - (freq_ratio + phase_diff + amp_diff) / 3.0;
+        compat.max(0.0) // Ensure non-negative compatibility
     }
 }
 
@@ -1053,8 +1070,8 @@ impl FreeWillValidator {
 
     /// Add default validation rules
     fn add_default_rules(&mut self) {
-        // Density transition rule
-        let density_rule = ValidationRule::required(
+        // Density transition rule (not required - only applies to density transitions)
+        let density_rule = ValidationRule::new(
             1,
             RuleType::DensityRequirement {
                 min_density: Density::First,
@@ -1431,10 +1448,9 @@ impl ClientReconciliation {
         // Add non-conflicting choices
         for (choice_id, client_choice) in &self.client_choices {
             if !self.server_choices.contains_key(choice_id) {
-                // Client-only choice
-                if self.reconciliation_strategy == ReconciliationStrategy::ClientWins {
-                    reconciled_choices.push(client_choice.clone());
-                }
+                // Client-only choice - always add it
+                // From COSMOLOGICAL-ARCHITECTURE.md: "Free Will choices are fundamental and should be preserved"
+                reconciled_choices.push(client_choice.clone());
             }
         }
 
@@ -1666,8 +1682,10 @@ impl FreeWillReplicationSystem {
         &mut self,
         choice: FreeWillChoice,
     ) -> Result<ValidationResult, FreeWillReplicationError> {
-        // Check if choice already exists
-        if self.validated_choices.contains_key(&choice.choice_id) {
+        // Check if choice already exists (in both pending and validated)
+        if self.validated_choices.contains_key(&choice.choice_id)
+            || self.pending_choices.contains_key(&choice.choice_id)
+        {
             return Err(FreeWillReplicationError::ChoiceAlreadyExists(
                 choice.choice_id,
             ));
@@ -1903,9 +1921,15 @@ mod tests {
     #[test]
     fn test_create_free_will_choice() {
         let choice_data = ChoiceData::ArchetypeData { archetype_id: 22 };
-        let choice = FreeWillChoice::new(1, 100, 200, FreeWillType::ArchetypeChoice, choice_data);
+        let choice = FreeWillChoice::new(
+            ChoiceId(1),
+            100,
+            200,
+            FreeWillType::ArchetypeChoice,
+            choice_data,
+        );
 
-        assert_eq!(choice.choice_id, 1);
+        assert_eq!(choice.choice_id, ChoiceId(1));
         assert_eq!(choice.entity_id, 100);
         assert_eq!(choice.player_id, 200);
         assert_eq!(choice.choice_type, FreeWillType::ArchetypeChoice);
@@ -1915,7 +1939,7 @@ mod tests {
     #[test]
     fn test_choice_validate() {
         let mut choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -1927,7 +1951,7 @@ mod tests {
     #[test]
     fn test_choice_validate_without_signature() {
         let choice = FreeWillChoice::new(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -1939,7 +1963,7 @@ mod tests {
     #[test]
     fn test_choice_compatibility_same() {
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -1952,14 +1976,14 @@ mod tests {
     #[test]
     fn test_choice_compatibility_different_entity() {
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             200,
             FreeWillType::ArchetypeChoice,
@@ -1971,14 +1995,14 @@ mod tests {
     #[test]
     fn test_choice_compatibility_conflict() {
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -1990,7 +2014,7 @@ mod tests {
     #[test]
     fn test_choice_serialize_deserialize() {
         let original = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2009,7 +2033,7 @@ mod tests {
     #[test]
     fn test_choice_serialize_deserialize_polarity() {
         let original = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::PolarityChoice,
@@ -2032,7 +2056,7 @@ mod tests {
     #[test]
     fn test_choice_serialize_deserialize_density() {
         let original = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::DensityTransition,
@@ -2055,7 +2079,7 @@ mod tests {
     fn test_choice_serialize_deserialize_resonance() {
         let pattern = ResonancePattern::new(440.0, 0.5, 1.0);
         let original = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ResonanceAlignment,
@@ -2217,7 +2241,7 @@ mod tests {
             "Test rule".to_string(),
         );
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2239,7 +2263,7 @@ mod tests {
             "Test rule".to_string(),
         );
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2261,7 +2285,7 @@ mod tests {
             "Test rule".to_string(),
         );
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2271,7 +2295,7 @@ mod tests {
         assert!(rule.evaluate(&choice, &entity_state));
 
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             100,
             200,
             FreeWillType::PolarityChoice,
@@ -2295,7 +2319,7 @@ mod tests {
         );
         let entity_state = EntityState::new(100, Density::Fourth);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::DensityTransition,
@@ -2315,7 +2339,7 @@ mod tests {
 
     #[test]
     fn test_validation_result_with_warning() {
-        let result = ValidationResult::success(1).add_warning(ValidationWarning::new(
+        let result = ValidationResult::success(ChoiceId(1)).add_warning(ValidationWarning::new(
             "WARN".to_string(),
             "Warning".to_string(),
         ));
@@ -2330,37 +2354,38 @@ mod tests {
             "TEST_ERROR".to_string(),
             "Test error message".to_string(),
         )];
-        let result = ValidationResult::failure(1, errors);
+        let result = ValidationResult::failure(ChoiceId(1), errors);
         assert!(!result.is_valid);
         assert_eq!(result.errors.len(), 1);
     }
 
     #[test]
     fn test_validation_result_has_errors() {
-        let result = ValidationResult::success(1);
+        let result = ValidationResult::success(ChoiceId(1));
         assert!(!result.has_errors());
 
         let errors = vec![ValidationError::new(
             "TEST_ERROR".to_string(),
             "Test error".to_string(),
         )];
-        let result = ValidationResult::failure(1, errors);
+        let result = ValidationResult::failure(ChoiceId(1), errors);
         assert!(result.has_errors());
     }
 
     #[test]
-    fn test_validation_result_get_summary() {
-        let result = ValidationResult::success(1);
+    fn test_validation_result_get_summary_with_warning() {
+        let result = ValidationResult::success(ChoiceId(1));
         assert_eq!(result.get_summary(), "Valid");
 
-        let result = ValidationResult::success(1).with_warning(ValidationWarning::new(
+        let mut result = ValidationResult::success(ChoiceId(1));
+        result = result.add_warning(ValidationWarning::new(
             "WARN".to_string(),
             "Warning".to_string(),
         ));
         assert_eq!(result.get_summary(), "Valid with 1 warning(s)");
 
         let errors = vec![ValidationError::new("ERR".to_string(), "Error".to_string())];
-        let result = ValidationResult::failure(1, errors);
+        let result = ValidationResult::failure(ChoiceId(1), errors);
         assert_eq!(result.get_summary(), "Invalid: 1 error(s)");
     }
 
@@ -2378,7 +2403,7 @@ mod tests {
     fn test_validator_validate_choice_success() {
         let validator = FreeWillValidator::new();
         let mut choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2395,7 +2420,7 @@ mod tests {
     fn test_validator_validate_choice_invalid_signature() {
         let validator = FreeWillValidator::new();
         let choice = FreeWillChoice::new(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2415,7 +2440,7 @@ mod tests {
     fn test_validator_validate_choice_entity_mismatch() {
         let validator = FreeWillValidator::new();
         let mut choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2463,14 +2488,14 @@ mod tests {
     fn test_validator_check_choice_compatibility() {
         let validator = FreeWillValidator::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2498,7 +2523,7 @@ mod tests {
     fn test_client_reconciliation_add_choices() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ServerWins);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2516,14 +2541,14 @@ mod tests {
     fn test_client_reconciliation_detect_conflicts() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ServerWins);
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2541,14 +2566,14 @@ mod tests {
     fn test_client_reconciliation_server_wins() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ServerWins);
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2571,14 +2596,14 @@ mod tests {
     fn test_client_reconciliation_client_wins() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ClientWins);
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2596,14 +2621,14 @@ mod tests {
     fn test_client_reconciliation_no_conflicts() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ServerWins);
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2621,7 +2646,7 @@ mod tests {
     fn test_client_reconciliation_get_summary() {
         let mut recon = ClientReconciliation::new(ReconciliationStrategy::ServerWins);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2644,14 +2669,14 @@ mod tests {
     #[test]
     fn test_choice_conflict_new() {
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2672,14 +2697,14 @@ mod tests {
     #[test]
     fn test_choice_conflict_resolve() {
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -2689,11 +2714,11 @@ mod tests {
         let mut conflict = ChoiceConflict::new(
             0,
             client_choice,
-            server_choice,
+            server_choice.clone(),
             ConflictType::ConcurrentChoice,
         );
 
-        let resolution = ConflictResolution::server_choice(server_choice.clone());
+        let resolution = ConflictResolution::server_choice(server_choice);
         conflict.resolve(resolution);
 
         assert!(conflict.resolution.is_some());
@@ -2714,13 +2739,13 @@ mod tests {
     fn test_choice_log_log_choice() {
         let mut log = ChoiceLog::new();
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
-        let result = ValidationResult::success(1);
+        let result = ValidationResult::success(ChoiceId(1));
 
         log.log_choice(&choice, &result);
 
@@ -2732,20 +2757,20 @@ mod tests {
     fn test_choice_log_get_entity_history() {
         let mut log = ChoiceLog::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 23 },
         );
-        let result = ValidationResult::success(1);
+        let result = ValidationResult::success(ChoiceId(1));
 
         log.log_choice(&choice1, &result);
         log.log_choice(&choice2, &result);
@@ -2759,20 +2784,20 @@ mod tests {
     fn test_choice_log_get_player_history() {
         let mut log = ChoiceLog::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             201,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 23 },
         );
-        let result = ValidationResult::success(1);
+        let result = ValidationResult::success(ChoiceId(1));
 
         log.log_choice(&choice1, &result);
         log.log_choice(&choice2, &result);
@@ -2786,13 +2811,13 @@ mod tests {
     fn test_choice_log_get_replay_sequence() {
         let mut log = ChoiceLog::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
-        let result = ValidationResult::success(1);
+        let result = ValidationResult::success(ChoiceId(1));
 
         log.log_choice(&choice1, &result);
 
@@ -2858,15 +2883,15 @@ mod tests {
     #[test]
     fn test_replication_system_new() {
         let system = FreeWillReplicationSystem::new();
-        assert!(!system.validated_choices.is_empty());
-        assert_eq!(system.next_choice_id, 1);
+        assert!(system.validated_choices.is_empty()); // System starts empty
+        assert_eq!(system.next_choice_id, ChoiceId(1));
     }
 
     #[test]
     fn test_replication_system_submit_choice() {
         let mut system = FreeWillReplicationSystem::new();
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2882,7 +2907,7 @@ mod tests {
     fn test_replication_system_submit_choice_duplicate() {
         let mut system = FreeWillReplicationSystem::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2903,7 +2928,7 @@ mod tests {
     fn test_replication_system_validate_choice() {
         let mut system = FreeWillReplicationSystem::new();
         let mut choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2921,7 +2946,7 @@ mod tests {
     fn test_replication_system_validate_choice_invalid_signature() {
         let mut system = FreeWillReplicationSystem::new();
         let choice = FreeWillChoice::new(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2941,7 +2966,7 @@ mod tests {
     fn test_replication_system_replicate_choice() {
         let mut system = FreeWillReplicationSystem::new();
         let mut choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2959,8 +2984,8 @@ mod tests {
     #[test]
     fn test_replication_system_replicate_choice_not_validated() {
         let mut system = FreeWillReplicationSystem::new();
-        let choice = create_test_choice(
-            1,
+        let mut choice = create_test_choice(
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -2976,16 +3001,16 @@ mod tests {
     fn test_replication_system_reconcile_with_server() {
         let mut system = FreeWillReplicationSystem::new();
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
-        system.validated_choices.insert(1, client_choice);
+        system.validated_choices.insert(ChoiceId(1), client_choice);
 
         let server_choices = vec![create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             201,
             FreeWillType::ArchetypeChoice,
@@ -3000,14 +3025,14 @@ mod tests {
     fn test_replication_system_get_entity_choices() {
         let mut system = FreeWillReplicationSystem::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             100,
             200,
             FreeWillType::PolarityChoice,
@@ -3016,16 +3041,16 @@ mod tests {
             },
         );
         let choice3 = create_test_choice(
-            3,
+            ChoiceId(3),
             101,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 23 },
         );
 
-        system.validated_choices.insert(1, choice1);
-        system.validated_choices.insert(2, choice2);
-        system.validated_choices.insert(3, choice3);
+        system.validated_choices.insert(ChoiceId(1), choice1);
+        system.validated_choices.insert(ChoiceId(2), choice2);
+        system.validated_choices.insert(ChoiceId(3), choice3);
 
         let choices = system.get_entity_choices(100);
         assert_eq!(choices.len(), 2);
@@ -3035,30 +3060,30 @@ mod tests {
     fn test_replication_system_get_player_choices() {
         let mut system = FreeWillReplicationSystem::new();
         let choice1 = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
         let choice2 = create_test_choice(
-            2,
+            ChoiceId(2),
             101,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 23 },
         );
         let choice3 = create_test_choice(
-            3,
+            ChoiceId(3),
             102,
             201,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 24 },
         );
 
-        system.validated_choices.insert(1, choice1);
-        system.validated_choices.insert(2, choice2);
-        system.validated_choices.insert(3, choice3);
+        system.validated_choices.insert(ChoiceId(1), choice1);
+        system.validated_choices.insert(ChoiceId(2), choice2);
+        system.validated_choices.insert(ChoiceId(3), choice3);
 
         let choices = system.get_player_choices(200);
         assert_eq!(choices.len(), 2);
@@ -3068,23 +3093,23 @@ mod tests {
     fn test_replication_system_get_choice_history() {
         let mut system = FreeWillReplicationSystem::new();
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
-        system.validated_choices.insert(1, choice.clone());
+        system.validated_choices.insert(ChoiceId(1), choice.clone());
 
-        let history = system.get_choice_history(1);
+        let history = system.get_choice_history(ChoiceId(1));
         assert!(history.is_some());
-        assert_eq!(history.unwrap().choice_id, 1);
+        assert_eq!(history.unwrap().choice_id, ChoiceId(1));
     }
 
     #[test]
     fn test_replication_system_get_choice_history_not_found() {
         let system = FreeWillReplicationSystem::new();
-        let history = system.get_choice_history(999);
+        let history = system.get_choice_history(ChoiceId(999));
         assert!(history.is_none());
     }
 
@@ -3107,8 +3132,8 @@ mod tests {
         let id1 = system.create_choice_id();
         let id2 = system.create_choice_id();
 
-        assert_eq!(id1, 1);
-        assert_eq!(id2, 2);
+        assert_eq!(id1, ChoiceId(1));
+        assert_eq!(id2, ChoiceId(2));
     }
 
     #[test]
@@ -3127,29 +3152,29 @@ mod tests {
         let err = FreeWillReplicationError::InvalidChoice("test".to_string());
         assert_eq!(format!("{}", err), "Invalid choice: test");
 
-        let err = FreeWillReplicationError::ChoiceAlreadyExists(123);
+        let err = FreeWillReplicationError::ChoiceAlreadyExists(ChoiceId(123));
         assert_eq!(format!("{}", err), "Choice already exists: 123");
     }
 
     #[test]
     fn test_error_choice_not_found() {
-        let err = FreeWillReplicationError::ChoiceNotFound(999);
+        let err = FreeWillReplicationError::ChoiceNotFound(ChoiceId(999));
         assert_eq!(format!("{}", err), "Choice not found: 999");
     }
 
     #[test]
-    fn test_validation_result_get_summary() {
-        let result = ValidationResult::success(1);
+    fn test_validation_result_get_summary_add_warning() {
+        let result = ValidationResult::success(ChoiceId(1));
         assert_eq!(result.get_summary(), "Valid");
 
-        let result = ValidationResult::success(1).add_warning(ValidationWarning::new(
+        let result = ValidationResult::success(ChoiceId(1)).add_warning(ValidationWarning::new(
             "WARN".to_string(),
             "Warning".to_string(),
         ));
         assert_eq!(result.get_summary(), "Valid with 1 warning(s)");
 
         let errors = vec![ValidationError::new("ERR".to_string(), "Error".to_string())];
-        let result = ValidationResult::failure(1, errors);
+        let result = ValidationResult::failure(ChoiceId(1), errors);
         assert_eq!(result.get_summary(), "Invalid: 1 error(s)");
     }
 
@@ -3161,7 +3186,7 @@ mod tests {
     fn test_validation_condition_evaluate_choice_type() {
         let cond = ValidationCondition::ChoiceTypeEquals(FreeWillType::ArchetypeChoice);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -3177,7 +3202,7 @@ mod tests {
         let cond = ValidationCondition::DensityInRange(Density::Third, Density::Fifth);
         let entity_state = EntityState::new(100, Density::Fourth);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::DensityTransition,
@@ -3195,7 +3220,7 @@ mod tests {
         let mut entity_state = EntityState::new(100, Density::Third);
         entity_state.resonance_pattern = ResonancePattern::new(1.0, 0.0, 1.0);
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ResonanceAlignment,
@@ -3214,7 +3239,7 @@ mod tests {
     #[test]
     fn test_conflict_resolution_server_choice() {
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -3230,7 +3255,7 @@ mod tests {
     #[test]
     fn test_conflict_resolution_client_choice() {
         let choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
@@ -3361,17 +3386,17 @@ mod tests {
 
         // Add client choices
         let client_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,
             ChoiceData::ArchetypeData { archetype_id: 22 },
         );
-        system.validated_choices.insert(1, client_choice);
+        system.validated_choices.insert(ChoiceId(1), client_choice);
 
         // Add server choices with conflict (same ID, different data)
         let server_choice = create_test_choice(
-            1,
+            ChoiceId(1),
             100,
             201,
             FreeWillType::ArchetypeChoice,
@@ -3393,7 +3418,7 @@ mod tests {
         // Log multiple choices
         for i in 1..=5 {
             let choice = create_test_choice(
-                i,
+                ChoiceId(i),
                 100 + i,
                 200,
                 FreeWillType::ArchetypeChoice,
@@ -3401,7 +3426,7 @@ mod tests {
                     archetype_id: 22 + i,
                 },
             );
-            let result = ValidationResult::success(i);
+            let result = ValidationResult::success(ChoiceId(i));
             log.log_choice(&choice, &result);
         }
 
@@ -3426,7 +3451,7 @@ mod tests {
 
         // Try to validate a choice without signature
         let choice = FreeWillChoice::new(
-            1,
+            ChoiceId(1),
             100,
             200,
             FreeWillType::ArchetypeChoice,

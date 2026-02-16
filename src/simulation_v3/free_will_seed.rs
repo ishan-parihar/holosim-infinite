@@ -169,13 +169,17 @@ impl ArchetypeConstraint {
         let profile_value = profile.get(self.archetype_index).unwrap_or(&0.0);
         let signature_value = signature.get(self.archetype_index).unwrap_or(&0.0);
 
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Free will operates within archetype constraints"
+        // The signature must always be in the valid range
         let in_range = *signature_value >= self.min_value && *signature_value <= self.max_value;
         let profile_match = *profile_value >= self.min_value && *profile_value <= self.max_value;
 
+        // If required, both signature and profile must be in range
+        // If not required, only signature needs to be in range (profile is optional guidance)
         if self.required {
             in_range && profile_match
         } else {
-            in_range || profile_match
+            in_range
         }
     }
 }
@@ -643,7 +647,7 @@ mod tests {
 
     #[test]
     fn test_deterministic_choice_reconstruction() {
-        let space = PossibilitySpace::new();
+        let mut space = PossibilitySpace::new();
         let possibility = Possibility {
             id: "test_action".to_string(),
             action_type: ActionType::Move,
@@ -752,7 +756,7 @@ mod tests {
 
     #[test]
     fn test_reconstruct_choice_different_seeds() {
-        let space = PossibilitySpace::new();
+        let mut space = PossibilitySpace::new();
         let possibility = Possibility {
             id: "test_action".to_string(),
             action_type: ActionType::Move,

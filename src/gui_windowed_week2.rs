@@ -16,9 +16,8 @@ use holonic_realms::integrated_system::IntegratedSystem;
 use std::hash::Hasher;
 use std::time::Instant;
 use winit::{
-    dpi::PhysicalSize,
-    event::{ElementState, Event, KeyEvent, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
+    event::{ElementState, Event, WindowEvent},
+    event_loop::EventLoop,
     keyboard::{Key, NamedKey},
     window::WindowBuilder,
 };
@@ -138,11 +137,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     WindowEvent::RedrawRequested => {
                         // Update simulation
-                        if !paused {
-                            if let Ok(_) = simulation.run(1) {
+                        if !paused
+                            && simulation.run(1).is_ok() {
                                 sim_step += 1;
                             }
-                        }
 
                         // Calculate FPS
                         frame_count += 1;

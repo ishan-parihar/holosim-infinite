@@ -9,12 +9,9 @@
 //! - Enhanced lighting system
 //! - Performance profiling tools
 
-use holonic_realms::gui::renderer::instanced_renderer::{CameraUniforms, LightUniforms};
 use holonic_realms::gui::renderer::post_process::{
-    EffectType, ParticleSystem, PostProcessConfig, PostProcessPipeline, VisualEffects,
-    POST_PROCESS_SHADER,
+    ParticleSystem, PostProcessConfig, VisualEffects,
 };
-use std::time::{Duration, Instant};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("╔══════════════════════════════════════════════════════════════╗");

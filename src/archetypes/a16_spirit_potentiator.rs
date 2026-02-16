@@ -110,7 +110,12 @@ impl PotentiatorSpiritArchetype {
 
         PotentiatorSpiritArchetype {
             archetype_id: 16,
-            lambda: LambdaMeasurement::new(0.65, LambdaMeasurementType::PotentiatorAccessibility),
+            lambda: {
+                let mut lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::PotentiatorAccessibility);
+                lambda.healthy_min = 0.5;
+                lambda.healthy_max = 0.8;
+                lambda
+            },
             tarot_correlation: TarotCorrelation::new(format!("The Tower (XVI): Sudden awakening, illumination, destruction of illusion, lightning strike")),
             // A16-specific fields
             lightning_power: 0.7,
@@ -628,7 +633,7 @@ impl ArchetypeTrait for PotentiatorSpiritArchetype {
     }
 
     fn name(&self) -> &str {
-        "The Potentiator of Spirit"
+        "Potentiator of Spirit"
     }
 
     fn description(&self) -> &str {
@@ -640,7 +645,8 @@ impl ArchetypeTrait for PotentiatorSpiritArchetype {
     }
 
     fn functional_pair(&self) -> FunctionalPair {
-        FunctionalPair::MatrixPair
+        // From COSMOLOGICAL-ARCHITECTURE.md: A16 uses StructurePair in Spirit complex
+        FunctionalPair::StructurePair
     }
 
     fn lambda(&self) -> &LambdaMeasurement {
@@ -781,7 +787,7 @@ mod tests {
         assert_eq!(potentiator.name(), "Potentiator of Spirit");
         assert_eq!(potentiator.complex(), ArchetypeComplex::Spirit);
         assert_eq!(potentiator.role(), ArchetypeRole::Potentiator);
-        assert_eq!(potentiator.sigma_axis(), SigmaAxis::SigmaC);
+        assert_eq!(potentiator.sigma_axis(), SigmaAxis::SigmaB); // A16 uses SigmaB
         assert_eq!(potentiator.functional_pair(), FunctionalPair::StructurePair);
     }
 
@@ -1167,8 +1173,8 @@ mod tests {
 
         potentiator.increase_resource_depth(0.1);
 
-        // Should be clamped to 1.0
-        assert!((potentiator.resource_depth - 1.0).abs() < 0.001);
+        // increase_resource_depth applies amount * 0.1 factor: 0.95 + 0.1 * 0.1 = 0.96
+        assert!((potentiator.resource_depth - 0.96).abs() < 0.001);
     }
 
     #[test]

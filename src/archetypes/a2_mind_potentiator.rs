@@ -35,6 +35,10 @@ pub struct PotentiatorMindArchetype {
 
 impl PotentiatorMindArchetype {
     pub fn new() -> Self {
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::Capacity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
+
         PotentiatorMindArchetype {
             archetype_id: 2,
             name: "Potentiator of Mind".to_string(),
@@ -47,7 +51,7 @@ impl PotentiatorMindArchetype {
             polarization: Polarity::Neutral,
             health_status: HealthStatus::Balanced,
             holonic_level: HolonicLevel::Micro,
-            lambda_measurement: LambdaMeasurement::new(1.0, LambdaMeasurementType::Capacity),
+            lambda_measurement: lambda,
             is_active: false,
             resource_accessibility: 0.5,
             resource_quality: 0.5,

@@ -217,11 +217,11 @@ pub struct ScaleTransition {
     /// Transition progress (0.0 = at from_scale, 1.0 = at to_scale)
     transition_progress: Float,
 
-    /// Transition duration in seconds
+    /// Transition duration
     duration: Duration,
 
-    /// Transition start time
-    start_time: Instant,
+    /// Cumulative elapsed time
+    elapsed: Duration,
 
     /// Is the transition complete?
     complete: bool,
@@ -238,7 +238,7 @@ impl ScaleTransition {
             to_scale,
             transition_progress: 0.0,
             duration,
-            start_time: Instant::now(),
+            elapsed: Duration::ZERO,
             complete: false,
             interpolation: InterpolationMode::Smooth,
         }
@@ -256,20 +256,22 @@ impl ScaleTransition {
             to_scale,
             transition_progress: 0.0,
             duration,
-            start_time: Instant::now(),
+            elapsed: Duration::ZERO,
             complete: false,
             interpolation,
         }
     }
 
     /// Update the transition
+    /// From GAMING_ENGINE_ROADMAP_v2.md Section 5.2: "Maintain holographic continuity during transitions"
     pub fn update(&mut self, delta: Duration) {
         if self.complete {
             return;
         }
 
-        let elapsed = self.start_time.elapsed();
-        let progress = elapsed.as_secs_f64() / self.duration.as_secs_f64();
+        // Track cumulative elapsed time for deterministic testing
+        self.elapsed += delta;
+        let progress = self.elapsed.as_secs_f64() / self.duration.as_secs_f64();
 
         self.transition_progress = progress.clamp(0.0, 1.0);
 
@@ -357,6 +359,16 @@ impl InterpolatedScale {
     /// Get the interpolation factor
     pub fn factor(&self) -> Float {
         self.factor
+    }
+
+    /// Get the source scale
+    pub fn from_scale(&self) -> ScaleLevel {
+        self.from_scale
+    }
+
+    /// Get the target scale
+    pub fn to_scale(&self) -> ScaleLevel {
+        self.to_scale
     }
 }
 

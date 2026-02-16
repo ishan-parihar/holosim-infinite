@@ -77,6 +77,17 @@ impl DevelopmentalPosition {
             DevelopmentalPosition::Significator => 3,
         }
     }
+
+    /// Get the actual rung number (1-7) from the position type
+    /// This is used for activation purposes where the original rung matters
+    pub fn actual_rung(&self) -> u8 {
+        match self {
+            DevelopmentalPosition::Input => 1,
+            DevelopmentalPosition::Catalyst => 2,
+            DevelopmentalPosition::Experience => 3,
+            DevelopmentalPosition::Significator => 4,
+        }
+    }
 }
 
 /// Functional Pair - Matrix/Process/Experience/Significator
@@ -152,7 +163,7 @@ impl LambdaMeasurement {
     }
 
     pub fn is_healthy(&self) -> bool {
-        self.value > 0.0 && self.value <= 1.0
+        self.value >= self.healthy_min && self.value <= self.healthy_max
     }
 
     pub fn health_status(&self) -> HealthStatus {

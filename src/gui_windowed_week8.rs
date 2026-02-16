@@ -11,12 +11,8 @@
 //! - Performance monitoring
 
 use holonic_realms::gui::renderer::{
-    buffers::Entity3DInstanceData,
-    instanced_renderer::{CameraUniforms, InstancedRenderer, LightUniforms},
-    shaders::generate_sphere_geometry,
+    buffers::Entity3DInstanceData, shaders::generate_sphere_geometry,
 };
-use nalgebra_glm::{Mat4, Vec3};
-use std::time::{Duration, Instant};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("╔══════════════════════════════════════════════════════════════╗");
@@ -39,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create instance data
     let entity_count = 1000;
-    let instances = create_instances(entity_count);
+    let _instances = create_instances(entity_count);
     println!("✓ Created {} entity instances", entity_count);
     println!();
 

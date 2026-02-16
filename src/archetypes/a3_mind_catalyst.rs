@@ -41,6 +41,10 @@ pub struct CatalystMindArchetype {
 
 impl CatalystMindArchetype {
     pub fn new() -> Self {
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::Capacity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
+
         CatalystMindArchetype {
             archetype_id: 3,
             name: "Catalyst of Mind".to_string(),
@@ -53,7 +57,7 @@ impl CatalystMindArchetype {
             polarization: Polarity::Neutral,
             health_status: HealthStatus::Balanced,
             holonic_level: HolonicLevel::Micro,
-            lambda_measurement: LambdaMeasurement::new(1.0, LambdaMeasurementType::Capacity),
+            lambda_measurement: lambda,
             is_active: false,
             processing_rate: 0.5,
             catalyst_inflow: 0.5,

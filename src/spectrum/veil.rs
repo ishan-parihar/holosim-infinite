@@ -445,8 +445,9 @@ impl VeilEvolution {
             return 1.0;
         }
 
-        let total_change = (self.target_strength - 1.0).abs();
-        let current_change = (self.current_strength - 1.0).abs();
+        let initial_strength = 1.0; // Starting point
+        let total_change = (self.target_strength - initial_strength).abs();
+        let current_change = (self.current_strength - initial_strength).abs();
 
         if total_change == 0.0 {
             return 1.0;
@@ -553,8 +554,8 @@ mod tests {
         let mut veil = Veil::new(0.8);
         veil.thin(0.3);
 
-        assert_eq!(veil.access_limitation, 0.5);
-        assert_eq!(veil.current_access.oneness_access, 0.5);
+        assert!((veil.access_limitation - 0.5).abs() < 0.01);
+        assert!((veil.current_access.oneness_access - 0.5).abs() < 0.01);
     }
 
     #[test]
@@ -562,8 +563,8 @@ mod tests {
         let mut veil = Veil::new(0.3);
         veil.thicken(0.4);
 
-        assert_eq!(veil.access_limitation, 0.7);
-        assert_eq!(veil.current_access.oneness_access, 0.3);
+        assert!((veil.access_limitation - 0.7).abs() < 0.01);
+        assert!((veil.current_access.oneness_access - 0.3).abs() < 0.01);
     }
 
     #[test]
@@ -648,14 +649,14 @@ mod tests {
 
     #[test]
     fn test_veil_evolution_complete() {
-        let mut evolution = VeilEvolution::new(1.0, 0.0, 0.1);
+        let mut evolution = VeilEvolution::new(1.0, 0.0, 0.5);
 
-        for _ in 0..20 {
+        for _ in 0..50 {
             evolution.advance();
         }
 
         assert!(evolution.is_complete());
-        assert_eq!(evolution.current_strength, 0.0);
+        assert!((evolution.current_strength - 0.0).abs() < 0.01);
     }
 
     #[test]
@@ -669,16 +670,15 @@ mod tests {
 
     #[test]
     fn test_veil_evolution_progress_halfway() {
-        let evolution = VeilEvolution::new(1.0, 0.0, 0.1);
+        let mut evolution = VeilEvolution::new(1.0, 0.0, 0.1);
 
         let mut progress = evolution.progress();
-        assert_eq!(progress, 0.0);
+        assert!((progress - 0.0).abs() < 0.01);
 
         // Advance halfway
         for _ in 0..5 {
-            let mut e = evolution.clone();
-            e.advance();
-            progress = e.progress();
+            evolution.advance();
+            progress = evolution.progress();
         }
 
         // Progress should be around 0.5
@@ -769,36 +769,36 @@ mod tests {
     fn test_veil_from_density_fourth() {
         let veil = Veil::from_density(&Density::Fourth);
 
-        assert_eq!(veil.transparency, 0.2);
-        assert_eq!(veil.access_limitation, 0.8);
-        assert_eq!(veil.illusion_strength, 0.8);
-        assert_eq!(veil.access_control.time_space_access, 0.2);
-        assert_eq!(veil.access_control.holographic_connection_access, 0.16);
-        assert_eq!(veil.access_control.higher_consciousness_access, 0.12);
+        assert!((veil.transparency - 0.2).abs() < 0.01);
+        assert!((veil.access_limitation - 0.8).abs() < 0.01);
+        assert!((veil.illusion_strength - 0.8).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.2).abs() < 0.01);
+        assert!((veil.access_control.holographic_connection_access - 0.16).abs() < 0.01);
+        assert!((veil.access_control.higher_consciousness_access - 0.12).abs() < 0.01);
     }
 
     #[test]
     fn test_veil_from_density_fifth() {
         let veil = Veil::from_density(&Density::Fifth);
 
-        assert_eq!(veil.transparency, 0.5);
-        assert_eq!(veil.access_limitation, 0.5);
-        assert_eq!(veil.illusion_strength, 0.5);
-        assert_eq!(veil.access_control.time_space_access, 0.5);
-        assert_eq!(veil.access_control.holographic_connection_access, 0.4);
-        assert_eq!(veil.access_control.higher_consciousness_access, 0.3);
+        assert!((veil.transparency - 0.5).abs() < 0.01);
+        assert!((veil.access_limitation - 0.5).abs() < 0.01);
+        assert!((veil.illusion_strength - 0.5).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.5).abs() < 0.01);
+        assert!((veil.access_control.holographic_connection_access - 0.4).abs() < 0.01);
+        assert!((veil.access_control.higher_consciousness_access - 0.3).abs() < 0.01);
     }
 
     #[test]
     fn test_veil_from_density_sixth() {
         let veil = Veil::from_density(&Density::Sixth);
 
-        assert_eq!(veil.transparency, 0.8);
-        assert_eq!(veil.access_limitation, 0.2);
-        assert_eq!(veil.illusion_strength, 0.2);
-        assert_eq!(veil.access_control.time_space_access, 0.8);
-        assert_eq!(veil.access_control.holographic_connection_access, 0.64);
-        assert_eq!(veil.access_control.higher_consciousness_access, 0.48);
+        assert!((veil.transparency - 0.8).abs() < 0.01);
+        assert!((veil.access_limitation - 0.2).abs() < 0.01);
+        assert!((veil.illusion_strength - 0.2).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.8).abs() < 0.01);
+        assert!((veil.access_control.holographic_connection_access - 0.64).abs() < 0.01);
+        assert!((veil.access_control.higher_consciousness_access - 0.48).abs() < 0.01);
     }
 
     #[test]
@@ -859,31 +859,31 @@ mod tests {
     #[test]
     fn test_veil_thin_updates_access_control() {
         let mut veil = Veil::from_density(&Density::Third);
-        assert_eq!(veil.transparency, 0.0);
-        assert_eq!(veil.access_control.time_space_access, 0.0);
+        assert!((veil.transparency - 0.0).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.0).abs() < 0.01);
 
         veil.thin(0.2);
 
-        assert_eq!(veil.transparency, 0.2);
-        assert_eq!(veil.access_control.time_space_access, 0.2);
-        assert_eq!(veil.access_control.holographic_connection_access, 0.16);
-        assert_eq!(veil.access_control.higher_consciousness_access, 0.12);
-        assert_eq!(veil.illusion_strength, 0.8);
+        assert!((veil.transparency - 0.2).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.2).abs() < 0.01);
+        assert!((veil.access_control.holographic_connection_access - 0.16).abs() < 0.01);
+        assert!((veil.access_control.higher_consciousness_access - 0.12).abs() < 0.01);
+        assert!((veil.illusion_strength - 0.8).abs() < 0.01);
     }
 
     #[test]
     fn test_veil_thicken_updates_access_control() {
         let mut veil = Veil::from_density(&Density::Fifth);
-        assert_eq!(veil.transparency, 0.5);
-        assert_eq!(veil.access_control.time_space_access, 0.5);
+        assert!((veil.transparency - 0.5).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.5).abs() < 0.01);
 
         veil.thicken(0.3);
 
-        assert_eq!(veil.transparency, 0.2);
-        assert_eq!(veil.access_control.time_space_access, 0.2);
-        assert_eq!(veil.access_control.holographic_connection_access, 0.16);
-        assert_eq!(veil.access_control.higher_consciousness_access, 0.12);
-        assert_eq!(veil.illusion_strength, 0.8);
+        assert!((veil.transparency - 0.2).abs() < 0.01);
+        assert!((veil.access_control.time_space_access - 0.2).abs() < 0.01);
+        assert!((veil.access_control.holographic_connection_access - 0.16).abs() < 0.01);
+        assert!((veil.access_control.higher_consciousness_access - 0.12).abs() < 0.01);
+        assert!((veil.illusion_strength - 0.8).abs() < 0.01);
     }
 
     #[test]

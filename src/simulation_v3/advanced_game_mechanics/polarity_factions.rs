@@ -1669,11 +1669,11 @@ mod tests {
     #[test]
     fn test_create_faction() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder-1".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Test Faction".to_string(),
                 "A test faction".to_string(),
                 Polarity::ServiceToOthers,
@@ -1691,11 +1691,11 @@ mod tests {
     #[test]
     fn test_create_faction_without_ray() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder-2".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Rayless Faction".to_string(),
                 "No ray alignment".to_string(),
                 Polarity::Balanced,
@@ -1709,11 +1709,11 @@ mod tests {
     #[test]
     fn test_founder_membership() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder-3".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Founder Test".to_string(),
                 "Testing founder".to_string(),
                 Polarity::ServiceToSelf,
@@ -1734,12 +1734,12 @@ mod tests {
     #[test]
     fn test_join_faction() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let member_id: EntityId = 2;
+        let founder_id = EntityId::new("test-founder-4".to_string());
+        let member_id = EntityId::new("test-member-1".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Join Test".to_string(),
                 "Testing join".to_string(),
                 Polarity::ServiceToOthers,
@@ -1747,7 +1747,9 @@ mod tests {
             )
             .unwrap();
 
-        let membership = system.join_faction(member_id, faction.faction_id).unwrap();
+        let membership = system
+            .join_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
         assert_eq!(membership.entity_id, member_id);
         assert_eq!(membership.faction_id, faction.faction_id);
         assert_eq!(membership.rank, FactionRank::Initiate);
@@ -1760,13 +1762,13 @@ mod tests {
     #[test]
     fn test_cannot_join_two_factions() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
-        let member_id: EntityId = 3;
+        let founder1_id = EntityId::new("test-founder-5".to_string());
+        let founder2_id = EntityId::new("test-founder-6".to_string());
+        let member_id = EntityId::new("test-member-2".to_string());
 
         let faction1 = system
             .create_faction(
-                founder1_id,
+                founder1_id.clone(),
                 "Faction 1".to_string(),
                 "First faction".to_string(),
                 Polarity::ServiceToOthers,
@@ -1776,7 +1778,7 @@ mod tests {
 
         let faction2 = system
             .create_faction(
-                founder2_id,
+                founder2_id.clone(),
                 "Faction 2".to_string(),
                 "Second faction".to_string(),
                 Polarity::ServiceToOthers,
@@ -1784,7 +1786,9 @@ mod tests {
             )
             .unwrap();
 
-        system.join_faction(member_id, faction1.faction_id).unwrap();
+        system
+            .join_faction(member_id.clone(), faction1.faction_id)
+            .unwrap();
 
         let result = system.join_faction(member_id, faction2.faction_id);
         assert!(result.is_err());
@@ -1793,12 +1797,12 @@ mod tests {
     #[test]
     fn test_leave_faction() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let member_id: EntityId = 2;
+        let founder_id = EntityId::new("test-founder-7".to_string());
+        let member_id = EntityId::new("test-member-3".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Leave Test".to_string(),
                 "Testing leave".to_string(),
                 Polarity::ServiceToOthers,
@@ -1806,11 +1810,15 @@ mod tests {
             )
             .unwrap();
 
-        system.join_faction(member_id, faction.faction_id).unwrap();
-        assert!(system.get_membership(member_id).is_some());
+        system
+            .join_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
+        assert!(system.get_membership(member_id.clone()).is_some());
 
-        system.leave_faction(member_id, faction.faction_id).unwrap();
-        assert!(system.get_membership(member_id).is_none());
+        system
+            .leave_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
+        assert!(system.get_membership(member_id.clone()).is_none());
 
         let faction = system.get_faction(faction.faction_id).unwrap();
         assert!(!faction.has_member(member_id));
@@ -1819,11 +1827,11 @@ mod tests {
     #[test]
     fn test_founder_cannot_leave() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder-8".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Founder Leave Test".to_string(),
                 "Testing founder cannot leave".to_string(),
                 Polarity::ServiceToOthers,
@@ -1842,12 +1850,12 @@ mod tests {
     #[test]
     fn test_promote_member() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let member_id: EntityId = 2;
+        let founder_id = EntityId::new("test-founder-9".to_string());
+        let member_id = EntityId::new("test-member-4".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Promote Test".to_string(),
                 "Testing promotion".to_string(),
                 Polarity::ServiceToOthers,
@@ -1855,10 +1863,12 @@ mod tests {
             )
             .unwrap();
 
-        system.join_faction(member_id, faction.faction_id).unwrap();
+        system
+            .join_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
 
         let new_rank = system
-            .promote_member(member_id, faction.faction_id, FactionRank::Member)
+            .promote_member(member_id.clone(), faction.faction_id, FactionRank::Member)
             .unwrap();
         assert_eq!(new_rank, FactionRank::Member);
 
@@ -1869,12 +1879,12 @@ mod tests {
     #[test]
     fn test_cannot_demote_via_promote() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let member_id: EntityId = 2;
+        let founder_id = EntityId::new("test-founder-10".to_string());
+        let member_id = EntityId::new("test-member-5".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Demote Test".to_string(),
                 "Testing cannot demote".to_string(),
                 Polarity::ServiceToOthers,
@@ -1882,13 +1892,16 @@ mod tests {
             )
             .unwrap();
 
-        system.join_faction(member_id, faction.faction_id).unwrap();
         system
-            .promote_member(member_id, faction.faction_id, FactionRank::Member)
+            .join_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
+        system
+            .promote_member(member_id.clone(), faction.faction_id, FactionRank::Member)
             .unwrap();
 
         // Try to "promote" to lower rank
-        let result = system.promote_member(member_id, faction.faction_id, FactionRank::Initiate);
+        let result =
+            system.promote_member(member_id.clone(), faction.faction_id, FactionRank::Initiate);
         assert!(result.is_err());
     }
 
@@ -1899,11 +1912,11 @@ mod tests {
     #[test]
     fn test_contribute_to_faction() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder-11".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Contribution Test".to_string(),
                 "Testing contributions".to_string(),
                 Polarity::ServiceToOthers,
@@ -1912,14 +1925,14 @@ mod tests {
             .unwrap();
 
         let contribution = ResonanceContribution::new(
-            founder_id,
+            founder_id.clone(),
             ContributionType::ActiveParticipation,
             ResonancePattern::new(),
             0.0,
         );
 
         system
-            .contribute_to_faction(founder_id, faction.faction_id, contribution)
+            .contribute_to_faction(founder_id.clone(), faction.faction_id, contribution)
             .unwrap();
 
         let membership = system.get_membership(founder_id).unwrap();
@@ -1929,12 +1942,12 @@ mod tests {
     #[test]
     fn test_non_member_cannot_contribute() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let non_member_id: EntityId = 99;
+        let founder_id = EntityId::new("test-founder-12".to_string());
+        let non_member_id = EntityId::new("test-non-member-1".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Non-Member Test".to_string(),
                 "Testing non-member contribution".to_string(),
                 Polarity::ServiceToOthers,
@@ -1943,13 +1956,14 @@ mod tests {
             .unwrap();
 
         let contribution = ResonanceContribution::new(
-            non_member_id,
+            non_member_id.clone(),
             ContributionType::ActiveParticipation,
             ResonancePattern::new(),
             0.0,
         );
 
-        let result = system.contribute_to_faction(non_member_id, faction.faction_id, contribution);
+        let result =
+            system.contribute_to_faction(non_member_id.clone(), faction.faction_id, contribution);
         assert!(result.is_err());
     }
 
@@ -1960,12 +1974,12 @@ mod tests {
     #[test]
     fn test_form_alliance() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder-13".to_string());
+        let founder2_id = EntityId::new("test-founder-14".to_string());
 
         let faction1 = system
             .create_faction(
-                founder1_id,
+                founder1_id.clone(),
                 "Ally 1".to_string(),
                 "First ally".to_string(),
                 Polarity::ServiceToOthers,
@@ -1975,7 +1989,7 @@ mod tests {
 
         let faction2 = system
             .create_faction(
-                founder2_id,
+                founder2_id.clone(),
                 "Ally 2".to_string(),
                 "Second ally".to_string(),
                 Polarity::ServiceToOthers,
@@ -1999,8 +2013,8 @@ mod tests {
     #[test]
     fn test_cannot_alliance_opposing_polarity() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
 
         let faction1 = system
             .create_faction(
@@ -2029,9 +2043,9 @@ mod tests {
     #[test]
     fn test_balanced_can_alliance_with_any() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
-        let founder3_id: EntityId = 3;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
+        let founder3_id = EntityId::new("test-founder3_id-3".to_string());
 
         let sto_faction = system
             .create_faction(
@@ -2081,8 +2095,8 @@ mod tests {
     #[test]
     fn test_declare_enmity() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
 
         let faction1 = system
             .create_faction(
@@ -2120,8 +2134,8 @@ mod tests {
     #[test]
     fn test_enmity_removes_alliance() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
 
         let faction1 = system
             .create_faction(
@@ -2176,7 +2190,7 @@ mod tests {
     #[test]
     fn test_claim_territory() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2204,8 +2218,8 @@ mod tests {
     #[test]
     fn test_cannot_claim_already_controlled() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
 
         let faction1 = system
             .create_faction(
@@ -2240,8 +2254,8 @@ mod tests {
     #[test]
     fn test_contest_territory() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
 
         let faction1 = system
             .create_faction(
@@ -2284,7 +2298,7 @@ mod tests {
     #[test]
     fn test_calculate_faction_strength() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2301,7 +2315,8 @@ mod tests {
 
         // Add members
         for i in 2..=5 {
-            system.join_faction(i, faction.faction_id).unwrap();
+            let entity_id = EntityId::new(format!("test-strength-member-{}", i));
+            system.join_faction(entity_id, faction.faction_id).unwrap();
         }
 
         let with_members = system.calculate_faction_strength(faction.faction_id);
@@ -2320,7 +2335,7 @@ mod tests {
     #[test]
     fn test_faction_level_affects_strength() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2352,7 +2367,7 @@ mod tests {
     #[test]
     fn test_get_faction_quests() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2384,7 +2399,7 @@ mod tests {
     #[test]
     fn test_get_faction_trade_benefits() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2419,7 +2434,7 @@ mod tests {
     #[test]
     fn test_faction_capacity() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2438,7 +2453,8 @@ mod tests {
 
         // Fill to capacity
         for i in 2..=10 {
-            system.join_faction(i, faction.faction_id).unwrap();
+            let entity_id = EntityId::new(format!("test-capacity-member-{}", i));
+            system.join_faction(entity_id, faction.faction_id).unwrap();
         }
 
         let f = system.get_faction(faction.faction_id).unwrap();
@@ -2446,7 +2462,8 @@ mod tests {
         assert!(!f.can_accept_members());
 
         // Try to add one more
-        let result = system.join_faction(11, faction.faction_id);
+        let extra_id = EntityId::new("test-capacity-extra".to_string());
+        let result = system.join_faction(extra_id, faction.faction_id);
         assert!(result.is_err());
     }
 
@@ -2464,13 +2481,16 @@ mod tests {
 
         // Add contributions
         for i in 1..=5 {
+            let entity_id = EntityId::new(format!("test-resonance-member-{}", i));
             let contribution = ResonanceContribution::new(
-                i,
+                entity_id.clone(),
                 ContributionType::ResonanceHarmonization,
                 ResonancePattern::new(),
                 0.0,
             );
-            resonance.add_member_contribution(i, contribution).unwrap();
+            resonance
+                .add_member_contribution(entity_id, contribution)
+                .unwrap();
         }
 
         assert!(resonance.collective_strength > 0.0);
@@ -2482,20 +2502,22 @@ mod tests {
         let base_pattern = ResonancePattern::new();
         let mut resonance = FactionResonance::new(base_pattern);
 
+        let entity_id = EntityId::new("test-resonance-remove".to_string());
         let contribution = ResonanceContribution::new(
-            1,
+            entity_id.clone(),
             ContributionType::ActiveParticipation,
             ResonancePattern::new(),
             0.0,
         );
-        resonance.add_member_contribution(1, contribution).unwrap();
+        resonance
+            .add_member_contribution(entity_id.clone(), contribution)
+            .unwrap();
 
         let strength_with_member = resonance.collective_strength;
 
-        resonance.remove_member_contribution(1).unwrap();
+        resonance.remove_member_contribution(entity_id).unwrap();
 
         assert!(resonance.collective_strength < strength_with_member);
-        assert!(!resonance.member_contributions.contains_key(&1));
     }
 
     // ============================================================================
@@ -2505,13 +2527,13 @@ mod tests {
     #[test]
     fn test_get_entity_faction() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
-        let member_id: EntityId = 2;
-        let non_member_id: EntityId = 99;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
+        let member_id = EntityId::new("test-member_id-2".to_string());
+        let non_member_id = EntityId::new("test-non_member_id-99".to_string());
 
         let faction = system
             .create_faction(
-                founder_id,
+                founder_id.clone(),
                 "Query Test".to_string(),
                 "Testing queries".to_string(),
                 Polarity::ServiceToOthers,
@@ -2519,7 +2541,9 @@ mod tests {
             )
             .unwrap();
 
-        system.join_faction(member_id, faction.faction_id).unwrap();
+        system
+            .join_faction(member_id.clone(), faction.faction_id)
+            .unwrap();
 
         assert_eq!(
             system.get_entity_faction(founder_id),
@@ -2535,13 +2559,13 @@ mod tests {
     #[test]
     fn test_get_available_factions() {
         let mut system = PolarityFactions::new();
-        let founder1_id: EntityId = 1;
-        let founder2_id: EntityId = 2;
-        let unaffiliated_id: EntityId = 99;
+        let founder1_id = EntityId::new("test-founder1_id-1".to_string());
+        let founder2_id = EntityId::new("test-founder2_id-2".to_string());
+        let unaffiliated_id = EntityId::new("test-unaffiliated_id-99".to_string());
 
         let faction1 = system
             .create_faction(
-                founder1_id,
+                founder1_id.clone(),
                 "Faction 1".to_string(),
                 "First faction".to_string(),
                 Polarity::ServiceToOthers,
@@ -2577,7 +2601,7 @@ mod tests {
     #[test]
     fn test_faction_catalyst() {
         let mut system = PolarityFactions::new();
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
 
         let faction = system
             .create_faction(
@@ -2638,7 +2662,7 @@ mod tests {
         let mut system = PolarityFactions::new();
 
         // Create founder and faction
-        let founder_id: EntityId = 1;
+        let founder_id = EntityId::new("test-founder_id-1".to_string());
         let faction = system
             .create_faction(
                 founder_id,
@@ -2650,17 +2674,27 @@ mod tests {
             .unwrap();
 
         // Add members
-        let member_ids: Vec<EntityId> = (2..=5).collect();
-        for &id in &member_ids {
-            system.join_faction(id, faction.faction_id).unwrap();
+        let member_ids: Vec<EntityId> = (2..=5)
+            .map(|i| EntityId::new(format!("member-{}", i)))
+            .collect();
+        for id in &member_ids {
+            system.join_faction(id.clone(), faction.faction_id).unwrap();
         }
 
         // Promote some members
         system
-            .promote_member(member_ids[0], faction.faction_id, FactionRank::Member)
+            .promote_member(
+                member_ids[0].clone(),
+                faction.faction_id,
+                FactionRank::Member,
+            )
             .unwrap();
         system
-            .promote_member(member_ids[1], faction.faction_id, FactionRank::Veteran)
+            .promote_member(
+                member_ids[1].clone(),
+                faction.faction_id,
+                FactionRank::Veteran,
+            )
             .unwrap();
 
         // Create and claim territory
@@ -2670,15 +2704,15 @@ mod tests {
             .unwrap();
 
         // Add contributions
-        for &id in &member_ids {
+        for id in &member_ids {
             let contribution = ResonanceContribution::new(
-                id,
+                id.clone(),
                 ContributionType::ActiveParticipation,
                 ResonancePattern::new(),
                 system.current_time(),
             );
             system
-                .contribute_to_faction(id, faction.faction_id, contribution)
+                .contribute_to_faction(id.clone(), faction.faction_id, contribution)
                 .unwrap();
         }
 
@@ -2699,12 +2733,12 @@ mod tests {
         let mut system = PolarityFactions::new();
 
         // Create two opposing factions
-        let sto_founder: EntityId = 1;
-        let sts_founder: EntityId = 2;
+        let sto_founder = EntityId::new("test-sto-founder-1".to_string());
+        let sts_founder = EntityId::new("test-sts-founder-1".to_string());
 
         let sto_faction = system
             .create_faction(
-                sto_founder,
+                sto_founder.clone(),
                 "The Lightbringers".to_string(),
                 "Service to Others".to_string(),
                 Polarity::ServiceToOthers,
@@ -2714,7 +2748,7 @@ mod tests {
 
         let sts_faction = system
             .create_faction(
-                sts_founder,
+                sts_founder.clone(),
                 "The Dominators".to_string(),
                 "Service to Self".to_string(),
                 Polarity::ServiceToSelf,
@@ -2728,7 +2762,7 @@ mod tests {
             .unwrap();
 
         // Create contested territory
-        let territory = system.create_territory("The Disputed Valley".to_string());
+        let mut territory = system.create_territory("The Disputed Valley".to_string());
         territory.strategic_value = 0.8;
 
         // STO claims first

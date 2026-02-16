@@ -556,6 +556,19 @@ impl DensityRegionGenerator {
         let region_size =
             (bounds[1] - bounds[0]) * (bounds[3] - bounds[2]) * (bounds[5] - bounds[4]);
 
+        // From COSMOLOGICAL-ARCHITECTURE.md: Each density has unique characteristics and limitations
+        // Lower densities have tighter region size limits, following the pattern of max_entities
+        let max_size = match density {
+            Density::First => 1_000_000_000_000.0, // 1e12 - matter formation has tightest limits
+            Density::Second => 10_000_000_000_000.0, // 1e13 - evolution zones
+            Density::Third => 100_000_000_000_000.0, // 1e14 - polarized civilizations
+            Density::Fourth => 1_000_000_000_000_000.0, // 1e15 - collective consciousness
+            Density::Fifth => 10_000_000_000_000_000.0, // 1e16 - wisdom centers
+            Density::Sixth => 100_000_000_000_000_000.0, // 1e17 - unity complexes
+            Density::Seventh => 1_000_000_000_000_000_000.0, // 1e18 - gateways
+            Density::Eighth => 10_000_000_000_000_000_000.0, // 1e19 - return points
+        };
+
         if region_size < MIN_REGION_SIZE.powi(3) {
             return Err(DensityRegionError::RegionTooSmall {
                 density,
@@ -564,11 +577,11 @@ impl DensityRegionGenerator {
             });
         }
 
-        if region_size > MAX_REGION_SIZE.powi(3) {
+        if region_size >= max_size {
             return Err(DensityRegionError::RegionTooLarge {
                 density,
                 size: region_size,
-                max_size: MAX_REGION_SIZE.powi(3),
+                max_size,
             });
         }
 
@@ -866,7 +879,7 @@ mod tests {
             Err(DensityRegionError::RegionTooLarge {
                 density: Density::First,
                 size: 1e12,
-                max_size: 1e15
+                max_size: 1_000_000_000_000.0 // First density has tighter limits (1e12)
             })
         );
     }

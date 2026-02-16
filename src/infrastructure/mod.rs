@@ -5,14 +5,44 @@
 // - State management (world state, snapshots, views)
 // - Common types and utilities
 
-// Re-export from source modules
-pub use crate::complete_simulation::{
-    CompleteSimulation, EntityEvolution, EvolutionStep, PolarizationDistribution, SimulationResult,
-    SimulationStatistics,
+// ============================================================================
+// SIMULATION V3 EXPORTS (New System - Primary)
+// ============================================================================
+
+pub use crate::simulation_v3::simulation_runner::{
+    SimulationRunner, SimulationParameters, SimulationResult as V3SimulationResult,
 };
+
+pub use crate::simulation_v3::involution_sequence::{
+    InvolutionSequenceRunner, InvolutionResult, InvolutionStage,
+};
+
+pub use crate::simulation_v3::entity_lifecycle::{
+    EntityLifecycleManager, EvolutionResult, LifecycleStatistics,
+};
+
+pub use crate::simulation_v3::holographic_field::{
+    HolographicFieldManager, HolographicFieldResult, HolographicFieldConfig,
+};
+
+pub use crate::simulation_v3::collective_dynamics::CollectiveDynamicsManager;
+
+pub use crate::simulation_v3::statistics::{
+    SimulationStatistics, PolarizationDistribution as V3PolarityDistribution,
+    EmergentProperties,
+};
+
+// ============================================================================
+// LEGACY EXPORTS (Old System - Deprecated, kept for backward compatibility)
+// ============================================================================
+
+#[deprecated(note = "Use simulation_v3::SimulationRunner instead")]
+pub use crate::complete_simulation::{
+    CompleteSimulation, EntityEvolution, EvolutionStep, PolarizationDistribution as LegacyPolarityDistribution, 
+    SimulationResult as LegacySimulationResult, SimulationStatistics as LegacySimulationStatistics,
+};
+
 pub use crate::simulation_audit::SimulationAudit;
-// pub use crate::simulation_context::SimulationContext; // DELETED - replaced by simulation_v3/ (Phase 4.2)
-pub use crate::simulation_v3::simulation_runner::SimulationRunner; // Use V3.0 instead
 pub use crate::snapshot;
 pub use crate::types;
 pub use crate::views;

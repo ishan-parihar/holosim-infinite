@@ -1630,7 +1630,9 @@ mod tests {
 
         // The training aid assists with polarity choice
         mind.activate_archetype(22, 0.9).unwrap();
-        let polarity_guidance = training_aid.assist_polarity_choice();
+        // Create new training aid with updated mind
+        let updated_training_aid = TrainingAid::new(mind.clone());
+        let polarity_guidance = updated_training_aid.assist_polarity_choice();
 
         match polarity_guidance {
             PolarityGuidance::ChoiceAvailable { strength, .. } => {

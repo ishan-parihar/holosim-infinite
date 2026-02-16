@@ -1052,7 +1052,7 @@ mod tests {
         let compat12 = calculate_pattern_compatibility(&pattern1, &pattern2);
         let compat13 = calculate_pattern_compatibility(&pattern1, &pattern3);
 
-        assert_eq!(compat12, 1.0);
+        assert!((compat12 - 1.0).abs() < 1e-9);
         assert!(compat13 < 1.0);
         assert!(compat13 > 0.0);
     }

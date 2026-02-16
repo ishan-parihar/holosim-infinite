@@ -874,6 +874,12 @@ impl HolographicFieldManager {
     /// Only updates connections if the update interval has passed.
     /// This significantly improves performance by skipping unnecessary recalculations.
     pub fn update_connections_lazy(&mut self) {
+        // Always update on first step (step 0) to initialize connections
+        if self.current_step == 0 {
+            self.create_holographic_connections();
+            return;
+        }
+
         // Check if we should update based on interval
         if self.current_step - self.last_connection_update < self.config.update_interval {
             return; // Skip update

@@ -620,7 +620,7 @@ mod tests {
 
         let output = String::from_utf8(buffer).unwrap();
         assert!(output.contains("2nd Density"));
-        assert!(output.contains("Step 10"));
+        assert!(output.contains("Step: 10")); // Function outputs "Step: 10" with colon
         assert!(output.contains("Biological life emerges"));
     }
 }

@@ -690,7 +690,17 @@ mod tests {
 
         pattern1.add(&pattern2);
 
-        assert_eq!(pattern1.components_ref(), &[0.5, 0.7, 0.9]);
+        let expected = [0.5, 0.7, 0.9];
+        let actual = pattern1.components_ref();
+        for (i, (exp, act)) in expected.iter().zip(actual.iter()).enumerate() {
+            assert!(
+                (exp - act).abs() < 1e-9,
+                "Component {}: expected {}, got {}",
+                i,
+                exp,
+                act
+            );
+        }
     }
 
     #[test]

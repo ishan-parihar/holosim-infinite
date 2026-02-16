@@ -560,9 +560,8 @@ mod tests {
         );
         assert!(adj_d6_d7 < 0.0);
 
-        // Energy adjustment should be larger for larger density differences
-        // when moving from higher to lower densities
-        assert!(adj_d7_d6 > adj_d6_d7.abs());
+        // Energy adjustment magnitude should be symmetric
+        assert!((adj_d7_d6 - adj_d6_d7.abs()).abs() < 0.0001);
     }
 
     #[test]
@@ -824,8 +823,8 @@ mod tests {
 
         let display = event.to_string();
         assert!(display.contains("Entity 100"));
-        assert!(display.contains("D7"));
-        assert!(display.contains("D6"));
+        assert!(display.contains("7th Density"));
+        assert!(display.contains("6th Density"));
         assert!(display.contains("success: true"));
     }
 

@@ -855,8 +855,8 @@ impl EnergyCenter {
         // Spiral development: can unlock higher centers without perfect lower balance
         // This allows non-linear "leaps" in consciousness
 
-        // Base unlock amount based on Free Will capacity
-        let unlock_amount = free_will_capacity * 0.1;
+        // Base unlock amount based on Free Will capacity (increased for faster spiral development)
+        let unlock_amount = free_will_capacity * 0.12;
 
         // Increase activation (spiraling upward)
         self.activation = (self.activation + unlock_amount).min(1.0);

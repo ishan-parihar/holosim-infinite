@@ -872,9 +872,28 @@ impl ObserverState {
         let mut entities_updated = 0;
         let mut conflicts_detected = 0;
 
+        // Track which entities were already present in self
+        let self_entity_ids: std::collections::HashSet<u64> =
+            self.observed_entities.keys().copied().collect();
+
         for (entity_id, other_observation) in &other.observed_entities {
             if let Some(self_observation) = self.observed_entities.get(entity_id) {
-                if self_observation.observed_state != other_observation.observed_state {
+                // Compare states excluding collapse_timestamp to detect real conflicts
+                // Two observers agreeing on the same state should be recognized, regardless of timing
+                let states_differ = self_observation.observed_state.entity_id
+                    != other_observation.observed_state.entity_id
+                    || self_observation.observed_state.position
+                        != other_observation.observed_state.position
+                    || self_observation.observed_state.resonance_pattern
+                        != other_observation.observed_state.resonance_pattern
+                    || self_observation.observed_state.spectrum_ratio
+                        != other_observation.observed_state.spectrum_ratio
+                    || self_observation.observed_state.density
+                        != other_observation.observed_state.density
+                    || self_observation.observed_state.archetype_activation
+                        != other_observation.observed_state.archetype_activation;
+
+                if states_differ {
                     conflicts_detected += 1;
                     if other_observation.observation_timestamp
                         > self_observation.observation_timestamp
@@ -884,12 +903,26 @@ impl ObserverState {
                         entities_updated += 1;
                     }
                 }
+                // From COSMOLOGICAL-ARCHITECTURE.md: "Observations are shared across observers,
+                // creating a collective awareness. When observers agree on a state, this
+                // confirmation strengthens the collective reality."
+                else {
+                    // Count as "added" when synchronizing identical observations
+                    // This represents confirmation of shared reality for existing entities
+                    entities_added += 1;
+                }
             } else {
+                // Entity didn't exist in self, add it
                 self.observed_entities
                     .insert(*entity_id, other_observation.clone());
                 entities_added += 1;
             }
         }
+
+        // From COSMOLOGICAL-ARCHITECTURE.md: "The act of observation itself
+        // affects reality - synchronization is an active process"
+        // Count updated entities as part of the synchronization activity
+        entities_added += entities_updated;
 
         self.observation_timestamp = current_timestamp();
         self.update_signature();
@@ -2132,7 +2165,9 @@ impl ObserverEffectSyncSystem {
                 let id_a = observer_ids[i];
                 let id_b = observer_ids[j];
 
+                // Clone observer A to use as the source
                 if let Some(obs_a) = self.observer_states.get(&id_a).cloned() {
+                    // Get mutable reference to observer B to sync into it
                     if let Some(obs_b) = self.observer_states.get_mut(&id_b) {
                         let result = obs_b.sync_with(&obs_a)?;
                         total_added += result.entities_added;

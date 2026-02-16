@@ -209,6 +209,11 @@ impl DualRealmNavigator {
         // Move entity to Time/Space
         self.time_space.place_entity(entity_id, time_space_pos);
 
+        // Remove from Space/Time (entity has translated to Time/Space)
+        // From COSMOLOGICAL-ARCHITECTURE.md: "The Veil is the boundary between Space/Time and Time/Space"
+        // Entities can exist in one realm at a time during navigation
+        self.space_time.remove_entity(entity_id);
+
         NavigationResult::Success
     }
 
@@ -228,11 +233,15 @@ impl DualRealmNavigator {
             None => return NavigationResult::EntityNotFound,
         };
 
-        // Translate back to Space/Space
+        // Translate back to Space/Time
         let space_time_pos = self.translation.translate_to_space_time(&time_space_pos);
 
         // Move entity to Space/Time
         self.space_time.place_entity(entity_id, space_time_pos);
+
+        // Remove from Time/Space (entity has returned to Space/Time)
+        // From COSMOLOGICAL-ARCHITECTURE.md: "The Veil is the boundary between Space/Time and Time/Space"
+        self.time_space.remove_entity(entity_id);
 
         NavigationResult::Success
     }

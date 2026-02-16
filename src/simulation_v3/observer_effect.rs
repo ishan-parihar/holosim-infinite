@@ -174,10 +174,14 @@ impl CollapsedState {
             return 0.0;
         }
 
-        let magnitude = state_vector.iter().map(|&x| x * x).sum::<Float>().sqrt();
-        let normalized_magnitude = magnitude / state_vector.len() as Float;
+        // From COSMOLOGICAL-ARCHITECTURE.md: Observation affects probability collapse
+        // Confidence is based on the maximum probability amplitude in the collapsed state
+        // Higher max amplitude = higher confidence in the collapsed state
 
-        normalized_magnitude * observation_strength
+        let max_amplitude = state_vector.iter().cloned().fold(0.0f64, f64::max);
+
+        // Also consider observation strength - stronger observations yield higher confidence
+        max_amplitude * observation_strength
     }
 }
 
@@ -810,7 +814,7 @@ mod tests {
         assert_eq!(stats.cache_hits, 2);
         assert_eq!(stats.cache_misses, 1);
         assert_eq!(stats.invalidations, 0);
-        assert!((stats.hit_rate() - 0.6667).abs() < 0.01);
+        assert!((stats.hit_rate - 0.6667).abs() < 0.01);
     }
 
     #[test]

@@ -24,3 +24,17 @@ pub use post_process::{
     PostProcessConfig, PostProcessPipeline, VisualEffects, POST_PROCESS_SHADER,
 };
 pub use wgpu_context::WgpuContext;
+
+// Phase 1: Entity rendering
+pub mod entity_instance;
+pub mod entity_renderer;
+
+pub use entity_instance::EntityInstance;
+pub use entity_renderer::EntityRenderer;
+
+// Phase 4: Hierarchy visualization
+pub mod hierarchy_connection;
+pub mod connection_renderer;
+
+pub use hierarchy_connection::{HierarchyConnection, ConnectionType, generate_connections};
+pub use connection_renderer::ConnectionRenderer;

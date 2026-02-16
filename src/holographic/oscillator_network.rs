@@ -255,7 +255,12 @@ impl OscillatorNetwork {
     fn calculate_mean_phase(&self) -> Float {
         let sum_sin: Float = self.oscillators.iter().map(|o| o.phase.sin()).sum();
         let sum_cos: Float = self.oscillators.iter().map(|o| o.phase.cos()).sum();
-        sum_cos.atan2(sum_sin)
+        let mut mean_phase = sum_cos.atan2(sum_sin);
+        // Normalize to [0, 2π) range since atan2 returns (-π, π]
+        if mean_phase < 0.0 {
+            mean_phase += 2.0 * std::f64::consts::PI as Float;
+        }
+        mean_phase
     }
 
     /// Calculates the phase coherence of the network.

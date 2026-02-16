@@ -9,9 +9,7 @@
 use holonic_realms::entity_layer7::layer7::{EntityId, EntityType};
 use holonic_realms::gui::ui::panels::collective_dashboard::CollectiveDashboard;
 use holonic_realms::gui::ui::panels::structure_dashboard::StructureDashboard;
-use holonic_realms::gui::visualization::collective_viz::{
-    CollectiveLevel, CollectiveVisualizer, Entity, ResonanceType,
-};
+use holonic_realms::gui::visualization::collective_viz::{CollectiveVisualizer, Entity};
 use holonic_realms::gui::visualization::structure_viz::{
     Entity as StructureEntity, StructureLevel, StructureVisualizer,
 };
@@ -53,7 +51,7 @@ fn main() {
             .map(|e| StructureEntity {
                 entity_id: e.entity_id.clone(),
                 entity_type: e.entity_type,
-                position: e.position.clone(),
+                position: e.position,
                 scale: e.scale,
                 density: e.density,
                 polarity: e.polarity,
@@ -152,8 +150,8 @@ fn print_status(
     time: f64,
     collective_viz: &CollectiveVisualizer,
     structure_viz: &StructureVisualizer,
-    collective_dashboard: &CollectiveDashboard,
-    structure_dashboard: &StructureDashboard,
+    _collective_dashboard: &CollectiveDashboard,
+    _structure_dashboard: &StructureDashboard,
 ) {
     println!("--- Time: {:.2}s ---", time);
 

@@ -707,7 +707,7 @@ mod tests {
         let ratio = SpectrumRatio::new(1.5, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(ratio);
 
-        SubSubLogos::new(
+        let mut entity = SubSubLogos::new(
             EntityId::new(id.to_string()),
             crate::entity_layer7::layer7::EntityType::Individual,
             None,   // parent_id
@@ -721,7 +721,15 @@ mod tests {
             orange,
             red,
             spectrum_config,
-        )
+        );
+
+        // Set entity to 5th density for holographic connection tests
+        use crate::evolution_density_octave::density_octave::Density;
+        entity.current_density = Density::Fifth;
+        entity.current_state.vibrational_state.density = Density::Fifth;
+        entity.veil_transparency = 0.5;
+
+        entity
     }
 
     #[test]
@@ -735,8 +743,12 @@ mod tests {
     fn test_initialize_environment() {
         let mut manager = EnvironmentalInteractionManager::new();
 
-        let entity1 = create_test_entity("entity-1");
-        let entity2 = create_test_entity("entity-2");
+        let mut entity1 = create_test_entity("entity-1");
+        let mut entity2 = create_test_entity("entity-2");
+
+        // Create physical entities for these entities
+        entity1.create_physical_entity().unwrap();
+        entity2.create_physical_entity().unwrap();
 
         let mut entities = HashMap::new();
         entities.insert(entity1.entity_id.clone(), entity1);

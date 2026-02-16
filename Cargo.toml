@@ -46,6 +46,8 @@ sdl2 = { version = "0.37", default-features = false, features = ["use-pkgconfig"
 raw-window-handle = { version = "0.6" }
 
 [dev-dependencies]
+# Performance testing and benchmarking
+criterion = "0.5"
 # Test dependencies can be added here
 
 [profile.release]

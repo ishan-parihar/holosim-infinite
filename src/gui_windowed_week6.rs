@@ -27,7 +27,7 @@ fn main() {
     let mut visualizer = EmergenceVisualizer::new();
 
     // Create emergence dashboard
-    let mut dashboard = EmergenceDashboard::new();
+    let dashboard = EmergenceDashboard::new();
 
     println!("Emergence Visualization System Initialized");
     println!();
@@ -93,7 +93,7 @@ fn main() {
     print_final_statistics(&visualizer, &dashboard);
 }
 
-fn print_status(time: f64, visualizer: &EmergenceVisualizer, dashboard: &EmergenceDashboard) {
+fn print_status(time: f64, visualizer: &EmergenceVisualizer, _dashboard: &EmergenceDashboard) {
     let bio_metrics = visualizer.get_metrics(EmergenceLevel::Biological);
     let noo_metrics = visualizer.get_metrics(EmergenceLevel::Noospheric);
     let gaia_metrics = visualizer.get_metrics(EmergenceLevel::Gaia);
@@ -104,46 +104,43 @@ fn print_status(time: f64, visualizer: &EmergenceVisualizer, dashboard: &Emergen
 
     // Biological level
     println!("🌱 Biological Emergence:");
-    match &bio_metrics {
-        holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Biological(m) => {
-            println!("  Genetic Diversity: {:.2}", m.genetic_diversity);
-            println!("  Species Count: {}", m.species_count);
-            println!("  Emergence Events: {}", m.emergence_events);
-            println!("  Average Complexity: {:.2}", m.average_complexity);
-            println!("  Evolution Rate: {:.2}", m.evolution_rate);
-        }
-        _ => {}
+    if let holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Biological(m) =
+        &bio_metrics
+    {
+        println!("  Genetic Diversity: {:.2}", m.genetic_diversity);
+        println!("  Species Count: {}", m.species_count);
+        println!("  Emergence Events: {}", m.emergence_events);
+        println!("  Average Complexity: {:.2}", m.average_complexity);
+        println!("  Evolution Rate: {:.2}", m.evolution_rate);
     }
 
     // Noospheric level
     println!();
     println!("💭 Noospheric Emergence:");
-    match &noo_metrics {
-        holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Noospheric(m) => {
-            println!("  Social Complexes: {}", m.social_complexes);
-            println!(
-                "  Collective Intelligence: {:.2}",
-                m.collective_intelligence
-            );
-            println!("  Thought Bubbles: {}", m.thought_bubbles);
-            println!("  Average Complexity: {:.2}", m.average_complexity);
-            println!("  Emergence Rate: {:.2}", m.emergence_rate);
-        }
-        _ => {}
+    if let holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Noospheric(m) =
+        &noo_metrics
+    {
+        println!("  Social Complexes: {}", m.social_complexes);
+        println!(
+            "  Collective Intelligence: {:.2}",
+            m.collective_intelligence
+        );
+        println!("  Thought Bubbles: {}", m.thought_bubbles);
+        println!("  Average Complexity: {:.2}", m.average_complexity);
+        println!("  Emergence Rate: {:.2}", m.emergence_rate);
     }
 
     // Gaia level
     println!();
     println!("🌍 Gaia Emergence:");
-    match &gaia_metrics {
-        holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Gaia(m) => {
-            println!("  Consciousness: {:.2}", m.consciousness);
-            println!("  Ecosystem Stability: {:.2}", m.ecosystem_stability);
-            println!("  Glow Intensity: {:.2}", m.glow_intensity);
-            println!("  Biodiversity: {:.2}", m.biodiversity);
-            println!("  Emergence Events: {}", m.emergence_events);
-        }
-        _ => {}
+    if let holonic_realms::gui::visualization::emergence_viz::EmergenceMetricsData::Gaia(m) =
+        &gaia_metrics
+    {
+        println!("  Consciousness: {:.2}", m.consciousness);
+        println!("  Ecosystem Stability: {:.2}", m.ecosystem_stability);
+        println!("  Glow Intensity: {:.2}", m.glow_intensity);
+        println!("  Biodiversity: {:.2}", m.biodiversity);
+        println!("  Emergence Events: {}", m.emergence_events);
     }
 
     // Particle counts

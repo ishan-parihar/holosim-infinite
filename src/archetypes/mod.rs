@@ -246,6 +246,9 @@ impl ArchetypeSystem {
     }
 
     /// Assess overall system health
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md: All archetypes should maintain healthy lambda values
+    /// This includes Mind Complex (A1-A7), Body Complex (A8-A14), and Spirit Complex (A15-A21)
     pub fn assess_system_health(&self) -> bool {
         // All archetypes must be healthy
         self.matrix.is_healthy()
@@ -262,6 +265,13 @@ impl ArchetypeSystem {
             && self.body_significator.is_healthy()
             && self.body_transformation.is_healthy()
             && self.body_great_way.is_healthy()
+            && self.spirit_matrix.is_healthy()
+            && self.spirit_potentiator.is_healthy()
+            && self.spirit_catalyst.is_healthy()
+            && self.spirit_experience.is_healthy()
+            && self.spirit_significator.is_healthy()
+            && self.spirit_transformation.is_healthy()
+            && self.spirit_great_way.is_healthy()
     }
 
     /// Get system health report

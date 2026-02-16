@@ -74,7 +74,7 @@ fn main() {
         }
 
         // Update visualization
-        if let Err(e) = viz_engine.render_frame() {
+        if let Err(_e) = viz_engine.render_frame() {
             // Silently ignore render errors
         }
 

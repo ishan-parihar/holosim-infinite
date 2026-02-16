@@ -160,7 +160,7 @@ impl ChoiceId {
 
 impl fmt::Display for ChoiceId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Choice({})", self.0)
+        write!(f, "{}", self.0)
     }
 }
 

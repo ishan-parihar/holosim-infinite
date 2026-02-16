@@ -12,10 +12,13 @@
 //! - GUI System (Phase 5): Multi-scale visualization with time/space control
 
 use crate::biology::BiologicalConfig;
+use crate::entity_layer7::layer7::{EntityType, SubSubLogos};
+use crate::entity_layer7::EntityId;
 use crate::gaia::GaiaConfig;
 use crate::gui::GuiConfig;
 use crate::hpo::{HpoSystem, SimulationConfig, SimulationResult};
 use crate::noosphere::NoosphereConfig;
+use crate::simulation_v3::involution_sequence::InvolutionSequenceRunner;
 use crate::types::Float;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -49,6 +52,9 @@ pub struct IntegratedSystem {
 
     /// System health metrics
     health_metrics: SystemHealthMetrics,
+
+    /// Stored entities for GUI rendering
+    entities: Vec<SubSubLogos>,
 }
 
 /// Simulation state for the integrated system
@@ -269,6 +275,7 @@ impl IntegratedSystem {
             state: SimulationState::default(),
             initialized: false,
             health_metrics: SystemHealthMetrics::default(),
+            entities: Vec::new(),
         }
     }
 
@@ -288,6 +295,7 @@ impl IntegratedSystem {
             state: SimulationState::default(),
             initialized: false,
             health_metrics: SystemHealthMetrics::default(),
+            entities: Vec::new(),
         }
     }
 
@@ -325,6 +333,27 @@ impl IntegratedSystem {
 
         // Mark as initialized
         self.initialized = true;
+
+        // Create entities via involution sequence
+        println!("  Creating entities via involution...");
+        let mut involution_runner = InvolutionSequenceRunner::new();
+
+        match involution_runner.run_involution_sequence() {
+            Ok(result) => {
+                println!(
+                    "  ✓ Involution completed: {} entities created",
+                    result.entities.len()
+                );
+                self.entities = result.entities;
+                self.state.entity_count = self.entities.len();
+            }
+            Err(e) => {
+                eprintln!("  ⚠ Involution failed: {:?}", e);
+                // Create fallback entities if involution fails
+                self.entities = Self::create_fallback_entities();
+                self.state.entity_count = self.entities.len();
+            }
+        }
 
         println!("Integrated System initialized successfully!");
         Ok(())
@@ -626,13 +655,100 @@ impl IntegratedSystem {
         self.initialized
     }
 
+    /// Create fallback entities if involution fails
+    ///
+    /// Note: Creating proper SubSubLogos entities requires the full cosmological
+    /// architecture (VioletRealm, IndigoRealm, etc.). For simplicity, we return
+    /// an empty vector and let the system handle the absence of entities gracefully.
+    fn create_fallback_entities() -> Vec<SubSubLogos> {
+        eprintln!("  ⚠ Using empty fallback entity set");
+        Vec::new()
+    }
+
     // ============================================================================
     // GUI INTEGRATION METHODS
     // ============================================================================
 
     /// Get all entities for GUI rendering
-    pub fn entities(&self) -> Vec<GuiEntity> {
-        vec![]
+    pub fn entities(&self) -> Vec<SubSubLogos> {
+        self.entities.clone()
+    }
+
+    /// Get entities converted to GuiEntity format for GUI rendering
+    pub fn gui_entities(&self) -> Vec<GuiEntity> {
+        self.entities
+            .iter()
+            .map(|entity| self.convert_to_gui_entity(entity))
+            .collect()
+    }
+
+    /// Convert a SubSubLogos entity to GuiEntity format
+    fn convert_to_gui_entity(&self, entity: &SubSubLogos) -> GuiEntity {
+        // Calculate polarity from polarization data
+        // Use intensity for magnitude and direction for sign
+        let polarity = match entity.polarization.direction {
+            crate::polarization::PolarityDirection::ServiceToOthers => {
+                entity.polarization.intensity
+            }
+            crate::polarization::PolarityDirection::ServiceToSelf => -entity.polarization.intensity,
+            crate::polarization::PolarityDirection::Neutral => 0.0,
+        };
+
+        // Convert archetype activations array to vector
+        let archetype_activations: Vec<f64> = entity.archetype_activations.to_vec();
+
+        // Create spectrum position from entity fields
+        let spectrum_position = SpectrumPosition {
+            space_time_ratio: entity.space_time_ratio,
+            time_space_ratio: entity.time_space_ratio,
+            spectrum_position: entity.spectrum_position,
+        };
+
+        // Convert density from density_octave::Density to types::Density
+        let density = match entity.current_density {
+            crate::evolution_density_octave::density_octave::Density::First(_) => {
+                crate::types::Density::First
+            }
+            crate::evolution_density_octave::density_octave::Density::Second(_) => {
+                crate::types::Density::Second
+            }
+            crate::evolution_density_octave::density_octave::Density::Third => {
+                crate::types::Density::Third
+            }
+            crate::evolution_density_octave::density_octave::Density::Fourth => {
+                crate::types::Density::Fourth
+            }
+            crate::evolution_density_octave::density_octave::Density::Fifth => {
+                crate::types::Density::Fifth
+            }
+            crate::evolution_density_octave::density_octave::Density::Sixth => {
+                crate::types::Density::Sixth
+            }
+            crate::evolution_density_octave::density_octave::Density::Seventh => {
+                crate::types::Density::Seventh
+            }
+            crate::evolution_density_octave::density_octave::Density::Eighth => {
+                crate::types::Density::Eighth
+            }
+        };
+
+        GuiEntity {
+            id: entity.entity_id.clone(),
+            entity_type: entity.entity_type.clone(),
+            position: crate::gui::Coordinate3D {
+                x: 0.0, // Position not directly stored, would need physical entity
+                y: 0.0,
+                z: 0.0,
+            },
+            scale: 1.0, // Scale derived from density
+            density,
+            polarity,
+            consciousness: entity.consciousness_level,
+            archetype_activations,
+            is_active: true, // Default to active
+            emergence_level: entity.evolutionary_attractor.attractor_strength,
+            spectrum_position: Some(spectrum_position),
+        }
     }
 
     /// Get all collectives for GUI rendering

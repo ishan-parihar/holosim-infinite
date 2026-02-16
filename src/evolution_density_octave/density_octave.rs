@@ -1227,8 +1227,8 @@ mod tests {
                 polarization_strength: 0.0,
             },
             consciousness_level: 0.1,
-            experience_accumulation: 0.0,
-            learning_progress: 0.0,
+            experience_accumulation: 20.0,
+            learning_progress: 10.0,
         }
     }
 
@@ -1278,27 +1278,29 @@ mod tests {
     #[test]
     fn test_first_density_advancement() {
         let mut octave = DensityOctave::new();
-        let entity_state = create_test_entity_state();
-        let spectrum_access = create_test_spectrum_access(SpectrumAccessLevel::ThirdDensity);
 
-        // Update collective emergence to enable advancement
-        octave.update_collective_emergence(&entity_state);
-
-        // Advance through 1st density sub-levels (using correct method name)
-        let result = octave.advance_collective_emergence();
-        assert!(matches!(result, DensityTransitionResult::Advanced { .. }));
-
-        // Update progress for next advancement
+        // Quantum -> Atomic: needs 6% (15 experience)
+        let mut entity_state = create_test_entity_state();
+        entity_state.experience_accumulation = 15.0;
         octave.update_collective_emergence(&entity_state);
         let result = octave.advance_collective_emergence();
         assert!(matches!(result, DensityTransitionResult::Advanced { .. }));
 
-        // Update progress for next advancement
+        // Atomic -> Molecular: needs 12% (30 experience)
+        entity_state.experience_accumulation = 30.0;
+        octave.update_collective_emergence(&entity_state);
+        let result = octave.advance_collective_emergence();
+        assert!(matches!(result, DensityTransitionResult::Advanced { .. }));
+
+        // Molecular -> Planetary: needs 18% (45 experience)
+        entity_state.experience_accumulation = 45.0;
         octave.update_collective_emergence(&entity_state);
         let result = octave.advance_collective_emergence();
         assert!(matches!(result, DensityTransitionResult::Advanced { .. }));
 
         // Try to advance to 2nd density without enough progress
+        entity_state.experience_accumulation = 45.0; // Still 18% < 25%
+        octave.update_collective_emergence(&entity_state);
         let result = octave.advance_collective_emergence();
         assert!(matches!(result, DensityTransitionResult::NotReady { .. }));
     }
@@ -1353,23 +1355,22 @@ mod tests {
     fn test_transition_readiness() {
         let mut octave = DensityOctave::new();
         let entity_state = create_test_entity_state();
-        let spectrum_access = create_test_spectrum_access(SpectrumAccessLevel::ThirdDensity);
 
-        // Check readiness at 1st density
+        // Check readiness at 1st density - Quantum Realm
         let readiness = octave.check_collective_emergence_readiness();
-        assert_eq!(readiness.next_density, "2nd Density");
+        assert_eq!(readiness.next_density, "1st Density - Atomic Realm");
         assert!(!readiness.is_ready);
 
-        // Update progress to 30%
+        // Update progress to 10% (25 experience)
         let mut entity_state = create_test_entity_state();
-        entity_state.consciousness_level = 0.3;
-        entity_state.experience_accumulation = 100.0; // Set to 100.0 for 40% progress
+        entity_state.experience_accumulation = 25.0;
         octave.update_collective_emergence(&entity_state);
 
         let readiness = octave.check_collective_emergence_readiness();
+        // Still at Quantum, need 6% to advance to Atomic
         assert!(readiness.is_ready);
-        assert_eq!(readiness.current_progress, 40.0); // 100.0 / 250.0 * 100 = 40.0
-        assert_eq!(readiness.required_progress, 25.0);
+        assert_eq!(readiness.current_progress, 10.0); // 25.0 / 250.0 * 100 = 10.0
+        assert_eq!(readiness.required_progress, 6.0);
     }
 
     #[test]

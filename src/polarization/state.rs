@@ -248,6 +248,7 @@ impl PolarizationProgress {
         }
 
         // Calculate consistency: how many choices are in the current direction?
+        // Note: Neutral choices don't contribute to polarization intensity
         let consistent_choices = self
             .choice_history
             .iter()
@@ -255,7 +256,7 @@ impl PolarizationProgress {
                 match (self.direction, choice) {
                     (PolarityDirection::ServiceToOthers, PolarityChoice::ServiceToOthers) => true,
                     (PolarityDirection::ServiceToSelf, PolarityChoice::ServiceToSelf) => true,
-                    (PolarityDirection::Neutral, _) => true, // Neutral direction accepts all
+                    (PolarityDirection::Neutral, PolarityChoice::Neutral) => true, // Only neutral choices count as consistent when neutral
                     _ => false,
                 }
             })
@@ -271,17 +272,32 @@ impl PolarizationProgress {
         let _choice_count = self.choice_history.len();
 
         // Base intensity from consistency
-        let mut intensity = self.consistency;
+        // If consistency is low (< 0.6), reduce intensity further to account for
+        // the lack of polarization
+        let mut intensity = if self.consistency < 0.6 {
+            self.consistency * 0.8 // 20% reduction for inconsistent patterns
+        } else {
+            self.consistency
+        };
+
+        // For neutral direction, intensity should remain low
+        // Neutral choices don't build polarization intensity
+        if self.direction == PolarityDirection::Neutral {
+            self.intensity = 0.1; // Slight presence but no polarization
+            return;
+        }
 
         // Boost intensity based on number of consistent choices
+        // But only apply boost if consistency is significantly higher than 0.5
+        // (i.e., entity is actually making more consistent than inconsistent choices)
         let consistent_choice_count = consistent_choices;
-        if consistent_choice_count >= 5 {
+        if self.consistency > 0.55 && consistent_choice_count >= 5 {
             intensity += 0.1; // 5+ consistent choices adds 10%
         }
-        if consistent_choice_count >= 10 {
+        if self.consistency > 0.60 && consistent_choice_count >= 10 {
             intensity += 0.1; // 10+ consistent choices adds another 10%
         }
-        if consistent_choice_count >= 20 {
+        if self.consistency > 0.65 && consistent_choice_count >= 20 {
             intensity += 0.1; // 20+ consistent choices adds another 10%
         }
 
@@ -496,6 +512,10 @@ mod tests {
         }
 
         // Should have low intensity due to inconsistency
+        eprintln!(
+            "After alternating choices: direction={:?}, intensity={:.3}, consistency={:.3}",
+            progress.direction, progress.intensity, progress.consistency
+        );
         assert!(progress.intensity < 0.5);
         assert!(progress.consistency < 0.6);
     }

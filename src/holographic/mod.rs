@@ -76,9 +76,11 @@ impl Position {
     }
 
     pub fn spatial_frequency(&self) -> Float {
-        // Simplified spatial frequency calculation
+        // Spatial frequency as a ratio (0.0 to ~1.732 for unit cube)
+        // This represents the relative spatial frequency content at this position
         // In a full implementation, this would be derived from the holographic field
-        self.norm() * 1000.0
+        // Position is normalized to [0, 1], so norm gives us relative frequency
+        self.norm()
     }
 }
 
@@ -139,6 +141,6 @@ mod tests {
     #[test]
     fn test_position_spatial_frequency() {
         let pos = Position::new(1.0, 0.0, 0.0);
-        assert!((pos.spatial_frequency() - 1000.0).abs() < 1e-10);
+        assert!((pos.spatial_frequency() - 1.0).abs() < 1e-10);
     }
 }

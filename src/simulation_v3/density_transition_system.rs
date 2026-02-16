@@ -777,12 +777,12 @@ mod tests {
     use crate::simulation_v3::archetype_basis::{ArchetypeBasis, NUM_ARCHETYPES};
 
     fn create_test_profile() -> ArchetypeActivationProfile {
-        let basis = ArchetypeBasis::new().unwrap();
+        let basis = ArchetypeBasis::new(NUM_ARCHETYPES);
         let mut coefficients = [0.0; NUM_ARCHETYPES];
         coefficients[0] = 0.8;
         coefficients[1] = 0.6;
         coefficients[7] = 0.7;
-        ArchetypeActivationProfile::new(coefficients).unwrap()
+        ArchetypeActivationProfile::new(coefficients)
     }
 
     #[test]
@@ -1035,17 +1035,20 @@ mod tests {
 
     #[test]
     fn test_duration_clamping() {
+        // Test minimum duration (should be clamped to MIN_TRANSITION_DURATION)
         let mut system = DensityTransitionSystem::new(Density::Third, create_test_profile());
-
-        // Test minimum duration
         let result =
             system.initiate_transition(Density::Fourth, TransitionInterpolationMode::Linear, 0.5);
         assert!(result.is_ok());
 
-        // Test maximum duration
-        let result =
-            system.initiate_transition(Density::Fourth, TransitionInterpolationMode::Linear, 100.0);
-        assert!(result.is_ok());
+        // Test maximum duration (should be clamped to MAX_TRANSITION_DURATION)
+        let mut system2 = DensityTransitionSystem::new(Density::Third, create_test_profile());
+        let result2 = system2.initiate_transition(
+            Density::Fourth,
+            TransitionInterpolationMode::Linear,
+            100.0,
+        );
+        assert!(result2.is_ok());
     }
 
     #[test]

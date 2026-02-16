@@ -37,7 +37,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create GUI application
     println!("Initializing GUI Application...");
-    let mut app = GuiApplication::new(&event_loop, config).await?;
+    let app = GuiApplication::new(&event_loop, config).await?;
     println!("✓ GUI Application initialized");
     println!();
 

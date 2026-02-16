@@ -155,9 +155,12 @@ mod tests {
         // Valid strength
         let attractor = AttractorField::new("Test", 0.5, "Target");
         assert_eq!(attractor.strength, 0.5);
+    }
 
+    #[test]
+    #[should_panic(expected = "Strength must be between 0.0 and 1.0")]
+    fn test_attractor_field_invalid_strength() {
         // Invalid strength (should panic)
-        #[should_panic(expected = "Strength must be between 0.0 and 1.0")]
         let _invalid = AttractorField::new("Test", 1.5, "Target");
     }
 

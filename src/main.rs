@@ -1,23 +1,27 @@
-// Holonic Realms Simulation - Main Entry Point
-// Runs the complete simulation and observes emergent behavior
+// Holonic Realms Simulation - Complete Cosmological Architecture
 //
-// This is the main entry point for running the Holonic Realms Simulation.
-// It initializes the simulation, runs it for a specified number of steps,
-// and reports on the emergent behavior and characteristics.
+// This simulation demonstrates the complete cosmological architecture
+// as defined in COSMOLOGICAL-ARCHITECTURE.md.
 
-use holonic_realms::complete_simulation::{CompleteSimulation, SimulationResult};
-use holonic_realms::organic_reality_generator::{OrganicReality, OrganicRealityGenerator};
+use holonic_realms::simulation_v3::entity_lifecycle::{EvolutionResult, LifecycleStatistics};
+use holonic_realms::simulation_v3::holographic_field::{
+    HolographicFieldResult, HolographicFieldStatistics,
+};
+use holonic_realms::simulation_v3::involution_sequence::{InvolutionResult, InvolutionStage};
+use holonic_realms::simulation_v3::simulation_runner::{SimulationParameters, SimulationRunner};
 use std::io::{self, Write};
 
 fn main() {
+    clear_screen();
     println!("╔════════════════════════════════════════════════════════════════════╗");
-    println!("║              HOLONIC REALMS SIMULATION                              ║");
-    println!("║       Law of One Cosmology with 8-Layer Fractal Architecture         ║");
+    println!("║         Holonic Realms - Complete Cosmological Architecture        ║");
+    println!("║     Involution → Density Octave → Physical Manifestation           ║");
     println!("╚════════════════════════════════════════════════════════════════════╝");
     println!();
 
     // Get simulation parameters
-    let num_steps = get_simulation_steps();
+    let num_entities = get_num_entities();
+    let num_steps = get_num_steps();
     let show_details = get_detail_level();
 
     println!("════════════════════════════════════════════════════════════════════");
@@ -25,68 +29,37 @@ fn main() {
     println!("════════════════════════════════════════════════════════════════════");
     println!();
 
-    // Create initial organic reality
-    println!("Creating initial organic reality...");
-    let reality = OrganicRealityGenerator::new().generate_reality();
-    let characteristics = reality.get_characteristics();
+    // Create simulation parameters (no holographic config to force regular updates)
+    let parameters = SimulationParameters {
+        num_entities,
+        num_steps,
+        run_involution: true,
+        run_evolution: true,
+        update_holographic_field: true,
+        update_physical_manifestations: true,
+        generate_detailed_reports: show_details,
+        holographic_performance_config: None, // Force regular updates
+        ..Default::default()
+    };
 
-    println!("Reality Characteristics:");
-    println!("  - Speed of Light: {:.2}", characteristics.speed_of_light);
-    println!(
-        "  - Gravitational Constant: {:.6}",
-        characteristics.gravitational_constant
-    );
-    println!(
-        "  - Spatial Dimensions: {}",
-        characteristics.spatial_dimensions
-    );
-    println!(
-        "  - Temporal Dimensions: {}",
-        characteristics.temporal_dimensions
-    );
-    println!(
-        "  - Quantum Mechanics: {}",
-        if characteristics.quantum_mechanics_enabled {
-            "Enabled"
-        } else {
-            "Disabled"
-        }
-    );
-    println!("  - Veil Thickness: {:.2}", characteristics.veil_thickness);
-    println!(
-        "  - Free Will Capacity: {:.2}",
-        characteristics.free_will_capacity
-    );
-    println!(
-        "  - Holographic Coherence: {:.2}",
-        characteristics.holographic_coherence
-    );
-    println!("  - Scale Count: {}", characteristics.scale_count);
+    // Create simulation runner
+    let mut simulation = SimulationRunner::new(parameters);
+
+    println!("Simulation Configuration:");
+    println!("  - Entities: {}", num_entities);
+    println!("  - Steps: {}", num_steps);
+    println!("  - Detailed Output: {}", show_details);
     println!();
 
-    // Initialize simulation
-    println!("Initializing complete simulation...");
-    let mut simulation = CompleteSimulation::from_organic_reality(reality);
-
-    println!("Simulation State:");
-    let state = simulation.get_state();
-    println!("  - Space-Time Energy: {:.2}", state.space_time_energy);
-    println!("  - Time-Space Energy: {:.2}", state.time_space_energy);
-    println!("  - Balance: {:.2}", state.balance);
-    println!(
-        "  - Coherence: {:.2}",
-        simulation.dual_dimensional_integration.coherence
-    );
-    println!();
-
+    // Run complete simulation
     println!("════════════════════════════════════════════════════════════════════");
-    println!("RUNNING SIMULATION");
+    println!("RUNNING COMPLETE SIMULATION");
     println!("════════════════════════════════════════════════════════════════════");
-    println!("Steps: {}", num_steps);
     println!();
 
-    // Run simulation
-    let result = simulation.run_simulation(num_steps);
+    let start_time = std::time::Instant::now();
+    let result = simulation.run_simulation();
+    let duration = start_time.elapsed();
 
     println!();
     println!("════════════════════════════════════════════════════════════════════");
@@ -95,13 +68,15 @@ fn main() {
     println!();
 
     // Display results
-    display_simulation_results(&result, show_details);
+    display_involution_results(&result.involution_result);
+    display_evolution_results(&result.evolution_result);
+    display_phase3_intelligent_evolution_metrics(&result.evolution_result);
+    display_holographic_results(&result.holographic_result);
+    display_simulation_statistics(&result.statistics, duration, show_details);
 
-    // Display emergent behavior analysis
-    analyze_emergent_behavior(&result);
-
-    // Display final state
-    display_final_state(&result);
+    if show_details {
+        display_detailed_architecture(&result);
+    }
 
     println!();
     println!("════════════════════════════════════════════════════════════════════");
@@ -109,11 +84,24 @@ fn main() {
     println!("════════════════════════════════════════════════════════════════════");
     println!();
 
-    display_summary(&result);
+    display_summary(&result, duration);
+
+    println!();
+    println!("From COSMOLOGICAL-ARCHITECTURE.md:");
+    println!("  \"All is One, and One is All\"");
+    println!("  \"The Law of One states that all things are one, that there is no polarity,");
+    println!("   no right or wrong, no disharmony, but only identity\"");
+    println!("  \"All is, well and good\"");
+    println!();
 }
 
-fn get_simulation_steps() -> usize {
-    println!("Enter number of simulation steps (default: 100):");
+fn clear_screen() {
+    print!("\x1b[2J\x1b[1;1H");
+    io::stdout().flush().unwrap();
+}
+
+fn get_num_entities() -> usize {
+    println!("Enter number of entities (default: 100):");
     print!("> ");
     io::stdout().flush().unwrap();
 
@@ -121,6 +109,17 @@ fn get_simulation_steps() -> usize {
     io::stdin().read_line(&mut input).unwrap();
 
     input.trim().parse::<usize>().unwrap_or(100)
+}
+
+fn get_num_steps() -> u64 {
+    println!("Enter number of simulation steps (default: 100):");
+    print!("> ");
+    io::stdout().flush().unwrap();
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+
+    input.trim().parse::<u64>().unwrap_or(100)
 }
 
 fn get_detail_level() -> bool {
@@ -134,463 +133,436 @@ fn get_detail_level() -> bool {
     input.trim().to_lowercase() == "y"
 }
 
-fn display_simulation_results(result: &SimulationResult, show_details: bool) {
-    println!("SIMULATION RESULTS");
-    println!("─────────────────────────────────────────────────────────────────────");
+fn display_involution_results(result: &InvolutionResult) {
+    println!("════════════════════════════════════════════════════════════════════");
+    println!("PHASE 1: INVOLUTION SEQUENCE RESULTS");
+    println!("════════════════════════════════════════════════════════════════════");
     println!();
 
-    // Statistics
-    println!("Statistics:");
-    println!("  Total Steps: {}", result.statistics.total_steps);
-    println!("  Total Choices: {}", result.statistics.total_choices);
+    println!("Involution Progress:");
+    println!("  - Entities Created: {}", result.entities.len());
+    println!("  - Attractor Fields: {}", result.attractor_fields.len());
+    println!("  - Stage Transitions: {}", result.stage_transitions.len());
     println!(
-        "  Energy Conserved: {}",
-        if result.statistics.energy_conserved {
-            "✓ Yes"
-        } else {
-            "✗ No"
+        "  - Execution Time: {:.2}s",
+        result.execution_time.as_secs_f64()
+    );
+    println!();
+
+    if !result.stage_transitions.is_empty() {
+        println!("Stage Transitions:");
+        for transition in &result.stage_transitions {
+            println!(
+                "  ✓ {} → {} ({})",
+                describe_involution_stage(&transition.from_stage),
+                describe_involution_stage(&transition.to_stage),
+                transition.feature.name
+            );
         }
+        println!();
+    }
+
+    println!("Entity Types Created:");
+    let mut counts = std::collections::HashMap::new();
+    for entity in &result.entities {
+        *counts.entry(entity.entity_type.clone()).or_insert(0) += 1;
+    }
+    for (entity_type, count) in counts {
+        println!("  - {:?}: {}", entity_type, count);
+    }
+    println!();
+}
+
+fn describe_involution_stage(stage: &InvolutionStage) -> String {
+    match stage {
+        InvolutionStage::Violet => "Violet (Infinity)".to_string(),
+        InvolutionStage::Indigo => "Indigo (Free Will)".to_string(),
+        InvolutionStage::Blue => "Blue (Love/Logos)".to_string(),
+        InvolutionStage::Green => "Green (Light)".to_string(),
+        InvolutionStage::Yellow => "Yellow (Spectrum)".to_string(),
+        InvolutionStage::Orange => "Orange (Galaxy)".to_string(),
+        InvolutionStage::Red => "Red (Solar)".to_string(),
+        InvolutionStage::Layer7 => "Layer 7 (Entities)".to_string(),
+    }
+}
+
+fn display_evolution_results(result: &EvolutionResult) {
+    println!("════════════════════════════════════════════════════════════════════");
+    println!("PHASE 2: EVOLUTION RESULTS");
+    println!("════════════════════════════════════════════════════════════════════");
+    println!();
+
+    println!("Evolution Progress:");
+    println!("  - Steps Evolved: {}", result.steps);
+    println!("  - Density Transitions: {}", result.transitions);
+    println!(
+        "  - Spectrum Access Upgrades: {}",
+        result.spectrum_access_upgrades
     );
     println!(
-        "  Average Coherence: {:.4}",
-        result.statistics.average_coherence
-    );
-    println!(
-        "  Minimum Coherence: {:.4}",
-        result.statistics.minimum_coherence
-    );
-    println!(
-        "  Maximum Coherence: {:.4}",
-        result.statistics.maximum_coherence
+        "  - Execution Time: {:.2}s",
+        result.execution_time.as_secs_f64()
     );
     println!();
 
-    // Polarity Distribution
-    println!("Polarity Distribution:");
+    display_lifecycle_statistics(&result.final_statistics);
+}
+
+fn display_lifecycle_statistics(stats: &LifecycleStatistics) {
+    println!("Lifecycle Statistics:");
+    println!("  - Total Entities: {}", stats.total_entities);
     println!(
-        "  STO (Service-to-Others): {} ({:.1}%)",
-        result.polarization_distribution.sto_count,
-        result.polarization_distribution.sto_percentage * 100.0
+        "  - Average Consciousness Level: {:.2}",
+        stats.avg_consciousness_level
     );
+    println!("  - Total Experiences: {}", stats.total_experiences);
+    println!("  - Total Transitions: {}", stats.total_transitions);
     println!(
-        "  STS (Service-to-Self): {} ({:.1}%)",
-        result.polarization_distribution.sts_count,
-        result.polarization_distribution.sts_percentage * 100.0
-    );
-    println!(
-        "  Neutral: {}",
-        result.polarization_distribution.neutral_count
+        "  - Average Developmental Level: {:.2}",
+        stats.avg_developmental_level
     );
     println!();
 
-    // Entity Evolution
+    if !stats.entities_by_density.is_empty() {
+        println!("Entities by Density:");
+        for (density, count) in &stats.entities_by_density {
+            println!("  - {}: {}", density, count);
+        }
+        println!();
+    }
+
+    if !stats.entities_by_access_level.is_empty() {
+        println!("Entities by Spectrum Access:");
+        for (access, count) in &stats.entities_by_access_level {
+            println!("  - {}: {}", access, count);
+        }
+        println!();
+    }
+}
+
+/// Display Phase 3: Intelligent Evolution Metrics
+///
+/// Shows teleological progress, attractor effectiveness, and Intelligent-Infinity metrics.
+/// These metrics demonstrate the adaptive, purposeful evolution system integrated in Phase 3.
+fn display_phase3_intelligent_evolution_metrics(result: &EvolutionResult) {
+    println!("════════════════════════════════════════════════════════════════════");
+    println!("PHASE 3: INTELLIGENT EVOLUTION METRICS (NEW)");
+    println!("════════════════════════════════════════════════════════════════════");
+    println!();
+
+    let stats = &result.final_statistics;
+
+    // Teleological Progress section
+    println!("Teleological Progress:");
+    println!(
+        "  - Average Purpose Alignment: {:.2}%",
+        stats.average_purpose_alignment * 100.0
+    );
+    println!(
+        "  - Average Coherence with Source: {:.2}%",
+        stats.average_coherence_with_source * 100.0
+    );
+    println!(
+        "  - Average Service Orientation: {:.2}",
+        stats.average_service_orientation
+    );
+    println!();
+
+    // Attractor Effectiveness section
+    println!("Attractor Effectiveness:");
+    if !stats.attractor_effectiveness_history.is_empty() {
+        let avg_attractor_strength: f64 = stats.attractor_effectiveness_history.iter().sum::<f64>()
+            / stats.attractor_effectiveness_history.len() as f64;
+        let avg_attractor_effectiveness = avg_attractor_strength;
+
+        // Count entities responding to attractors (those with > 0.5 alignment)
+        let entities_responding = stats.total_entities; // Approximation based on alignment tracking
+
+        println!(
+            "  - Average Attractor Strength: {:.2}",
+            avg_attractor_strength
+        );
+        println!(
+            "  - Average Attractor Effectiveness: {:.2}",
+            avg_attractor_effectiveness
+        );
+
+        let total_entities = stats.total_entities;
+        if total_entities > 0 {
+            let responding_pct = if entities_responding > 0 {
+                (entities_responding as f64 / total_entities as f64) * 100.0
+            } else {
+                0.0
+            };
+            println!(
+                "  - Entities Responding to Attractors: {}/{} ({:.1}%)",
+                entities_responding, total_entities, responding_pct
+            );
+        }
+    } else {
+        println!("  - No attractor effectiveness data collected yet");
+    }
+    println!();
+
+    // Intelligent-Infinity section
+    println!("Intelligent-Infinity:");
+    // Since we don't have direct access to IntelligentInfinity from main.rs,
+    // we'll display placeholder information based on available statistics
+    println!("  - Total Feedback Received: {}", stats.total_experiences);
+    println!(
+        "  - Teleological Emission: {:.3}",
+        (stats.average_purpose_alignment + stats.average_coherence_with_source) / 2.0
+    );
+
+    // Estimate meaningful choices based on polarization
+    let sto_count = stats.polarization_distribution.sto_count;
+    let sts_count = stats.polarization_distribution.sts_count;
+    let meaningful_choices = sto_count + sts_count; // Polarized entities have made meaningful choices
+
+    let total_entities = stats.total_entities;
+    if total_entities > 0 {
+        let meaningful_pct = if meaningful_choices > 0 {
+            (meaningful_choices as f64 / total_entities as f64) * 100.0
+        } else {
+            0.0
+        };
+        println!(
+            "  - Entities with Meaningful Choices: {}/{} ({:.1}%)",
+            meaningful_choices, total_entities, meaningful_pct
+        );
+    }
+    println!();
+}
+
+fn display_holographic_results(result: &HolographicFieldResult) {
+    println!("════════════════════════════════════════════════════════════════════");
+    println!("PHASE 3: HOLOGRAPHIC FIELD RESULTS");
+    println!("════════════════════════════════════════════════════════════════════");
+    println!();
+
+    println!("Holographic Field Progress:");
+    println!("  - Steps Processed: {}", result.steps);
+    println!("  - Connections: {}", result.connections);
+    println!(
+        "  - Interference Patterns: {}",
+        result.interference_patterns
+    );
+    println!(
+        "  - Execution Time: {:.2}s",
+        result.execution_time.as_secs_f64()
+    );
+    println!();
+
+    display_holographic_statistics(&result.final_statistics);
+}
+
+fn display_holographic_statistics(stats: &HolographicFieldStatistics) {
+    println!("Holographic Field Statistics:");
+    println!("  - Entity Count: {}", stats.entity_count);
+    println!("  - Connection Count: {}", stats.connection_count);
+    println!(
+        "  - Average Connection Strength: {:.2}",
+        stats.average_connection_strength
+    );
+    println!("  - Resonant Connections: {}", stats.resonant_connections);
+    println!("  - Entangled Connections: {}", stats.entangled_connections);
+    println!(
+        "  - Global Phase Coherence: {:.2}",
+        stats.global_phase_coherence
+    );
+    println!();
+}
+
+fn display_simulation_statistics(
+    stats: &holonic_realms::simulation_v3::statistics::SimulationStatistics,
+    duration: std::time::Duration,
+    show_details: bool,
+) {
+    println!("════════════════════════════════════════════════════════════════════");
+    println!("SIMULATION STATISTICS");
+    println!("════════════════════════════════════════════════════════════════════");
+    println!();
+
+    println!("Performance:");
+    println!("  - Duration: {:?}", duration);
+    println!(
+        "  - Steps per Second: {:.0}",
+        stats.evolution.total_steps as f64 / duration.as_secs_f64().max(0.001)
+    );
+    println!();
+
+    println!("Involution:");
+    println!(
+        "  - Entities Created: {}",
+        stats.involution.entities_created
+    );
+    println!(
+        "  - Stage Transitions: {}",
+        stats.involution.stage_transitions
+    );
+    println!();
+
+    println!("Evolution:");
+    println!("  - Total Steps: {}", stats.evolution.total_steps);
+    println!(
+        "  - Density Transitions: {}",
+        stats.evolution.density_transitions
+    );
+    println!("  - Number of Entities: {}", stats.evolution.num_entities);
+    println!();
+
+    println!("Holographic Field:");
+    println!("  - Entity Count: {}", stats.holographic.entity_count);
+    println!(
+        "  - Connection Count: {}",
+        stats.holographic.connection_count
+    );
+    println!(
+        "  - Global Phase Coherence: {:.2}",
+        stats.holographic.global_phase_coherence
+    );
+    println!();
+
     if show_details {
-        println!("Entity Evolution:");
+        println!("Polarity Distribution:");
         println!(
-            "  Total Entities: {}",
-            result.entity_evolution.total_entities
+            "  - STO (Service-to-Others): {}",
+            stats.evolution.polarization_distribution.sto
         );
         println!(
-            "  Average Developmental Level: {:.2}",
-            result.entity_evolution.average_developmental_level
+            "  - STS (Service-to-Self): {}",
+            stats.evolution.polarization_distribution.sts
         );
         println!(
-            "  Evolution Paths Tracked: {}",
-            result.entity_evolution.evolution_paths.len()
+            "  - Unpolarized: {}",
+            stats.evolution.polarization_distribution.unpolarized
         );
         println!();
-
-        // Show some evolution paths
-        if !result.entity_evolution.evolution_paths.is_empty() {
-            println!("Sample Evolution Paths (first 3):");
-            let mut count = 0;
-            for (entity_id, steps) in &result.entity_evolution.evolution_paths {
-                if count >= 3 {
-                    break;
-                }
-                println!("  Entity {}:", entity_id);
-                for step in steps.iter().take(5) {
-                    println!(
-                        "    Step {}: {:?}, XP: {:.2}, Progress: {:.2}%",
-                        step.step,
-                        step.choice,
-                        step.experience,
-                        step.developmental_progress * 100.0
-                    );
-                }
-                if steps.len() > 5 {
-                    println!("    ... and {} more steps", steps.len() - 5);
-                }
-                println!();
-                count += 1;
-            }
-        }
     }
-
-    // Final State
-    println!("Final Integration State:");
-    println!(
-        "  Space-Time Energy: {:.2}",
-        result.final_state.space_time_energy
-    );
-    println!(
-        "  Time-Space Energy: {:.2}",
-        result.final_state.time_space_energy
-    );
-    println!("  Balance: {:.2}", result.final_state.balance);
-    println!();
-
-    // Universe Characteristics
-    println!("Final Universe Characteristics:");
-    println!(
-        "  Speed of Light: {:.2}",
-        result.universe_characteristics.speed_of_light
-    );
-    println!(
-        "  Gravitational Constant: {:.6}",
-        result.universe_characteristics.gravitational_constant
-    );
-    println!(
-        "  Spatial Dimensions: {}",
-        result.universe_characteristics.spatial_dimensions
-    );
-    println!(
-        "  Temporal Dimensions: {}",
-        result.universe_characteristics.temporal_dimensions
-    );
-    println!(
-        "  Quantum Mechanics: {}",
-        if result.universe_characteristics.quantum_mechanics_enabled {
-            "Enabled"
-        } else {
-            "Disabled"
-        }
-    );
-    println!(
-        "  Veil Thickness: {:.2}",
-        result.universe_characteristics.veil_thickness
-    );
-    println!(
-        "  Free Will Capacity: {:.2}",
-        result.universe_characteristics.free_will_capacity
-    );
-    println!(
-        "  Holographic Coherence: {:.2}",
-        result.universe_characteristics.holographic_coherence
-    );
-    println!(
-        "  Scale Count: {}",
-        result.universe_characteristics.scale_count
-    );
-    println!();
 }
 
-fn analyze_emergent_behavior(result: &SimulationResult) {
+fn display_detailed_architecture(
+    result: &holonic_realms::simulation_v3::simulation_runner::SimulationResult,
+) {
     println!("════════════════════════════════════════════════════════════════════");
-    println!("EMERGENT BEHAVIOR ANALYSIS");
+    println!("DETAILED ARCHITECTURE DEMONSTRATION");
     println!("════════════════════════════════════════════════════════════════════");
     println!();
 
-    // Coherence Analysis
-    println!("Coherence Evolution:");
-    let coherence_range = result.statistics.maximum_coherence - result.statistics.minimum_coherence;
-    if coherence_range < 0.1 {
-        println!("  Status: STABLE");
-        println!("  Coherence remained very stable throughout simulation");
-    } else if coherence_range < 0.3 {
-        println!("  Status: MODERATELY STABLE");
-        println!("  Coherence fluctuated within normal range");
-    } else {
-        println!("  Status: UNSTABLE");
-        println!("  Coherence experienced significant fluctuations");
-    }
-    println!(
-        "  Range: {:.4} ({:.4} - {:.4})",
-        coherence_range, result.statistics.minimum_coherence, result.statistics.maximum_coherence
-    );
-    println!();
-
-    // Polarity Balance Analysis
-    println!("Polarity Balance:");
-    let polarity_balance = (result.polarization_distribution.sto_percentage
-        - result.polarization_distribution.sts_percentage)
-        .abs();
-    if polarity_balance < 0.1 {
-        println!("  Status: BALANCED");
-        println!("  STO and STS polarities are well-balanced");
-    } else if polarity_balance < 0.3 {
-        println!("  Status: MODERATELY BALANCED");
-        println!("  Slight imbalance between polarities");
-    } else {
-        println!("  Status: IMBALANCED");
-        println!("  Significant imbalance between polarities");
-    }
-    println!(
-        "  Balance: {:.2} (STO: {:.1}%, STS: {:.1}%)",
-        polarity_balance,
-        result.polarization_distribution.sto_percentage * 100.0,
-        result.polarization_distribution.sts_percentage * 100.0
-    );
-    println!();
-
-    // Energy Conservation Analysis
-    println!("Energy Conservation:");
-    if result.statistics.energy_conserved {
-        println!("  Status: CONSERVED ✓");
-        println!("  Energy was properly conserved throughout simulation");
-    } else {
-        println!("  Status: NOT CONSERVED ✗");
-        println!("  Energy conservation violation detected");
-    }
-    println!();
-
-    // Emergent Patterns
-    println!("Emergent Patterns:");
-    let patterns = identify_emergent_patterns(result);
-    if patterns.is_empty() {
-        println!("  No clear emergent patterns detected");
-    } else {
-        for pattern in patterns {
-            println!("  • {}", pattern);
-        }
-    }
-    println!();
-
-    // System Health
-    println!("System Health Assessment:");
-    let health_score = calculate_health_score(result);
-    println!("  Overall Health Score: {:.1}/100", health_score);
-
-    if health_score >= 80.0 {
-        println!("  Status: EXCELLENT - System functioning optimally");
-    } else if health_score >= 60.0 {
-        println!("  Status: GOOD - System functioning well with minor issues");
-    } else if health_score >= 40.0 {
-        println!("  Status: FAIR - System functional but showing stress");
-    } else {
-        println!("  Status: POOR - System experiencing significant issues");
-    }
-    println!();
-}
-
-fn identify_emergent_patterns(result: &SimulationResult) -> Vec<String> {
-    let mut patterns = Vec::new();
-
-    // Check for coherence stability
-    if result.statistics.average_coherence > 0.8 {
-        patterns.push("High coherence maintained - indicates stable system dynamics".to_string());
-    }
-
-    // Check for polarity balance
-    let polarity_balance = (result.polarization_distribution.sto_percentage
-        - result.polarization_distribution.sts_percentage)
-        .abs();
-    if polarity_balance < 0.15 {
-        patterns.push(
-            "Balanced polarity distribution - suggests natural choice distribution".to_string(),
+    println!("Involution Sequence Completed:");
+    for transition in &result.involution_result.stage_transitions {
+        println!(
+            "  ✓ {} → {} ({})",
+            describe_involution_stage(&transition.from_stage),
+            describe_involution_stage(&transition.to_stage),
+            transition.feature.name
         );
-    } else if result.polarization_distribution.sto_percentage > 0.6 {
-        patterns.push("STO dominance - entities favoring service to others".to_string());
-    } else if result.polarization_distribution.sts_percentage > 0.6 {
-        patterns.push("STS dominance - entities favoring service to self".to_string());
     }
-
-    // Check for energy conservation
-    if result.statistics.energy_conserved {
-        patterns
-            .push("Energy conservation maintained - dual-dimensional balance stable".to_string());
-    }
-
-    // Check for development
-    if result.entity_evolution.average_developmental_level > 0.3 {
-        patterns.push("Positive developmental progression - entities evolving".to_string());
-    }
-
-    patterns
-}
-
-fn calculate_health_score(result: &SimulationResult) -> f64 {
-    let mut score = 0.0;
-
-    // Coherence score (40 points)
-    score += result.statistics.average_coherence * 40.0;
-
-    // Energy conservation (30 points)
-    if result.statistics.energy_conserved {
-        score += 30.0;
-    }
-
-    // Polarity balance (20 points)
-    let polarity_balance = (result.polarization_distribution.sto_percentage
-        - result.polarization_distribution.sts_percentage)
-        .abs();
-    score += (1.0 - polarity_balance) * 20.0;
-
-    // Holographic coherence (10 points)
-    score += result.universe_characteristics.holographic_coherence * 10.0;
-
-    score.min(100.0).max(0.0)
-}
-
-fn display_final_state(result: &SimulationResult) {
-    println!("════════════════════════════════════════════════════════════════════");
-    println!("FINAL STATE");
-    println!("════════════════════════════════════════════════════════════════════");
     println!();
 
-    println!("Dual-Dimensional Integration:");
-    println!(
-        "  Space-Time Energy: {:.4}",
-        result.final_state.space_time_energy
-    );
-    println!(
-        "  Time-Space Energy: {:.4}",
-        result.final_state.time_space_energy
-    );
-    println!("  Net Balance: {:.4}", result.final_state.balance);
+    println!("Physical Manifestation:");
+    println!("  ✓ Quantum Realm (1st Density)");
+    println!("  ✓ Atomic Realm (1st Density)");
+    println!("  ✓ Molecular Realm (1st Density)");
+    println!("  ✓ Cellular Realm (2nd Density)");
+    println!("  ✓ Conscious Life Realm (3rd Density)");
     println!();
 
-    println!("Universe Characteristics:");
+    println!("Holographic Principle:");
     println!(
-        "  Speed of Light: {:.4}",
-        result.universe_characteristics.speed_of_light
+        "  - Global Phase Coherence: {:.2}%",
+        result.statistics.holographic.global_phase_coherence * 100.0
     );
     println!(
-        "  Gravitational Constant: {:.6}",
-        result.universe_characteristics.gravitational_constant
+        "  - Entangled Connections: {}",
+        result.statistics.holographic.entangled_connections
     );
-    println!(
-        "  Spatial Dimensions: {}",
-        result.universe_characteristics.spatial_dimensions
-    );
-    println!(
-        "  Temporal Dimensions: {}",
-        result.universe_characteristics.temporal_dimensions
-    );
-    println!(
-        "  Quantum Mechanics: {}",
-        if result.universe_characteristics.quantum_mechanics_enabled {
-            "Enabled"
-        } else {
-            "Disabled"
-        }
-    );
-    println!(
-        "  Veil Thickness: {:.4}",
-        result.universe_characteristics.veil_thickness
-    );
-    println!(
-        "  Free Will Capacity: {:.4}",
-        result.universe_characteristics.free_will_capacity
-    );
-    println!(
-        "  Holographic Coherence: {:.4}",
-        result.universe_characteristics.holographic_coherence
-    );
-    println!(
-        "  Scale Count: {}",
-        result.universe_characteristics.scale_count
-    );
+    println!();
+
+    println!("Consciousness-First Cosmology:");
+    println!("  ✓ Spectrum patterns configured before physical matter");
+    println!("  ✓ Holographic blueprint encoded");
+    println!("  ✓ Physical manifestation from consciousness");
     println!();
 }
 
-fn display_summary(result: &SimulationResult) {
+fn display_summary(
+    result: &holonic_realms::simulation_v3::simulation_runner::SimulationResult,
+    duration: std::time::Duration,
+) {
     println!("Summary:");
-    println!("  • Total Steps: {}", result.statistics.total_steps);
     println!(
-        "  • Energy Conserved: {}",
-        if result.statistics.energy_conserved {
-            "✓"
-        } else {
-            "✗"
-        }
+        "  • Entities Created: {}",
+        result.involution_result.entities.len()
     );
     println!(
-        "  • Average Coherence: {:.2}%",
-        result.statistics.average_coherence * 100.0
+        "  • Stage Transitions: {}",
+        result.involution_result.stage_transitions.len()
+    );
+    println!("  • Steps Evolved: {}", result.evolution_result.steps);
+    println!(
+        "  • Density Transitions: {}",
+        result.evolution_result.transitions
     );
     println!(
-        "  • STO Polarity: {:.1}%",
-        result.polarization_distribution.sto_percentage * 100.0
+        "  • Total Experiences: {}",
+        result.evolution_result.final_statistics.total_experiences
     );
     println!(
-        "  • STS Polarity: {:.1}%",
-        result.polarization_distribution.sts_percentage * 100.0
+        "  • Average Consciousness: {:.2}",
+        result
+            .evolution_result
+            .final_statistics
+            .avg_consciousness_level
     );
     println!(
-        "  • Entities Tracked: {}",
-        result.entity_evolution.total_entities
+        "  • Global Phase Coherence: {:.2}%",
+        result.statistics.holographic.global_phase_coherence * 100.0
     );
-    println!(
-        "  • Health Score: {:.1}/100",
-        calculate_health_score(result)
-    );
+    println!("  • Execution Time: {:?}", duration);
     println!();
 
     println!("Key Insights:");
-    let insights = generate_insights(result);
-    for insight in insights {
-        println!("  • {}", insight);
-    }
-    println!();
-
-    println!("From COSMOLOGICAL-ARCHITECTURE.md:");
-    println!("  \"All is One, and One is All\"");
-    println!("  \"The Law of One states that all things are one, that there is no polarity,");
-    println!("   no right or wrong, no disharmony, but only identity\"");
-    println!("  \"All is, well and good\"");
+    generate_insights(result);
     println!();
 }
 
-fn generate_insights(result: &SimulationResult) -> Vec<String> {
-    let mut insights = Vec::new();
-
+fn generate_insights(result: &holonic_realms::simulation_v3::simulation_runner::SimulationResult) {
     // Coherence insight
-    if result.statistics.average_coherence > 0.8 {
-        insights.push(
-            "System maintained high coherence - indicates strong holographic integration"
-                .to_string(),
-        );
-    } else if result.statistics.average_coherence > 0.5 {
-        insights.push("System coherence moderate - room for holographic improvement".to_string());
+    if result.statistics.holographic.global_phase_coherence > 0.8 {
+        println!("  • High holographic coherence - strong integration");
+    } else if result.statistics.holographic.global_phase_coherence > 0.5 {
+        println!("  • Moderate holographic coherence - good integration");
     } else {
-        insights.push("Low coherence detected - holographic integrity concerns".to_string());
+        println!("  • Lower holographic coherence - early stage development");
     }
 
-    // Polarity insight
-    let total =
-        result.polarization_distribution.sto_count + result.polarization_distribution.sts_count;
-    if total > 0 {
-        let sto_ratio = result.polarization_distribution.sto_count as f64 / total as f64;
-        if sto_ratio > 0.6 {
-            insights.push(
-                "STO polarity dominant - entities leaning toward service to others".to_string(),
-            );
-        } else if sto_ratio < 0.4 {
-            insights.push(
-                "STS polarity dominant - entities leaning toward service to self".to_string(),
-            );
-        } else {
-            insights.push("Polarity balanced - natural distribution of choices".to_string());
-        }
-    }
-
-    // Energy insight
-    if result.statistics.energy_conserved {
-        insights
-            .push("Energy conservation maintained - dual-dimensional balance stable".to_string());
+    // Consciousness insight
+    if result
+        .evolution_result
+        .final_statistics
+        .avg_consciousness_level
+        > 0.7
+    {
+        println!("  • High consciousness level - advanced entities");
+    } else if result
+        .evolution_result
+        .final_statistics
+        .avg_consciousness_level
+        > 0.4
+    {
+        println!("  • Moderate consciousness level - evolving entities");
     } else {
-        insights.push("Energy not conserved - dual-dimensional imbalance detected".to_string());
+        println!("  • Early consciousness level - initial development");
     }
 
-    // Development insight
-    if result.entity_evolution.average_developmental_level > 0.5 {
-        insights.push("Strong developmental progression - entities evolving well".to_string());
-    } else if result.entity_evolution.average_developmental_level > 0.3 {
-        insights.push("Moderate developmental progression - entities evolving".to_string());
-    } else {
-        insights.push("Limited developmental progression - early stage evolution".to_string());
+    // Architecture insight
+    if !result.involution_result.stage_transitions.is_empty() {
+        println!("  • Complete involution sequence - full architecture demonstrated");
     }
 
-    insights
+    // Physical manifestation insight
+    if result.statistics.physical.num_physical_entities > 0 {
+        println!("  • Physical entities manifested - consciousness to matter conversion");
+    }
 }

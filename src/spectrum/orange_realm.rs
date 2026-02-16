@@ -366,6 +366,20 @@ impl OrangeRealm {
     }
 }
 
+impl Default for OrangeRealm {
+    fn default() -> Self {
+        OrangeRealm {
+            yellow_realm: YellowRealm::default(),
+            galactic_logoi: Vec::new(),
+            attractor_field: AttractorField::new(
+                "Solar-scale Spectrum Configuration + Archetypical Mind".to_string(),
+                0.85,
+                "Solar-scale spectrum configuration and archetypical mind development".to_string(),
+            ),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -375,7 +389,30 @@ mod tests {
         let violet = crate::foundation::violet_realm::VioletRealm::new();
         let intelligent = crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet);
         let logos = crate::foundation::blue_realm::Logos::from_intelligent_infinity(intelligent);
-        crate::foundation::green_realm::LightLoveField::from_logos(logos)
+        let mut field = crate::foundation::green_realm::LightLoveField::from_logos(logos);
+
+        // Add holographic patterns, rhythms, and fields for spectrum conditions
+        field.add_holographic_pattern(crate::foundation::green_realm::HolographicPattern::new(
+            0.8,
+            [1.0, 0.0, 0.0],
+            0.5,
+        ));
+        field.add_holographic_pattern(crate::foundation::green_realm::HolographicPattern::new(
+            0.7,
+            [0.0, 1.0, 0.0],
+            0.6,
+        ));
+
+        field.add_rhythm(crate::foundation::green_realm::Rhythm::new(0.5, 0.8, 0.3));
+        field.add_rhythm(crate::foundation::green_realm::Rhythm::new(0.6, 0.7, 0.4));
+
+        field.add_field(crate::foundation::green_realm::Field::new(
+            0.9,
+            0.8,
+            "test_field",
+        ));
+
+        field
     }
 
     fn create_test_yellow_realm() -> YellowRealm {

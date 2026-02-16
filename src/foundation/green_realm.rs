@@ -329,13 +329,29 @@ impl LightLoveField {
     }
 
     /// Get the description of Light/Love Field
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Third Distortion: Light"
+    /// "The first distortion of intelligent infinity, the building block of matter"
     pub fn description(&self) -> String {
         "Light/Love Field of Potential: The manifestation when light has been impressed with love. \
-        The first distortion of intelligent infinity, the building block of matter. Intelligent and \
-        full of energy, vibrational distortion of infinity. Holographic patterns of energy appearing \
+        Third Distortion: Light - The first distortion of intelligent infinity, the building block of matter. \
+        Intelligent and full of energy, vibrational distortion of infinity. Holographic patterns of energy appearing \
         as entire creation in all directions. Energy patterns regularize into rhythms and fields. \
         The field contains the potential for the Space/Time and Time/Space spectrum. The infinite \
         playground where dimensions can manifest.".to_string()
+    }
+}
+
+impl Default for LightLoveField {
+    fn default() -> Self {
+        LightLoveField {
+            logos: Logos::default(),
+            holographic_patterns: Vec::new(),
+            rhythms: Vec::new(),
+            fields: Vec::new(),
+            potential_strength: 0.0,
+        }
     }
 }
 

@@ -805,7 +805,7 @@ mod tests {
         let polarization = PolarizationState::sto(0.5);
         // Base: 0.60, Thinning: 0.5 * 0.3 = 0.15, Result: 0.45
         let thickness = mechanism.calculate_veil_thickness(1, &Density::Third, &polarization);
-        assert_eq!(thickness, 0.45);
+        assert!((thickness - 0.45).abs() < 1e-9);
     }
 
     #[test]
@@ -927,7 +927,7 @@ mod tests {
 
         // Check new thickness
         // Base: 0.60, Polarity: 0.15, Accumulated: 0.02, Result: 0.43
-        assert_eq!(result.new_thickness, 0.43);
+        assert!((result.new_thickness - 0.43).abs() < 1e-9);
     }
 
     #[test]
@@ -1068,7 +1068,9 @@ mod tests {
         assert_eq!(stats.accumulated_piercing, 0.1);
         assert_eq!(stats.thin_spot_count, 1);
         assert_eq!(stats.total_thin_spot_strength, 0.1);
-        assert!(stats.can_access_higher_truths); // 0.35 < 0.3 threshold
+        // Thickness: 0.60 - 0.15 (polarity) - 0.1 (piercing) = 0.35
+        // 0.35 > 0.3 threshold, so cannot access higher truths yet
+        assert!(!stats.can_access_higher_truths);
     }
 
     #[test]
@@ -1312,9 +1314,9 @@ mod tests {
         );
 
         assert_eq!(effects.thickness, 0.90);
-        assert_eq!(effects.transparency, 0.10);
-        assert_eq!(effects.perception_modifier, 0.10);
-        assert_eq!(effects.memory_access_modifier, 0.10);
+        assert!((effects.transparency - 0.10).abs() < 1e-9);
+        assert!((effects.perception_modifier - 0.10).abs() < 1e-9);
+        assert!((effects.memory_access_modifier - 0.10).abs() < 1e-9);
         assert!((effects.catalyst_difficulty_modifier - 1.81).abs() < 0.01); // 1.0 + 0.9 * 0.9
     }
 
@@ -1342,10 +1344,10 @@ mod tests {
         let effects = mechanism.apply_veil_effects(entity_id, Density::Third, &polarization);
 
         // Base: 0.60, Polarity thinning: 0.15, Result: 0.45
-        assert_eq!(effects.thickness, 0.45);
-        assert_eq!(effects.transparency, 0.55);
-        assert_eq!(effects.perception_modifier, 0.55);
-        assert_eq!(effects.memory_access_modifier, 0.55);
+        assert!((effects.thickness - 0.45).abs() < 1e-9);
+        assert!((effects.transparency - 0.55).abs() < 1e-9);
+        assert!((effects.perception_modifier - 0.55).abs() < 1e-9);
+        assert!((effects.memory_access_modifier - 0.55).abs() < 1e-9);
         assert!((effects.catalyst_difficulty_modifier - 1.405).abs() < 0.01); // 1.0 + 0.45 * 0.9
     }
 
@@ -1488,7 +1490,7 @@ mod tests {
         mechanism.set_veil_thickness_by_density(entity_id, Density::Fourth);
         let effects_d4 = mechanism.apply_veil_effects(entity_id, Density::Fourth, &polarization);
         assert_eq!(effects_d4.thickness, 0.45);
-        assert_eq!(effects_d4.memory_retention_percentage(), 55.0);
+        assert!((effects_d4.memory_retention_percentage() - 55.0).abs() < 1e-9);
 
         // Descend to D3 (choice point, thick veil)
         mechanism.set_veil_thickness_by_density(entity_id, Density::Third);
@@ -1516,7 +1518,7 @@ mod tests {
             &polarization,
         );
         assert_eq!(effects_d1.thickness, 0.90);
-        assert_eq!(effects_d1.memory_retention_percentage(), 10.0);
+        assert!((effects_d1.memory_retention_percentage() - 10.0).abs() < 1e-9);
 
         // Verify catalyst difficulty increases as veil thickens
         assert!(effects_d1.catalyst_difficulty_modifier > effects_d2.catalyst_difficulty_modifier);
@@ -1537,7 +1539,7 @@ mod tests {
         let initial_thickness =
             mechanism.calculate_veil_thickness(entity_id, &Density::Third, &polarization);
         // Base: 0.60, Polarity: 0.15, Accumulated: 0.0, Result: 0.45
-        assert_eq!(initial_thickness, 0.45);
+        assert!((initial_thickness - 0.45).abs() < 1e-9);
         assert!(!mechanism.can_access_higher_truths(entity_id, &Density::Third, &polarization));
 
         // First piercing: meditation
@@ -1552,7 +1554,7 @@ mod tests {
         let thickness1 =
             mechanism.calculate_veil_thickness(entity_id, &Density::Third, &polarization);
         // Base: 0.60, Polarity: 0.15, Accumulated: 0.2, Result: 0.25
-        assert_eq!(thickness1, 0.25);
+        assert!((thickness1 - 0.25).abs() < 1e-9);
         assert!(mechanism.can_access_higher_truths(entity_id, &Density::Third, &polarization)); // Below 0.3
 
         // Additional piercings to show cumulative effect

@@ -152,7 +152,9 @@ impl GreatWayMindArchetype {
     /// Create a new Great Way archetype with default healthy state
     pub fn new() -> Self {
         // Initialize with optimal lambda value (middle of healthy range)
-        let lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::GreatWayClarity);
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::GreatWayClarity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
 
         let tarot_correlation = TarotCorrelation::new(format!(
             "The Chariot (VII): The path of the adept, the journey of transformation"
@@ -171,7 +173,7 @@ impl GreatWayMindArchetype {
             veil_lifting_progress: 0.50,
             framework_configuration: 0.65,
             foundation_integration: 0.60,
-            developmental_position: DevelopmentalPosition::new_with_octant_rung(Octant::O7, 4),
+            developmental_position: DevelopmentalPosition::Significator,
             activated_rungs: vec![Rung::R1, Rung::R2, Rung::R3, Rung::R4],
             activation_levels,
             description: "The Great Way of Mind denotes and configures the particular framework within which the Mind archetypes move — drawing the environment which has been the new architecture caused by the veiling process, dipped in the great, limitless current of time/space. It represents the culmination and framework for Mind complex activity.".to_string(),
@@ -749,7 +751,7 @@ mod tests {
     #[test]
     fn test_great_way_lambda_initialization() {
         let great_way = GreatWayMindArchetype::new();
-        assert_eq!(great_way.lambda.value, 0.65);
+        assert_eq!(great_way.lambda.value, 0.5);
         assert_eq!(great_way.lambda.healthy_min, 0.5);
         assert_eq!(great_way.lambda.healthy_max, 0.8);
         assert!(great_way.is_healthy());

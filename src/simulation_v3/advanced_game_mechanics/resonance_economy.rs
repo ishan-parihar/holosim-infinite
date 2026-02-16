@@ -439,7 +439,7 @@ impl EconomicCycle {
             CyclePhase::Peak
         } else if progress < 0.7 {
             CyclePhase::Declining
-        } else if progress < 0.9 {
+        } else if progress <= 0.9 {
             CyclePhase::Dormant
         } else {
             CyclePhase::Collapsing
@@ -1445,7 +1445,7 @@ impl ResonanceEconomy {
         // Remove depleted flows
         self.active_flows.retain(|f| !f.is_depleted());
 
-        // Record decay transaction
+        // Record decay transaction and update system total
         if total_decayed > 0.01 {
             // Create decay pattern (all zeros - represents loss)
             let decay_pattern = ResonancePattern::new();
@@ -1460,8 +1460,11 @@ impl ResonanceEconomy {
                 self.current_time,
             );
 
-            // Note: This transaction doesn't affect individual accounts
-            // It just tracks system-wide resonance loss
+            // Update system resonance total
+            self.ledger.total_resonance_in_system =
+                (self.ledger.total_resonance_in_system - total_decayed).max(0.0);
+
+            // Add to transaction history for tracking
             self.ledger.transaction_history.push(transaction);
         }
 
@@ -1840,7 +1843,12 @@ mod tests {
         );
 
         // Apply enough decay to deplete
-        flow.apply_decay(100.0);
+        // With decay_rate=0.05 and original=100.0, need about 185 time units to get below 0.01
+        // Formula: 100 * e^(-0.05 * t) < 0.01
+        // e^(-0.05 * t) < 0.0001
+        // -0.05 * t < ln(0.0001) ≈ -9.21
+        // t > 184.2
+        flow.apply_decay(200.0);
         assert!(flow.is_depleted());
     }
 
@@ -1865,10 +1873,16 @@ mod tests {
     fn test_create_resonance_account() {
         let mut economy = create_test_economy();
         let account = economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-0".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
-        assert_eq!(account.entity_id, EntityId::new(1));
+        assert_eq!(
+            account.entity_id,
+            EntityId::new("test-resonance-0".to_string())
+        );
         assert_eq!(account.balance, 0.0);
         assert!(account.resonance_patterns.is_empty());
     }
@@ -1877,13 +1891,16 @@ mod tests {
     fn test_account_add_resonance() {
         let mut economy = create_test_economy();
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-2".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
         let account = economy
             .ledger
             .entity_accounts
-            .get_mut(&EntityId::new(1))
+            .get_mut(&EntityId::new("test-resonance-2".to_string()))
             .unwrap();
         account.add_resonance(100.0, create_test_pattern(), 10.0);
 
@@ -1895,13 +1912,16 @@ mod tests {
     fn test_account_remove_resonance() {
         let mut economy = create_test_economy();
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-4".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
         let account = economy
             .ledger
             .entity_accounts
-            .get_mut(&EntityId::new(1))
+            .get_mut(&EntityId::new("test-resonance-4".to_string()))
             .unwrap();
         account.add_resonance(100.0, create_test_pattern(), 10.0);
 
@@ -1914,13 +1934,16 @@ mod tests {
     fn test_insufficient_balance() {
         let mut economy = create_test_economy();
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-6".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
         let account = economy
             .ledger
             .entity_accounts
-            .get_mut(&EntityId::new(1))
+            .get_mut(&EntityId::new("test-resonance-6".to_string()))
             .unwrap();
         account.add_resonance(30.0, create_test_pattern(), 10.0);
 
@@ -1932,23 +1955,29 @@ mod tests {
     fn test_record_trade() {
         let mut economy = create_test_economy();
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-8".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-9".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
         // Give first entity some resonance
         let account = economy
             .ledger
             .entity_accounts
-            .get_mut(&EntityId::new(1))
+            .get_mut(&EntityId::new("test-resonance-8".to_string()))
             .unwrap();
         account.add_resonance(100.0, create_test_pattern(), 0.0);
 
         let result = economy.record_trade(
-            EntityId::new(1),
-            EntityId::new(2),
+            EntityId::new("test-resonance-8".to_string()),
+            EntityId::new("test-resonance-9".to_string()),
             50.0,
             create_test_pattern(),
         );
@@ -1960,12 +1989,13 @@ mod tests {
     #[test]
     fn test_record_catalyst_generation() {
         let mut economy = create_test_economy();
+        let entity_id = EntityId::new("test-resonance-13".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity_id.clone(), AccountType::Individual)
             .unwrap();
 
         let result = economy.record_catalyst_generation(
-            EntityId::new(1),
+            entity_id.clone(),
             100.0,
             create_test_pattern(),
             ResonanceSource::CatalystGeneration,
@@ -1978,11 +2008,12 @@ mod tests {
     #[test]
     fn test_record_quest_reward() {
         let mut economy = create_test_economy();
+        let entity_id = EntityId::new("test-resonance-15".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity_id.clone(), AccountType::Individual)
             .unwrap();
 
-        let result = economy.record_quest_reward(EntityId::new(1), 75.0, create_test_pattern());
+        let result = economy.record_quest_reward(entity_id.clone(), 75.0, create_test_pattern());
 
         assert!(result.is_ok());
         assert!(economy.ledger.total_resonance_in_system > 0.0);
@@ -1991,13 +2022,14 @@ mod tests {
     #[test]
     fn test_apply_decay_removes_resonance() {
         let mut economy = create_test_economy();
+        let entity_id = EntityId::new("test-resonance-17".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity_id.clone(), AccountType::Individual)
             .unwrap();
 
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity_id.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2013,16 +2045,19 @@ mod tests {
     #[test]
     fn test_calculate_economic_metrics() {
         let mut economy = create_test_economy();
+        let entity1 = EntityId::new("test-resonance-19".to_string());
+        let entity2 = EntityId::new("test-resonance-20".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity1.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(entity2.clone(), AccountType::Individual)
             .unwrap();
 
+        // Give first entity some resonance to trade
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity1.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2031,8 +2066,8 @@ mod tests {
 
         economy
             .record_trade(
-                EntityId::new(1),
-                EntityId::new(2),
+                entity1.clone(),
+                entity2.clone(),
                 50.0,
                 create_test_pattern(),
             )
@@ -2070,7 +2105,7 @@ mod tests {
     fn test_health_score() {
         let mut metrics = EconomicMetrics::new();
         metrics.circulation_velocity = 0.7;
-        metrics.diversance_index = 0.7;
+        metrics.diversity_index = 0.7;
         metrics.economic_growth_rate = 0.1;
         metrics.creation_rate = 0.1;
         metrics.decay_rate = 0.09;
@@ -2085,10 +2120,16 @@ mod tests {
     fn test_stimulate_economy() {
         let mut economy = create_test_economy();
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-24".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(
+                EntityId::new("test-resonance-25".to_string()),
+                AccountType::Individual,
+            )
             .unwrap();
 
         let original_total = economy.ledger.total_resonance_in_system;
@@ -2100,17 +2141,19 @@ mod tests {
     #[test]
     fn test_contract_economy() {
         let mut economy = create_test_economy();
+        let entity1 = EntityId::new("test-resonance-26".to_string());
+        let entity2 = EntityId::new("test-resonance-27".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity1.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(entity2.clone(), AccountType::Individual)
             .unwrap();
 
         // Give entities resonance
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity1.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2119,7 +2162,7 @@ mod tests {
 
         economy
             .record_catalyst_generation(
-                EntityId::new(2),
+                entity2.clone(),
                 50.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2135,16 +2178,18 @@ mod tests {
     #[test]
     fn test_get_economy_health_report() {
         let mut economy = create_test_economy();
+        let entity1 = EntityId::new("test-resonance-30".to_string());
+        let entity2 = EntityId::new("test-resonance-31".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity1.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(entity2.clone(), AccountType::Individual)
             .unwrap();
 
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity1.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2162,57 +2207,56 @@ mod tests {
     #[test]
     fn test_get_entity_economic_status() {
         let mut economy = create_test_economy();
+        let entity_id = EntityId::new("test-resonance-33".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity_id.clone(), AccountType::Individual)
             .unwrap();
 
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity_id.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
             )
             .unwrap();
 
-        let status = economy.get_entity_economic_status(EntityId::new(1));
+        let status = economy.get_entity_economic_status(entity_id.clone());
 
         assert!(status.is_some());
         let status = status.unwrap();
-        assert_eq!(status.entity_id, EntityId::new(1));
+        assert_eq!(status.entity_id, entity_id);
         assert!(status.balance > 0.0);
     }
 
     #[test]
     fn test_economic_cycles() {
         let mut economy = create_test_economy();
+        let entity1 = EntityId::new("test-resonance-37".to_string());
+        let entity2 = EntityId::new("test-resonance-38".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity1.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(entity2.clone(), AccountType::Individual)
             .unwrap();
 
-        // Generate enough resonance to trigger cycles
-        for _ in 0..5 {
+        // Generate enough resonance to trigger creation cycle
+        // Creation cycle requires: creation_rate > decay_rate * 1.5
+        // Since we haven't decayed anything, this should trigger with enough creation
+        for _ in 0..10 {
             economy
                 .record_catalyst_generation(
-                    EntityId::new(1),
+                    entity1.clone(),
                     50.0,
                     create_test_pattern(),
                     ResonanceSource::CatalystGeneration,
                 )
                 .unwrap();
-
-            economy
-                .record_trade(
-                    EntityId::new(1),
-                    EntityId::new(2),
-                    25.0,
-                    create_test_pattern(),
-                )
-                .unwrap();
         }
+
+        // Update metrics before detecting cycles
+        economy.calculate_economic_metrics();
 
         let cycles = economy.detect_economic_cycles();
         assert!(!cycles.is_empty());
@@ -2221,19 +2265,22 @@ mod tests {
     #[test]
     fn test_top_resonance_holders() {
         let mut economy = create_test_economy();
+        let entity1 = EntityId::new("test-resonance-42".to_string());
+        let entity2 = EntityId::new("test-resonance-43".to_string());
+        let entity3 = EntityId::new("test-resonance-44".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity1.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(2), AccountType::Individual)
+            .create_account(entity2.clone(), AccountType::Individual)
             .unwrap();
         economy
-            .create_account(EntityId::new(3), AccountType::Individual)
+            .create_account(entity3.clone(), AccountType::Individual)
             .unwrap();
 
         economy
             .record_catalyst_generation(
-                EntityId::new(1),
+                entity1.clone(),
                 100.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2242,7 +2289,7 @@ mod tests {
 
         economy
             .record_catalyst_generation(
-                EntityId::new(2),
+                entity2.clone(),
                 50.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2251,7 +2298,7 @@ mod tests {
 
         economy
             .record_catalyst_generation(
-                EntityId::new(3),
+                entity3.clone(),
                 75.0,
                 create_test_pattern(),
                 ResonanceSource::CatalystGeneration,
@@ -2261,7 +2308,7 @@ mod tests {
         let top_holders = economy.ledger.get_top_resonance_holders(2);
 
         assert_eq!(top_holders.len(), 2);
-        assert_eq!(top_holders[0].0, EntityId::new(1)); // Should be top
+        assert_eq!(top_holders[0].0, entity1); // Should be top with 100.0
         assert!(top_holders[0].1 > top_holders[1].1);
     }
 
@@ -2313,23 +2360,16 @@ mod tests {
     #[test]
     fn test_account_age_and_last_transaction() {
         let mut economy = create_test_economy();
+        let entity_id = EntityId::new("test-resonance-49".to_string());
         economy
-            .create_account(EntityId::new(1), AccountType::Individual)
+            .create_account(entity_id.clone(), AccountType::Individual)
             .unwrap();
 
-        let account = economy
-            .ledger
-            .entity_accounts
-            .get(&EntityId::new(1))
-            .unwrap();
+        let account = economy.ledger.entity_accounts.get(&entity_id).unwrap();
         assert_eq!(account.age(10.0), 10.0);
         assert_eq!(account.time_since_last_transaction(10.0), 10.0);
 
-        let account = economy
-            .ledger
-            .entity_accounts
-            .get_mut(&EntityId::new(1))
-            .unwrap();
+        let account = economy.ledger.entity_accounts.get_mut(&entity_id).unwrap();
         account.add_resonance(100.0, create_test_pattern(), 15.0);
 
         assert_eq!(account.time_since_last_transaction(20.0), 5.0);

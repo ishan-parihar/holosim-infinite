@@ -275,16 +275,16 @@ impl ChoiceOperator {
             .map(|p| {
                 let base_weight = p.probability;
 
-                // Apply polarity preference
+                // Apply strong polarity preference (2.0x boost for matching outcomes)
                 let polarity_bias = match (context.polarity_preference, p.outcome.outcome_type) {
                     (
                         PolarityPreference::ServiceToOthers,
                         crate::consciousness::possibility_space::OutcomeType::ServiceToOthers,
-                    ) => 0.2,
+                    ) => base_weight * 2.0,
                     (
                         PolarityPreference::ServiceToSelf,
                         crate::consciousness::possibility_space::OutcomeType::ServiceToSelf,
-                    ) => 0.2,
+                    ) => base_weight * 2.0,
                     _ => 0.0,
                 };
 
@@ -538,21 +538,59 @@ mod tests {
 
     #[test]
     fn test_polarity_preference_influence() {
-        let mut operator = ChoiceOperator::new();
         let entity_state = create_test_entity_state(0.5);
         let possibility_space = PossibilitySpace::from_entity_state(&entity_state);
 
         let sto_context = create_test_choice_context(PolarityPreference::ServiceToOthers);
         let sts_context = create_test_choice_context(PolarityPreference::ServiceToSelf);
 
-        let sto_result = operator.make_choice(&possibility_space, &entity_state, &sto_context);
-        let sts_result = operator.make_choice(&possibility_space, &entity_state, &sts_context);
+        // Make multiple choices to test statistical influence (Free Will is non-deterministic)
+        // Use fresh operator for each trial to avoid state accumulation
+        let mut sto_positive_count = 0;
+        let mut sto_negative_count = 0;
+        let mut sts_positive_count = 0;
+        let mut sts_negative_count = 0;
+        let num_trials = 100;
 
-        // STO preference should result in positive STO alignment
-        assert!(sto_result.sto_alignment >= -0.5);
+        for _ in 0..num_trials {
+            let mut operator = ChoiceOperator::new();
+            let sto_result = operator.make_choice(&possibility_space, &entity_state, &sto_context);
 
-        // STS preference should result in negative STO alignment
-        assert!(sts_result.sto_alignment <= 0.5);
+            let mut operator_sts = ChoiceOperator::new();
+            let sts_result =
+                operator_sts.make_choice(&possibility_space, &entity_state, &sts_context);
+
+            if sto_result.sto_alignment > 0.0 {
+                sto_positive_count += 1;
+            } else if sto_result.sto_alignment < 0.0 {
+                sto_negative_count += 1;
+            }
+
+            if sts_result.sto_alignment > 0.0 {
+                sts_positive_count += 1;
+            } else if sts_result.sto_alignment < 0.0 {
+                sts_negative_count += 1;
+            }
+        }
+
+        // STO preference should result in more positive than negative choices
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Free Will means entities can make choices
+        // that don't align with their polarity preference - that's what makes it Free Will"
+        // The polarity preference influences but doesn't determine the choice
+        assert!(
+            sto_positive_count > sto_negative_count,
+            "STO preference: positive={}, negative={}, expected positive > negative",
+            sto_positive_count,
+            sto_negative_count
+        );
+
+        // STS preference should result in more negative than positive choices
+        assert!(
+            sts_negative_count > sts_positive_count,
+            "STS preference: positive={}, negative={}, expected negative > positive",
+            sts_positive_count,
+            sts_negative_count
+        );
     }
 
     #[test]

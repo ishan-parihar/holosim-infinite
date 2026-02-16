@@ -27,7 +27,7 @@ use std::collections::HashMap;
 pub const MIN_CRAFTING_ITEMS: usize = 2;
 pub const MAX_CRAFTING_ITEMS: usize = 10;
 pub const MIN_INTERFERENCE_COHERENCE: Float = 0.3;
-pub const CRAFTING_RESONANCE_THRESHOLD: Float = 0.5;
+pub const CRAFTING_RESONANCE_THRESHOLD: Float = 0.2;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CraftingError {
@@ -81,9 +81,10 @@ impl CraftingInterferencePattern {
             .collect();
 
         archetype_magnitudes.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+        // Lower threshold to accommodate averaging (two items at 1.0 become 0.5 when averaged)
         let dominant_archetypes = archetype_magnitudes
             .into_iter()
-            .filter(|&(_, mag)| mag > 0.5)
+            .filter(|&(_, mag)| mag > 0.25)
             .take(5)
             .collect();
 
@@ -100,7 +101,14 @@ impl CraftingInterferencePattern {
         for i in 0..22 {
             pattern_strength += self.combined_pattern[i].abs();
         }
-        pattern_strength /= 22.0;
+        // Normalize by number of dominant archetypes, not all 22
+        // This makes crafting more feasible with focused archetype combinations
+        let divisor = if self.dominant_archetypes.is_empty() {
+            1.0
+        } else {
+            self.dominant_archetypes.len() as Float
+        };
+        pattern_strength = (pattern_strength / divisor).min(1.0);
 
         pattern_strength * self.coherence * self.stability
     }
@@ -620,8 +628,8 @@ mod tests {
     #[test]
     fn test_low_coherence_rejection() {
         let crafting = ArchetypicalCrafting::new();
-        let item1 = create_test_item(1, ItemCategory::Material);
-        let item2 = create_test_item(2, ItemCategory::Material);
+        let mut item1 = create_test_item(1, ItemCategory::Material);
+        let mut item2 = create_test_item(2, ItemCategory::Material);
 
         item1.archetype_signature.archetype_pattern[0] = 1.0;
         item2.archetype_signature.archetype_pattern[1] = -1.0;

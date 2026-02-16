@@ -24,6 +24,7 @@ pub mod renderer;
 pub mod scene;
 pub mod space_controller;
 pub mod time_controller;
+pub mod view_system;
 pub mod ui;
 pub mod visualization;
 pub mod visualization_engine;
@@ -41,6 +42,7 @@ pub mod sdl2;
 
 // Re-exports for convenience
 pub use camera::camera::Camera as Camera2D;
+pub use camera::controls::CameraControls;
 pub use interaction::BookmarkManager as CameraBookmarks;
 pub use interaction_system::{
     ArchetypeActivation, CatalystStatus, ClickResult, EntityInfo, EntityInspector, EntityTracker,

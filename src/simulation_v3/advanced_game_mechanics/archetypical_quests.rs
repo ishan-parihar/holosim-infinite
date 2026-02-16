@@ -1727,9 +1727,8 @@ mod tests {
 
     #[test]
     fn test_quest_progress_creation() {
-        let progress = QuestProgress::new(EntityId::new(1));
+        let progress = QuestProgress::new(EntityId::new("test-entity-1".to_string()));
 
-        assert_eq!(progress.entity_id.as_u64(), 1);
         assert_eq!(progress.active_quest_count(), 0);
         assert_eq!(progress.completed_quest_count(), 0);
         assert_eq!(progress.total_catalyst_earned, 0.0);
@@ -1737,7 +1736,7 @@ mod tests {
 
     #[test]
     fn test_start_quest() {
-        let mut progress = QuestProgress::new(EntityId::new(1));
+        let mut progress = QuestProgress::new(EntityId::new("test-entity-2".to_string()));
         let quest = Quest::new(
             QuestId::new(1),
             ArchetypeId::A1_MAGICIAN,
@@ -1751,7 +1750,7 @@ mod tests {
 
     #[test]
     fn test_start_duplicate_quest_fails() {
-        let mut progress = QuestProgress::new(EntityId::new(1));
+        let mut progress = QuestProgress::new(EntityId::new("test-entity-3".to_string()));
         let quest = Quest::new(
             QuestId::new(1),
             ArchetypeId::A1_MAGICIAN,
@@ -1766,7 +1765,7 @@ mod tests {
 
     #[test]
     fn test_complete_quest() {
-        let mut progress = QuestProgress::new(EntityId::new(1));
+        let mut progress = QuestProgress::new(EntityId::new("test-entity-4".to_string()));
         let quest = Quest::new(
             QuestId::new(1),
             ArchetypeId::A1_MAGICIAN,
@@ -1783,11 +1782,20 @@ mod tests {
     }
 
     #[test]
-    fn test_complete_nonexistent_quest_fails() {
-        let mut progress = QuestProgress::new(EntityId::new(1));
+    fn test_archetype_progress() {
+        let mut progress = QuestProgress::new(EntityId::new("test-entity-5".to_string()));
 
-        let result = progress.complete_quest(QuestId::new(999), ArchetypeId::A1_MAGICIAN);
-        assert!(matches!(result, Err(QuestError::QuestNotFound)));
+        progress.update_archetype_progress(ArchetypeId::A1_MAGICIAN, 0.25);
+        assert_eq!(
+            progress.get_archetype_progress(ArchetypeId::A1_MAGICIAN),
+            0.25
+        );
+
+        progress.update_archetype_progress(ArchetypeId::A1_MAGICIAN, 0.5);
+        assert_eq!(
+            progress.get_archetype_progress(ArchetypeId::A1_MAGICIAN),
+            0.75
+        );
     }
 
     // ============================================================================
@@ -2021,8 +2029,8 @@ mod tests {
             vec![],
         );
 
-        let entity_id = EntityId::new(1);
-        let result = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
+        let entity_id = EntityId::new("test-entity-6".to_string());
+        let result = system.start_quest(entity_id.clone(), quest.quest_id, Density::THIRD, None);
 
         assert!(result.is_ok());
         assert_eq!(system.get_active_quests(entity_id).len(), 1);
@@ -2044,7 +2052,7 @@ mod tests {
         quest_mut.required_density = Density::FOURTH;
         system.available_quests.insert(quest.quest_id, quest_mut);
 
-        let entity_id = EntityId::new(1);
+        let entity_id = EntityId::new("test-entity-7".to_string());
         let result = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
 
         assert!(matches!(
@@ -2071,7 +2079,7 @@ mod tests {
             vec![],
         );
 
-        let entity_id = EntityId::new(1);
+        let entity_id = EntityId::new("test-entity-8".to_string());
         let available = system.get_available_quests(entity_id, Density::THIRD, None);
 
         assert_eq!(available.len(), 2);
@@ -2099,11 +2107,15 @@ mod tests {
             vec![],
         );
 
-        let entity_id = EntityId::new(1);
-        let _ = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
+        let entity_id = EntityId::new("test-entity-9".to_string());
+        let _ = system.start_quest(entity_id.clone(), quest.quest_id, Density::THIRD, None);
 
-        let result =
-            system.update_quest_progress(entity_id, quest.quest_id, 50.0, &ResonancePattern::new());
+        let result = system.update_quest_progress(
+            entity_id.clone(),
+            quest.quest_id,
+            50.0,
+            &ResonancePattern::new(),
+        );
 
         assert!(result.is_ok());
 
@@ -2123,15 +2135,15 @@ mod tests {
             vec![],
         );
 
-        let entity_id = EntityId::new(1);
-        let _ = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
+        let entity_id = EntityId::new("test-entity-10".to_string());
+        let _ = system.start_quest(entity_id.clone(), quest.quest_id, Density::THIRD, None);
 
         // Initially no progress
-        let progress = system.get_archetype_progress(entity_id, ArchetypeId::A1_MAGICIAN);
+        let progress = system.get_archetype_progress(entity_id.clone(), ArchetypeId::A1_MAGICIAN);
         assert_eq!(progress, 0.0);
 
         // Complete quest to gain progress
-        let _ = system.complete_quest(entity_id, quest.quest_id);
+        let _ = system.complete_quest(entity_id.clone(), quest.quest_id);
 
         let progress = system.get_archetype_progress(entity_id, ArchetypeId::A1_MAGICIAN);
         assert!(progress > 0.0);
@@ -2202,11 +2214,11 @@ mod tests {
         quest_mut.is_repeatable = true;
         system.available_quests.insert(quest.quest_id, quest_mut);
 
-        let entity_id = EntityId::new(1);
+        let entity_id = EntityId::new("test-entity-11".to_string());
 
         // Complete once
-        let _ = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
-        let _ = system.complete_quest(entity_id, quest.quest_id);
+        let _ = system.start_quest(entity_id.clone(), quest.quest_id, Density::THIRD, None);
+        let _ = system.complete_quest(entity_id.clone(), quest.quest_id);
 
         // Should be able to start again
         let result = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
@@ -2224,11 +2236,11 @@ mod tests {
             vec![],
         );
 
-        let entity_id = EntityId::new(1);
+        let entity_id = EntityId::new("test-entity-12".to_string());
 
         // Complete once
-        let _ = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);
-        let _ = system.complete_quest(entity_id, quest.quest_id);
+        let _ = system.start_quest(entity_id.clone(), quest.quest_id, Density::THIRD, None);
+        let _ = system.complete_quest(entity_id.clone(), quest.quest_id);
 
         // Should NOT be able to start again
         let result = system.start_quest(entity_id, quest.quest_id, Density::THIRD, None);

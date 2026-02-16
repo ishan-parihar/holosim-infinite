@@ -42,6 +42,10 @@ pub struct MatrixMindArchetype {
 
 impl MatrixMindArchetype {
     pub fn new() -> Self {
+        let mut lambda = LambdaMeasurement::new(0.5, LambdaMeasurementType::Capacity);
+        lambda.healthy_min = 0.5;
+        lambda.healthy_max = 0.8;
+
         MatrixMindArchetype {
             archetype_id: 1,
             name: "Matrix of Mind".to_string(),
@@ -54,7 +58,7 @@ impl MatrixMindArchetype {
             polarization: Polarity::Neutral,
             health_status: HealthStatus::Balanced,
             holonic_level: HolonicLevel::Micro,
-            lambda_measurement: LambdaMeasurement::new(1.0, LambdaMeasurementType::Capacity),
+            lambda_measurement: lambda,
             is_active: false,
             structural_permeability: 0.5,
             resource_access: 0.5,

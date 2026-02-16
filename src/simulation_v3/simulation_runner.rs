@@ -31,11 +31,13 @@ use crate::simulation_v3::inter_scale_interactions::InterScaleInteractionManager
 use crate::simulation_v3::involution_sequence::{
     InvolutionError, InvolutionResult, InvolutionSequenceRunner, InvolutionStage,
 };
+use crate::simulation_v3::multiscale_camera::{MultiScaleCamera, ScaleLevel};
 use crate::simulation_v3::persistence::{
     CheckpointManager, PerformanceMetrics, PersistenceError, PersistenceManager,
 };
 use crate::simulation_v3::physical_structure_visualizer::PhysicalStructureVisualizer;
 use crate::simulation_v3::reporter::SimulationReporter;
+use crate::simulation_v3::scale_physics::{ScalePhysicsError, ScaleSpecificPhysics};
 use crate::simulation_v3::spectrum_visualizer::SpectrumDistributionVisualizer;
 use crate::simulation_v3::statistics::{
     EmergentProperties, HolographicFieldStatistics as StatsHolographicFieldStatistics,
@@ -252,10 +254,15 @@ impl SimulationResult {
 /// - Phase 3: PhysicalStructureManager - Manages physical structures
 /// - Phase 3: HierarchicalCompositionManager - Manages hierarchical composition
 /// - Phase 3: SimultaneousEmergenceManager - Manages simultaneous emergence
+/// - Phase 1 Week 1: ScaleSpecificPhysics - Multi-scale physics engine
+/// - Phase 1 Week 1: MultiScaleCamera - Scale tracking and transitions
 ///
 /// From COMPREHENSIVE_REFACTOR_PLAN.md:
 /// "The NEW simulation uses the V3.0 architecture that correctly implements
 /// COSMOLOGICAL-ARCHITECTURE.md"
+///
+/// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+/// "Integrate scale_physics.rs into simulation_runner.rs to enable multi-scale simulation"
 pub struct SimulationRunner {
     /// Simulation parameters
     parameters: SimulationParameters,
@@ -311,6 +318,16 @@ pub struct SimulationRunner {
     /// Phase 7: Entity ID to quantum pool ID mapping
     entity_quantum_pools: HashMap<EntityId, String>,
 
+    /// Phase 1 Week 1: Scale-specific physics engine
+    /// Manages physics for all 7 scale levels (Quantum through Cosmic)
+    scale_physics: ScaleSpecificPhysics,
+
+    /// Phase 1 Week 1: Current active scale level
+    current_scale: ScaleLevel,
+
+    /// Phase 1 Week 1: Multi-scale camera for scale tracking
+    multiscale_camera: Option<MultiScaleCamera>,
+
     /// Current simulation time
     current_time: u64,
 
@@ -359,6 +376,18 @@ impl SimulationRunner {
         let hierarchical_composition_manager = HierarchicalCompositionManager::new();
         let simultaneous_emergence_manager = SimultaneousEmergenceManager::new();
 
+        // Phase 1 Week 1: Initialize scale-specific physics engine
+        // From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+        // "Add scale_physics: ScaleSpecificPhysics field to SimulationRunner struct"
+        let scale_physics = ScaleSpecificPhysics::new();
+
+        // Phase 1 Week 1: Set default scale to Biological (middle of 7 scales)
+        // From COSMOLOGICAL-ARCHITECTURE.md: "3rd Density: Space/Time, v = s/t > 1"
+        let current_scale = ScaleLevel::Biological;
+
+        // Phase 1 Week 1: Initialize multi-scale camera (optional, can be set later)
+        let multiscale_camera = None;
+
         SimulationRunner {
             parameters: parameters.clone(),
             involution_runner,
@@ -378,6 +407,9 @@ impl SimulationRunner {
             simultaneous_emergence_manager,       // Phase 3
             entities: HashMap::new(),             // Phase 4
             entity_quantum_pools: HashMap::new(), // Phase 7
+            scale_physics,                        // Phase 1 Week 1
+            current_scale,                        // Phase 1 Week 1
+            multiscale_camera,                    // Phase 1 Week 1
             current_time: 0,
             current_step: 0,
             running: false,
@@ -792,6 +824,9 @@ impl SimulationRunner {
     fn run_evolution_phase(&mut self) -> EvolutionResult {
         let start_time = std::time::Instant::now();
 
+        // Phase 1 Week 1: Initialize holographic continuity at evolution start
+        self.update_holographic_continuity();
+
         // Collect entity types for catalyst generation (Phase 5)
         let mut entity_types: HashMap<EntityId, EntityType> = HashMap::new();
 
@@ -806,6 +841,21 @@ impl SimulationRunner {
         // Run evolution loop
         for step in 0..self.parameters.num_steps {
             self.current_step = step;
+
+            // Phase 1 Week 1: Detect scale transitions
+            // From MASTER_R&D_ROADMAP.md Phase 1 Week 1: "Detect when camera scale changes"
+            self.detect_scale_transition();
+
+            // Phase 1 Week 1: Run scale-specific simulation step
+            // From MASTER_R&D_ROADMAP.md Phase 1 Week 1: "In each evolution step, call simulate_scale_step()"
+            // This runs simulation specific to the current scale level (Quantum, Cellular, Biological, etc.)
+            if let Err(e) = self.simulate_scale_step(self.parameters.time_step_size) {
+                // Log error but continue with entity evolution
+                eprintln!(
+                    "Scale simulation error at step {} (scale: {:?}): {:?}",
+                    step, self.current_scale, e
+                );
+            }
 
             // Phase 5: Apply catalysts to entities
             //
@@ -2150,5 +2200,667 @@ impl SimulationRunner {
         // Note: This would need to track metrics during simulation
         // For now, return empty metrics
         PerformanceMetrics::new()
+    }
+
+    // ===========================================================================
+    // PHASE 1 WEEK 1: MULTI-SCALE SIMULATION
+    // ===========================================================================
+
+    /// Set the active scale level for simulation
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add method set_scale(&mut self, scale: ScaleLevel) to change active scale"
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Each scale contains the whole (holographic principle)"
+    pub fn set_scale(&mut self, scale: ScaleLevel) {
+        // From GAMING_ENGINE_ROADMAP_v2.md Section 5:
+        // "Maintain holographic continuity during scale transitions"
+        let previous_scale = self.current_scale;
+
+        if previous_scale != scale {
+            // Log scale transition
+            println!(
+                "Scale transition: {} -> {}",
+                previous_scale.display_name(),
+                scale.display_name()
+            );
+
+            // Update current scale
+            self.current_scale = scale;
+
+            // Update multi-scale camera if available
+            if let Some(ref mut camera) = self.multiscale_camera {
+                camera.transition_to_scale(
+                    scale,
+                    std::time::Duration::from_millis(100),
+                    crate::simulation_v3::multiscale_camera::InterpolationMode::Smooth,
+                );
+            }
+
+            // Update holographic continuity
+            self.update_holographic_continuity();
+        }
+    }
+
+    /// Get the current active scale level
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add method get_current_scale(&self) -> ScaleLevel to get active scale"
+    pub fn get_current_scale(&self) -> ScaleLevel {
+        self.current_scale
+    }
+
+    /// Simulate one time step at the current scale
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add method simulate_scale_step(&mut self, time_step: Float) to run one simulation step"
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Each scale contains the whole" - scale-specific simulation maintains holographic continuity
+    pub fn simulate_scale_step(&mut self, time_step: Float) -> Result<(), ScalePhysicsError> {
+        // From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+        // "In each evolution step, call simulate_scale_step() instead of generic entity updates"
+        let result = self
+            .scale_physics
+            .simulate_step(self.current_scale, time_step)?;
+
+        // Track scale-specific simulation performance
+        // Performance metrics will be recorded in the simulation result
+
+        // Update cross-scale coupling after each step
+        self.update_cross_scale_coupling();
+
+        Ok(())
+    }
+
+    /// Update holographic continuity across all scales
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Implement method update_holographic_continuity() to ensure 'each scale contains the whole'"
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Each entity contains within it all densities and sub-densities of the octave"
+    /// "Any portion contains the whole" - the Law of One principle
+    ///
+    /// From GAMING_ENGINE_ROADMAP_v2.md Section 5:
+    /// "Holographic continuity: each scale contains the whole"
+    pub fn update_holographic_continuity(&mut self) {
+        // From GAMING_ENGINE_ROADMAP_v2.md Section 5.2:
+        // "Maintain holographic continuity during transitions"
+        // "Resolution changes, but completeness is maintained"
+
+        // Update holographic continuity strength
+        // Continuity strength approaches 1.0 (perfect) as the simulation progresses
+        let continuity_improvement = 0.001 * self.parameters.time_step_size;
+        self.scale_physics
+            .holographic_continuity
+            .continuity_strength = (self
+            .scale_physics
+            .holographic_continuity
+            .continuity_strength
+            + continuity_improvement)
+            .min(1.0);
+
+        // Update cross-scale coupling coefficients
+        // Adjacent scales have stronger coupling (higher coefficient)
+        let scales = [
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+            ScaleLevel::Planetary,
+            ScaleLevel::Stellar,
+            ScaleLevel::Galactic,
+            ScaleLevel::Cosmic,
+        ];
+
+        for (i, scale) in scales.iter().enumerate() {
+            // Coupling to previous scale (if exists)
+            if i > 0 {
+                let prev_scale = scales[i - 1];
+                let coupling_key = (prev_scale, *scale);
+                let coupling_strength = 0.8; // Strong coupling to adjacent scales
+                self.scale_physics
+                    .holographic_continuity
+                    .cross_scale_coupling
+                    .insert(coupling_key, coupling_strength);
+            }
+
+            // Coupling to next scale (if exists)
+            if i < scales.len() - 1 {
+                let next_scale = scales[i + 1];
+                let coupling_key = (*scale, next_scale);
+                let coupling_strength = 0.8; // Strong coupling to adjacent scales
+                self.scale_physics
+                    .holographic_continuity
+                    .cross_scale_coupling
+                    .insert(coupling_key, coupling_strength);
+            }
+
+            // Coupling to non-adjacent scales (weaker)
+            for j in (i + 2)..scales.len() {
+                let distant_scale = scales[j];
+                let coupling_key = (*scale, distant_scale);
+                let distance = (j - i) as Float;
+                let coupling_strength = 0.8 / distance; // Decays with distance
+                self.scale_physics
+                    .holographic_continuity
+                    .cross_scale_coupling
+                    .insert(coupling_key, coupling_strength);
+            }
+        }
+    }
+
+    /// Update cross-scale coupling between scales
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add coupling between adjacent scales"
+    /// "Store cross-scale influence factors"
+    ///
+    /// From GAMING_ENGINE_ROADMAP_v2.md Section 5:
+    /// "All scales are simulated simultaneously, each contains the whole"
+    fn update_cross_scale_coupling(&mut self) {
+        // From GAMING_ENGINE_ROADMAP_v2.md Section 5:
+        // "Cross-scale coupling: Quantum ↔ Cellular ↔ Biological ↔ Planetary ↔ Stellar ↔ Galactic ↔ Cosmic"
+
+        // Quantum ↔ Cellular coupling
+        // Quantum processes affect cellular processes (e.g., protein folding)
+        let quantum_cellular_coupling = 0.7;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Quantum, ScaleLevel::Cellular),
+                quantum_cellular_coupling,
+            );
+
+        // Cellular ↔ Biological coupling
+        // Cellular processes affect biological organisms
+        let cellular_biological_coupling = 0.8;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Cellular, ScaleLevel::Biological),
+                cellular_biological_coupling,
+            );
+
+        // Biological ↔ Planetary coupling
+        // Organisms affect planetary systems (Gaia consciousness)
+        let biological_planetary_coupling = 0.6;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Biological, ScaleLevel::Planetary),
+                biological_planetary_coupling,
+            );
+
+        // Planetary ↔ Stellar coupling
+        // Planetary systems affect stellar dynamics
+        let planetary_stellar_coupling = 0.5;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Planetary, ScaleLevel::Stellar),
+                planetary_stellar_coupling,
+            );
+
+        // Stellar ↔ Galactic coupling
+        // Stellar systems affect galactic structure
+        let stellar_galactic_coupling = 0.4;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Stellar, ScaleLevel::Galactic),
+                stellar_galactic_coupling,
+            );
+
+        // Galactic ↔ Cosmic coupling
+        // Galactic structures affect cosmic evolution
+        let galactic_cosmic_coupling = 0.3;
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .insert(
+                (ScaleLevel::Galactic, ScaleLevel::Cosmic),
+                galactic_cosmic_coupling,
+            );
+
+        // Store cross-scale influence factors
+        // These can be used for holographic continuity calculations
+    }
+
+    /// Detect and handle scale transitions
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add scale transition detection"
+    /// "Detect when camera scale changes"
+    /// "Trigger scale transition with holographic continuity preservation"
+    /// "Log scale transitions for debugging"
+    pub fn detect_scale_transition(&mut self) -> Option<(ScaleLevel, ScaleLevel)> {
+        // Check if multi-scale camera is available
+        if let Some(ref camera) = self.multiscale_camera {
+            // Get camera's current scale
+            let camera_scale = camera.current_scale();
+
+            // Check if scale has changed
+            if camera_scale != self.current_scale {
+                let previous_scale = self.current_scale;
+
+                // Log scale transition
+                println!(
+                    "Scale transition detected (via camera): {} -> {}",
+                    previous_scale.display_name(),
+                    camera_scale.display_name()
+                );
+
+                // Trigger scale transition with holographic continuity preservation
+                self.set_scale(camera_scale);
+
+                // Return transition information
+                Some((previous_scale, camera_scale))
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Set the multi-scale camera for scale tracking
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add multiscale_camera: Option<MultiScaleCamera> field for scale tracking"
+    pub fn set_multiscale_camera(&mut self, camera: MultiScaleCamera) {
+        // Update current scale to match camera's scale
+        self.current_scale = camera.current_scale();
+
+        // Set the camera
+        self.multiscale_camera = Some(camera);
+
+        // Update holographic continuity
+        self.update_holographic_continuity();
+    }
+
+    /// Get the multi-scale camera (if available)
+    pub fn get_multiscale_camera(&self) -> Option<&MultiScaleCamera> {
+        self.multiscale_camera.as_ref()
+    }
+
+    /// Get holographic continuity information
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Each entity contains within it all densities and sub-densities of the octave"
+    pub fn get_holographic_continuity(
+        &self,
+    ) -> &crate::simulation_v3::scale_physics::HolographicContinuity {
+        &self.scale_physics.holographic_continuity
+    }
+
+    /// Get cross-scale coupling between two scales
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
+    /// "Add coupling between adjacent scales"
+    pub fn get_cross_scale_coupling(&self, from: ScaleLevel, to: ScaleLevel) -> Float {
+        self.scale_physics
+            .holographic_continuity
+            .cross_scale_coupling
+            .get(&(from, to))
+            .copied()
+            .unwrap_or(0.0)
+    }
+}
+
+// ============================================================================
+// PHASE 1 WEEK 1: MULTI-SCALE SIMULATION TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::simulation_v3::multiscale_camera::{InterpolationMode, MultiScaleCamera};
+
+    #[test]
+    fn test_simulation_runner_initializes_scale_physics() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let runner = SimulationRunner::new(parameters);
+
+        // Check that current_scale is set to default (Biological)
+        assert_eq!(runner.get_current_scale(), ScaleLevel::Biological);
+
+        // Check that multiscale_camera is initially None
+        assert!(runner.get_multiscale_camera().is_none());
+
+        // Check that holographic continuity is initialized
+        let continuity = runner.get_holographic_continuity();
+        assert_eq!(continuity.continuity_strength, 1.0);
+    }
+
+    #[test]
+    fn test_scale_transitions_preserve_holographic_data() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Get initial cross-scale coupling data after proper initialization
+        runner.set_scale(ScaleLevel::Biological);
+        runner.update_holographic_continuity(); // Ensure coupling is initialized
+
+        let initial_quantum_biological =
+            runner.get_cross_scale_coupling(ScaleLevel::Quantum, ScaleLevel::Biological);
+
+        // Transition to different scale
+        runner.set_scale(ScaleLevel::Planetary);
+
+        // Cross-scale coupling should still be available
+        let later_quantum_biological =
+            runner.get_cross_scale_coupling(ScaleLevel::Quantum, ScaleLevel::Biological);
+
+        // Coupling data should be preserved
+        assert_eq!(
+            initial_quantum_biological, later_quantum_biological,
+            "Cross-scale coupling data not preserved during transition"
+        );
+    }
+
+    #[test]
+    fn test_simulate_scale_step_calls_correct_physics() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Test simulation at each scale level
+        let scales = [
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+            ScaleLevel::Planetary,
+            ScaleLevel::Stellar,
+            ScaleLevel::Galactic,
+            ScaleLevel::Cosmic,
+        ];
+
+        for scale in scales {
+            // Set the scale
+            runner.set_scale(scale);
+
+            // Simulate one step
+            let result = runner.simulate_scale_step(1.0);
+
+            // Verify that simulation succeeded
+            assert!(result.is_ok(), "Simulation failed for scale {:?}", scale);
+        }
+    }
+
+    #[test]
+    fn test_holographic_continuity_during_scale_transitions() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Get initial holographic continuity
+        let initial_continuity = runner.get_holographic_continuity();
+        let initial_strength = initial_continuity.continuity_strength;
+
+        // Transition through all scales
+        let scales = [
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+            ScaleLevel::Planetary,
+            ScaleLevel::Stellar,
+            ScaleLevel::Galactic,
+            ScaleLevel::Cosmic,
+        ];
+
+        for scale in scales {
+            runner.set_scale(scale);
+
+            // Get holographic continuity after transition
+            let continuity = runner.get_holographic_continuity();
+
+            // Continuity strength should remain high (near 1.0)
+            assert!(
+                continuity.continuity_strength >= 0.99,
+                "Continuity strength dropped to {} at scale {:?}",
+                continuity.continuity_strength,
+                scale
+            );
+        }
+
+        // Final continuity strength should be at least as strong as initial
+        let final_continuity = runner.get_holographic_continuity();
+        assert!(
+            final_continuity.continuity_strength >= initial_strength,
+            "Continuity strength degraded from {} to {}",
+            initial_strength,
+            final_continuity.continuity_strength
+        );
+    }
+
+    #[test]
+    fn test_cross_scale_coupling() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Initialize holographic continuity by setting a scale
+        runner.set_scale(ScaleLevel::Biological);
+
+        // Manually trigger update_holographic_continuity to ensure coupling is set
+        runner.update_holographic_continuity();
+
+        // Test coupling between adjacent scales
+        let adjacent_pairs = [
+            (ScaleLevel::Quantum, ScaleLevel::Cellular),
+            (ScaleLevel::Cellular, ScaleLevel::Biological),
+            (ScaleLevel::Biological, ScaleLevel::Planetary),
+            (ScaleLevel::Planetary, ScaleLevel::Stellar),
+            (ScaleLevel::Stellar, ScaleLevel::Galactic),
+            (ScaleLevel::Galactic, ScaleLevel::Cosmic),
+        ];
+
+        for (from, to) in adjacent_pairs {
+            let coupling = runner.get_cross_scale_coupling(from, to);
+            assert!(coupling > 0.0, "No coupling from {:?} to {:?}", from, to);
+            assert!(
+                coupling <= 1.0,
+                "Coupling exceeds 1.0: {} from {:?} to {:?}",
+                coupling,
+                from,
+                to
+            );
+        }
+    }
+
+    #[test]
+    fn test_multiscale_camera_integration() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Check that camera is initially None
+        assert!(runner.get_multiscale_camera().is_none());
+
+        // Create and set multi-scale camera
+        let camera = MultiScaleCamera::new(ScaleLevel::Biological, 16.0 / 9.0);
+        runner.set_multiscale_camera(camera);
+
+        // Check that camera is now available
+        assert!(runner.get_multiscale_camera().is_some());
+
+        // Check that scale was updated to match camera
+        assert_eq!(runner.get_current_scale(), ScaleLevel::Biological);
+    }
+
+    #[test]
+    fn test_scale_transition_detection() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Create and set multi-scale camera
+        let mut camera = MultiScaleCamera::new(ScaleLevel::Biological, 16.0 / 9.0);
+        runner.set_multiscale_camera(camera);
+
+        // No transition should be detected initially
+        let transition = runner.detect_scale_transition();
+        assert!(transition.is_none());
+
+        // Trigger a camera transition with zero duration for immediate effect
+        if let Some(ref mut cam) = runner.multiscale_camera {
+            cam.transition_to_scale(
+                ScaleLevel::Planetary,
+                std::time::Duration::from_millis(0),
+                InterpolationMode::Linear,
+            );
+            // Update camera to complete transition
+            cam.update(std::time::Duration::from_millis(1));
+        }
+
+        // Transition should now be detected
+        let transition = runner.detect_scale_transition();
+        assert!(transition.is_some());
+
+        let (from, to) = transition.unwrap();
+        assert_eq!(from, ScaleLevel::Biological);
+        assert_eq!(to, ScaleLevel::Planetary);
+    }
+
+    #[test]
+    fn test_all_seven_scale_levels_accessible() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Test all 7 scale levels
+        let all_scales = [
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+            ScaleLevel::Planetary,
+            ScaleLevel::Stellar,
+            ScaleLevel::Galactic,
+            ScaleLevel::Cosmic,
+        ];
+
+        for scale in all_scales {
+            // Set scale
+            runner.set_scale(scale);
+
+            // Verify scale is set
+            assert_eq!(runner.get_current_scale(), scale);
+
+            // Simulate at this scale
+            let result = runner.simulate_scale_step(1.0);
+            assert!(result.is_ok(), "Failed to simulate at scale {:?}", scale);
+        }
+    }
+
+    #[test]
+    fn test_scale_physics_modes() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Quantum scale should use Quantum physics
+        runner.set_scale(ScaleLevel::Quantum);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::Quantum
+        );
+
+        // Cellular scale should use Quantum physics
+        runner.set_scale(ScaleLevel::Cellular);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::Quantum
+        );
+
+        // Biological scale should use Space/Time physics
+        runner.set_scale(ScaleLevel::Biological);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::SpaceTime
+        );
+
+        // Planetary scale should use Space/Time physics
+        runner.set_scale(ScaleLevel::Planetary);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::SpaceTime
+        );
+
+        // Stellar scale should use Space/Time physics
+        runner.set_scale(ScaleLevel::Stellar);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::SpaceTime
+        );
+
+        // Galactic scale should use Space/Time physics
+        runner.set_scale(ScaleLevel::Galactic);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::SpaceTime
+        );
+
+        // Cosmic scale should use Time/Space physics
+        runner.set_scale(ScaleLevel::Cosmic);
+        assert_eq!(
+            runner.get_current_scale().physics_mode(),
+            crate::simulation_v3::multiscale_camera::PhysicsMode::TimeSpace
+        );
+    }
+
+    #[test]
+    fn test_cross_scale_coupling_distance_decay() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(10);
+
+        let mut runner = SimulationRunner::new(parameters);
+        runner.set_scale(ScaleLevel::Biological);
+
+        // Manually trigger update_holographic_continuity to ensure coupling is set
+        runner.update_holographic_continuity();
+
+        // Adjacent scales should have stronger coupling
+        let biological_planetary_coupling =
+            runner.get_cross_scale_coupling(ScaleLevel::Biological, ScaleLevel::Planetary);
+
+        // Non-adjacent scales should have weaker coupling
+        let biological_stellar_coupling =
+            runner.get_cross_scale_coupling(ScaleLevel::Biological, ScaleLevel::Stellar);
+
+        // Adjacent coupling should be stronger
+        assert!(
+            biological_planetary_coupling > biological_stellar_coupling,
+            "Adjacent coupling ({}) should be stronger than distant coupling ({})",
+            biological_planetary_coupling,
+            biological_stellar_coupling
+        );
     }
 }

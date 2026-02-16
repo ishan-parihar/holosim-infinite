@@ -615,7 +615,7 @@ impl ScaleTransitionOptimizer {
     /// Quantize position for cache key
     fn quantize_position(&self, position_log: Float) -> (i64, i64, i64) {
         const QUANTUM: Float = 0.1;
-        let x = (position_log / QUANTUM).round() as i64;
+        let x = (position_log / QUANTUM).floor() as i64;
         (x, 0, 0)
     }
 

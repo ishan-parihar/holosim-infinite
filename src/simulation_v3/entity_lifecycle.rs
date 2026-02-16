@@ -21,16 +21,22 @@ use crate::entity_layer7::layer7::{
     EntityExperience, EntityId, EntitySpectrumAccess, EntityState, EvolutionaryTrajectory,
     Layer7KarmicPattern, ResolutionStatus, SpectrumAccessLevel,
 };
+use crate::evolution::{
+    AdaptiveAttractorField, EntityFeedback, IntelligentInfinity, TeleologicalProgress,
+};
 use crate::evolution_density_octave::density_octave::{Density, DensityOctave};
 use crate::evolution_density_octave::spectrum_access::SpectrumAccessMechanism;
 use crate::memory::holographic_memory::{ExperienceMetadata, ExperienceType, HolographicMemory};
-use crate::types::Float;
+use crate::types::{Density as TypesDensity, Float};
 use rand::Rng;
 use std::collections::HashMap;
 
 /// Entity Lifecycle Manager
 ///
 /// Manages entity evolution through densities from 1st to 8th Density.
+///
+/// Phase 3: Integrated intelligent evolution system with adaptive attractors
+/// and teleological direction.
 #[derive(Debug, Clone)]
 pub struct EntityLifecycleManager {
     /// Entity storage (indexed by EntityId)
@@ -53,11 +59,46 @@ pub struct EntityLifecycleManager {
 
     /// Simulation time
     pub simulation_time: u64,
+
+    // ========================================================================
+    // PHASE 3: INTELLIGENT EVOLUTION SYSTEM
+    // ========================================================================
+    /// Adaptive attractor fields for each density
+    ///
+    /// These fields learn and adjust based on entity feedback,
+    /// replacing static mechanical attractors with intelligent learning attractors.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Adaptive attractor fields (not static)"
+    /// "Learning system: attractors adjust based on entity choices"
+    ///
+    /// Note: Uses TypesDensity from types module, not Density from density_octave module
+    pub adaptive_attractors: HashMap<TypesDensity, AdaptiveAttractorField>,
+
+    /// Teleological progress tracking for each entity
+    ///
+    /// Tracks how well each entity is aligned with its evolutionary purpose:
+    /// "return to Intelligent-Infinity, having served"
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Progress tracking toward purpose"
+    pub teleological_tracker: HashMap<EntityId, TeleologicalProgress>,
+
+    /// Active Intelligent-Infinity field
+    ///
+    /// Collects feedback from entities and analyzes patterns to guide evolution.
+    /// Emits teleological pull toward source.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Active Intelligent-Infinity with learning"
+    pub intelligent_infinity: IntelligentInfinity,
 }
 
 /// Entity Lifecycle Data
 ///
 /// Complete lifecycle data for a single entity.
+///
+/// Phase 3: Includes teleological progress tracking.
 #[derive(Debug, Clone)]
 pub struct EntityLifecycleData {
     /// Entity ID
@@ -100,6 +141,15 @@ pub struct EntityLifecycleData {
     /// Phase 1: Polarity progression
     /// Tracks entity's polarization journey through the new polarization system.
     pub polarization: crate::polarization::PolarizationProgress,
+
+    /// Phase 3: Teleological progress toward purpose
+    ///
+    /// Tracks how well this entity is aligned with its evolutionary purpose:
+    /// "return to Intelligent-Infinity, having served"
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Progress tracking toward purpose"
+    pub teleological_progress: TeleologicalProgress,
 }
 
 /// Evolutionary State
@@ -180,6 +230,8 @@ pub struct EvolutionResult {
 /// Lifecycle Statistics
 ///
 /// Statistics about entity evolution.
+///
+/// Phase 3: Includes teleological metrics.
 #[derive(Debug, Clone)]
 pub struct LifecycleStatistics {
     /// Total number of entities
@@ -205,6 +257,29 @@ pub struct LifecycleStatistics {
 
     /// Polarity distribution
     pub polarization_distribution: PolarizationDistribution,
+
+    // ========================================================================
+    // PHASE 3: TELEOLOGICAL METRICS
+    // ========================================================================
+    /// Average purpose alignment across all entities
+    ///
+    /// Measures how aligned entities are with returning to source.
+    pub average_purpose_alignment: f64,
+
+    /// Average coherence with source
+    ///
+    /// Measures resonance with Intelligent-Infinity.
+    pub average_coherence_with_source: f64,
+
+    /// Average service orientation (STO/STS)
+    ///
+    /// Positive = STO bias, Negative = STS bias
+    pub average_service_orientation: f64,
+
+    /// Attractor effectiveness history
+    ///
+    /// Tracks how well attractors have been guiding entities over time.
+    pub attractor_effectiveness_history: Vec<f64>,
 }
 
 /// Polarity Distribution
@@ -230,8 +305,11 @@ pub struct PolarizationDistribution {
 
 impl EntityLifecycleManager {
     /// Create a new EntityLifecycleManager
+    ///
+    /// Phase 3: Initializes intelligent evolution system with adaptive attractors
+    /// and teleological tracking.
     pub fn new() -> Self {
-        EntityLifecycleManager {
+        let mut manager = EntityLifecycleManager {
             entities: HashMap::new(),
             evolution_trajectories: HashMap::new(),
             spectrum_access: SpectrumAccessMechanism::new(),
@@ -239,7 +317,16 @@ impl EntityLifecycleManager {
             holographic_memory: HolographicMemory::new(1000),
             statistics: LifecycleStatistics::default(),
             simulation_time: 0,
-        }
+            // Phase 3: Initialize intelligent evolution system
+            adaptive_attractors: HashMap::new(),
+            teleological_tracker: HashMap::new(),
+            intelligent_infinity: IntelligentInfinity::with_default_frequency(),
+        };
+
+        // Initialize adaptive attractors for each density
+        manager.initialize_adaptive_attractors();
+
+        manager
     }
 
     /// Add an entity to the lifecycle manager
@@ -309,13 +396,19 @@ impl EntityLifecycleManager {
             density_transitions: Vec::new(),
             original_spectrum_configuration: spectrum_access, // Phase 1: Store original
             polarization,                                     // Phase 1: Add polarization
+            teleological_progress: TeleologicalProgress::new(0.1, 0.1, 0.0, 0.0), // Phase 3: Add teleological progress
         };
 
-        self.entities.insert(entity_id.clone(), lifecycle_data);
+        self.entities
+            .insert(entity_id.clone(), lifecycle_data.clone());
         self.free_will_kernels
             .insert(entity_id.clone(), free_will_kernel);
         self.evolution_trajectories
             .insert(entity_id.clone(), Vec::new());
+
+        // Phase 3: Initialize teleological tracking for this entity
+        self.initialize_teleological_tracking(&entity_id, &lifecycle_data);
+
         self.record_evolutionary_state(&entity_id);
         self.update_statistics();
     }
@@ -351,6 +444,199 @@ impl EntityLifecycleManager {
         }
 
         patterns
+    }
+
+    // ========================================================================
+    // PHASE 3: INTELLIGENT EVOLUTION SYSTEM METHODS
+    // ========================================================================
+
+    /// Initialize adaptive attractors for each density
+    ///
+    /// Creates adaptive attractor fields for all densities, replacing
+    /// static mechanical attractors with intelligent learning attractors.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Adaptive attractor fields (not static)"
+    fn initialize_adaptive_attractors(&mut self) {
+        // Create adaptive attractors for each density
+        // Different densities have different base strengths
+        // Note: Use TypesDensity from types module, not Density from density_octave module
+        let densities = vec![
+            (TypesDensity::First, 0.2),
+            (TypesDensity::Second, 0.25),
+            (TypesDensity::Third, 0.3),
+            (TypesDensity::Fourth, 0.35),
+            (TypesDensity::Fifth, 0.4),
+            (TypesDensity::Sixth, 0.45),
+            (TypesDensity::Seventh, 0.5),
+            (TypesDensity::Eighth, 0.55),
+        ];
+
+        for (density, base_strength) in densities {
+            let attractor = AdaptiveAttractorField::new(density.clone(), base_strength);
+            self.adaptive_attractors.insert(density, attractor);
+        }
+    }
+
+    /// Initialize intelligent evolution system (Phase 3)
+    ///
+    /// Sets up the adaptive attractors and teleological tracking for all entities.
+    /// Called during manager initialization.
+    pub fn initialize_intelligent_evolution(&mut self) {
+        // Initialize adaptive attractors for each density
+        self.initialize_adaptive_attractors();
+
+        // Initialize teleological tracking for all existing entities
+        let entity_ids: Vec<(EntityId, EntityLifecycleData)> = self
+            .entities
+            .iter()
+            .map(|(id, data)| (id.clone(), data.clone()))
+            .collect();
+
+        for (entity_id, entity_data) in entity_ids {
+            self.initialize_teleological_tracking(&entity_id, &entity_data);
+        }
+    }
+
+    /// Initialize teleological tracking for a single entity
+    ///
+    /// Sets up teleological progress tracking for an entity.
+    fn initialize_teleological_tracking(
+        &mut self,
+        entity_id: &EntityId,
+        entity_data: &EntityLifecycleData,
+    ) {
+        // Create initial teleological progress assessment
+        let teleological = TeleologicalProgress::new(
+            0.1,                                                    // Initial purpose alignment
+            0.1,                                                    // Initial coherence with source
+            entity_data.current_state.polarity_state.polarity_bias, // Service orientation
+            0.0,                                                    // Initial wisdom
+        );
+
+        self.teleological_tracker
+            .insert(entity_id.clone(), teleological);
+    }
+
+    /// Process entity feedback and update adaptive attractors
+    ///
+    /// This is the core feedback loop for intelligent evolution.
+    /// Entities provide feedback on attractor effectiveness, which is used
+    /// to adjust attractor strength for future entities.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Feedback loop: entities → Intelligent-Infinity"
+    /// "Entities provide feedback on attractor effectiveness"
+    ///
+    /// # Arguments
+    /// * `entity_id` - Entity providing feedback
+    /// * `feedback` - Feedback about attractor effectiveness
+    pub fn process_entity_feedback(&mut self, entity_id: &EntityId, feedback: EntityFeedback) {
+        // Get current density to determine which attractor to update
+        // Note: Need to convert density_octave::Density to types::Density
+        let current_density_octave = if let Some(entity_data) = self.entities.get(entity_id) {
+            entity_data.current_density.clone()
+        } else {
+            return; // Entity not found
+        };
+
+        // Convert density_octave::Density to types::Density
+        let current_density_types = match current_density_octave {
+            Density::First(_) => TypesDensity::First,
+            Density::Second(_) => TypesDensity::Second,
+            Density::Third => TypesDensity::Third,
+            Density::Fourth => TypesDensity::Fourth,
+            Density::Fifth => TypesDensity::Fifth,
+            Density::Sixth => TypesDensity::Sixth,
+            Density::Seventh => TypesDensity::Seventh,
+            Density::Eighth => TypesDensity::Eighth,
+        };
+
+        // Send feedback to adaptive attractor
+        if let Some(attractor) = self.adaptive_attractors.get_mut(&current_density_types) {
+            attractor.receive_feedback(feedback.clone());
+
+            // Adjust attractor strength based on feedback
+            attractor.adjust_strength();
+        }
+
+        // Send feedback to Intelligent-Infinity
+        self.intelligent_infinity.receive_entity_feedback(feedback);
+    }
+
+    /// Update teleological tracking for all entities
+    ///
+    /// Updates the teleological progress for all entities based on their
+    /// current state and evolutionary progress.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Progress tracking toward purpose"
+    pub fn update_teleological_tracking(&mut self) {
+        let entity_data_map: Vec<(EntityId, EntityLifecycleData)> = self
+            .entities
+            .iter()
+            .map(|(id, data)| (id.clone(), data.clone()))
+            .collect();
+
+        for (entity_id, entity_data) in entity_data_map {
+            // Calculate updated teleological progress
+            let purpose_alignment = calculate_entity_purpose_alignment(&entity_data);
+            let coherence_with_source = calculate_entity_coherence_with_source(&entity_data);
+            let service_orientation = entity_data.current_state.polarity_state.polarity_bias;
+            let wisdom_accumulated = calculate_entity_wisdom(&entity_data);
+
+            let teleological = TeleologicalProgress::new(
+                purpose_alignment,
+                coherence_with_source,
+                service_orientation,
+                wisdom_accumulated,
+            );
+
+            self.teleological_tracker
+                .insert(entity_id.clone(), teleological.clone());
+
+            // Update entity's stored teleological progress
+            if let Some(data) = self.entities.get_mut(&entity_id) {
+                data.teleological_progress = teleological;
+            }
+        }
+    }
+
+    /// Get teleological evolution modifier for an entity
+    ///
+    /// Returns a modifier that boosts or reduces evolution rate based on
+    /// the entity's alignment with its teleological purpose.
+    ///
+    /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+    /// "Coherence with purpose affects evolution"
+    ///
+    /// # Arguments
+    /// * `entity_id` - Entity to get modifier for
+    ///
+    /// # Returns
+    /// Evolution rate modifier (0.5 to 2.0)
+    /// - 1.0 = normal rate
+    /// - > 1.0 = accelerated by teleological alignment
+    /// - < 1.0 = slowed by teleological misalignment
+    pub fn get_teleological_modifier(&self, entity_id: &EntityId) -> f64 {
+        if let Some(teleological) = self.teleological_tracker.get(entity_id) {
+            // Base modifier from overall progress
+            let base_modifier = 0.5 + teleological.overall_progress; // 0.5 to 1.5
+
+            // Boost from purpose alignment
+            let purpose_boost = teleological.purpose_alignment * 0.5; // 0.0 to 0.5
+
+            // Boost from coherence with source
+            let coherence_boost = teleological.coherence_with_source * 0.5; // 0.0 to 0.5
+
+            // Combine all factors
+            let modifier = base_modifier + purpose_boost + coherence_boost;
+
+            modifier.clamp(0.5, 2.0)
+        } else {
+            // Default modifier if no tracking data
+            1.0
+        }
     }
 
     /// Evolve entities for a number of steps
@@ -405,6 +691,12 @@ impl EntityLifecycleManager {
                     spectrum_access_upgrades += result.spectrum_access_upgrades;
                 }
             }
+
+            // Phase 3: Update teleological tracking for all entities
+            self.update_teleological_tracking();
+
+            // Phase 3: Pulse Intelligent-Infinity
+            self.intelligent_infinity.pulse();
         }
 
         self.update_statistics();
@@ -492,6 +784,8 @@ impl EntityLifecycleManager {
     /// This method calculates the probability of a successful density transition
     /// based on multiple factors that influence organic evolution.
     ///
+    /// Phase 3: Added teleological modifier for purposeful evolution.
+    ///
     /// From COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md Phase 5:
     /// "Replace deterministic transitions with probabilistic emergence"
     ///
@@ -503,6 +797,7 @@ impl EntityLifecycleManager {
     ///                       * karmic_factor
     ///                       * archetype_factor
     ///                       * attractor_factor
+    ///                       * teleological_factor  [Phase 3]
     ///
     /// Returns a probability value between 0.0 and 1.0.
     fn calculate_transition_probability(&self, entity_data: &EntityLifecycleData) -> f64 {
@@ -574,6 +869,10 @@ impl EntityLifecycleManager {
             entity_polarity_bias,
         );
 
+        // Phase 3: Get teleological modifier
+        // Coherence with purpose increases transition probability
+        let teleological_modifier = self.get_teleological_modifier(&entity_data.entity_id);
+
         // Calculate final probability
         let final_probability = base_probability
             * spectrum_factor
@@ -581,7 +880,8 @@ impl EntityLifecycleManager {
             * will_factor
             * karmic_factor
             * archetype_factor
-            * attractor_factor;
+            * attractor_factor
+            * teleological_modifier; // Phase 3: Add teleological boost
 
         // Clamp probability to valid range [0.0, 1.0]
         final_probability.clamp(0.0, 1.0)
@@ -879,6 +1179,55 @@ impl EntityLifecycleManager {
         // From COSMOLOGICAL-ARCHITECTURE.md:
         // "Evolution is the journey of being pulled by 'spiritual gravity' toward the source"
         self.apply_attractor_field_pull(entity_id);
+
+        // Phase 3: Collect feedback on attractor effectiveness
+        // After applying attractor pull, collect feedback to send to adaptive attractors
+        let current_density_octave = self
+            .entities
+            .get(entity_id)
+            .map(|e| e.current_density.clone())
+            .unwrap();
+
+        // Convert density_octave::Density to types::Density for attractor lookup
+        let current_density_types = match current_density_octave {
+            Density::First(_) => TypesDensity::First,
+            Density::Second(_) => TypesDensity::Second,
+            Density::Third => TypesDensity::Third,
+            Density::Fourth => TypesDensity::Fourth,
+            Density::Fifth => TypesDensity::Fifth,
+            Density::Sixth => TypesDensity::Sixth,
+            Density::Seventh => TypesDensity::Seventh,
+            Density::Eighth => TypesDensity::Eighth,
+        };
+
+        let attractor_pull = self
+            .adaptive_attractors
+            .get(&current_density_types)
+            .map(|a| a.get_pull_strength())
+            .unwrap_or(0.0);
+
+        let evolution_progress = self
+            .entities
+            .get(entity_id)
+            .map(|e| e.density_octave.get_progress())
+            .unwrap_or(0.0);
+
+        let alignment_with_attractor = self
+            .entities
+            .get(entity_id)
+            .map(|e| e.teleological_progress.purpose_alignment)
+            .unwrap_or(0.0);
+
+        let feedback = EntityFeedback {
+            entity_id: entity_id.clone(),
+            attractor_pull,
+            evolution_progress,
+            alignment_with_attractor,
+            timestamp: self.simulation_time,
+        };
+
+        // Send feedback to attractor and Intelligent-Infinity
+        self.process_entity_feedback(entity_id, feedback);
 
         self.exercise_free_will(entity_id);
         self.accumulate_experience(entity_id);
@@ -1381,6 +1730,8 @@ impl EntityLifecycleManager {
     }
 
     /// Update lifecycle statistics
+    ///
+    /// Phase 3: Added teleological metrics to statistics.
     fn update_statistics(&mut self) {
         let total_entities = self.entities.len();
 
@@ -1399,6 +1750,11 @@ impl EntityLifecycleManager {
         let mut unpolarized_count = 0;
         let mut total_sto_score = 0.0;
         let mut total_sts_score = 0.0;
+
+        // Phase 3: Teleological metrics
+        let mut total_purpose_alignment = 0.0;
+        let mut total_coherence_with_source = 0.0;
+        let mut total_service_orientation = 0.0;
 
         for lifecycle_data in self.entities.values() {
             let density_key = format!("{:?}", lifecycle_data.current_density);
@@ -1430,6 +1786,12 @@ impl EntityLifecycleManager {
             } else {
                 unpolarized_count += 1;
             }
+
+            // Phase 3: Accumulate teleological metrics
+            total_purpose_alignment += lifecycle_data.teleological_progress.purpose_alignment;
+            total_coherence_with_source +=
+                lifecycle_data.teleological_progress.coherence_with_source;
+            total_service_orientation += lifecycle_data.teleological_progress.service_orientation;
         }
 
         let avg_sto_score = if sto_count > 0 {
@@ -1443,6 +1805,22 @@ impl EntityLifecycleManager {
         } else {
             0.0
         };
+
+        // Phase 3: Calculate average teleological metrics
+        let average_purpose_alignment = total_purpose_alignment / total_entities as f64;
+        let average_coherence_with_source = total_coherence_with_source / total_entities as f64;
+        let average_service_orientation = total_service_orientation / total_entities as f64;
+
+        // Phase 3: Track attractor effectiveness
+        if let Some(analysis) = &self.intelligent_infinity.latest_analysis {
+            self.statistics
+                .attractor_effectiveness_history
+                .push(analysis.average_effectiveness);
+            // Limit history size
+            if self.statistics.attractor_effectiveness_history.len() > 1000 {
+                self.statistics.attractor_effectiveness_history.remove(0);
+            }
+        }
 
         self.statistics = LifecycleStatistics {
             total_entities,
@@ -1459,6 +1837,14 @@ impl EntityLifecycleManager {
                 avg_sto_score,
                 avg_sts_score,
             },
+            // Phase 3: Add teleological metrics
+            average_purpose_alignment,
+            average_coherence_with_source,
+            average_service_orientation,
+            attractor_effectiveness_history: self
+                .statistics
+                .attractor_effectiveness_history
+                .clone(),
         };
     }
 
@@ -1570,6 +1956,90 @@ impl EntityLifecycleManager {
     }
 } // End of impl EntityLifecycleManager
 
+// ========================================================================
+// PHASE 3: TELEOLOGICAL CALCULATION HELPER FUNCTIONS
+// ========================================================================
+
+/// Calculate entity's purpose alignment
+///
+/// Measures how aligned the entity is with returning to source.
+fn calculate_entity_purpose_alignment(entity_data: &EntityLifecycleData) -> f64 {
+    // Spectrum access: More oneness (time/space) = more aligned
+    let spectrum_alignment = entity_data.current_spectrum_access.oneness_access;
+
+    // Veil transparency: Thinner veil = closer to source
+    let veil_alignment = entity_data.current_spectrum_access.veil_transparency;
+
+    // Evolutionary direction: Higher density = closer to source
+    let density_progress = match &entity_data.current_density {
+        Density::First(_) => 0.125,
+        Density::Second(_) => 0.25,
+        Density::Third => 0.375,
+        Density::Fourth => 0.5,
+        Density::Fifth => 0.625,
+        Density::Sixth => 0.75,
+        Density::Seventh => 0.875,
+        Density::Eighth => 1.0,
+    };
+
+    // Consciousness level: Higher consciousness = more aligned
+    let consciousness_alignment = entity_data.current_state.consciousness_level;
+
+    // Weighted average
+    spectrum_alignment * 0.3
+        + veil_alignment * 0.3
+        + density_progress * 0.2
+        + consciousness_alignment * 0.2
+}
+
+/// Calculate entity's coherence with source
+///
+/// Measures resonance with Intelligent-Infinity.
+fn calculate_entity_coherence_with_source(entity_data: &EntityLifecycleData) -> f64 {
+    // Oneness access (time/space dominance = closer to source)
+    let oneness_access = entity_data.current_spectrum_access.oneness_access;
+
+    // Space/time access (inverse of oneness)
+    let space_time_access = entity_data.current_spectrum_access.space_time_access;
+
+    // Coherence = oneness - space/time
+    let base_coherence = oneness_access - space_time_access;
+
+    // Modulate by consciousness level (higher consciousness = higher coherence)
+    let consciousness_factor = entity_data.current_state.consciousness_level;
+
+    // Combine factors
+    let coherence = (base_coherence + 1.0) / 2.0; // Normalize to 0-1
+    let coherence = coherence * 0.7 + consciousness_factor * 0.3;
+
+    coherence.clamp(0.0, 1.0)
+}
+
+/// Calculate entity's wisdom
+///
+/// Wisdom is integrated experience that guides future choices.
+fn calculate_entity_wisdom(entity_data: &EntityLifecycleData) -> f64 {
+    // Base wisdom from experience accumulation
+    let base_wisdom = entity_data.current_state.experience_accumulation;
+
+    // Learning progress increases wisdom efficiency
+    let learning_factor = 1.0 + entity_data.current_state.learning_progress;
+
+    // Consciousness level increases wisdom quality
+    let consciousness_factor = 1.0 + entity_data.current_state.consciousness_level;
+
+    // Karmic pattern resolution increases wisdom
+    let resolved_patterns = entity_data
+        .karmic_patterns
+        .iter()
+        .filter(|p| matches!(p.resolution_status, ResolutionStatus::Resolved))
+        .count();
+    let karmic_factor = 1.0 + (resolved_patterns as f64 * 0.1);
+
+    // Wisdom = experience × efficiency × quality × karmic integration
+    base_wisdom * learning_factor * consciousness_factor * karmic_factor
+}
+
 impl Default for EvolutionResult {
     fn default() -> Self {
         EvolutionResult {
@@ -1599,6 +2069,11 @@ impl Default for LifecycleStatistics {
                 avg_sto_score: 0.0,
                 avg_sts_score: 0.0,
             },
+            // Phase 3: Add teleological metrics
+            average_purpose_alignment: 0.0,
+            average_coherence_with_source: 0.0,
+            average_service_orientation: 0.0,
+            attractor_effectiveness_history: Vec::new(),
         }
     }
 }
@@ -1654,6 +2129,7 @@ impl Default for EntityLifecycleData {
                 spectrum_position: 0.5,
             }, // Phase 1: Add default original configuration
             polarization: crate::polarization::PolarizationProgress::new(), // Phase 1: Add polarization
+            teleological_progress: TeleologicalProgress::new(0.1, 0.1, 0.0, 0.0), // Phase 3: Add teleological progress
         }
     }
 }

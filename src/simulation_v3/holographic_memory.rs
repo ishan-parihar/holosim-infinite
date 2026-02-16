@@ -553,9 +553,15 @@ impl HolographicMemorySystem {
     }
 
     pub fn decay_all_memories(&mut self, decay_rate: Float) {
+        // From COSMOLOGICAL-ARCHITECTURE.md: "Memories naturally decay over time as emotional resonance fades"
         for stream in self.memory_streams.values_mut() {
             for memory in &mut stream.memory_entries {
                 memory.decay_emotional_intensity(decay_rate);
+                // Also update the cached copy
+                let key = (stream.soul_id, memory.memory_id);
+                if let Some(cached) = self.memory_cache.get_mut(&key) {
+                    cached.decay_emotional_intensity(decay_rate);
+                }
             }
         }
     }
@@ -937,7 +943,7 @@ mod tests {
 
     #[test]
     fn test_holographic_continuity() {
-        let system = HolographicMemorySystem::new();
+        let mut system = HolographicMemorySystem::new();
         system.create_soul_stream(1, Density::Third);
 
         let continuity = system.compute_holographic_continuity(1);

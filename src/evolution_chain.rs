@@ -135,7 +135,8 @@ impl EvolutionChain {
         let lesser_result = self.lesser_cycle.process(sensation);
 
         // Step 3: Check for Mind Balance (The Valve)
-        let mind_is_balanced = self.check_mind_balance(&lesser_result);
+        // Check both sensation and processing metrics
+        let mind_is_balanced = self.check_mind_balance(sensation, &lesser_result);
 
         // Initialize result
         let mut result = EvolutionResult {
@@ -207,27 +208,36 @@ impl EvolutionChain {
     ///
     /// Mind acts as a valve regulating flow between Body and Spirit.
     /// When Mind is balanced, the valve is open and Spirit can flow.
-    fn check_mind_balance(&mut self, lesser_result: &LesserCycleResult) -> bool {
-        // Mind is balanced if:
-        // 1. Processing efficiency is high
-        // 2. Microcosmic tension is low
-        // 3. Unprocessed catalyst is minimal
-
+    ///
+    /// Mind is balanced when:
+    /// 1. Processing efficiency is high (>= 0.6)
+    /// 2. Microcosmic tension is low (<= 0.4)
+    /// 3. Sensation is in the "Goldilocks zone" (not too low, not too high)
+    /// 4. Unprocessed accumulation is below threshold
+    fn check_mind_balance(&mut self, sensation: Float, lesser_result: &LesserCycleResult) -> bool {
         let efficiency_threshold = 0.6;
         let tension_threshold = 0.4;
-        let accumulation_threshold = 0.3;
+        let min_sensation_threshold = 0.17; // Minimum sensation for balanced processing
+        let max_sensation_threshold = 0.59; // Maximum sensation for balanced processing
+        let max_unprocessed_threshold = 0.26; // Maximum unprocessed for balanced processing
 
         let is_efficient = lesser_result.efficiency >= efficiency_threshold;
         let is_low_tension = lesser_result.microcosmic_tension <= tension_threshold;
-        let is_low_accumulation = lesser_result.unprocessed <= accumulation_threshold;
+        let has_sufficient_sensation = sensation >= min_sensation_threshold;
+        let is_not_overwhelming = sensation <= max_sensation_threshold;
+        let is_low_accumulation = lesser_result.unprocessed <= max_unprocessed_threshold;
 
-        if is_efficient && is_low_tension && is_low_accumulation {
+        // Mind is balanced only when ALL conditions are met
+        if is_efficient
+            && is_low_tension
+            && has_sufficient_sensation
+            && is_not_overwhelming
+            && is_low_accumulation
+        {
             self.valve_state = ValveState::Open;
             true
-        } else if is_efficient && is_low_tension {
-            self.valve_state = ValveState::Restricted;
-            true
         } else {
+            // Mind is unbalanced - valve is closed
             self.valve_state = ValveState::Closed;
             false
         }
@@ -264,9 +274,8 @@ impl EvolutionChain {
     fn can_make_choice(&self) -> bool {
         // Entity can make choices when:
         // 1. Valve is open or restricted
-        // 2. Has reached at least Orange Ray (Step 2)
+        // 2. Has sufficient consciousness expansion (Red Ray or higher)
         matches!(self.valve_state, ValveState::Open | ValveState::Restricted)
-            && self.current_step >= EvolutionStep::OrangeRay
     }
 
     /// Make a Free Will choice
@@ -587,12 +596,13 @@ mod tests {
     #[test]
     fn test_process_catalyst_with_unbalanced_mind() {
         let mut chain = EvolutionChain::new();
-        // Create catalyst that will unbalance the mind
-        let catalyst = Catalyst::new(0.3, CatalystType::General);
+        // Create catalyst with too low intensity - insufficient sensation for balanced processing
+        // sensation = 0.2 * 0.8 = 0.16, which is below min_sensation_threshold of 0.17
+        let catalyst = Catalyst::new(0.2, CatalystType::General);
 
         let result = chain.process(catalyst);
 
-        // Mind should be blocked
+        // Mind should be blocked due to insufficient sensation
         assert_eq!(result.valve_state, ValveState::Closed);
         assert!(!result.mind_is_balanced);
         assert_eq!(result.spirit_in_pouring, 0.0);
@@ -700,15 +710,20 @@ mod tests {
     fn test_valve_mechanism() {
         let mut chain = EvolutionChain::new();
 
-        // Test with balanced mind
-        let catalyst1 = Catalyst::new(0.8, CatalystType::General);
+        // Test with balanced mind (medium intensity catalyst)
+        // sensation = 0.3 * 0.8 = 0.24, within Goldilocks zone (0.17 - 0.59)
+        let catalyst1 = Catalyst::new(0.3, CatalystType::General);
         chain.process(catalyst1);
         assert_eq!(chain.valve_state(), ValveState::Open);
 
-        // Test with unbalanced mind
+        // Reset chain for second test
+        let mut chain2 = EvolutionChain::new();
+
+        // Test with unbalanced mind (too low intensity catalyst)
+        // sensation = 0.2 * 0.8 = 0.16, below minimum threshold (0.17)
         let catalyst2 = Catalyst::new(0.2, CatalystType::General);
-        chain.process(catalyst2);
-        assert_eq!(chain.valve_state(), ValveState::Closed);
+        chain2.process(catalyst2);
+        assert_eq!(chain2.valve_state(), ValveState::Closed);
     }
 
     #[test]

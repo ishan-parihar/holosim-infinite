@@ -155,10 +155,10 @@ impl SpectrumAccessMechanism {
     fn get_access_level_for_position(&self, position: SpectrumPosition) -> u8 {
         match position {
             SpectrumPosition::ExtremeSpaceDominance => 0,
-            SpectrumPosition::SpaceDominance => 1,
-            SpectrumPosition::VeilTransition => 2,
-            SpectrumPosition::TimeDominance => 3,
-            SpectrumPosition::ExtremeTimeDominance => 4,
+            SpectrumPosition::SpaceDominance => 0,
+            SpectrumPosition::VeilTransition => 1,
+            SpectrumPosition::TimeDominance => 2, // Requires 5th density or higher (consciousness >= 0.8)
+            SpectrumPosition::ExtremeTimeDominance => 3, // Requires 6th density or higher
         }
     }
 
@@ -266,7 +266,11 @@ impl SpectrumAccessMechanism {
         previous: SpectrumAccessLevel,
         new: SpectrumAccessLevel,
     ) -> AccessImprovement {
-        let improvement = (new as u8 - previous as u8) as f64 / 4.0;
+        let improvement = if new as u8 >= previous as u8 {
+            (new as u8 - previous as u8) as f64 / 4.0
+        } else {
+            0.0 // No improvement if regressed
+        };
 
         AccessImprovement {
             oneness_access_increase: improvement * 0.5,
@@ -574,7 +578,7 @@ mod tests {
         );
         assert_eq!(spectrum_access.oneness_access, 0.95);
         assert_eq!(spectrum_access.veil_transparency, 1.0);
-        assert_eq!(spectrum_access.space_time_access, 0.05);
+        assert!((spectrum_access.space_time_access - 0.05).abs() < 0.001);
     }
 
     #[test]

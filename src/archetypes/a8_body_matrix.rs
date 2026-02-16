@@ -591,7 +591,7 @@ impl ArchetypeTrait for MatrixBodyArchetype {
 
     fn health_status(&self) -> HealthStatus {
         if self.is_healthy() {
-            HealthStatus::Balanced
+            HealthStatus::Healthy
         } else if ArchetypeTrait::lambda(self).value < ArchetypeTrait::lambda(self).healthy_min {
             HealthStatus::PathologicalLow
         } else {

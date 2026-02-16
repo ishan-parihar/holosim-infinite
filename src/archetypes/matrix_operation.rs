@@ -101,7 +101,7 @@ impl MatrixOperation {
     ///
     /// Matrix can process if:
     /// - Raw experience is above minimum threshold
-    /// - Matrix is not overloaded
+    /// - Matrix is not overloaded (or near capacity)
     /// - Structural permeability is sufficient
     fn can_process_input(&self, input: &ConsciousnessInput) -> bool {
         // Check if raw experience is sufficient
@@ -109,8 +109,10 @@ impl MatrixOperation {
             return false;
         }
 
-        // Check if Matrix is overloaded
-        if self.matrix.is_overloaded() {
+        // Check if Matrix is overloaded or near capacity (>= 90%)
+        if self.matrix.is_overloaded()
+            || (self.matrix.current_load >= self.matrix.structural_capacity * 0.9)
+        {
             return false;
         }
 
@@ -234,11 +236,29 @@ mod tests {
     };
 
     #[test]
-    fn test_matrix_operation_creation() {
-        let operation = MatrixOperation::default();
+    fn test_matrix_operation_overloaded() {
+        let mut matrix = MatrixMindArchetype::new();
+        // Set load above capacity to trigger overload (is_overloaded checks current_load > structural_capacity)
+        matrix.current_load = matrix.structural_capacity * 1.1;
 
-        assert_eq!(operation.archetype_id(), 1);
-        assert_eq!(operation.archetype_name(), "Matrix Operation");
+        let operation = MatrixOperation::new(matrix);
+
+        let input = ConsciousnessInput {
+            raw_experience: 0.8,
+            catalyst: Catalyst::mind(0.7),
+            vibrational_level: 0.6,
+            previous_output: None,
+            context: ProcessingContext {
+                complex_type: ComplexType::Mind,
+                cycle_step: CycleStep::Matrix,
+                iteration: 0,
+            },
+        };
+
+        let output = operation.process(input);
+
+        assert!(!output.success);
+        assert!(output.metadata.errors.len() > 0);
     }
 
     #[test]
@@ -315,7 +335,7 @@ mod tests {
     }
 
     #[test]
-    fn test_matrix_operation_overloaded() {
+    fn test_matrix_operation_overloaded_near_capacity() {
         let mut matrix = MatrixMindArchetype::new();
         // Overload the matrix
         matrix.current_load = matrix.structural_capacity * 0.95;

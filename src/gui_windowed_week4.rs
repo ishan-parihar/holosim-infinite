@@ -4,7 +4,7 @@
 use std::time::{Duration, Instant};
 use winit::{
     event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
+    event_loop::EventLoop,
     window::WindowBuilder,
 };
 
@@ -12,9 +12,7 @@ use holonic_realms::{
     entity_layer7::layer7::{EntityId, EntityType},
     gui::{
         camera::{Camera2D, CameraControls, ScaleTransition},
-        scene::entity_visualizer::{
-            EntityRenderData, EntityVisualizer, ScaleLevel, VisualizationStyle,
-        },
+        scene::entity_visualizer::EntityVisualizer,
     },
     types::Density,
 };

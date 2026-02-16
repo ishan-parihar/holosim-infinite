@@ -11,12 +11,11 @@
 use holonic_realms::gui::camera::controls::CameraControls;
 use holonic_realms::gui::camera::Camera2D;
 use holonic_realms::gui::renderer::buffers::BufferManager;
-use holonic_realms::gui::renderer::logarithmic_depth::LOD_SHADER;
 use holonic_realms::gui::renderer::pipeline::EntityRenderPipeline;
 use holonic_realms::gui::renderer::WgpuContext;
-use holonic_realms::gui::scene::lod::{LODLevel, LODSystem};
-use holonic_realms::gui::scene::spatial_partition::{FrustumCuller, Octree};
-use holonic_realms::gui::scene::{NodeId, SceneGraph, SceneNode, Transform};
+use holonic_realms::gui::scene::lod::LODSystem;
+use holonic_realms::gui::scene::spatial_partition::Octree;
+use holonic_realms::gui::scene::{SceneGraph, Transform};
 use std::time::Instant;
 use winit::event::ElementState;
 use winit::event::{Event, WindowEvent};
@@ -51,7 +50,7 @@ impl Week3Application {
 
         let context = WgpuContext::new(&window).await?;
 
-        let mut buffer_manager = BufferManager::new(&context.device, WINDOW_WIDTH, WINDOW_HEIGHT);
+        let buffer_manager = BufferManager::new(&context.device, WINDOW_WIDTH, WINDOW_HEIGHT);
         let render_pipeline = EntityRenderPipeline::new(&context.device, &context.surface_config);
 
         let camera = Camera2D::new(WINDOW_WIDTH as f32 / WINDOW_HEIGHT as f32);
@@ -185,14 +184,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .build(&event_loop)?;
 
     let mut context = WgpuContext::new(&window).await?;
-    let mut buffer_manager = BufferManager::new(&context.device, WINDOW_WIDTH, WINDOW_HEIGHT);
+    let _buffer_manager = BufferManager::new(&context.device, WINDOW_WIDTH, WINDOW_HEIGHT);
     let render_pipeline = EntityRenderPipeline::new(&context.device, &context.surface_config);
 
     let mut camera = Camera2D::new(WINDOW_WIDTH as f32 / WINDOW_HEIGHT as f32);
 
     let mut camera_controls = CameraControls::new();
     let mut scene_graph = SceneGraph::new();
-    let lod_system = LODSystem::new();
+    let _lod_system = LODSystem::new();
     let mut octree = Octree::new(nalgebra_glm::Vec3::zeros(), 1000.0);
 
     println!("Application initialized successfully");
@@ -245,12 +244,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                     WindowEvent::KeyboardInput { event, .. } => {
                         if event.state == ElementState::Pressed {
-                            match event.logical_key {
-                                Key::Named(NamedKey::Escape) => {
-                                    println!("Quitting...");
-                                    window_target.exit();
-                                }
-                                _ => {}
+                            if let Key::Named(NamedKey::Escape) = event.logical_key {
+                                println!("Quitting...");
+                                window_target.exit();
                             }
                         }
                     }
@@ -275,7 +271,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             frame_count = 0;
                             last_frame_time = Instant::now();
 
-                            let _ = window.set_title(&format!(
+                            window.set_title(&format!(
                                 "Holonic Realms - Week 3: {:.1} FPS | Camera: ({:.1}, {:.1}) Zoom: {:.2}",
                                 fps,
                                 camera.position.x,
@@ -315,7 +311,7 @@ fn render_frame(
 
     // Clear screen
     {
-        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+        let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Clear Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {
                 view: &view,

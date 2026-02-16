@@ -1,0 +1,420 @@
+//! Entity Instance - GPU representation of an entity
+//!
+//! Phase 1: Enhanced Instance Data - Captures 7-layer holonic architecture
+//!
+//! From HOLOGRAPHIC_ARCHITECTURE_AUDIT_REPORT.md:
+//! "The visualization only captures 4 fields out of 50+ fields in each SubSubLogos entity.
+//! This represents a 92% visualization gap where the complete 7-layer holonic architecture
+//! is invisible."
+//!
+//! This enhanced structure includes:
+//! - 7 realm intensities (violet through red)
+//! - Consciousness data (level, polarization)
+//! - Spectrum data (space/time ratios, veil transparency)
+//! - Evolution data (progress, density level)
+//! - Archetype summary (activated count, intensity)
+
+use crate::entity_layer7::layer7::{EntityType, SubSubLogos};
+
+/// Instance data for rendering an entity
+///
+/// Enhanced structure that captures the 7-layer holonic architecture
+/// for meaningful visualization beyond just "colorful dots".
+///
+/// Memory layout (GPU-friendly, aligned):
+/// - Total size: 96 bytes
+/// - Alignment: 4 bytes (f32/u32)
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct EntityInstance {
+    // Position in world space (16 bytes, aligned)
+    pub position: [f32; 3],
+    pub _padding0: f32,
+
+    // Realm intensities - 7 layers of holonic architecture (28 bytes)
+    /// Violet Realm intensity: Infinity as undifferentiated unity
+    /// From violet_realm.rhythmic_flow * violet_realm.mystery
+    pub violet_intensity: f32,
+    /// Indigo Realm intensity: IntelligentInfinity + Awareness
+    /// From indigo_realm.awareness
+    pub indigo_intensity: f32,
+    /// Blue Realm intensity: Love/Logos + Creative Principle
+    /// From blue_realm.focusing_strength
+    pub blue_intensity: f32,
+    /// Green Realm intensity: Light/Love field of potential
+    /// From green_realm.potential_strength
+    pub green_intensity: f32,
+    /// Yellow Realm intensity: Dimensional architecture + Veil
+    /// From yellow_realm.attractor_field.strength
+    pub yellow_intensity: f32,
+    /// Orange Realm intensity: Galactic-scale spectrum configuration
+    /// From yellow_realm.dimensional_architecture.larson_framework stability
+    pub orange_intensity: f32,
+    /// Red Realm intensity: Solar-scale archetypical mind system
+    /// From archetype_activations average
+    pub red_intensity: f32,
+
+    // Consciousness data (8 bytes)
+    /// Current consciousness level (0.0 to 1.0)
+    pub consciousness_level: f32,
+    /// Polarization bias (-1.0 STS to 1.0 STO)
+    pub polarization: f32,
+
+    // Spectrum data (12 bytes)
+    /// Space/time ratio (>1.0 means space/time dominant)
+    pub space_time_ratio: f32,
+    /// Time/space ratio (<1.0 means time/space dominant)
+    pub time_space_ratio: f32,
+    /// Veil transparency (0.0 = thick veil, 1.0 = no veil)
+    pub veil_transparency: f32,
+
+    // Evolution data (16 bytes)
+    /// Evolution progress normalized (0.0 to 1.0)
+    pub evolution_progress: f32,
+    /// Current density level (1-8)
+    pub density_level: u8,
+    pub _padding1: [u8; 3], // Align parent_id to 4 bytes
+    /// Parent entity ID (0 = no parent)
+    pub parent_id: u32,
+    /// Environment entity ID (0 = no environment)
+    pub environment_id: u32,
+
+    // Archetype summary (8 bytes)
+    /// Number of archetypes activated (>0.5 intensity)
+    pub archetype_activated: u32,
+    /// Maximum archetype intensity (0.0 to 1.0)
+    pub archetype_intensity: f32,
+
+    // Entity type and size (8 bytes)
+    pub entity_type: u32,
+    pub size: f32,
+}
+
+/// Archetype activations data for rendering
+///
+/// Contains the 22 archetype activation levels from the archetypical mind system.
+/// This data is stored separately in a GPU storage buffer for efficient access.
+///
+/// From HOLOGRAPHIC_ARCHITECTURE_AUDIT_REPORT.md Phase 3:
+/// "Create 22-archetype visualization with activation intensity display"
+///
+/// Memory layout: 22 floats (88 bytes)
+#[repr(C)]
+#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
+pub struct ArchetypeData {
+    /// Activation levels for all 22 archetypes (0.0 to 1.0)
+    pub activations: [f32; 22],
+}
+
+impl ArchetypeData {
+    /// Create ArchetypeData from a SubSubLogos entity
+    ///
+    /// Extracts archetype activations from the entity's archetypical mind system.
+    ///
+    /// # Mapping from SubSubLogos to ArchetypeData
+    ///
+    /// The 22 archetypes correspond to the Major Arcana in the Law of One system:
+    /// - 0: The Fool (Matrix of the Mind)
+    /// - 1: The Magician (Matrix of the Body)
+    /// - 2: The High Priestess (Matrix of the Spirit)
+    /// - 3-8: Mind archetypes (6 archetypes)
+    /// - 9-14: Body archetypes (6 archetypes)
+    /// - 15-20: Spirit archetypes (6 archetypes)
+    /// - 21: The World (Archetypical Mind unifier)
+    pub fn from_entity(entity: &SubSubLogos) -> Self {
+        let mut activations = [0.0f32; 22];
+
+        // Copy archetype activations from entity
+        for (i, &activation) in entity.archetype_activations.iter().enumerate() {
+            if i < 22 {
+                activations[i] = activation as f32;
+            }
+        }
+
+        Self { activations }
+    }
+
+    /// Create test archetype data for debugging
+    pub fn test_data(index: usize) -> Self {
+        let mut activations = [0.0f32; 22];
+
+        // Create varying activation patterns for testing
+        for i in 0..22 {
+            // Some archetypes highly activated, others less so
+            if (i + index) % 3 == 0 {
+                activations[i] = 0.8 + ((index % 10) as f32 * 0.02);
+            } else if (i + index) % 5 == 0 {
+                activations[i] = 0.5 + ((index % 10) as f32 * 0.03);
+            } else {
+                activations[i] = 0.1 + ((index % 10) as f32 * 0.01);
+            }
+        }
+
+        Self { activations }
+    }
+}
+impl EntityInstance {
+    /// Create an EntityInstance from a SubSubLogos entity
+    ///
+    /// This method extracts and maps the complete 7-layer holonic architecture
+    /// from the SubSubLogos entity into GPU-friendly visualization data.
+    ///
+    /// # Mapping from SubSubLogos to EntityInstance
+    ///
+    /// **Realm Intensities** (7 layers):
+    /// - violet_intensity: violet_realm.rhythmic_flow * violet_realm.mystery
+    /// - indigo_intensity: indigo_realm.awareness
+    /// - blue_intensity: blue_realm.focusing_strength
+    /// - green_intensity: green_realm.potential_strength
+    /// - yellow_intensity: yellow_realm.attractor_field.strength
+    /// - orange_intensity: derived from yellow_realm.dimensional_architecture
+    /// - red_intensity: average of archetype_activations
+    ///
+    /// **Consciousness Data**:
+    /// - consciousness_level: direct from consciousness_level field
+    /// - polarization: polarization.polarity_bias() (-1.0 to 1.0)
+    ///
+    /// **Spectrum Data**:
+    /// - space_time_ratio: direct from space_time_ratio field
+    /// - time_space_ratio: direct from time_space_ratio field
+    /// - veil_transparency: direct from veil_transparency field
+    ///
+    /// **Evolution Data**:
+    /// - evolution_progress: evolution_clock normalized to 0.0-1.0
+    /// - density_level: current_density converted to u8 (1-8)
+    ///
+    /// **Archetype Summary**:
+    /// - archetype_activated: count of archetype_activations > 0.5
+    /// - archetype_intensity: max of archetype_activations
+    ///
+    /// **Entity Properties**:
+    /// - entity_type: converted to u32
+    /// - size: derived from density_level and consciousness_level
+    /// - position: spiral distribution based on index
+    pub fn from_entity(entity: &SubSubLogos, index: usize) -> Self {
+        // Extract realm intensities from the 7-layer architecture
+        let violet_intensity =
+            (entity.violet_realm.rhythmic_flow * entity.violet_realm.mystery) as f32;
+        let indigo_intensity = entity.indigo_realm.awareness as f32;
+        let blue_intensity = entity.blue_realm.focusing_strength as f32;
+
+        // Green realm intensity from potential strength
+        let green_intensity = entity.green_realm.potential_strength as f32;
+
+        // Yellow realm intensity from attractor field
+        let yellow_intensity = entity.yellow_realm.attractor_field.strength as f32;
+
+        // Orange realm intensity from dimensional architecture stability
+        let orange_intensity = if entity
+            .yellow_realm
+            .dimensional_architecture
+            .has_dimensions()
+        {
+            // Calculate average stability of dimensional structures
+            let avg_stability = entity
+                .yellow_realm
+                .dimensional_architecture
+                .dimensions
+                .iter()
+                .map(|d| d.stability)
+                .sum::<f64>()
+                / entity
+                    .yellow_realm
+                    .dimensional_architecture
+                    .dimensions
+                    .len()
+                    .max(1) as f64;
+            avg_stability as f32
+        } else {
+            0.0
+        };
+
+        // Red realm intensity from archetype activations
+        let red_intensity = {
+            let sum: f64 = entity.archetype_activations.iter().sum();
+            let avg = sum / entity.archetype_activations.len() as f64;
+            avg as f32
+        };
+
+        // Consciousness data
+        let consciousness_level = entity.consciousness_level as f32;
+        let polarization = entity.polarization.polarity_bias() as f32;
+
+        // Spectrum data
+        let space_time_ratio = entity.space_time_ratio as f32;
+        let time_space_ratio = entity.time_space_ratio as f32;
+        let veil_transparency = entity.veil_transparency as f32;
+
+        // Evolution data
+        // Normalize evolution clock to 0.0-1.0 (assuming 100.0 is "complete")
+        let evolution_progress = (entity.evolution_clock / 100.0).clamp(0.0, 1.0) as f32;
+
+        // Convert density enum to u8 (1-8)
+        let density_level = match entity.current_density {
+            crate::evolution_density_octave::density_octave::Density::First(_) => 1,
+            crate::evolution_density_octave::density_octave::Density::Second(_) => 2,
+            crate::evolution_density_octave::density_octave::Density::Third => 3,
+            crate::evolution_density_octave::density_octave::Density::Fourth => 4,
+            crate::evolution_density_octave::density_octave::Density::Fifth => 5,
+            crate::evolution_density_octave::density_octave::Density::Sixth => 6,
+            crate::evolution_density_octave::density_octave::Density::Seventh => 7,
+            crate::evolution_density_octave::density_octave::Density::Eighth => 8,
+        };
+
+        // Hierarchy data
+        let parent_id = entity
+            .parent_id
+            .as_ref()
+            .map(|id| id.as_u64() as u32)
+            .unwrap_or(0);
+        let environment_id = entity
+            .environment_id
+            .as_ref()
+            .map(|id| id.as_u64() as u32)
+            .unwrap_or(0);
+
+        // Archetype summary
+        let archetype_activated = entity
+            .archetype_activations
+            .iter()
+            .filter(|&&a| a > 0.5)
+            .count() as u32;
+        let archetype_intensity = entity
+            .archetype_activations
+            .iter()
+            .cloned()
+            .fold(0.0_f64, f64::max) as f32;
+
+        // Entity type
+        let entity_type = entity.entity_type as u32;
+
+        // Size based on density level and consciousness level
+        // Higher density + higher consciousness = larger visible size
+        let base_size = 0.02 + (density_level as f32 * 0.01);
+        let size = base_size * (1.0 + consciousness_level * 0.5);
+
+        // Position based on entity ID (spiral distribution)
+        // Golden angle for even distribution
+        let golden_angle = std::f32::consts::PI * 2.0 / 1.61803398875; // Golden ratio
+        let angle = index as f32 * golden_angle;
+        let radius = 0.1 + (index as f32 * 0.02);
+
+        let x = radius * angle.cos();
+        let y = radius * angle.sin();
+        let z = 0.0;
+
+        Self {
+            position: [x, y, z],
+            _padding0: 0.0,
+            violet_intensity,
+            indigo_intensity,
+            blue_intensity,
+            green_intensity,
+            yellow_intensity,
+            orange_intensity,
+            red_intensity,
+            consciousness_level,
+            polarization,
+            space_time_ratio,
+            time_space_ratio,
+            veil_transparency,
+            evolution_progress,
+            density_level,
+            _padding1: [0, 0, 0],
+            parent_id,
+            environment_id,
+            archetype_activated,
+            archetype_intensity,
+            entity_type,
+            size,
+        }
+    }
+
+    /// Create test instance for debugging
+    pub fn test_instance(index: usize) -> Self {
+        let golden_angle = std::f32::consts::PI * 2.0 / 1.61803398875;
+        let angle = index as f32 * golden_angle;
+        let radius = 0.1 + (index as f32 * 0.03);
+
+        Self {
+            position: [radius * angle.cos(), radius * angle.sin(), 0.0],
+            _padding0: 0.0,
+            // Varying realm intensities for test visualization
+            violet_intensity: 0.8 + (index as f32 * 0.01).min(0.2),
+            indigo_intensity: 0.7 + ((index % 5) as f32 * 0.05),
+            blue_intensity: 0.6 + ((index % 3) as f32 * 0.1),
+            green_intensity: 0.5 + ((index % 7) as f32 * 0.07),
+            yellow_intensity: 0.4 + ((index % 2) as f32 * 0.3),
+            orange_intensity: 0.3 + ((index % 4) as f32 * 0.15),
+            red_intensity: 0.2 + ((index % 6) as f32 * 0.12),
+            // Alternating polarization for test
+            consciousness_level: 0.3 + ((index % 10) as f32 * 0.07),
+            polarization: if index % 2 == 0 { 0.6 } else { -0.6 },
+            // Spectrum data
+            space_time_ratio: 1.0 + ((index % 10) as f32 * 0.5),
+            time_space_ratio: 1.0 / (1.0 + ((index % 10) as f32 * 0.5)),
+            veil_transparency: (index % 10) as f32 * 0.1,
+            // Evolution data
+            evolution_progress: (index % 20) as f32 * 0.05,
+            density_level: ((index % 8) + 1) as u8,
+            _padding1: [0, 0, 0],
+            // Hierarchy data for testing
+            parent_id: if index > 0 { (index - 1) as u32 } else { 0 },
+            environment_id: if index % 3 == 0 { 100 } else { 0 },
+            // Archetype summary
+            archetype_activated: ((index % 22) + 1) as u32,
+            archetype_intensity: 0.5 + ((index % 10) as f32 * 0.05),
+            // Entity properties
+            entity_type: (index % 5) as u32,
+            size: 0.03 + ((index % 10) as f32 * 0.005),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_entity_instance_size() {
+        // Ensure proper alignment for GPU
+        assert_eq!(std::mem::size_of::<EntityInstance>(), 96);
+        assert_eq!(std::mem::align_of::<EntityInstance>(), 4);
+    }
+
+    #[test]
+    fn test_test_instance() {
+        let instance = EntityInstance::test_instance(0);
+        // Verify basic fields are set
+        assert!(instance.violet_intensity > 0.0);
+        assert_eq!(instance.entity_type, 0);
+        assert!(instance.size > 0.0);
+    }
+
+    #[test]
+    fn test_realm_intensities_range() {
+        let instance = EntityInstance::test_instance(5);
+        // All intensities should be in 0.0-1.0 range
+        assert!(instance.violet_intensity >= 0.0 && instance.violet_intensity <= 1.0);
+        assert!(instance.indigo_intensity >= 0.0 && instance.indigo_intensity <= 1.0);
+        assert!(instance.blue_intensity >= 0.0 && instance.blue_intensity <= 1.0);
+        assert!(instance.green_intensity >= 0.0 && instance.green_intensity <= 1.0);
+        assert!(instance.yellow_intensity >= 0.0 && instance.yellow_intensity <= 1.0);
+        assert!(instance.orange_intensity >= 0.0 && instance.orange_intensity <= 1.0);
+        assert!(instance.red_intensity >= 0.0 && instance.red_intensity <= 1.0);
+    }
+
+    #[test]
+    fn test_polarization_range() {
+        let instance = EntityInstance::test_instance(0);
+        assert!(instance.polarization >= -1.0 && instance.polarization <= 1.0);
+    }
+
+    #[test]
+    fn test_density_level_range() {
+        for i in 0..20 {
+            let instance = EntityInstance::test_instance(i);
+            assert!(instance.density_level >= 1 && instance.density_level <= 8);
+        }
+    }
+}
