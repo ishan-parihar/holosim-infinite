@@ -44,6 +44,16 @@ pub struct EntityVisualizationData {
     pub focused: u32,
     /// Geometry type (sphere, cube, organic)
     pub geometry: u32,
+    /// Phase 3: Purpose alignment (0.0 to 1.0) - How aligned with return to source
+    pub purpose_alignment: f32,
+    /// Phase 3: Coherence with source (0.0 to 1.0) - Resonance with Intelligent-Infinity
+    pub coherence_with_source: f32,
+    /// Phase 3: Service orientation (-1.0 to 1.0) - STO vs STS balance
+    pub service_orientation: f32,
+    /// Phase 3: Wisdom accumulated (0.0+) - Integrated experience
+    pub wisdom_accumulated: f32,
+    /// Phase 3: Overall teleological progress (0.0 to 1.0)
+    pub teleological_progress: f32,
 }
 
 /// Geometry type for entity rendering
@@ -329,6 +339,12 @@ impl EntityVisualizer {
         position: Vec3,
         scale: f32,
         focused: bool,
+        // Phase 3: Teleological metrics
+        purpose_alignment: f32,
+        coherence_with_source: f32,
+        service_orientation: f32,
+        wisdom_accumulated: f32,
+        teleological_progress: f32,
     ) -> EntityVisualizationData {
         let base_color = Self::get_density_color(density);
         let polarity_color = Self::get_polarity_color(polarity);
@@ -384,6 +400,12 @@ impl EntityVisualizer {
             style: visualization_style.as_u32(),
             focused: if focused { 1 } else { 0 },
             geometry: geometry_type.as_u32(),
+            // Phase 3: Teleological metrics
+            purpose_alignment,
+            coherence_with_source,
+            service_orientation,
+            wisdom_accumulated,
+            teleological_progress,
         }
     }
 
@@ -436,6 +458,12 @@ mod tests {
             position,
             1.0,
             false,
+            // Phase 3: Teleological metrics
+            0.5,  // purpose_alignment
+            0.6,  // coherence_with_source
+            0.2,  // service_orientation
+            5.0,  // wisdom_accumulated
+            0.55, // teleological_progress
         );
 
         let focused_data = visualizer.entity_to_visualization_data(
@@ -448,6 +476,12 @@ mod tests {
             position,
             1.0,
             true,
+            // Phase 3: Teleological metrics
+            0.5,  // purpose_alignment
+            0.6,  // coherence_with_source
+            0.2,  // service_orientation
+            5.0,  // wisdom_accumulated
+            0.55, // teleological_progress
         );
 
         // Focused entity should be brighter (or equal if saturated)
@@ -537,6 +571,12 @@ mod tests {
             position,
             1.0,
             false,
+            // Phase 3: Teleological metrics
+            0.7,  // purpose_alignment
+            0.75, // coherence_with_source
+            0.6,  // service_orientation
+            10.0, // wisdom_accumulated
+            0.68, // teleological_progress
         );
 
         assert_eq!(viz_data.density, 4.0_f32);
@@ -585,6 +625,12 @@ mod tests {
             position,
             1.0,
             false,
+            // Phase 3: Teleological metrics
+            0.2,  // purpose_alignment
+            0.3,  // coherence_with_source
+            0.1,  // service_orientation
+            1.0,  // wisdom_accumulated
+            0.25, // teleological_progress
         );
 
         let high_consciousness = visualizer.entity_to_visualization_data(
@@ -597,9 +643,259 @@ mod tests {
             position,
             1.0,
             false,
+            // Phase 3: Teleological metrics
+            0.95, // purpose_alignment
+            0.98, // coherence_with_source
+            0.85, // service_orientation
+            30.0, // wisdom_accumulated
+            0.93, // teleological_progress
         );
 
         // Higher consciousness = higher alpha
         assert!(high_consciousness.color[3] > low_consciousness.color[3]);
+    }
+}
+
+// ============================================================================
+// PHASE 3: TELEOLOGICAL METRICS VISUALIZATION
+// ============================================================================
+
+/// Update entity visualization with teleological metrics
+///
+/// Updates existing EntityVisualizationData with Phase 3 teleological metrics.
+///
+/// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
+/// "Visualization: Show purpose alignment, coherence with source, service orientation"
+///
+/// # Arguments
+/// * `viz_data` - Existing visualization data to update
+/// * `purpose_alignment` - Purpose alignment (0.0 to 1.0)
+/// * `coherence_with_source` - Coherence with source (0.0 to 1.0)
+/// * `service_orientation` - Service orientation (-1.0 to 1.0)
+/// * `wisdom_accumulated` - Wisdom accumulated (0.0+)
+/// * `teleological_progress` - Overall teleological progress (0.0 to 1.0)
+pub fn update_teleological_metrics(
+    viz_data: &mut EntityVisualizationData,
+    purpose_alignment: f32,
+    coherence_with_source: f32,
+    service_orientation: f32,
+    wisdom_accumulated: f32,
+    teleological_progress: f32,
+) {
+    viz_data.purpose_alignment = purpose_alignment.clamp(0.0, 1.0);
+    viz_data.coherence_with_source = coherence_with_source.clamp(0.0, 1.0);
+    viz_data.service_orientation = service_orientation.clamp(-1.0, 1.0);
+    viz_data.wisdom_accumulated = wisdom_accumulated.max(0.0);
+    viz_data.teleological_progress = teleological_progress.clamp(0.0, 1.0);
+}
+
+/// Format teleological progress as a display string
+///
+/// Creates a human-readable representation of an entity's teleological progress.
+///
+/// # Arguments
+/// * `viz_data` - Entity visualization data containing teleological metrics
+///
+/// # Returns
+/// Formatted string with teleological information
+pub fn format_teleological_progress(viz_data: &EntityVisualizationData) -> String {
+    format!(
+        "Purpose: {:.0}% | Coherence: {:.0}% | Service: {} | Wisdom: {:.1} | Progress: {:.0}%",
+        viz_data.purpose_alignment * 100.0,
+        viz_data.coherence_with_source * 100.0,
+        if viz_data.service_orientation > 0.2 {
+            "STO"
+        } else if viz_data.service_orientation < -0.2 {
+            "STS"
+        } else {
+            "Neutral"
+        },
+        viz_data.wisdom_accumulated,
+        viz_data.teleological_progress * 100.0
+    )
+}
+
+/// Get teleological color indicator
+///
+/// Returns a color representing the entity's teleological progress.
+/// Green = high progress, Red = low progress, Yellow = moderate.
+///
+/// # Arguments
+/// * `teleological_progress` - Overall teleological progress (0.0 to 1.0)
+///
+/// # Returns
+/// RGBA color for teleological indicator
+pub fn get_teleological_color(teleological_progress: f32) -> [f32; 4] {
+    // Gradient from red (0.0) to yellow (0.5) to green (1.0)
+    let progress = teleological_progress.clamp(0.0, 1.0);
+    
+    if progress < 0.5 {
+        // Red to yellow
+        let t = progress * 2.0;
+        [1.0, t, 0.0, 0.8]
+    } else {
+        // Yellow to green
+        let t = (progress - 0.5) * 2.0;
+        [1.0 - t, 1.0, 0.0, 0.8]
+    }
+}
+
+/// Get service orientation color indicator
+///
+/// Returns a color representing the entity's service orientation.
+/// Green = STO, Red = STS, Gray = Neutral.
+///
+/// # Arguments
+/// * `service_orientation` - Service orientation (-1.0 to 1.0)
+///
+/// # Returns
+/// RGBA color for service orientation indicator
+pub fn get_service_orientation_color(service_orientation: f32) -> [f32; 4] {
+    let normalized = (service_orientation + 1.0) / 2.0; // -1 to 1 → 0 to 1
+    
+    if normalized < 0.45 {
+        // STS (red)
+        [1.0, 0.3, 0.3, 0.8]
+    } else if normalized > 0.55 {
+        // STO (green)
+        [0.3, 1.0, 0.3, 0.8]
+    } else {
+        // Neutral (gray)
+        [0.7, 0.7, 0.7, 0.8]
+    }
+}
+
+#[cfg(test)]
+mod phase3_tests {
+    use super::*;
+
+    #[test]
+    fn test_update_teleological_metrics() {
+        let mut viz_data = EntityVisualizationData {
+            position: [0.0, 0.0, 0.0],
+            scale: 1.0,
+            color: [0.0, 0.0, 0.0, 1.0],
+            polarity_color: [0.0, 0.0, 0.0, 0.0],
+            archetype_glow: [0.0, 0.0, 0.0, 0.0],
+            density: 1.0,
+            polarity: 0.0,
+            consciousness: 0.0,
+            archetype_activations: [0.0; 22],
+            style: 0,
+            focused: 0,
+            geometry: 0,
+            purpose_alignment: 0.0,
+            coherence_with_source: 0.0,
+            service_orientation: 0.0,
+            wisdom_accumulated: 0.0,
+            teleological_progress: 0.0,
+        };
+
+        update_teleological_metrics(
+            &mut viz_data,
+            0.9,
+            0.8,
+            0.6,
+            15.0,
+            0.85,
+        );
+
+        assert_eq!(viz_data.purpose_alignment, 0.9);
+        assert_eq!(viz_data.coherence_with_source, 0.8);
+        assert_eq!(viz_data.service_orientation, 0.6);
+        assert_eq!(viz_data.wisdom_accumulated, 15.0);
+        assert_eq!(viz_data.teleological_progress, 0.85);
+    }
+
+    #[test]
+    fn test_teleological_clamping() {
+        let mut viz_data = EntityVisualizationData {
+            position: [0.0, 0.0, 0.0],
+            scale: 1.0,
+            color: [0.0, 0.0, 0.0, 1.0],
+            polarity_color: [0.0, 0.0, 0.0, 0.0],
+            archetype_glow: [0.0, 0.0, 0.0, 0.0],
+            density: 1.0,
+            polarity: 0.0,
+            consciousness: 0.0,
+            archetype_activations: [0.0; 22],
+            style: 0,
+            focused: 0,
+            geometry: 0,
+            purpose_alignment: 0.0,
+            coherence_with_source: 0.0,
+            service_orientation: 0.0,
+            wisdom_accumulated: 0.0,
+            teleological_progress: 0.0,
+        };
+
+        // Test clamping
+        update_teleological_metrics(
+            &mut viz_data,
+            1.5,  // Should clamp to 1.0
+            -0.5, // Should clamp to 0.0
+            2.0,  // Should clamp to 1.0
+            -5.0, // Should clamp to 0.0
+            1.5,  // Should clamp to 1.0
+        );
+
+        assert_eq!(viz_data.purpose_alignment, 1.0);
+        assert_eq!(viz_data.coherence_with_source, 0.0);
+        assert_eq!(viz_data.service_orientation, 1.0);
+        assert_eq!(viz_data.wisdom_accumulated, 0.0);
+        assert_eq!(viz_data.teleological_progress, 1.0);
+    }
+
+    #[test]
+    fn test_format_teleological_progress() {
+        let viz_data = EntityVisualizationData {
+            position: [0.0, 0.0, 0.0],
+            scale: 1.0,
+            color: [0.0, 0.0, 0.0, 1.0],
+            polarity_color: [0.0, 0.0, 0.0, 0.0],
+            archetype_glow: [0.0, 0.0, 0.0, 0.0],
+            density: 1.0,
+            polarity: 0.5,
+            consciousness: 0.0,
+            archetype_activations: [0.0; 22],
+            style: 0,
+            focused: 0,
+            geometry: 0,
+            purpose_alignment: 0.75,
+            coherence_with_source: 0.80,
+            service_orientation: 0.6,
+            wisdom_accumulated: 15.5,
+            teleological_progress: 0.85,
+        };
+
+        let formatted = format_teleological_progress(&viz_data);
+
+        assert!(formatted.contains("75%")); // Purpose
+        assert!(formatted.contains("80%")); // Coherence
+        assert!(formatted.contains("STO")); // Service orientation
+        assert!(formatted.contains("15.5")); // Wisdom
+        assert!(formatted.contains("85%")); // Progress
+    }
+
+    #[test]
+    fn test_get_teleological_color() {
+        let red = get_teleological_color(0.0);
+        let yellow = get_teleological_color(0.5);
+        let green = get_teleological_color(1.0);
+
+        assert!(red[0] > 0.9); // Red dominant
+        assert!(yellow[0] > 0.9 && yellow[1] > 0.9); // Red+Green = Yellow
+        assert!(green[1] > 0.9); // Green dominant
+    }
+
+    #[test]
+    fn test_get_service_orientation_color() {
+        let sts = get_service_orientation_color(-1.0);
+        let neutral = get_service_orientation_color(0.0);
+        let sto = get_service_orientation_color(1.0);
+
+        assert!(sts[0] > 0.9); // Red dominant
+        assert!(neutral[0] > 0.6 && neutral[0] < 0.8); // Gray
+        assert!(sto[1] > 0.9); // Green dominant
     }
 }
