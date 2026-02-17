@@ -46,12 +46,9 @@ pub mod attractors;
 
 // Archetypes
 pub mod archetypes;
-pub mod holographic_archetypical_mind;
 
 // Holographic Properties
 pub mod holographic_complex;
-pub mod holographic_connections;
-pub mod holographic_properties;
 pub mod holographic_reference;
 pub mod holographic_seed;
 
@@ -113,7 +110,6 @@ pub mod performance_optimizer;
 pub mod user_acceptance;
 
 // Simulation audit (disabled - needs refactoring)
-// pub mod simulation_audit;
 
 // Additional modules
 pub mod decision_engine;
@@ -136,8 +132,6 @@ pub mod performance_tests;
 
 // Core systems
 pub mod complex;
-pub mod creation_engine;
-pub mod environments;
 pub mod solar_system;
 pub mod spirit_channel;
 pub mod types;

@@ -16,7 +16,14 @@ use crate::entity_layer7::layer7::{EntityType, SubSubLogos};
 use crate::entity_layer7::EntityId;
 use crate::gaia::GaiaConfig;
 use crate::gui::GuiConfig;
-use crate::hpo::{HpoSystem, SimulationConfig, SimulationResult};
+use crate::hpo::{
+    HpoSystem, 
+    SimulationConfig, 
+    SimulationResult,
+    HolographicSimulation,
+    RenderableEntity,
+    FieldVisualizationData,
+};
 use crate::noosphere::NoosphereConfig;
 use crate::simulation_v3::involution_sequence::InvolutionSequenceRunner;
 use crate::types::Float;
@@ -27,7 +34,7 @@ use std::sync::{Arc, Mutex};
 ///
 /// From SIMULATION-AUDIT-AND-REFACTOR-PLAN.md:
 /// "All components integrate seamlessly with true emergence validated"
-#[derive(Clone)]
+#[derive()]
 pub struct IntegratedSystem {
     /// HPO system for automated optimization
     hpo_system: HpoSystem,
@@ -55,6 +62,12 @@ pub struct IntegratedSystem {
 
     /// Stored entities for GUI rendering
     entities: Vec<SubSubLogos>,
+    /// Holographic field-first simulation engine
+    holo_sim: Option<HolographicSimulation>,
+
+    /// Enable holographic mode (field-first simulation)
+    holographic_mode: bool,
+
 }
 
 /// Simulation state for the integrated system
@@ -276,6 +289,8 @@ impl IntegratedSystem {
             initialized: false,
             health_metrics: SystemHealthMetrics::default(),
             entities: Vec::new(),
+            holo_sim: None,
+            holographic_mode: false,
         }
     }
 
@@ -296,6 +311,8 @@ impl IntegratedSystem {
             initialized: false,
             health_metrics: SystemHealthMetrics::default(),
             entities: Vec::new(),
+            holo_sim: None,
+            holographic_mode: false,
         }
     }
 
@@ -355,6 +372,14 @@ impl IntegratedSystem {
             }
         }
 
+
+        // Initialize holographic field-first simulation
+        println!("  Initializing holographic simulation...");
+        let mut holo_sim = HolographicSimulation::with_defaults();
+        holo_sim.initialize();
+        self.holo_sim = Some(holo_sim);
+        self.holographic_mode = true;
+        println!("  ✓ Holographic simulation initialized");
         println!("Integrated System initialized successfully!");
         Ok(())
     }
@@ -466,9 +491,20 @@ impl IntegratedSystem {
             ));
         }
 
+        // Step holographic field-first simulation if enabled
+        if self.holographic_mode {
+            if let Some(ref mut holo_sim) = self.holo_sim {
+                holo_sim.step();
+                
+                // Update state from holographic simulation
+                let stats = holo_sim.get_statistics();
+                self.state.coherence = stats.average_coherence as Float;
+                self.state.entity_count = stats.entity_count;
+            }
+        }
+
         Ok(())
     }
-
     /// Update emergence metrics
     fn update_emergence_metrics(&mut self) {
         let step = self.state.step as Float;
@@ -672,6 +708,41 @@ impl IntegratedSystem {
     /// Get all entities for GUI rendering
     pub fn entities(&self) -> Vec<SubSubLogos> {
         self.entities.clone()
+    }
+
+    /// Get entities converted to GuiEntity format for GUI rendering
+
+    /// Get holographic simulation entities (field-derived)
+    /// Returns entities from the field-first holographic simulation
+    pub fn holo_entities(&self) -> Vec<RenderableEntity> {
+        if let Some(ref holo_sim) = self.holo_sim {
+            holo_sim.get_entities()
+        } else {
+            Vec::new()
+        }
+    }
+
+    /// Get field visualization data (coherence, veil, etc.)
+    pub fn get_field_visualization(&self) -> Option<FieldVisualizationData> {
+        if let Some(ref holo_sim) = self.holo_sim {
+            Some(holo_sim.get_field_visualization())
+        } else {
+            None
+        }
+    }
+
+    /// Get holographic simulation statistics
+    pub fn get_holo_statistics(&self) -> Option<crate::hpo::SimulationStatistics> {
+        if let Some(ref holo_sim) = self.holo_sim {
+            Some(holo_sim.get_statistics().clone())
+        } else {
+            None
+        }
+    }
+
+    /// Check if holographic mode is enabled
+    pub fn is_holographic_mode(&self) -> bool {
+        self.holographic_mode
     }
 
     /// Get entities converted to GuiEntity format for GUI rendering

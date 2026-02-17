@@ -383,6 +383,20 @@ impl GuiApplication {
         if self.frame_count % 60 == 0 && self.render_stats.entity_count > 0 {
             println!("Rendering {} entities at {:.1} FPS",
                 self.render_stats.entity_count, self.fps);
+            
+            // Show holographic simulation stats
+            if let Some(stats) = self.get_holo_statistics() {
+                println!("  [Holographic] Coherence: {:.3} | Veil: {:.3} | Entities: {} | Collectives: {}",
+                    stats.average_coherence, stats.veil_transparency, stats.entity_count, stats.collective_count);
+                // Phase B: Show cosmic sequence info
+                let layer_names = ["Violet", "Indigo", "Blue", "Green", "Yellow", "Orange", "Red", "L7"];
+                let layer_name = layer_names.get(stats.current_layer).unwrap_or(&"?");
+                println!("  [Cosmic] Layer: {} | Attractor: {:.3}", layer_name, stats.attractor_strength);
+                // Phase C: Show Larson framework info
+                let st = if stats.veil_transparency < 0.5 { "ST" } else if stats.veil_transparency > 0.7 { "TS" } else { "~V~" };
+                println!("  [Larson] v=s/t↔v=t/s | Veil: {:.1}% | Mode: {}", 
+                    stats.veil_transparency * 100.0, st);
+            }
         }
 
         // Submit and present
@@ -430,6 +444,21 @@ impl GuiApplication {
     /// Check if application is running
     pub fn is_running(&self) -> bool {
         self.running
+    }
+
+    /// Check if holographic mode is enabled
+    pub fn is_holographic_mode(&self) -> bool {
+        self.simulation.is_holographic_mode()
+    }
+
+    /// Get holographic simulation statistics
+    pub fn get_holo_statistics(&self) -> Option<crate::hpo::SimulationStatistics> {
+        self.simulation.get_holo_statistics()
+    }
+
+    /// Get field visualization data
+    pub fn get_field_visualization(&self) -> Option<crate::hpo::FieldVisualizationData> {
+        self.simulation.get_field_visualization()
     }
 }
 

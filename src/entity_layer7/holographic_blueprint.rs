@@ -1165,9 +1165,7 @@ pub struct StageBlueprint {
 // encoding by providing runtime analysis of how well the holographic principle is
 // being expressed in the simulation.
 
-use crate::creation_engine::CreationEngine;
 use crate::entity_layer7::layer7::EntityState;
-use crate::environments::Environment;
 use crate::types::EnvironmentID;
 use std::collections::HashMap;
 
@@ -1242,15 +1240,12 @@ impl HolographicProperties {
     pub fn process(
         &mut self,
         entities: &HashMap<usize, EntityState>,
-        _environments: &HashMap<EnvironmentID, Environment>,
-        _archetypical_mind_summary: &ArchetypicalMindSummary,
-        _creation_engine: &CreationEngine,
     ) -> HolographicState {
         // Calculate entity octave containment
         self.calculate_entity_octave_containment(entities);
 
         // Calculate environment archetypical reflection
-        self.calculate_environment_reflection(_environments, _archetypical_mind_summary);
+        self.calculate_environment_reflection();
 
         // Get state summary
         self.get_state_summary()
@@ -1270,19 +1265,12 @@ impl HolographicProperties {
     }
 
     /// Calculate environment archetypical reflection
+    /// TODO: This function is deprecated and should be reimplemented without Environment stub
     fn calculate_environment_reflection(
         &mut self,
-        environments: &HashMap<EnvironmentID, Environment>,
-        _archetypical_mind_summary: &ArchetypicalMindSummary,
     ) {
-        for (env_id, _environment) in environments {
-            let env_reflection = EnvironmentArchetypicalReflection {
-                octave_reflection: 0.5, // Placeholder value
-            };
-
-            self.environment_reflection
-                .insert(*env_id as usize, env_reflection);
-        }
+        // Placeholder implementation - environment reflection is currently disabled
+        // after removing the Environment stub module
     }
 
     /// Get state summary

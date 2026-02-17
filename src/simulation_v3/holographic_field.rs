@@ -958,7 +958,7 @@ impl HolographicFieldManager {
         let access_control_b =
             crate::spectrum::veil::VeilAccessControl::from_transparency(veil_transparency_b);
 
-        const REQUIRED_HOLOGRAPHIC_ACCESS: f64 = 0.3;
+        const REQUIRED_HOLOGRAPHIC_ACCESS: f64 = 0.0;
 
         // If either entity cannot access holographic connections, return weak connection
         if !access_control_a.can_access_holographic_connections(REQUIRED_HOLOGRAPHIC_ACCESS)
@@ -1708,9 +1708,9 @@ impl HolographicFieldManager {
         entity_a: &SubSubLogos,
         entity_b: &SubSubLogos,
     ) -> Float {
-        // Get spectrum ratios from entity spectrum access
-        let ratio_a = entity_a.spectrum_access.ratio;
-        let ratio_b = entity_b.spectrum_access.ratio;
+        // Get spectrum ratios from entity spectrum configuration
+        let ratio_a = entity_a.spectrum_configuration.ratio.calculate_ratio();
+        let ratio_b = entity_b.spectrum_configuration.ratio.calculate_ratio();
 
         // Calculate similarity (1.0 = identical, 0.0 = completely different)
         let difference = (ratio_a - ratio_b).abs();
@@ -2259,6 +2259,40 @@ mod tests {
         )
     }
 
+    /// Create a test entity with a specific spectrum ratio
+    fn create_test_entity_with_ratio(
+        id: &str,
+        ratio_value: f64,
+        side: SpectrumSide,
+    ) -> SubSubLogos {
+        let violet = VioletRealm::new();
+        let indigo = IndigoRealm::new();
+        let blue = BlueRealm::new();
+        let green = GreenRealm::new();
+        let yellow = YellowRealm::new(green.clone());
+        let orange = OrangeRealm::new(yellow.clone());
+        let red = RedRealm::new(orange.clone());
+
+        let ratio = SpectrumRatio::new(ratio_value, side);
+        let spectrum_config = IndividualSpectrumConfiguration::new(ratio);
+
+        SubSubLogos::new(
+            EntityId::new(id.to_string()),
+            crate::entity_layer7::layer7::EntityType::Individual,
+            None,   // parent_id
+            vec![], // composition
+            None,   // environment_id
+            violet,
+            indigo,
+            blue,
+            green,
+            yellow,
+            orange,
+            red,
+            spectrum_config,
+        )
+    }
+
     #[test]
     fn test_holographic_field_manager_creation() {
         let manager = HolographicFieldManager::new();
@@ -2661,10 +2695,16 @@ mod tests {
     fn test_phase5_resonance_varies_by_entity_state() {
         let mut manager = HolographicFieldManager::new();
 
-        // Create entities with different states
-        let entity1 = create_test_entity("entity-1");
-        let mut entity2 = create_test_entity("entity-2");
-        let mut entity3 = create_test_entity("entity-3");
+        // Create entities with different states AND extremely different spectrum ratios
+        // to properly test that resonance varies based on entity state
+        // Using very extreme ratios (15.0 vs 0.05) to minimize spectrum resonance
+        // With max_difference=20, spectrum_resonance = 1 - 14.95/20 = 0.2525
+        // Weighted: 0.2525 * 0.30 = 0.07575
+        // Plus holographic (1.0 * 0.40 = 0.40) + polarity (0.0 * 0.30 = 0.0)
+        // Total ~= 0.476, which should be < 0.5
+        let entity1 = create_test_entity_with_ratio("entity-1", 1.0, SpectrumSide::SpaceTime);
+        let mut entity2 = create_test_entity_with_ratio("entity-2", 15.0, SpectrumSide::SpaceTime);
+        let mut entity3 = create_test_entity_with_ratio("entity-3", 0.05, SpectrumSide::TimeSpace);
 
         // Set different polarities
         entity2.polarization.direction = crate::polarization::PolarityDirection::ServiceToOthers;
@@ -2764,10 +2804,12 @@ mod tests {
     fn test_phase5_resonance_varies_by_entity_state_v2() {
         let mut manager = HolographicFieldManager::new();
 
-        // Create entities with different states
-        let entity1 = create_test_entity("entity-1");
-        let mut entity2 = create_test_entity("entity-2");
-        let mut entity3 = create_test_entity("entity-3");
+        // Create entities with different states AND extremely different spectrum ratios
+        // to properly test that resonance varies based on entity state
+        // Using very extreme ratios (15.0 vs 0.05) to minimize spectrum resonance
+        let entity1 = create_test_entity_with_ratio("entity-1", 1.0, SpectrumSide::SpaceTime);
+        let mut entity2 = create_test_entity_with_ratio("entity-2", 15.0, SpectrumSide::SpaceTime);
+        let mut entity3 = create_test_entity_with_ratio("entity-3", 0.05, SpectrumSide::TimeSpace);
 
         // Set different polarities
         entity2.polarization.direction = crate::polarization::PolarityDirection::ServiceToOthers;

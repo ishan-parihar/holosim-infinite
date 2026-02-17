@@ -150,6 +150,10 @@ pub struct EntityLifecycleData {
     /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3:
     /// "Progress tracking toward purpose"
     pub teleological_progress: TeleologicalProgress,
+
+    /// Phase 2: Holographic field coherence at entity's location
+    /// This is set by the simulation runner based on global and local field state
+    pub field_coherence: Option<f64>,
 }
 
 /// Evolutionary State
@@ -397,6 +401,7 @@ impl EntityLifecycleManager {
             original_spectrum_configuration: spectrum_access, // Phase 1: Store original
             polarization,                                     // Phase 1: Add polarization
             teleological_progress: TeleologicalProgress::new(0.1, 0.1, 0.0, 0.0), // Phase 3: Add teleological progress
+            field_coherence: None, // Phase 2: Will be set by simulation runner
         };
 
         self.entities
@@ -873,6 +878,13 @@ impl EntityLifecycleManager {
         // Coherence with purpose increases transition probability
         let teleological_modifier = self.get_teleological_modifier(&entity_data.entity_id);
 
+        // Phase 2: Field coherence factor
+        // Entities in high-coherence holographic fields evolve faster
+        let field_coherence = entity_data.field_coherence.unwrap_or(0.5);
+        let coherence_modifier = 1.0 + (field_coherence - 0.5) * 0.5;
+        // High coherence (+50%) accelerates evolution
+        // Low coherence (-50%) decelerates evolution
+
         // Calculate final probability
         let final_probability = base_probability
             * spectrum_factor
@@ -881,7 +893,8 @@ impl EntityLifecycleManager {
             * karmic_factor
             * archetype_factor
             * attractor_factor
-            * teleological_modifier; // Phase 3: Add teleological boost
+            * teleological_modifier // Phase 3: Add teleological boost
+            * coherence_modifier; // Phase 2: Add field coherence factor
 
         // Clamp probability to valid range [0.0, 1.0]
         final_probability.clamp(0.0, 1.0)
@@ -2130,6 +2143,7 @@ impl Default for EntityLifecycleData {
             }, // Phase 1: Add default original configuration
             polarization: crate::polarization::PolarizationProgress::new(), // Phase 1: Add polarization
             teleological_progress: TeleologicalProgress::new(0.1, 0.1, 0.0, 0.0), // Phase 3: Add teleological progress
+            field_coherence: None, // Phase 2: Default None
         }
     }
 }

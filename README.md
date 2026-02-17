@@ -42,36 +42,128 @@ See [COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md](COMPREHENSIVE_SIMULATION_REFACTO
 
 See [PHASE_8_VALIDATION_REPORT.md](PHASE_8_VALIDATION_REPORT.md) for full validation results.
 
-### SDL2 GUI Integration (New!)
 
-The simulation now includes a professional-grade SDL2 + WGPU visualization system with:
+## 🖥️ GUI Visualization
 
-- **Real-time Rendering**: 4,000-5,000+ FPS (67-83x target performance)
-- **Full Visualization**: Entity, spectrum, emergence, and collective dynamics
-- **Interactive Controls**: Camera pan/zoom, visualization toggles
-- **Cross-Platform**: Linux, Windows, macOS support
-- **Wayland Ready**: Native Wayland support with X11 fallback
+The simulation includes multiple GUI options for real-time visualization:
 
-**Quick Start:**
+### Primary GUI: holonic_gui_complete
+
+**Status**: ✅ Fully Functional
+
+The primary GUI uses WGPU + Winit for hardware-accelerated rendering:
+
 ```bash
-# Build SDL2 GUI
-cargo build --release --features sdl2 --bin holonic_sdl2
+# Build and run
+cargo run --release --bin holonic_gui_complete
+```
 
-# Run (X11 backend recommended for Wayland)
-SDL_VIDEO_DRIVER=x11 ./target/release/holonic_sdl2
+**Features:**
+- WGPU GPU rendering (60 FPS with 137+ entities)
+- Multi-scale visualization (quantum → cosmic)
+- Interactive camera controls
+- Entity selection and inspection
+- EGUI integration for UI overlays
+- Full keyboard/mouse support
+
+**Controls:**
+- ESC - Exit
+- Mouse drag - Pan camera
+- Scroll wheel - Zoom
+- Left click - Select entity
+
+**Documentation:** See [src/gui/README.md](src/gui/README.md) for full documentation
+
+### Alternative GUI: holonic_sdl2
+
+**Status**: ✅ Available
+
+SDL2-based alternative for systems preferring SDL2:
+
+```bash
+# Build with SDL2 feature
+cargo run --release --bin holonic_sdl2 --features sdl2
+
+# For Wayland systems, use X11 backend
+SDL_VIDEO_DRIVER=x11 cargo run --release --bin holonic_sdl2 --features sdl2
 ```
 
 **Performance:**
-- Target: 60 FPS
-- Actual: 4,000-5,000+ FPS
-- Frame time: 0.20-0.25ms
-- GPU: Tested with NVIDIA RTX 2060 SUPER
+- 4,000-5,000+ FPS on NVIDIA RTX 2060 SUPER
+- Cross-platform (Linux, Windows, macOS)
+- Wayland-ready with X11 fallback
 
-**Documentation:**
-- See [SDL2_SETUP.md](SDL2_SETUP.md) for detailed setup instructions
-- See [SDL2_MIGRATION_GUIDE.md](SDL2_MIGRATION_GUIDE.md) for migration from Winit
-- See [SDL2_INTEGRATION_ROADMAP.md](SDL2_INTEGRATION_ROADMAP.md) for implementation details
+**Dependencies:**
+- Linux: `libsdl2-dev`, `libsdl2-mixer-dev`
+- Windows: SDL2 development libraries
+- macOS: `sdl2` via Homebrew
 
+### GUI Architecture
+
+The GUI system consists of 70+ modules organized as:
+
+```
+src/gui/
+├── application.rs           # Main application
+├── visualization_engine.rs  # Multi-scale rendering
+├── interaction_system.rs    # User input
+├── renderer/                # GPU rendering
+├── ui/                      # EGUI integration
+├── visualization/           # Visualization systems
+└── scene/                   # Scene management
+```
+
+For complete documentation, see [src/gui/README.md](src/gui/README.md)
+
+## 🚀 Quick Start
+
+### Running the Simulation
+
+**Terminal Simulation:**
+```bash
+cargo run --release --bin holonic_realms
+```
+
+**Primary GUI:**
+```bash
+cargo run --release --bin holonic_gui_complete
+```
+
+**SDL2 GUI:**
+```bash
+cargo run --release --bin holonic_sdl2 --features sdl2
+```
+
+### Prerequisites
+
+- Rust 1.70 or later
+- 4GB RAM minimum (8GB recommended)
+- For GUI: GPU with WGPU support
+
+### SDL2 Dependencies (for holonic_sdl2)
+
+**Linux (Debian/Ubuntu):**
+```bash
+sudo apt-get install libsdl2-dev libsdl2-mixer-dev
+```
+
+**Linux (Fedora/RHEL):**
+```bash
+sudo dnf install SDL2-devel SDL2_mixer-devel
+```
+
+**Linux (Arch):**
+```bash
+sudo pacman -S sdl2 sdl2_mixer
+```
+
+**macOS:**
+```bash
+brew install sdl2 sdl2_mixer
+```
+
+**Windows:**
+Download SDL2 development libraries from https://www.libsdl.org/
 ## 🚀 Quick Start
 
 ### Prerequisites

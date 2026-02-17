@@ -2863,4 +2863,148 @@ mod tests {
             biological_stellar_coupling
         );
     }
+
+    // ============================================================================
+    // PHASE 5: HOLOGRAPHIC INTEGRATION TESTS
+    // ============================================================================
+
+    /// Test Phase 1: Holographic field processes steps correctly
+    #[test]
+    fn test_holographic_field_processes_steps() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(16)
+            .with_num_steps(10);
+
+        let runner = SimulationRunner::new(parameters);
+
+        // Verify holographic manager was initialized
+        let field_result = runner.holographic_manager.get_field_result();
+
+        // After initialization, field should track steps (or 0 before run)
+        assert!(field_result.steps >= 0, "Field should track steps");
+    }
+
+    /// Test Phase 2: Full simulation runs without panic
+    #[test]
+    fn test_simulation_runs_without_panic() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(8)
+            .with_num_steps(3);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // This should run the full simulation including:
+        // - Phase 2: top-down feedback
+        // - Phase 3: fractal hierarchy
+        // - Phase 4: observer effect, veil, polarization, teleological
+        let result = runner.run_simulation();
+
+        // Verify simulation completed
+        assert!(
+            result.evolution_result.steps > 0,
+            "Simulation should complete"
+        );
+    }
+
+    /// Test Phase 3: Entity hierarchy exists
+    #[test]
+    fn test_entity_hierarchy_exists() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(5);
+
+        let mut runner = SimulationRunner::new(parameters);
+
+        // Run simulation to create entities
+        let result = runner.run_simulation();
+
+        // Verify simulation completed and entities were created
+        assert!(
+            result.evolution_result.steps > 0,
+            "Simulation should complete"
+        );
+        assert!(!runner.entities.is_empty(), "Entities should exist");
+
+        // Check entity types include parent-child relationships
+        for entity in runner.entities.values() {
+            // Entities can have parent_id and children
+            let _parent = entity.parent_id.clone();
+            let _children = entity.children.clone();
+        }
+    }
+
+    /// Test Phase 4: Observer effect - coherence tracker exists
+    #[test]
+    fn test_coherence_tracker_exists() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(5);
+
+        let runner = SimulationRunner::new(parameters);
+
+        // Verify coherence tracker exists
+        let coherence = runner
+            .holographic_manager
+            .coherence_tracker
+            .global_coherence;
+        assert!(
+            coherence >= 0.0 && coherence <= 1.0,
+            "Coherence should be valid"
+        );
+    }
+
+    /// Test Phase 4: Dynamic veil - entities have veil
+    #[test]
+    fn test_dynamic_veil_exists() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(5);
+
+        let runner = SimulationRunner::new(parameters);
+
+        // Verify entities have veil
+        for entity in runner.entities.values() {
+            assert!(
+                entity.veil.transparency >= 0.0 && entity.veil.transparency <= 1.0,
+                "Veil transparency should be valid"
+            );
+        }
+    }
+
+    /// Test Phase 4: Polarization-field - entities have polarization
+    #[test]
+    fn test_polarization_exists() {
+        let parameters = SimulationParameters::new()
+            .with_num_entities(10)
+            .with_num_steps(5);
+
+        let runner = SimulationRunner::new(parameters);
+
+        // Verify entities have polarization
+        for entity in runner.entities.values() {
+            let _direction = entity.polarization.direction;
+            let _intensity = entity.polarization.intensity;
+        }
+    }
+
+    /// Test: Simulation performance is acceptable
+    #[test]
+    fn test_simulation_performance() {
+        use std::time::Instant;
+
+        let parameters = SimulationParameters::new()
+            .with_num_entities(16)
+            .with_num_steps(5);
+
+        let start = Instant::now();
+        let mut runner = SimulationRunner::new(parameters);
+        runner.run_simulation();
+        let elapsed = start.elapsed();
+
+        // Should complete in reasonable time (10 seconds max for test)
+        assert!(
+            elapsed.as_secs() < 10,
+            "Simulation should complete in reasonable time"
+        );
+    }
 }

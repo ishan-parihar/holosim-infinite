@@ -13,7 +13,7 @@
 // - Refinement is cumulative and traceable
 // - Adaptive bias responds to entity experience and development
 
-use crate::holographic_archetypical_mind::{Archetype, BiasVector, CosmicMind};
+use crate::spectrum::archetypical_mind::{Archetype, BiasVector, CosmicMind};
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -760,7 +760,7 @@ impl HierarchicalRefinementEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::holographic_archetypical_mind::ArchetypeTemplate;
+    use crate::spectrum::archetypical_mind::ArchetypeTemplate;
 
     // -------------------------------------------------------------------------
     // BiasSnapshot Tests

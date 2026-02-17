@@ -157,7 +157,7 @@ mod tests {
 
     #[test]
     fn test_hierarchy_connection_size() {
-        assert_eq!(std::mem::size_of::<HierarchyConnection>(), 32);
+        assert_eq!(std::mem::size_of::<HierarchyConnection>(), 44);
         assert_eq!(std::mem::align_of::<HierarchyConnection>(), 4);
     }
 

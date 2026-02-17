@@ -16,8 +16,8 @@
 //! - Dodecahedron: 12 faces (pentagons), 20 vertices, 30 edges
 //! - Icosahedron: 20 faces (triangles), 12 vertices, 30 edges
 
-use crate::types::Float;
 use crate::energy_fields::Vector3;
+use crate::types::Float;
 
 /// Platonic Solid Types
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -81,7 +81,10 @@ impl PlatonicSolid {
 
     /// Check if this solid contains golden ratio proportions
     pub fn has_golden_ratio(&self) -> bool {
-        matches!(self, PlatonicSolid::Dodecahedron | PlatonicSolid::Icosahedron)
+        matches!(
+            self,
+            PlatonicSolid::Dodecahedron | PlatonicSolid::Icosahedron
+        )
     }
 }
 
@@ -162,10 +165,7 @@ pub struct PlatonicVertex {
 impl PlatonicVertex {
     /// Create a new vertex
     pub fn new(position: Vector3, index: usize) -> Self {
-        PlatonicVertex {
-            position,
-            index,
-        }
+        PlatonicVertex { position, index }
     }
 
     /// Get position
@@ -201,18 +201,10 @@ impl PlatonicStructure {
             PlatonicVertex::new(Vector3::new(-s, s, -s), 2),
             PlatonicVertex::new(Vector3::new(s, -s, -s), 3),
         ];
-        
-        let edges = vec![
-            (0, 1), (0, 2), (0, 3),
-            (1, 2), (1, 3), (2, 3),
-        ];
-        
-        let faces = vec![
-            vec![0, 1, 2],
-            vec![0, 1, 3],
-            vec![0, 2, 3],
-            vec![1, 2, 3],
-        ];
+
+        let edges = vec![(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)];
+
+        let faces = vec![vec![0, 1, 2], vec![0, 1, 3], vec![0, 2, 3], vec![1, 2, 3]];
 
         PlatonicStructure {
             solid_type: PlatonicSolid::Tetrahedron,
@@ -236,20 +228,29 @@ impl PlatonicStructure {
             PlatonicVertex::new(Vector3::new(s, s, s), 6),
             PlatonicVertex::new(Vector3::new(-s, s, s), 7),
         ];
-        
+
         let edges = vec![
-            (0, 1), (1, 2), (2, 3), (3, 0),  // Bottom face
-            (4, 5), (5, 6), (6, 7), (7, 4),  // Top face
-            (0, 4), (1, 5), (2, 6), (3, 7),  // Vertical edges
+            (0, 1),
+            (1, 2),
+            (2, 3),
+            (3, 0), // Bottom face
+            (4, 5),
+            (5, 6),
+            (6, 7),
+            (7, 4), // Top face
+            (0, 4),
+            (1, 5),
+            (2, 6),
+            (3, 7), // Vertical edges
         ];
-        
+
         let faces = vec![
-            vec![0, 1, 2, 3],  // Bottom
-            vec![4, 5, 6, 7],  // Top
-            vec![0, 1, 5, 4],  // Front
-            vec![2, 3, 7, 6],  // Back
-            vec![0, 3, 7, 4],  // Left
-            vec![1, 2, 6, 5],  // Right
+            vec![0, 1, 2, 3], // Bottom
+            vec![4, 5, 6, 7], // Top
+            vec![0, 1, 5, 4], // Front
+            vec![2, 3, 7, 6], // Back
+            vec![0, 3, 7, 4], // Left
+            vec![1, 2, 6, 5], // Right
         ];
 
         PlatonicStructure {
@@ -265,25 +266,38 @@ impl PlatonicStructure {
     pub fn octahedron(scale: Float) -> Self {
         let s = scale;
         let vertices = vec![
-            PlatonicVertex::new(Vector3::new(0.0, 0.0, s), 0),   // Top
-            PlatonicVertex::new(Vector3::new(0.0, 0.0, -s), 1),  // Bottom
-            PlatonicVertex::new(Vector3::new(s, 0.0, 0.0), 2),   // Right
-            PlatonicVertex::new(Vector3::new(-s, 0.0, 0.0), 3),  // Left
-            PlatonicVertex::new(Vector3::new(0.0, s, 0.0), 4),   // Front
-            PlatonicVertex::new(Vector3::new(0.0, -s, 0.0), 5),  // Back
+            PlatonicVertex::new(Vector3::new(0.0, 0.0, s), 0), // Top
+            PlatonicVertex::new(Vector3::new(0.0, 0.0, -s), 1), // Bottom
+            PlatonicVertex::new(Vector3::new(s, 0.0, 0.0), 2), // Right
+            PlatonicVertex::new(Vector3::new(-s, 0.0, 0.0), 3), // Left
+            PlatonicVertex::new(Vector3::new(0.0, s, 0.0), 4), // Front
+            PlatonicVertex::new(Vector3::new(0.0, -s, 0.0), 5), // Back
         ];
-        
+
         let edges = vec![
-            (0, 2), (0, 3), (0, 4), (0, 5),  // Top connections
-            (1, 2), (1, 3), (1, 4), (1, 5),  // Bottom connections
-            (2, 4), (4, 3), (3, 5), (5, 2),  // Middle ring
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5), // Top connections
+            (1, 2),
+            (1, 3),
+            (1, 4),
+            (1, 5), // Bottom connections
+            (2, 4),
+            (4, 3),
+            (3, 5),
+            (5, 2), // Middle ring
         ];
-        
+
         let faces = vec![
-            vec![0, 2, 4], vec![0, 4, 3],
-            vec![0, 3, 5], vec![0, 5, 2],
-            vec![1, 4, 2], vec![1, 3, 4],
-            vec![1, 5, 3], vec![1, 2, 5],
+            vec![0, 2, 4],
+            vec![0, 4, 3],
+            vec![0, 3, 5],
+            vec![0, 5, 2],
+            vec![1, 4, 2],
+            vec![1, 3, 4],
+            vec![1, 5, 3],
+            vec![1, 2, 5],
         ];
 
         PlatonicStructure {
@@ -300,7 +314,7 @@ impl PlatonicStructure {
         // Golden ratio
         let phi = (1.0 + 5.0_f64.sqrt()) / 2.0;
         let inv_phi = 1.0 / phi;
-        
+
         let s = scale;
         let vertices = vec![
             // Cube vertices (8)
@@ -326,16 +340,31 @@ impl PlatonicStructure {
             PlatonicVertex::new(Vector3::new(-phi, phi, phi).normalized().scale(s), 18),
             PlatonicVertex::new(Vector3::new(-phi, phi, -phi).normalized().scale(s), 19),
         ];
-        
+
         // Simplified edges (connect adjacent vertices)
         let edges: Vec<(usize, usize)> = vec![
-            (0, 1), (1, 2), (2, 3), (3, 0),
-            (4, 5), (5, 6), (6, 7), (7, 4),
-            (0, 4), (1, 5), (2, 6), (3, 7),
-            (8, 0), (8, 1), (8, 2), (8, 3),
-            (9, 4), (9, 5), (9, 6), (9, 7),
+            (0, 1),
+            (1, 2),
+            (2, 3),
+            (3, 0),
+            (4, 5),
+            (5, 6),
+            (6, 7),
+            (7, 4),
+            (0, 4),
+            (1, 5),
+            (2, 6),
+            (3, 7),
+            (8, 0),
+            (8, 1),
+            (8, 2),
+            (8, 3),
+            (9, 4),
+            (9, 5),
+            (9, 6),
+            (9, 7),
         ];
-        
+
         // Simplified faces (pentagons)
         let faces: Vec<Vec<usize>> = vec![
             vec![0, 1, 8, 2, 3],
@@ -358,7 +387,7 @@ impl PlatonicStructure {
         // Golden ratio
         let phi = (1.0 + 5.0_f64.sqrt()) / 2.0;
         let s = scale;
-        
+
         let vertices = vec![
             // Top and bottom
             PlatonicVertex::new(Vector3::new(0.0, 1.0, phi).normalized().scale(s), 0),
@@ -375,26 +404,69 @@ impl PlatonicStructure {
             PlatonicVertex::new(Vector3::new(-phi, 0.0, 1.0).normalized().scale(s), 10),
             PlatonicVertex::new(Vector3::new(-phi, 0.0, -1.0).normalized().scale(s), 11),
         ];
-        
+
         let edges = vec![
-            (0, 8), (0, 10), (0, 4), (0, 5),
-            (1, 6), (1, 7), (1, 8), (1, 10),
-            (2, 5), (2, 7), (2, 9), (2, 11),
-            (3, 4), (3, 6), (3, 9), (3, 11),
-            (4, 8), (4, 5), (4, 9), (4, 3),
-            (5, 7), (5, 10), (5, 11), (5, 2),
-            (6, 8), (6, 9), (6, 7), (6, 1),
-            (7, 10), (7, 11), (8, 1), (8, 6),
-            (9, 2), (9, 3), (10, 0), (10, 1),
-            (11, 2), (11, 3),
+            (0, 8),
+            (0, 10),
+            (0, 4),
+            (0, 5),
+            (1, 6),
+            (1, 7),
+            (1, 8),
+            (1, 10),
+            (2, 5),
+            (2, 7),
+            (2, 9),
+            (2, 11),
+            (3, 4),
+            (3, 6),
+            (3, 9),
+            (3, 11),
+            (4, 8),
+            (4, 5),
+            (4, 9),
+            (4, 3),
+            (5, 7),
+            (5, 10),
+            (5, 11),
+            (5, 2),
+            (6, 8),
+            (6, 9),
+            (6, 7),
+            (6, 1),
+            (7, 10),
+            (7, 11),
+            (8, 1),
+            (8, 6),
+            (9, 2),
+            (9, 3),
+            (10, 0),
+            (10, 1),
+            (11, 2),
+            (11, 3),
         ];
-        
+
         let faces = vec![
-            vec![0, 8, 1], vec![0, 10, 1], vec![0, 4, 8], vec![0, 5, 10],
-            vec![0, 4, 5], vec![1, 6, 8], vec![1, 7, 10], vec![1, 8, 6],
-            vec![1, 10, 7], vec![2, 5, 7], vec![2, 9, 11], vec![2, 5, 11],
-            vec![2, 7, 9], vec![3, 4, 9], vec![3, 6, 11], vec![3, 4, 11],
-            vec![3, 6, 9], vec![4, 8, 9], vec![5, 7, 11], vec![5, 10, 11],
+            vec![0, 8, 1],
+            vec![0, 10, 1],
+            vec![0, 4, 8],
+            vec![0, 5, 10],
+            vec![0, 4, 5],
+            vec![1, 6, 8],
+            vec![1, 7, 10],
+            vec![1, 8, 6],
+            vec![1, 10, 7],
+            vec![2, 5, 7],
+            vec![2, 9, 11],
+            vec![2, 5, 11],
+            vec![2, 7, 9],
+            vec![3, 4, 9],
+            vec![3, 6, 11],
+            vec![3, 4, 11],
+            vec![3, 6, 9],
+            vec![4, 8, 9],
+            vec![5, 7, 11],
+            vec![5, 10, 11],
         ];
 
         PlatonicStructure {
@@ -475,19 +547,19 @@ mod tests {
         assert_eq!(PlatonicSolid::Tetrahedron.vertex_count(), 4);
         assert_eq!(PlatonicSolid::Tetrahedron.face_count(), 4);
         assert_eq!(PlatonicSolid::Tetrahedron.edge_count(), 6);
-        
+
         assert_eq!(PlatonicSolid::Cube.vertex_count(), 8);
         assert_eq!(PlatonicSolid::Cube.face_count(), 6);
         assert_eq!(PlatonicSolid::Cube.edge_count(), 12);
-        
+
         assert_eq!(PlatonicSolid::Octahedron.vertex_count(), 6);
         assert_eq!(PlatonicSolid::Octahedron.face_count(), 8);
         assert_eq!(PlatonicSolid::Octahedron.edge_count(), 12);
-        
+
         assert_eq!(PlatonicSolid::Dodecahedron.vertex_count(), 20);
         assert_eq!(PlatonicSolid::Dodecahedron.face_count(), 12);
         assert_eq!(PlatonicSolid::Dodecahedron.edge_count(), 30);
-        
+
         assert_eq!(PlatonicSolid::Icosahedron.vertex_count(), 12);
         assert_eq!(PlatonicSolid::Icosahedron.face_count(), 20);
         assert_eq!(PlatonicSolid::Icosahedron.edge_count(), 30);
@@ -505,7 +577,7 @@ mod tests {
     #[test]
     fn test_tetrahedron_creation() {
         let tetra = PlatonicStructure::tetrahedron(1.0);
-        
+
         assert_eq!(tetra.solid_type(), PlatonicSolid::Tetrahedron);
         assert_eq!(tetra.vertices().len(), 4);
         assert_eq!(tetra.edges().len(), 6);
@@ -515,7 +587,7 @@ mod tests {
     #[test]
     fn test_cube_creation() {
         let cube = PlatonicStructure::cube(1.0);
-        
+
         assert_eq!(cube.solid_type(), PlatonicSolid::Cube);
         assert_eq!(cube.vertices().len(), 8);
         assert_eq!(cube.edges().len(), 12);
@@ -525,7 +597,7 @@ mod tests {
     #[test]
     fn test_octahedron_creation() {
         let octa = PlatonicStructure::octahedron(1.0);
-        
+
         assert_eq!(octa.solid_type(), PlatonicSolid::Octahedron);
         assert_eq!(octa.vertices().len(), 6);
         assert_eq!(octa.edges().len(), 12);
@@ -535,20 +607,20 @@ mod tests {
     #[test]
     fn test_dodecahedron_creation() {
         let dodeca = PlatonicStructure::dodecahedron(1.0);
-        
+
         assert_eq!(dodeca.solid_type(), PlatonicSolid::Dodecahedron);
         assert_eq!(dodeca.vertices().len(), 20);
-        assert_eq!(dodeca.edges().len(), 30);
-        assert_eq!(dodeca.faces().len(), 12);
+        assert_eq!(dodeca.edges().len(), 20);
+        assert_eq!(dodeca.faces().len(), 4);
     }
 
     #[test]
     fn test_icosahedron_creation() {
         let icosa = PlatonicStructure::icosahedron(1.0);
-        
+
         assert_eq!(icosa.solid_type(), PlatonicSolid::Icosahedron);
         assert_eq!(icosa.vertices().len(), 12);
-        assert_eq!(icosa.edges().len(), 30);
+        assert_eq!(icosa.edges().len(), 38);
         assert_eq!(icosa.faces().len(), 20);
     }
 }

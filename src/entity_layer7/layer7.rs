@@ -1488,6 +1488,45 @@ impl SubSubLogos {
         &self.children
     }
 
+    /// Phase 3: Synchronize archetypes from parent to children
+    ///
+    /// This implements the holographic principle: parent entities (GalacticLogos, SolarLogos)
+    /// transmit their archetypical patterns down to children (Individual entities).
+    /// This ensures "each contains the whole" - children contain patterns from their parents.
+    pub fn sync_archetypes_to_children(
+        &self,
+        children_map: &mut HashMap<EntityId, SubSubLogos>,
+    ) {
+        // Only GalacticLogos and SolarLogos have children to sync
+        use crate::entity_layer7::layer7::EntityType;
+        if !matches!(self.entity_type, EntityType::GalacticLogos | EntityType::SolarLogos) {
+            return;
+        }
+        
+        // Get this entity's archetype activations
+        let archetype_activations = self.generate_archetype_activation_for_density();
+        
+        // Sync to each child
+        for child_id in self.children.iter() {
+            if let Some(child) = children_map.get_mut(child_id) {
+                // Copy archetypical mind from parent
+                child.archetypical_mind = self.archetypical_mind.clone();
+                
+                // Adjust child's evolutionary attractor based on parent's blueprint
+                // This creates alignment between parent and child
+                child.evolutionary_rate = (self.evolutionary_rate * 0.9 + child.evolutionary_rate * 0.1)
+                    .max(0.3)
+                    .min(1.7);
+                
+                // Subtle coherence alignment - child moves toward parent coherence
+                let parent_coherence = self.current_state.vibrational_state.coherence;
+                let child_coherence = child.current_state.vibrational_state.coherence;
+                child.current_state.vibrational_state.coherence = 
+                    (parent_coherence * 0.1 + child_coherence * 0.9).clamp(0.0, 1.0);
+            }
+        }
+    }
+
     /// Set the parent entity for this entity
     ///
     /// Phase 1: Hierarchical Relationships
