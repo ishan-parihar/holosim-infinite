@@ -16,10 +16,94 @@
 
 use super::spatial_field::{Position3D, SpatialField};
 use super::field_state::{Complex, DensityBand, FieldNodeData, Float};
+use rand::{Rng, SeedableRng, rngs::StdRng};
 use std::collections::HashMap;
 
 /// Number of archetypes (from Law of One)
 pub const NUM_ARCHETYPES: usize = 22;
+
+/// Phase transitions in matter emergence
+/// From R&D-3 Roadmap: Matter emerges through phase transitions, not threshold creation
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PhaseTransition {
+    /// Quantum: Field fluctuations form standing waves = particles
+    ParticleFormation,
+    /// Atomic: Particles with compatible patterns form bound states
+    AtomicFormation,
+    /// Molecular: Atoms form molecular bonds
+    MolecularFormation,
+    /// No phase transition occurring
+    None,
+}
+
+/// Critical coherence thresholds for phase transitions
+/// These are physics-based, not arbitrary
+#[derive(Debug, Clone, Copy)]
+pub struct PhaseTransitionThresholds {
+    /// Coherence threshold for particle formation (quantum fluctuations → standing waves)
+    pub critical_quantum: Float,
+    /// Coherence threshold for atomic formation
+    pub critical_atomic: Float,
+    /// Coherence threshold for molecular formation
+    pub critical_molecular: Float,
+}
+
+impl Default for PhaseTransitionThresholds {
+    fn default() -> Self {
+        PhaseTransitionThresholds {
+            critical_quantum: 0.3,
+            critical_atomic: 0.6,
+            critical_molecular: 0.85,
+        }
+    }
+}
+
+/// Field instability for spontaneous symmetry breaking
+/// From R&D-3 Roadmap: Different symmetry breaking patterns = different particle types
+#[derive(Debug, Clone)]
+pub struct FieldInstability {
+    /// Magnitude of instability (0 = stable, 1 = maximum)
+    pub magnitude: Float,
+    
+    /// Direction in field space (determines particle type)
+    pub direction: [Float; 8], // 8 density dimensions
+    
+    /// Rate of change (faster = more energetic particles)
+    pub rate: Float,
+    
+    /// Symmetry breaking pattern (random seed for properties)
+    pub symmetry_pattern: u64,
+}
+
+impl FieldInstability {
+    pub fn new() -> Self {
+        FieldInstability {
+            magnitude: 0.0,
+            direction: [0.0; 8],
+            rate: 0.0,
+            symmetry_pattern: 0,
+        }
+    }
+    
+    /// Sample the instability to get property values
+    pub fn sample(&self) -> [Float; 4] {
+        // Use symmetry pattern as seed for deterministic randomness
+        let mut rng = StdRng::seed_from_u64(self.symmetry_pattern);
+        
+        // Sample 4 values for mass, charge, spin, lifetime
+        let mut values = [0.0; 4];
+        for i in 0..4 {
+            values[i] = rng.gen::<Float>() * self.magnitude;
+        }
+        values
+    }
+}
+
+impl Default for FieldInstability {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 /// Particle identity
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -96,6 +180,9 @@ pub struct Particle {
     
     /// Matter scale
     pub scale: MatterScale,
+    
+    /// Field instability at time of creation (for spontaneous symmetry breaking)
+    pub instability: FieldInstability,
 }
 
 impl Particle {
@@ -113,6 +200,7 @@ impl Particle {
             lifetime: 0.0,
             age: 0.0,
             scale: MatterScale::Quantum,
+            instability: FieldInstability::new(),
         }
     }
     
@@ -356,13 +444,13 @@ impl ArchetypeParticleDerivation {
 /// Configuration for archetype-matter emergence
 #[derive(Debug, Clone)]
 pub struct ArchetypeMatterConfig {
-    /// Minimum field amplitude to create a particle
+    /// Minimum field amplitude to create a particle (legacy threshold)
     pub particle_threshold: Float,
     
-    /// Minimum field amplitude to create an atom
+    /// Minimum field amplitude to create an atom (legacy threshold)
     pub atom_threshold: Float,
     
-    /// Minimum field amplitude to create a molecule
+    /// Minimum field amplitude to create a molecule (legacy threshold)
     pub molecule_threshold: Float,
     
     /// How fast particles emerge
@@ -370,6 +458,15 @@ pub struct ArchetypeMatterConfig {
     
     /// Whether to enable matter emergence
     pub enabled: bool,
+    
+    /// Use phase transition dynamics (R&D-3)
+    pub use_phase_transitions: bool,
+    
+    /// Critical coherence thresholds for phase transitions
+    pub phase_thresholds: PhaseTransitionThresholds,
+    
+    /// Enable spontaneous symmetry breaking (R&D-3)
+    pub use_spontaneous_symmetry_breaking: bool,
 }
 
 impl Default for ArchetypeMatterConfig {
@@ -380,6 +477,9 @@ impl Default for ArchetypeMatterConfig {
             molecule_threshold: 5.0,
             emergence_rate: 1.0,
             enabled: true,
+            use_phase_transitions: true,
+            phase_thresholds: PhaseTransitionThresholds::default(),
+            use_spontaneous_symmetry_breaking: true,
         }
     }
 }
@@ -427,26 +527,134 @@ impl MatterEmergence {
         id
     }
     
+    /// Detect phase transition from field data
+    /// From R&D-3 Roadmap: Matter emerges when field crosses critical coherence threshold
+    /// (Like water freezing at 0°C - phase transition, not threshold creation)
+    pub fn detect_phase_transition(&self, field_data: &FieldNodeData) -> PhaseTransition {
+        if !self.config.use_phase_transitions {
+            return PhaseTransition::None;
+        }
+        
+        let coherence = field_data.coherence;
+        let thresholds = &self.config.phase_thresholds;
+        
+        // Critical coherence thresholds determine phase transitions
+        if coherence > thresholds.critical_molecular {
+            PhaseTransition::MolecularFormation
+        } else if coherence > thresholds.critical_atomic {
+            PhaseTransition::AtomicFormation
+        } else if coherence > thresholds.critical_quantum {
+            PhaseTransition::ParticleFormation
+        } else {
+            PhaseTransition::None
+        }
+    }
+    
+    /// Compute field instability for spontaneous symmetry breaking
+    /// From R&D-3 Roadmap: Field instability determines how symmetry breaks
+    fn compute_field_instability(&self, field_data: &FieldNodeData) -> FieldInstability {
+        let mut instability = FieldInstability::new();
+        
+        // Calculate instability magnitude from field variance
+        let total_magnitude = field_data.total_magnitude();
+        let coherence = field_data.coherence;
+        
+        // Instability is highest when coherence is changing (not too stable, not too chaotic)
+        instability.magnitude = (coherence * (1.0 - coherence) * 4.0).sqrt(); // Max at coherence = 0.5
+        instability.magnitude *= total_magnitude;
+        
+        // Direction in density space (which densities are most unstable)
+        for i in 0..8 {
+            let amp = field_data.density_amplitudes[i].magnitude();
+            let phase = field_data.density_amplitudes[i].phase();
+            
+            // Variance in amplitude and phase indicates instability direction
+            instability.direction[i] = amp * phase.abs();
+        }
+        
+        // Normalize direction
+        let sum: Float = instability.direction.iter().sum();
+        if sum > 0.0 {
+            for d in instability.direction.iter_mut() {
+                *d /= sum;
+            }
+        }
+        
+        // Rate from energy
+        instability.rate = field_data.energy * 0.1;
+        
+        // Symmetry pattern from field data (creates deterministic randomness)
+        let pattern_seed = (coherence * 1000.0) as u64 
+            ^ (total_magnitude * 100.0) as u64 
+            ^ (field_data.spectrum_position * 10.0) as u64;
+        instability.symmetry_pattern = pattern_seed;
+        
+        instability
+    }
+    
+    /// SPONTANEOUS SYMMETRY BREAKING - How particles get properties
+    /// From R&D-3 Roadmap: Properties emerge from HOW the symmetry broke, not pre-assigned
+    fn spontaneous_symmetry_breaking(&self, instability: &FieldInstability) -> (Float, Float, Float, Float) {
+        if !self.config.use_spontaneous_symmetry_breaking {
+            // Fallback to archetype-based derivation
+            let mut rng = StdRng::from_entropy();
+            return (
+                rng.gen::<Float>() * 10.0 + 1.0,  // mass
+                rng.gen::<Float>() * 2.0 - 1.0,   // charge
+                rng.gen::<Float>() * 2.0,         // spin
+                0.0, // lifetime (stable)
+            );
+        }
+        
+        let samples = instability.sample();
+        
+        // Derive properties from symmetry breaking pattern
+        // Mass: from first sample, scaled by instability magnitude
+        let mass = samples[0] * 10.0 + 0.1; // Minimum mass
+        
+        // Charge: second sample, can be positive or negative
+        let charge = samples[1] * 2.0 - 1.0;
+        
+        // Spin: third sample
+        let spin = samples[2] * 2.0;
+        
+        // Lifetime: fourth sample (0 = stable)
+        let lifetime = samples[3] * 100.0;
+        
+        (mass, charge, spin, lifetime)
+    }
+    
     /// Try to derive a particle from field data
+    /// From R&D-3: Uses phase transitions instead of simple amplitude thresholds
     pub fn derive_particle_from_field(&mut self, field_data: &FieldNodeData, position: Position3D) -> Option<Particle> {
         if !self.config.enabled {
             return None;
         }
         
-        // Check threshold
-        let amplitude = field_data.total_magnitude();
-        if amplitude < self.config.particle_threshold {
+        // Use phase transition detection (R&D-3)
+        let phase = self.detect_phase_transition(field_data);
+        
+        // Only create particle if we're in particle formation phase
+        if phase != PhaseTransition::ParticleFormation && self.config.use_phase_transitions {
             return None;
         }
         
-        // Derive archetype pattern from field densities
-        let archetype_pattern = self.derive_archetypes_from_field(field_data);
+        // Fallback to amplitude threshold if not using phase transitions
+        if !self.config.use_phase_transitions {
+            let amplitude = field_data.total_magnitude();
+            if amplitude < self.config.particle_threshold {
+                return None;
+            }
+        }
         
-        // Derive properties
-        let mass = ArchetypeParticleDerivation::derive_mass(&archetype_pattern);
-        let charge = ArchetypeParticleDerivation::derive_charge(&archetype_pattern);
-        let spin = ArchetypeParticleDerivation::derive_spin(&archetype_pattern);
-        let lifetime = ArchetypeParticleDerivation::derive_lifetime(&archetype_pattern);
+        // Compute field instability for spontaneous symmetry breaking (R&D-3)
+        let instability = self.compute_field_instability(field_data);
+        
+        // Apply spontaneous symmetry breaking to get properties
+        let (mass, charge, spin, lifetime) = self.spontaneous_symmetry_breaking(&instability);
+        
+        // Derive archetype pattern from field densities (still used for particle type)
+        let archetype_pattern = self.derive_archetypes_from_field(field_data);
         let particle_type = ArchetypeParticleDerivation::derive_particle_type(&archetype_pattern);
         
         // Find dominant archetype
@@ -455,6 +663,8 @@ impl MatterEmergence {
             .max_by(|a, b| a.1.partial_cmp(b.1).unwrap_or(std::cmp::Ordering::Equal))
             .map(|(i, _)| i)
             .unwrap_or(0);
+        
+        let amplitude = field_data.total_magnitude();
         
         let mut particle = Particle::new(self.next_id(), position);
         particle.mass = mass;
@@ -466,11 +676,15 @@ impl MatterEmergence {
         particle.dominant_archetype = dominant;
         particle.field_amplitude = amplitude;
         particle.scale = MatterScale::Quantum;
+        particle.instability = instability;
         
         // Register particle
         let id = particle.id;
         self.particles.insert(id, particle.clone());
         self.statistics.particles_created += 1;
+        
+        // Track phase transitions
+        self.statistics.phase_transitions_detected += 1;
         
         Some(particle)
     }
@@ -502,10 +716,18 @@ impl MatterEmergence {
         archetypes
     }
     
-    /// Try to create an atom from particles
-    pub fn derive_atom_from_particles(&mut self, position: Position3D, particles: &[ParticleId]) -> Option<Atom> {
+    /// Try to create an atom from particles using phase transitions (R&D-3)
+    pub fn derive_atom_from_particles(&mut self, position: Position3D, particles: &[ParticleId], field_data: Option<&FieldNodeData>) -> Option<Atom> {
         if !self.config.enabled || particles.len() < 3 {
             return None;
+        }
+        
+        // Use phase transition detection if field data available
+        if let Some(fd) = field_data {
+            let phase = self.detect_phase_transition(fd);
+            if phase != PhaseTransition::AtomicFormation && self.config.use_phase_transitions {
+                return None;
+            }
         }
         
         // Calculate combined archetype pattern
@@ -521,7 +743,10 @@ impl MatterEmergence {
             }
         }
         
-        if total_amplitude < self.config.atom_threshold {
+        // Use phase transition threshold or fallback to amplitude threshold
+        if self.config.use_phase_transitions {
+            // Let it form if phase is correct
+        } else if total_amplitude < self.config.atom_threshold {
             return None;
         }
         
@@ -603,6 +828,8 @@ pub struct MatterEmergenceStatistics {
     pub active_particles: usize,
     pub active_atoms: usize,
     pub active_molecules: usize,
+    pub phase_transitions_detected: usize,
+    pub symmetry_breaking_particles: usize,
 }
 
 /// Bridge between field and matter

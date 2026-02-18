@@ -418,6 +418,18 @@ impl HolographicField {
             self.phase_coherence()
         )
     }
+
+    /// Get grid resolution for MERA field compression (R&D-8)
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Grid resolution for multi-scale representation"
+    ///
+    /// # Returns
+    ///
+    /// Grid resolution (32 for default holographic field)
+    pub fn grid_resolution(&self) -> usize {
+        32
+    }
 }
 
 /// Generator for holographic fields at different involution layers.

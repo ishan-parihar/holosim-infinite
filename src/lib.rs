@@ -8,6 +8,12 @@ pub mod entity_layer7;
 pub mod foundation;
 pub mod spectrum;
 
+// Cosmological Module (Top-Down Flow - Phase 2)
+pub mod cosmological;
+
+// Unified Module - Physics + Biology + Consciousness (Phase 3)
+pub mod unified;
+
 // Consciousness and Free Will
 pub mod consciousness;
 pub mod free_will_capacity;
@@ -220,6 +226,57 @@ pub use simulation_v3::scale_physics::{
 // Statistics
 pub use simulation_v3::statistics::{
     SimulationStatistics as V3SimulationStatistics, 
-    PolarizationDistribution as V3PolarityDistribution, 
+    PolarizationDistribution as V3PolarizationDistribution, 
     EmergentProperties,
+};
+
+// ============================================================================
+// PHASE 4: ENTITY-ENVIRONMENT COUPLING & SPATIAL EMERGENCE
+// ============================================================================
+
+// Spatial module - Spectrum-derived positions instead of golden ratio
+pub mod spatial;
+pub use spatial::{
+    SpectrumSpatialDynamics,
+    SpectrumSpatialConfig,
+    CoherenceDerivedPosition,
+    SpatialPerspective,
+    SpatialStatistics,
+    VeilTransform,
+    VeilTransformConfig,
+    EntityExperience,
+    Perspective,
+    TimeFlowType,
+    PerceptionType,
+    TransformedPosition,
+    VeilStatistics,
+};
+
+// Environment module - Entity-planet coupling
+pub mod environment;
+pub use environment::{
+    PlanetId,
+    EnvironmentId,
+    EntityEnvironmentState,
+    WeatherPattern,
+    EnvironmentTerrain,
+    EntityBridge,
+    EntityBridgeConfig,
+    EntityPlanetAssignment,
+    EntityBridgeStatistics,
+    EnvironmentalEffects,
+    EnvironmentalEffectsConfig,
+    EntityMutableState,
+    ConsciousnessState,
+    EnvironmentalEffectsStatistics,
+};
+
+// Emergent attractors module
+pub use attractors::{
+    EmergentAttractors,
+    EmergentAttractorsConfig,
+    CoherencePeak,
+    EmergentAttractorType,
+    EmergentAttractor,
+    EmergentAttractorStatistics,
 };

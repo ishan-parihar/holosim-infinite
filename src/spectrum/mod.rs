@@ -17,6 +17,8 @@ pub mod orange_realm;
 pub mod red_realm;
 pub mod veil;
 pub mod yellow_realm;
+pub mod dynamical_spectrum;
+pub mod density_transitions;
 
 // Re-export commonly used types
 pub use archetypical_mind::{ArchetypeRole, ArchetypicalMind, ArchetypicalSystemType, ComplexType};
@@ -24,6 +26,8 @@ pub use larson_framework::{SpectrumQuality, SpectrumRatio, SpectrumSide};
 pub use orange_realm::OrangeRealm;
 pub use red_realm::RedRealm;
 pub use yellow_realm::YellowRealm;
+pub use dynamical_spectrum::{DynamicalSpectrum, DynamicalSpectrumConfig, DynamicalSpectrumStatistics, EntityChoice, PolarityOrientation, SpectrumTrajectory};
+pub use density_transitions::{DensityTransitionResult, DensityTransitionStatistics, DensityTransitionSystem, DensityTransitionConfig, EntityTransitionState, TranscendAndInclude, TransitionReadiness, TransitionRequirement};
 
 #[cfg(test)]
 mod integration_tests {

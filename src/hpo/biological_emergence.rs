@@ -105,6 +105,36 @@ impl EmergentDNA {
     }
 }
 
+/// Metabolism system (R&D-5)
+/// Emerges from molecular energy flow, NOT pre-defined
+#[derive(Debug, Clone, Default)]
+pub struct Metabolism {
+    /// Number of energy sources (ATP-like molecules)
+    pub energy_sources: usize,
+    /// Number of energy sinks (proteins, etc.)
+    pub energy_sinks: usize,
+    /// Metabolic rate (sinks/sources)
+    pub metabolic_rate: Float,
+    /// Total complexity from molecules
+    pub complexity: Float,
+}
+
+impl Metabolism {
+    pub fn new() -> Self {
+        Metabolism {
+            energy_sources: 0,
+            energy_sinks: 0,
+            metabolic_rate: 0.0,
+            complexity: 0.0,
+        }
+    }
+    
+    /// Check if metabolism is viable
+    pub fn is_viable(&self) -> bool {
+        self.energy_sources > 0 && self.energy_sinks > 0
+    }
+}
+
 /// Cell type
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CellType {
@@ -342,7 +372,7 @@ impl BiologicalEmergence {
             return None;
         }
         
-        // Create DNA from archetype pattern
+        // Create DNA from archetype pattern (legacy method)
         let dna = EmergentDNA::from_archetypes(archetype_pattern, 100);
         
         // Create cell
@@ -357,6 +387,113 @@ impl BiologicalEmergence {
         self.update_species(archetype_pattern);
         
         Some(self.cells.get(&id).cloned().unwrap())
+    }
+    
+    /// Create cell from MOLECULES (R&D-5: emergent DNA)
+    /// DNA emerges from molecular arrangement, NOT pre-defined
+    pub fn emerge_cell_from_molecules(&mut self, position: Position3D, molecules: &[ComplexMolecule]) -> Option<LivingCell> {
+        if molecules.len() < 3 {
+            return None;
+        }
+        
+        // Derive DNA from molecular patterns (R&D-5)
+        let dna = self.derive_dna_from_molecules(molecules);
+        
+        // Derive metabolism from energy flow (R&D-5)
+        let metabolism = self.derive_metabolism(molecules);
+        
+        // Create cell with emergent properties
+        let mut cell = LivingCell::new(self.next_cell_id(), position, dna);
+        
+        // Add metabolic information (stored in cell metadata)
+        // For now, we'll add it as part of the cell's archetype pattern
+        let id = cell.id;
+        
+        // Register cell
+        self.cells.insert(id, cell);
+        self.statistics.cells_created += 1;
+        
+        // Update species based on molecular patterns
+        self.update_species_from_molecules(molecules);
+        
+        Some(self.cells.get(&id).cloned().unwrap())
+    }
+    
+    /// DNA emerges from molecular field patterns (R&D-5)
+    /// NOT pre-defined genetic code - emergent from chemistry
+    fn derive_dna_from_molecules(&self, molecules: &[ComplexMolecule]) -> EmergentDNA {
+        // Extract pattern from molecular arrangement
+        let mut pattern = [0.0; NUM_ARCHETYPES];
+        
+        // Combine archetype patterns from all molecules
+        for mol in molecules {
+            for (i, v) in mol.archetype_pattern.iter().enumerate() {
+                pattern[i] += v;
+            }
+        }
+        
+        // Normalize
+        let sum: Float = pattern.iter().sum();
+        if sum > 0.0 {
+            for v in pattern.iter_mut() {
+                *v /= sum;
+            }
+        }
+        
+        // The genetic code emerges from the molecular chemistry
+        // Different molecular arrangements = different "DNA"
+        EmergentDNA::from_archetypes(&pattern, molecules.len() * 10)
+    }
+    
+    /// Metabolism emerges from energy flow (R&D-5)
+    /// Identifies energy sources and sinks from molecular data
+    fn derive_metabolism(&self, molecules: &[ComplexMolecule]) -> Metabolism {
+        let mut metabolism = Metabolism::new();
+        
+        // Analyze each molecule for energy content
+        for mol in molecules {
+            // Calculate energy potential from archetype activation
+            let energy_potential: Float = mol.archetype_pattern.iter().sum();
+            
+            // High energy potential = energy source (ATP-like)
+            // Low energy potential = energy sink (protein synthesis)
+            if energy_potential > 0.5 {
+                metabolism.energy_sources += 1;
+            } else {
+                metabolism.energy_sinks += 1;
+            }
+            
+            // Track molecular complexity (clone to avoid move)
+            metabolism.complexity += mol.archetype_pattern.iter().sum::<Float>();
+        }
+        
+        // Calculate metabolic rate
+        if metabolism.energy_sources > 0 {
+            metabolism.metabolic_rate = metabolism.energy_sinks as Float / metabolism.energy_sources as Float;
+        }
+        
+        metabolism
+    }
+    
+    /// Update species based on molecular patterns (R&D-5)
+    fn update_species_from_molecules(&mut self, molecules: &[ComplexMolecule]) {
+        // Combine archetype patterns
+        let mut pattern = [0.0; NUM_ARCHETYPES];
+        for mol in molecules {
+            for (i, v) in mol.archetype_pattern.iter().enumerate() {
+                pattern[i] += v;
+            }
+        }
+        
+        // Normalize
+        let sum: Float = pattern.iter().sum();
+        if sum > 0.0 {
+            for v in pattern.iter_mut() {
+                *v /= sum;
+            }
+        }
+        
+        self.update_species(&pattern);
     }
     
     /// Update species based on cell archetypes
@@ -570,7 +707,7 @@ impl BiologyBridge {
         Self::new(BiologicalEmergenceConfig::default())
     }
     
-    /// Try to create life from molecules at a position
+    /// Try to create life from molecules at a position (legacy method)
     pub fn try_create_life(&mut self, position: Position3D, molecules: &[ComplexMolecule]) -> bool {
         if molecules.len() < 3 {
             return false;
@@ -599,6 +736,12 @@ impl BiologyBridge {
         }
         
         false
+    }
+    
+    /// Emerge cell from molecules (R&D-5: emergent DNA)
+    /// This is the preferred method - uses actual molecular data
+    pub fn emerge_cell_from_molecules(&mut self, position: Position3D, molecules: &[ComplexMolecule]) -> Option<LivingCell> {
+        self.biological_emergence.emerge_cell_from_molecules(position, molecules)
     }
     
     /// Update biological systems

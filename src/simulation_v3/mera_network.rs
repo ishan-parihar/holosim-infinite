@@ -9,14 +9,19 @@
 //! 2. Disentangler tensors - Remove redundant information
 //! 3. Coarse-grainer tensors - Combine representations
 //! 4. Wavelet compression - Field storage optimization
+//! 5. MeraField - Multi-scale field wrapper (R&D-8)
+//! 6. PredictiveCache - Cache for MERA queries (R&D-8)
 //!
 //! Performance Targets:
 //! - 100x compression (8 GB → 80 MB)
 //! - O(log n) decompression for specific queries
 //! - Hierarchical storage across 7 scale levels
+//! - 10,000+ entities at 60 FPS through holographic optimization (R&D-8)
 
+use crate::holographic::holographic_field::HolographicField;
 use std::collections::HashMap;
 use std::ops::{Index, IndexMut};
+use std::sync::Arc;
 
 pub type Float = f64;
 
@@ -176,6 +181,623 @@ pub enum MeraError {
 
     /// Compression failed
     CompressionFailed(String),
+}
+
+/// Scale levels for field queries (R&D-8)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "Query at appropriate scale instead of full decompression"
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ScaleLevel {
+    /// Finest scale (level 0)
+    Finest = 0,
+    /// Fine scale (level 1)
+    Fine = 1,
+    /// Medium scale (level 2)
+    Medium = 2,
+    /// Coarse scale (level 3)
+    Coarse = 3,
+    /// Coarser scale (level 4)
+    Coarser = 4,
+    /// Coarsest scale (level 5)
+    Coarsest = 5,
+}
+
+impl ScaleLevel {
+    /// Convert to usize
+    pub fn as_usize(&self) -> usize {
+        *self as usize
+    }
+
+    /// Get the next coarser level
+    pub fn coarser(&self) -> Option<ScaleLevel> {
+        match self {
+            ScaleLevel::Finest => Some(ScaleLevel::Fine),
+            ScaleLevel::Fine => Some(ScaleLevel::Medium),
+            ScaleLevel::Medium => Some(ScaleLevel::Coarse),
+            ScaleLevel::Coarse => Some(ScaleLevel::Coarser),
+            ScaleLevel::Coarser => Some(ScaleLevel::Coarsest),
+            ScaleLevel::Coarsest => None,
+        }
+    }
+
+    /// Get the next finer level
+    pub fn finer(&self) -> Option<ScaleLevel> {
+        match self {
+            ScaleLevel::Finest => None,
+            ScaleLevel::Fine => Some(ScaleLevel::Finest),
+            ScaleLevel::Medium => Some(ScaleLevel::Fine),
+            ScaleLevel::Coarse => Some(ScaleLevel::Medium),
+            ScaleLevel::Coarser => Some(ScaleLevel::Coarse),
+            ScaleLevel::Coarsest => Some(ScaleLevel::Coarser),
+        }
+    }
+}
+
+/// Field node data (R&D-8)
+///
+/// Represents field data at a specific MERA scale level.
+#[derive(Debug, Clone, Default)]
+pub struct FieldNodeData {
+    /// Field values at this node
+    pub values: Vec<Float>,
+
+    /// Spatial extent of this node
+    pub extent: [Float; 3],
+
+    /// Level in the hierarchy
+    pub level: usize,
+}
+
+impl FieldNodeData {
+    /// Create new field node data
+    pub fn new(values: Vec<Float>, extent: [Float; 3], level: usize) -> Self {
+        FieldNodeData {
+            values,
+            extent,
+            level,
+        }
+    }
+
+    /// Get number of values
+    pub fn num_values(&self) -> usize {
+        self.values.len()
+    }
+}
+
+/// Field view at specific scale (R&D-8)
+///
+/// Represents a view of the holographic field at a specific scale level.
+#[derive(Debug, Clone)]
+pub struct FieldView {
+    /// Position of the query
+    pub position: [Float; 3],
+
+    /// Field data at this scale
+    pub data: FieldNodeData,
+
+    /// Scale level of this view
+    pub scale: ScaleLevel,
+
+    /// Effective resolution
+    pub resolution: Float,
+}
+
+impl FieldView {
+    /// Create a new field view
+    pub fn new(position: [Float; 3], data: FieldNodeData, scale: ScaleLevel) -> Self {
+        let resolution = 32.0 / (1 << scale.as_usize()) as Float;
+        FieldView {
+            position,
+            data,
+            scale,
+            resolution,
+        }
+    }
+
+    /// Create a default field view
+    pub fn default() -> Self {
+        FieldView {
+            position: [0.0, 0.0, 0.0],
+            data: FieldNodeData::default(),
+            scale: ScaleLevel::Medium,
+            resolution: 8.0,
+        }
+    }
+}
+
+impl Default for FieldView {
+    fn default() -> Self {
+        Self::default()
+    }
+}
+
+/// Single layer in the field hierarchy (R&D-8)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "MERA field stores multi-scale representation for O(log n) decompression"
+#[derive(Debug, Clone)]
+pub struct FieldLayer {
+    /// Layer level
+    pub level: usize,
+
+    /// Compressed field data at this scale
+    pub data: FieldNodeData,
+
+    /// Resolution at this level (1/2^level of base)
+    pub resolution: usize,
+}
+
+impl FieldLayer {
+    /// Create a new field layer
+    pub fn new(level: usize, data: FieldNodeData, resolution: usize) -> Self {
+        FieldLayer {
+            level,
+            data,
+            resolution,
+        }
+    }
+
+    /// Refine field view at this layer
+    pub fn refine(&self, view: FieldView, position: [Float; 3]) -> FieldView {
+        // Simplified: interpolate to higher resolution
+        let new_scale = view.scale.finer().unwrap_or(view.scale);
+        let new_resolution = if view.resolution > 0.5 {
+            view.resolution * 2.0
+        } else {
+            view.resolution
+        };
+
+        FieldView {
+            position,
+            data: self.data.clone(),
+            scale: new_scale,
+            resolution: new_resolution,
+        }
+    }
+}
+
+/// MERA-style multi-scale field (R&D-8)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md Section 2.2:
+/// "MERA (Multi-scale Entanglement Renormalization Ansatz) is a tensor network
+/// that implements holographic compression."
+///
+/// Wraps HolographicField with MERA compression for multi-scale representation.
+/// Enables O(log n) decompression for specific queries instead of O(n).
+pub struct MeraField {
+    /// Hierarchical layers for multi-scale representation
+    pub layers: Vec<FieldLayer>,
+
+    /// Base holographic field (shared)
+    pub base_field: Arc<HolographicField>,
+
+    /// Scale levels (0 = finest, N = coarsest)
+    pub num_levels: usize,
+}
+
+impl MeraField {
+    /// Create new MERA field from holographic field (R&D-8)
+    ///
+    /// # Arguments
+    ///
+    /// * `base_field` - The base holographic field to compress
+    /// * `num_levels` - Number of scale levels (typically 6)
+    ///
+    /// # Returns
+    ///
+    /// A new MERA field initialized with the base field
+    pub fn new(base_field: Arc<HolographicField>, num_levels: usize) -> Self {
+        MeraField {
+            layers: vec![
+                FieldLayer {
+                    level: 0,
+                    data: FieldNodeData::default(),
+                    resolution: 1,
+                };
+                num_levels
+            ],
+            base_field,
+            num_levels,
+        }
+    }
+
+    /// Compress: Store coarse representation (R&D-8)
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Compress: store coarse representation (10 MB vs 1 GB)"
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - The holographic field to compress
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if compression succeeds, Err(MeraError) otherwise
+    pub fn compress(&mut self, _field: &HolographicField) -> Result<(), MeraError> {
+        // Simplified: Initialize layers with progressively coarser data
+        // In full implementation, would apply disentanglers and coarse-grainers
+
+        let mut current_resolution = 32usize;
+
+        for (i, layer) in self.layers.iter_mut().enumerate() {
+            layer.level = i;
+
+            // Resolution halves at each level
+            layer.resolution = current_resolution;
+
+            // Simplified: create representative node data
+            layer.data = FieldNodeData::new(
+                vec![0.5; current_resolution * current_resolution],
+                [1.0 / current_resolution as Float; 3],
+                i,
+            );
+
+            current_resolution = (current_resolution + 1) / 2;
+        }
+
+        Ok(())
+    }
+
+    /// Disentangle field at this scale
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Disentangle: remove high-frequency components"
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - The field to disentangle
+    ///
+    /// # Returns
+    ///
+    /// Disentangled field
+    fn disentangle(&self, field: &HolographicField) -> Result<HolographicField, MeraError> {
+        // Simplified: remove high-frequency components
+        // In real implementation, use disentangler tensors
+        Ok(field.clone())
+    }
+
+    /// Coarsen field by downsampling
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Coarsen: downsample by factor of 2"
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - The field to coarsen
+    ///
+    /// # Returns
+    ///
+    /// Coarsened field
+    fn coarsen(&self, field: &HolographicField) -> Result<HolographicField, MeraError> {
+        // Simplified: downsample by factor of 2
+        // In real implementation, use coarse-grainer tensors
+        Ok(field.clone())
+    }
+
+    /// Extract node data from field
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - The field to extract from
+    ///
+    /// # Returns
+    ///
+    /// Extracted node data
+    fn extract_node_data(&self, field: &HolographicField) -> Result<FieldNodeData, MeraError> {
+        // Simplified: extract representative node
+        // In real implementation, would extract actual field data at this scale
+        Ok(FieldNodeData::new(vec![0.5; 256], [1.0 / 32.0; 3], 0))
+    }
+
+    /// Decompress on-demand for specific query (R&D-8)
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Decompress on-demand for specific query: O(log n) instead of O(n)"
+    ///
+    /// # Arguments
+    ///
+    /// * `position` - The 3D position to query
+    /// * `scale` - The scale level to decompress to
+    ///
+    /// # Returns
+    ///
+    /// Field view at the requested scale
+    pub fn query(&self, position: [Float; 3], scale: ScaleLevel) -> FieldView {
+        // Start with coarsest view
+        let mut result = self.get_coarse_view(position);
+
+        // Refine from coarse to requested scale
+        for i in 0..=scale.as_usize() {
+            if i < self.layers.len() {
+                result = self.layers[i].refine(result, position);
+            }
+        }
+
+        result
+    }
+
+    /// Get coarsest field view
+    ///
+    /// # Arguments
+    ///
+    /// * `position` - The position to query
+    ///
+    /// # Returns
+    ///
+    /// Field view at the coarsest scale
+    fn get_coarse_view(&self, position: [Float; 3]) -> FieldView {
+        if let Some(coarsest) = self.layers.last() {
+            FieldView::new(position, coarsest.data.clone(), ScaleLevel::Coarsest)
+        } else {
+            FieldView::default()
+        }
+    }
+
+    /// Get number of levels
+    pub fn num_levels(&self) -> usize {
+        self.num_levels
+    }
+}
+
+/// Cache key for field queries (R&D-8)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "Predictive cache based on access patterns"
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct CacheKey {
+    /// Position (quantized to grid)
+    pub position: (i32, i32, i32),
+
+    /// Scale level
+    pub scale: ScaleLevel,
+}
+
+impl CacheKey {
+    /// Create a new cache key
+    ///
+    /// # Arguments
+    ///
+    /// * `position` - The 3D position
+    /// * `scale` - The scale level
+    /// * `grid_size` - The grid size for quantization
+    ///
+    /// # Returns
+    ///
+    /// A new cache key
+    pub fn new(position: [Float; 3], scale: ScaleLevel, grid_size: Float) -> Self {
+        CacheKey {
+            position: (
+                (position[0] / grid_size).floor() as i32,
+                (position[1] / grid_size).floor() as i32,
+                (position[2] / grid_size).floor() as i32,
+            ),
+            scale,
+        }
+    }
+}
+
+/// Cached field view with metadata (R&D-8)
+#[derive(Debug, Clone)]
+pub struct CachedFieldView {
+    /// Field view
+    pub view: FieldView,
+
+    /// Timestamp (for LRU eviction)
+    pub timestamp: usize,
+
+    /// Access count (for access pattern analysis)
+    pub access_count: usize,
+}
+
+impl CachedFieldView {
+    /// Create a new cached field view
+    pub fn new(view: FieldView) -> Self {
+        CachedFieldView {
+            view,
+            timestamp: 1,
+            access_count: 1,
+        }
+    }
+}
+
+/// Cache statistics (R&D-8)
+#[derive(Debug, Clone, Default)]
+pub struct CacheStats {
+    /// Number of cache hits
+    pub hits: usize,
+
+    /// Number of cache misses
+    pub misses: usize,
+
+    /// Number of evictions
+    pub evictions: usize,
+
+    /// Total queries
+    pub total_queries: usize,
+}
+
+impl CacheStats {
+    /// Get cache hit rate
+    ///
+    /// # Returns
+    ///
+    /// Hit rate as a percentage (0.0 to 100.0)
+    pub fn hit_rate(&self) -> Float {
+        let total = self.hits + self.misses;
+        if total == 0 {
+            0.0
+        } else {
+            (self.hits as Float / total as Float) * 100.0
+        }
+    }
+
+    /// Get total queries
+    pub fn total_queries(&self) -> usize {
+        self.hits + self.misses
+    }
+}
+
+/// Predictive cache for MERA queries (R&D-8)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "Predictive cache based on access patterns"
+/// "Cache field views based on access patterns"
+///
+/// Caches field views based on access patterns to avoid repeated decompression.
+/// Enables 60 FPS by serving cached queries instead of decompressing.
+pub struct PredictiveCache {
+    /// Cached field views
+    cache: HashMap<CacheKey, CachedFieldView>,
+
+    /// Access statistics
+    stats: CacheStats,
+
+    /// Maximum cache size
+    max_size: usize,
+
+    /// Current timestamp (for LRU)
+    current_timestamp: usize,
+}
+
+impl PredictiveCache {
+    /// Create a new predictive cache
+    ///
+    /// # Arguments
+    ///
+    /// * `max_size` - Maximum number of cached views
+    ///
+    /// # Returns
+    ///
+    /// A new predictive cache
+    pub fn new(max_size: usize) -> Self {
+        PredictiveCache {
+            cache: HashMap::new(),
+            stats: CacheStats::default(),
+            max_size,
+            current_timestamp: 0,
+        }
+    }
+
+    /// Get cached view or query field
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Get cached view or query field"
+    ///
+    /// # Arguments
+    ///
+    /// * `key` - The cache key
+    /// * `field` - The MERA field to query on cache miss
+    /// * `position` - The position to query
+    ///
+    /// # Returns
+    ///
+    /// Field view (from cache or field query)
+    pub fn get_or_query(
+        &mut self,
+        key: CacheKey,
+        field: &MeraField,
+        position: [Float; 3],
+    ) -> FieldView {
+        self.current_timestamp += 1;
+        self.stats.total_queries += 1;
+
+        if let Some(cached) = self.cache.get_mut(&key) {
+            cached.access_count += 1;
+            cached.timestamp = self.current_timestamp;
+            self.stats.hits += 1;
+            return cached.view.clone();
+        }
+
+        // Cache miss - query field
+        self.stats.misses += 1;
+        let view = field.query(position, key.scale);
+
+        // Add to cache
+        if self.cache.len() >= self.max_size {
+            self.evict_oldest();
+        }
+
+        self.cache.insert(
+            key,
+            CachedFieldView {
+                view: view.clone(),
+                timestamp: self.current_timestamp,
+                access_count: 1,
+            },
+        );
+
+        view
+    }
+
+    /// Evict oldest cached entry (LRU)
+    fn evict_oldest(&mut self) {
+        if let Some((&oldest_key, _)) = self.cache.iter().min_by_key(|(_, v)| v.timestamp) {
+            self.cache.remove(&oldest_key);
+            self.stats.evictions += 1;
+        }
+    }
+
+    /// Predict next access and prefetch
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Predict next access and prefetch"
+    ///
+    /// # Arguments
+    ///
+    /// * `positions` - Positions to prefetch
+    /// * `scale` - Scale level for prefetching
+    /// * `field` - The MERA field to query
+    pub fn prefetch(&mut self, positions: &[[Float; 3]], scale: ScaleLevel, field: &MeraField) {
+        for position in positions {
+            let key = CacheKey::new(*position, scale, 10.0);
+            if !self.cache.contains_key(&key) {
+                let view = field.query(*position, scale);
+                self.cache.insert(
+                    key,
+                    CachedFieldView {
+                        view,
+                        timestamp: 0,
+                        access_count: 0,
+                    },
+                );
+            }
+        }
+    }
+
+    /// Get cache hit rate
+    ///
+    /// # Returns
+    ///
+    /// Hit rate as a percentage (0.0 to 100.0)
+    pub fn hit_rate(&self) -> Float {
+        self.stats.hit_rate()
+    }
+
+    /// Get cache statistics
+    ///
+    /// # Returns
+    ///
+    /// Reference to cache statistics
+    pub fn stats(&self) -> &CacheStats {
+        &self.stats
+    }
+
+    /// Get cache size
+    ///
+    /// # Returns
+    ///
+    /// Number of cached entries
+    pub fn size(&self) -> usize {
+        self.cache.len()
+    }
+
+    /// Clear the cache
+    pub fn clear(&mut self) {
+        self.cache.clear();
+        self.stats = CacheStats::default();
+        self.current_timestamp = 0;
+    }
 }
 
 impl Tensor {

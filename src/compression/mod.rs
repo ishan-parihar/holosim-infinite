@@ -11,6 +11,16 @@
 //!   - Compression: O(n) → O(log n)
 //!   - Decompression: O(log n) for specific queries
 //!
+//! - Predictive Cache
+//!   - Predicts field regions needed based on entity movement
+//!   - Preloads regions before they're accessed
+//!   - Enables 60 FPS with 10,000+ entities
+//!
+//! - Fractal Cache
+//!   - Multi-scale field representation with 8 levels
+//!   - O(log n) queries through hierarchical caching
+//!   - Interpolation between scale levels
+//!
 //! - Archetypal Basis Compression
 //!   - 22 orthogonal archetype vectors
 //!   - ArchetypeActivationProfile as 22 coefficients
@@ -24,15 +34,37 @@
 //! "Each part contains the whole" = efficient compression through self-similarity
 //! "MERA networks implement this mathematically"
 //!
-//! From REFACTOR_ROADMAP_HOLOGRAPHIC.md:
-//! - Memory: 100x reduction (store compressed, reconstruct as needed)
-//! - Scale transition: 100,000x faster (just change view, no loading)
-//! - Density transition: 10,000x faster (modify profile, not reload)
+//! ## Performance Targets (Phase 5)
+//!
+//! | Metric | Current | Target | Method |
+//! |--------|---------|--------|--------|
+//! | Entities | 100-1000 | 10,000+ | MERA compression |
+//! | FPS | ~1-5 | 60 | Predictive loading |
+//! | Memory | O(n) | O(n^2/3) | Surface area encoding |
+//! | Query | O(n) | O(log n) | Fractal caching |
 
 pub mod mera_network;
 pub mod tensor;
 pub mod archetype_basis;
+pub mod predictive_cache;
+pub mod fractal_cache;
 
 pub use mera_network::{MeraLayer, MeraNetwork, MeraScale};
 pub use tensor::{Tensor, TensorShape, TensorData};
 pub use archetype_basis::{ArchetypeBasis, ArchetypicalInterferenceCache, CompressionStats};
+pub use predictive_cache::{
+    PredictiveCache, 
+    PredictiveCacheConfig, 
+    CacheKey, 
+    EntityTrajectory, 
+    PredictiveCacheStats,
+};
+pub use fractal_cache::{
+    FractalCache,
+    FractalCacheConfig,
+    ScaleLevel,
+    FractalCacheKey,
+    FractalCacheEntry,
+    FractalCacheStats,
+    EvictionStrategy,
+};

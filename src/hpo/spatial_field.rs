@@ -18,6 +18,10 @@ use super::field_state::{
     Complex, DensityBand, FieldBounds, FieldNodeData, Float, HolographicFieldConfig,
     HolographicFieldState, OctreeNode,
 };
+use super::spectrum_spatial::SpectrumSpatialDynamics;
+use super::unified_field::CoherencePeak;
+
+use crate::hpo::spectrum_dynamics::SpectrumDynamics;
 
 /// Spatial position in 3D space
 #[derive(Debug, Clone, Copy, Default)]
@@ -33,7 +37,11 @@ impl Position3D {
     }
 
     pub fn origin() -> Self {
-        Position3D { x: 0.0, y: 0.0, z: 0.0 }
+        Position3D {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0,
+        }
     }
 
     pub fn from_array(arr: [Float; 3]) -> Self {
@@ -76,6 +84,58 @@ impl Position3D {
             x: self.x + other.x,
             y: self.y + other.y,
             z: self.z + other.z,
+        }
+    }
+
+    /// Calculate magnitude/length of position vector
+    pub fn magnitude(&self) -> Float {
+        (self.x * self.x + self.y * self.y + self.z * self.z).sqrt()
+    }
+
+    /// Normalize to unit vector (R&D-7 helper)
+    pub fn normalize(&self) -> Position3D {
+        let mag = self.magnitude();
+        if mag < 0.001 {
+            Position3D::new(0.0, 0.0, 0.0)
+        } else {
+            Position3D::new(self.x / mag, self.y / mag, self.z / mag)
+        }
+    }
+
+    /// Normalize to unit vector
+    pub fn normalized(&self) -> Position3D {
+        let mag = self.magnitude();
+        if mag > 0.0001 {
+            self.scale(1.0 / mag)
+        } else {
+            *self
+        }
+    }
+}
+
+/// Transformed position with dimension information
+/// Used for positions above the veil where time becomes navigable
+#[derive(Debug, Clone, Copy)]
+pub struct TransformedPosition {
+    pub position: Position3D,
+    pub dimensions: usize,
+    pub time_extent: Float,
+}
+
+impl TransformedPosition {
+    pub fn new(position: Position3D, dimensions: usize) -> Self {
+        TransformedPosition {
+            position,
+            dimensions,
+            time_extent: 0.0,
+        }
+    }
+
+    pub fn with_time_extent(position: Position3D, dimensions: usize, time_extent: Float) -> Self {
+        TransformedPosition {
+            position,
+            dimensions,
+            time_extent,
         }
     }
 }
@@ -165,14 +225,14 @@ impl SpatialBounds {
 /// Spatial resolution level (LOD - Level of Detail)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResolutionLevel {
-    Cosmic,     // Level 0: Galaxy-scale (extent: 10000+)
-    Galactic,   // Level 1: Star-cluster scale (extent: 1000-10000)
-    Stellar,    // Level 2: Solar system scale (extent: 100-1000)
-    Planetary,  // Level 3: Planet scale (extent: 10-100)
-    Regional,   // Level 4: Continent scale (extent: 1-10)
-    Local,      // Level 5: Human scale (extent: 0.1-1)
-    Molecular,  // Level 6: Molecular scale (extent: 0.01-0.1)
-    Atomic,     // Level 7: Atomic scale (extent: 0.001-0.01)
+    Cosmic,    // Level 0: Galaxy-scale (extent: 10000+)
+    Galactic,  // Level 1: Star-cluster scale (extent: 1000-10000)
+    Stellar,   // Level 2: Solar system scale (extent: 100-1000)
+    Planetary, // Level 3: Planet scale (extent: 10-100)
+    Regional,  // Level 4: Continent scale (extent: 1-10)
+    Local,     // Level 5: Human scale (extent: 0.1-1)
+    Molecular, // Level 6: Molecular scale (extent: 0.01-0.1)
+    Atomic,    // Level 7: Atomic scale (extent: 0.001-0.01)
 }
 
 impl ResolutionLevel {
@@ -206,11 +266,11 @@ impl ResolutionLevel {
 /// Field activity level for adaptive resolution
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FieldActivity {
-    Empty,      // No field energy
-    Low,        // Minimal activity
-    Medium,     // Normal activity
-    High,       // High activity - subdivide
-    Critical,   // Maximum activity - maximum detail
+    Empty,    // No field energy
+    Low,      // Minimal activity
+    Medium,   // Normal activity
+    High,     // High activity - subdivide
+    Critical, // Maximum activity - maximum detail
 }
 
 impl FieldActivity {
@@ -247,31 +307,31 @@ impl FieldActivity {
 pub struct SpatialFieldNode {
     /// ACTUAL 3D position in space
     pub position: Position3D,
-    
+
     /// Spatial bounds of this node
     pub bounds: SpatialBounds,
-    
+
     /// Depth in the octree
     pub depth: usize,
-    
+
     /// Field data at this node
     pub field_data: FieldNodeData,
-    
+
     /// Child nodes (8 children for 3D)
     pub children: Option<Box<[SpatialFieldNode; 8]>>,
-    
+
     /// Whether this node is subdivided
     pub subdivided: bool,
-    
+
     /// Total field energy in this subtree
     pub subtree_energy: Float,
-    
+
     /// Maximum amplitude in this subtree
     pub max_amplitude: Float,
-    
+
     /// Entity IDs associated with this node
     pub entities: Vec<usize>,
-    
+
     /// Resolution level
     pub resolution: ResolutionLevel,
 }
@@ -326,14 +386,46 @@ impl SpatialFieldNode {
         }
 
         let mut children: Box<[SpatialFieldNode; 8]> = Box::new([
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
-            SpatialFieldNode::new(Position3D::origin(), SpatialBounds::from_min_max([0.0; 3], [0.0; 3]), self.depth + 1),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
+            SpatialFieldNode::new(
+                Position3D::origin(),
+                SpatialBounds::from_min_max([0.0; 3], [0.0; 3]),
+                self.depth + 1,
+            ),
         ]);
 
         for i in 0..8 {
@@ -447,9 +539,15 @@ impl SpatialFieldNode {
         // Compute index before borrowing children mutably
         let index = {
             let mut index_val = 0;
-            if pos.x >= self.position.x { index_val |= 1; }
-            if pos.y >= self.position.y { index_val |= 2; }
-            if pos.z >= self.position.z { index_val |= 4; }
+            if pos.x >= self.position.x {
+                index_val |= 1;
+            }
+            if pos.y >= self.position.y {
+                index_val |= 2;
+            }
+            if pos.z >= self.position.z {
+                index_val |= 4;
+            }
             index_val
         };
 
@@ -466,21 +564,39 @@ impl SpatialFieldNode {
 pub struct SpatialFieldConfig {
     /// Simulation space bounds
     pub bounds: SpatialBounds,
-    
+
     /// Maximum octree depth
     pub max_depth: usize,
-    
+
     /// Energy threshold for subdivision
     pub subdivision_threshold: Float,
-    
+
     /// Critical energy threshold (maximum detail)
     pub critical_threshold: Float,
-    
+
     /// Minimum energy to keep a node
     pub merge_threshold: Float,
-    
+
     /// Initial field coherence
     pub initial_coherence: Float,
+
+    /// Spectrum-driven position calculation enabled
+    pub use_spectrum_position: bool,
+
+    /// Time scale for spectrum position conversion
+    pub time_scale: Float,
+
+    /// Veil position (spectrum = 1.0)
+    pub veil_position: Float,
+
+    /// Veil transition width
+    pub veil_width: Float,
+
+    /// Coherence gradient influence on position
+    pub coherence_gradient_strength: Float,
+
+    /// Golden ratio fallback (for initial distribution)
+    pub use_golden_ratio_fallback: bool,
 }
 
 impl Default for SpatialFieldConfig {
@@ -495,6 +611,12 @@ impl Default for SpatialFieldConfig {
             critical_threshold: 1.0,
             merge_threshold: 0.001,
             initial_coherence: 0.5,
+            use_spectrum_position: true,
+            time_scale: 100.0,
+            veil_position: 1.0,
+            veil_width: 0.1,
+            coherence_gradient_strength: 1.0,
+            use_golden_ratio_fallback: false,
         }
     }
 }
@@ -508,6 +630,12 @@ impl From<&HolographicFieldConfig> for SpatialFieldConfig {
             critical_threshold: 1.0,
             merge_threshold: config.subdivision_threshold * 0.1,
             initial_coherence: config.initial_coherence,
+            use_spectrum_position: true,
+            time_scale: 100.0,
+            veil_position: 1.0,
+            veil_width: 0.1,
+            coherence_gradient_strength: 1.0,
+            use_golden_ratio_fallback: false,
         }
     }
 }
@@ -579,7 +707,8 @@ impl SpatialField {
             node.field_data.energy += energy;
 
             if density < 8 {
-                let amplitude = Complex::from_polar(energy.sqrt(), position.x * 0.01 + position.y * 0.01);
+                let amplitude =
+                    Complex::from_polar(energy.sqrt(), position.x * 0.01 + position.y * 0.01);
                 node.field_data.density_amplitudes[density] = amplitude;
             }
 
@@ -644,34 +773,262 @@ impl SpatialField {
         self.update();
     }
 
-    /// Convert entity ID to spatial position using field structure
+    /// Convert entity ID to spatial position using SPECTRUM-DRIVEN coordinates
     ///
-    /// This is the KEY FUNCTION that replaces abstract mathematical positions
-    /// with positions derived from the actual spatial field.
+    /// From R&D-2 Roadmap: This replaces golden ratio positions with spectrum-derived
+    /// spatial coordinates based on field coherence gradients.
+    ///
+    /// Key principle:
+    /// - v = s/t (spectrum < 1.0): 3D space dominant, 1D time
+    /// - v = t/s (spectrum > 1.0): 1D space fixed, 3D time accessible
+    /// - The Veil at v=1 is a coordinate transformation zone
     pub fn derive_entity_position(&self, entity_id: usize, total_entities: usize) -> Position3D {
         // If we already have a position, return it
         if let Some(pos) = self.entity_positions.get(&entity_id) {
             return *pos;
         }
 
-        // Derive position from field structure:
-        // Entities are distributed across space based on their ID
-        // This creates a deterministic but spatially meaningful distribution
-        let normalized_id = entity_id as Float / total_entities as Float;
+        // Use spectrum-driven position if enabled
+        if self.config.use_spectrum_position {
+            // Derive spectrum position from entity ID
+            let spectrum_pos = self.derive_spectrum_from_entity(entity_id, total_entities);
 
-        // Use golden ratio for even distribution
-        let golden_ratio = 1.618033988749895;
-        let theta = normalized_id * 2.0 * std::f64::consts::PI * golden_ratio;
-        let phi = (1.0 - 2.0 * normalized_id).acos();
+            // Get field data at this position for coherence gradients
+            let field_data = self.get_field_data_at_entity(entity_id, total_entities);
 
-        // Convert spherical to cartesian
-        let radius = self.config.bounds.extent.x * 0.8;
+            // Calculate position based on spectrum location
+            return self.derive_position_from_spectrum(spectrum_pos, &field_data);
+        }
+
+        // Fallback to golden ratio if configured
+        if self.config.use_golden_ratio_fallback {
+            let normalized_id = entity_id as Float / total_entities as Float;
+            let golden_ratio = 1.618033988749895;
+            let theta = normalized_id * 2.0 * std::f64::consts::PI * golden_ratio;
+            let phi = (1.0 - 2.0 * normalized_id).acos();
+            let radius = self.config.bounds.extent.x * 0.8;
+
+            return Position3D::new(
+                radius * phi.sin() * theta.cos(),
+                radius * phi.sin() * theta.sin(),
+                radius * phi.cos(),
+            );
+        }
+
+        // Default: small random offset from origin
+        let seed = entity_id as Float * 12.345678;
+        Position3D::new(
+            seed.sin() * 10.0,
+            (seed * 2.0).cos() * 10.0,
+            (seed * 3.0).sin() * 10.0,
+        )
+    }
+
+    /// Derive spectrum position from entity ID
+    /// Maps entity to a position in the creation spectrum
+    fn derive_spectrum_from_entity(&self, entity_id: usize, total_entities: usize) -> Float {
+        // Entities are distributed across the spectrum based on their ID
+        // This creates a meaningful progression through the density octave
+        let normalized = entity_id as Float / total_entities as Float;
+
+        // Map to spectrum range (0.0 - 2.0 to cover below and above veil)
+        // Most entities start below the veil (spectrum < 1.0)
+        normalized * 2.0
+    }
+
+    /// Get field data for an entity based on its ID
+    /// This provides the coherence information needed for position derivation
+    fn get_field_data_at_entity(&self, entity_id: usize, total_entities: usize) -> FieldNodeData {
+        // Create field data based on entity's spectrum position
+        let spectrum = self.derive_spectrum_from_entity(entity_id, total_entities);
+
+        // Higher spectrum position = higher coherence
+        let coherence = (spectrum / 2.0).min(1.0);
+
+        // Energy based on position in spectrum
+        let energy = 0.5 + coherence * 0.5;
+
+        let mut data = FieldNodeData::new();
+        data.spectrum_position = spectrum;
+        data.coherence = coherence;
+        data.energy = energy;
+
+        // Set density amplitudes based on spectrum position
+        let density_idx = (spectrum * 4.0) as usize; // Map to 0-7
+        for i in 0..8 {
+            let dist = (i as Float - density_idx as Float).abs();
+            let amplitude = if dist < 1.0 { 1.0 - dist } else { 0.0 };
+            data.density_amplitudes[i] = Complex::new(amplitude * 0.5, 0.0);
+        }
+
+        data
+    }
+
+    /// Derive position from spectrum using coherence gradients
+    ///
+    /// From R&D-2 Roadmap:
+    /// - Below veil (spectrum < 1.0): Position emerges from field coherence gradients
+    /// - Above veil (spectrum > 1.0): Position fixed in space, time becomes navigable
+    fn derive_position_from_spectrum(
+        &self,
+        spectrum: Float,
+        field_data: &FieldNodeData,
+    ) -> Position3D {
+        if spectrum < self.config.veil_position {
+            // Below veil: 3D space dominant
+            // Position emerges from field coherence gradients
+            let coherence_gradient = self.compute_coherence_gradient_for_spectrum(spectrum);
+            let base_position = self.derive_from_gradient(coherence_gradient, spectrum);
+
+            // Add time dimension (linear, below veil)
+            let time_offset = field_data.spectrum_position * self.config.time_scale;
+
+            Position3D::new(
+                base_position.x,
+                base_position.y,
+                base_position.z + time_offset,
+            )
+        } else {
+            // Above veil: Time dominant
+            // Position is fixed in space, but has extent in time dimensions
+            let coherence_gradient = self.compute_coherence_gradient_for_spectrum(spectrum);
+            let spatial = self.derive_from_gradient(coherence_gradient, spectrum);
+
+            // Time becomes navigable dimensions
+            let time_extent = field_data.total_magnitude() * self.config.time_scale;
+            let time_direction = coherence_gradient.magnitude() * self.config.time_scale * 0.5;
+
+            Position3D::new(
+                spatial.x,      // Fixed spatial position
+                time_extent,    // Time as magnitude
+                time_direction, // Time direction
+            )
+        }
+    }
+
+    /// Compute coherence gradient for a given spectrum position
+    fn compute_coherence_gradient_for_spectrum(&self, spectrum: Float) -> CoherenceGradient {
+        // Gradient points toward higher coherence regions
+        // The gradient direction changes based on spectrum position
+
+        let base_angle = spectrum * std::f64::consts::PI * 2.0;
+
+        // Coherence increases with spectrum position (generally)
+        let coherence = (spectrum / 2.0).min(1.0);
+
+        // Gradient direction spirals through space as spectrum increases
+        let dx = base_angle.sin() * coherence;
+        let dy = (base_angle * 1.3).cos() * coherence;
+        let dz = (base_angle * 0.7).sin() * coherence;
+
+        CoherenceGradient {
+            dx,
+            dy,
+            dz,
+            magnitude: coherence,
+        }
+    }
+
+    /// Derive position from coherence gradient
+    fn derive_from_gradient(&self, gradient: CoherenceGradient, spectrum: Float) -> Position3D {
+        let radius = self.config.bounds.extent.x * 0.5;
+
+        // Position is influenced by gradient direction
+        // Higher coherence = closer to origin (more "ground" state)
+        let coherence_factor = gradient.magnitude;
+
+        // Map gradient to position using spherical coordinates
+        let theta = gradient.dx.atan2(gradient.dy) + spectrum * std::f64::consts::PI;
+        let phi = gradient.dz.acos();
+
+        // Radius decreases with higher coherence (entities settle into coherence wells)
+        let r = radius * (1.0 - coherence_factor * 0.5);
 
         Position3D::new(
-            radius * phi.sin() * theta.cos(),
-            radius * phi.sin() * theta.sin(),
-            radius * phi.cos(),
+            r * phi.sin() * theta.cos(),
+            r * phi.sin() * theta.sin(),
+            r * phi.cos(),
         )
+    }
+
+    /// Apply Veil coordinate transformation
+    ///
+    /// From R&D-2 Roadmap: The Veil as coordinate transformation zone
+    /// At spectrum = 1.0, transform from space/time to time/space basis
+    fn apply_veil_transformation(
+        &self,
+        position: Position3D,
+        spectrum: Float,
+    ) -> TransformedPosition {
+        let veil = self.config.veil_position;
+        let width = self.config.veil_width;
+
+        if (spectrum - veil).abs() < width {
+            // At veil - coordinate transformation
+            // Transform from space/time to time/space basis
+
+            // Smooth transition factor (0 to 1)
+            let t = ((spectrum - veil).abs() / width).min(1.0);
+            let transform_factor = t * t * (3.0 - 2.0 * t); // Smoothstep
+
+            // Transform: swap space and time dimensions
+            let new_x = position.x * (1.0 - transform_factor) + position.y * transform_factor;
+            let new_y = position.y * (1.0 - transform_factor) + position.x * transform_factor;
+            let new_z = position.z;
+
+            let transformed = Position3D::new(new_x, new_y, new_z);
+
+            TransformedPosition::with_time_extent(
+                transformed,
+                3,                                         // Still 3 dimensions
+                transform_factor * self.config.time_scale, // Time extent emerges
+            )
+        } else {
+            TransformedPosition::new(position, 3)
+        }
+    }
+
+    /// Get coherence peaks from the field (for spatial organization)
+    pub fn get_coherence_peaks(&self) -> Vec<Position3D> {
+        // In a full implementation, this would query the unified field
+        // For now, derive peaks from the spatial structure
+        let mut peaks = Vec::new();
+
+        // Generate coherence peaks based on golden ratio spiral
+        // These represent regions where matter/structure tends to form
+        let golden_ratio = 1.618033988749895;
+        let num_peaks = 20;
+
+        for i in 0..num_peaks {
+            let t = i as Float / num_peaks as Float;
+            let theta = t * 2.0 * std::f64::consts::PI * golden_ratio;
+            let phi = (1.0 - 2.0 * t).acos();
+
+            let radius = self.config.bounds.extent.x * 0.6;
+
+            peaks.push(Position3D::new(
+                radius * phi.sin() * theta.cos(),
+                radius * phi.sin() * theta.sin(),
+                radius * phi.cos(),
+            ));
+        }
+
+        peaks
+    }
+}
+
+/// Coherence gradient for position derivation
+#[derive(Debug, Clone, Copy)]
+struct CoherenceGradient {
+    dx: Float,
+    dy: Float,
+    dz: Float,
+    magnitude: Float,
+}
+
+impl CoherenceGradient {
+    fn magnitude(&self) -> Float {
+        (self.dx * self.dx + self.dy * self.dy + self.dz * self.dz).sqrt()
     }
 }
 
@@ -692,7 +1049,7 @@ impl EntitySpatialBridge {
     /// Get position for an entity
     pub fn get_position(&self, entity_id: usize) -> Position3D {
         let field = self.field.read().unwrap();
-        
+
         // First check if entity has explicit position
         if let Some(pos) = field.get_entity_position(entity_id) {
             return pos;
@@ -730,11 +1087,7 @@ pub struct SpatialFieldStatistics {
 impl SpatialField {
     pub fn get_statistics(&self) -> SpatialFieldStatistics {
         let leaf_nodes = self.root.get_leaf_nodes();
-        let max_depth = leaf_nodes
-            .iter()
-            .map(|n| n.depth)
-            .max()
-            .unwrap_or(0);
+        let max_depth = leaf_nodes.iter().map(|n| n.depth).max().unwrap_or(0);
 
         SpatialFieldStatistics {
             total_nodes: self.active_node_count,
@@ -760,9 +1113,9 @@ mod tests {
     fn test_position_operations() {
         let p1 = Position3D::new(1.0, 2.0, 3.0);
         let p2 = Position3D::new(4.0, 6.0, 8.0);
-        
+
         assert!((p1.distance_to(&p2) - 7.071067811865475).abs() < 0.001);
-        
+
         let p3 = p1.lerp(&p2, 0.5);
         assert!((p3.x - 2.5).abs() < 0.001);
     }
@@ -784,7 +1137,7 @@ mod tests {
     fn test_entity_position_derivation() {
         let field = SpatialField::with_defaults();
         let pos = field.derive_entity_position(0, 100);
-        
+
         // Should be within bounds
         assert!(field.config.bounds.contains(&pos));
     }
@@ -792,18 +1145,18 @@ mod tests {
     #[test]
     fn test_field_subdivision() {
         let mut field = SpatialField::with_defaults();
-        
+
         // Add energy at center
         field.add_energy_at(Position3D::origin(), 3, 1.0);
-        
+
         // Add entities to trigger subdivision
         for i in 0..50 {
             let pos = field.derive_entity_position(i, 50);
             field.add_entity(i, pos);
         }
-        
+
         field.update();
-        
+
         // Should have more nodes after subdivision
         assert!(field.active_node_count > 1);
     }

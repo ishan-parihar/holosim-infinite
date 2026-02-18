@@ -10,7 +10,7 @@ use super::field_state::{DensityBand, Float, HolographicFieldConfig, Holographic
 use super::spatial_field::{Position3D, SpatialField, SpatialFieldConfig};
 use super::spectrum_spatial::{SpectrumSpatialDynamics, SpectrumSpatialConfig, SpatialConfig};
 use super::archetype_matter::{MatterEmergence, ArchetypeMatterConfig, MatterScale, ParticleType};
-use super::complexity_emergence::{ComplexityEmergence, ComplexityPhase};
+use super::complexity_emergence::{ComplexityEmergence, ComplexityPhase, ComplexMolecule};
 use super::biological_emergence::{BiologicalEmergence, BiologicalEmergenceConfig, BiologyBridge};
 use super::holographic_encoder::EntityExtractor;
 use super::unified_field::{UnifiedFieldConfig, UnifiedFieldEquation};
@@ -398,7 +398,7 @@ impl HolographicSimulation {
         self.complexity_emergence.update(0.1);
     }
     
-    /// Phase F5: Update biology
+    /// Phase F5: Update biology (R&D-5: actual molecular input)
     fn update_biology(&mut self) {
         // Only check periodically for performance
         if self.step % 5 != 0 {
@@ -408,19 +408,50 @@ impl HolographicSimulation {
         // Try to create life at high-complexity positions
         let active_positions = self.spatial_field.get_active_positions(0.7);
         
+        // Get molecules from complexity emergence (R&D-5)
+        let molecules = self.complexity_emergence.get_molecules();
+        
         let step_size = (active_positions.len() / 50).max(1);
         for (position, _) in active_positions.iter().step_by(step_size) {
             let field_data = self.spatial_field.sample_field(position);
             
             // Check if complexity is high enough for life
             if field_data.coherence > 0.6 {
-                // Try to create life
-                self.biological_emergence.try_create_life(*position, &[]);
+                // Get molecules near this position (R&D-5)
+                let nearby_molecules = self.get_molecules_near_position(*position, &molecules);
+                
+                // Try to create life with actual molecular data (not empty array!)
+                if !nearby_molecules.is_empty() {
+                    // Use emergent biology if available
+                    if let Some(_cell) = self.biological_emergence.emerge_cell_from_molecules(*position, &nearby_molecules) {
+                        // Life emerged!
+                    } else {
+                        // Fallback to old method
+                        self.biological_emergence.try_create_life(*position, &nearby_molecules);
+                    }
+                }
             }
         }
         
         // Update biological systems
         self.biological_emergence.update(0.1);
+    }
+    
+    /// Get molecules near a position (R&D-5)
+    fn get_molecules_near_position(&self, position: Position3D, molecules: &[ComplexMolecule]) -> Vec<ComplexMolecule> {
+        let mut nearby = Vec::new();
+        let threshold = 100.0; // Distance threshold
+        
+        for mol in molecules {
+            let dist = position.distance_to(&mol.position);
+            if dist < threshold {
+                nearby.push(mol.clone()); // Clone to avoid move
+            }
+        }
+        
+        // Limit to prevent performance issues
+        nearby.truncate(50);
+        nearby
     }
     
     /// Phase F6: Update planetary environments
