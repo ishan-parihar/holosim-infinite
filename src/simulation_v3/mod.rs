@@ -4,6 +4,7 @@ pub mod archetype_interference_cache;
 pub mod archetypical_crafting;
 pub mod archetypical_interference_engine;
 pub mod catalyst_system;
+pub mod causal_inversion;
 pub mod collective_dynamics;
 pub mod collective_emergence_visualizer;
 pub mod collective_manifestation;
@@ -11,12 +12,14 @@ pub mod collective_statistics;
 pub mod collective_system;
 pub mod collective_visualizer;
 pub mod collision_detection;
+pub mod consciousness_processor;
 pub mod density_mechanics;
 pub mod density_region_generator;
 pub mod density_switching;
 pub mod density_transition_system;
 pub mod distributed_system;
 pub mod dynamic_world_evolution;
+pub mod embodied_body;
 pub mod emergent_behavior;
 pub mod emergent_behavior_visualizer;
 pub mod entity_lifecycle;
@@ -37,14 +40,19 @@ pub mod individual_variation_visualizer;
 pub mod inter_scale_interactions;
 pub mod inter_scale_interactions_visualizer;
 pub mod interactive_explorer;
+pub mod interactive_interface;
 pub mod involution_sequence;
+pub mod living_environment;
+pub mod memory_profiler;
 pub mod mera_network;
 pub mod multiscale_camera;
 pub mod multiscale_field;
 pub mod multiscale_world;
 pub mod observer_effect;
+pub mod observer_registry;
 pub mod persistence;
 pub mod physical_structure_visualizer;
+pub mod position_adapter;
 pub mod predictive_loading;
 pub mod quantum_statistics;
 pub mod quantum_visualizer;
@@ -54,6 +62,7 @@ pub mod scale_physics;
 pub mod scale_specific_physics;
 pub mod scale_transition_optimizer;
 pub mod simulation_runner;
+pub mod social_processor;
 pub mod spectrum_visualizer;
 pub mod statistics;
 pub mod visualization;
@@ -166,6 +175,10 @@ pub use holographic_world_generator::{
     WorldGeneratorStatistics, WorldId, WorldRegion, DENSITY_REGION_TRANSITION_RATE,
     MAX_REGIONS_PER_WORLD, MAX_WORLD_ENTITIES, WORLD_UNFOLDING_DURATION,
 };
+pub use memory_profiler::{
+    CacheMemoryStats, CompressionMetrics, MemoryProfiler, MemorySnapshot, HOLOGRAPHIC_ENTITY_SIZE,
+    HOLOGRAPHIC_SCALING_EXPONENT, TRADITIONAL_ENTITY_SIZE,
+};
 pub use mera_network::{
     MeraCompressionResult, MeraDecompressionResult, MeraError, MeraLayer, MeraNetwork, MeraQuery,
     MeraStatistics, Tensor, WaveletCoefficients,
@@ -220,6 +233,37 @@ pub use scale_transition_optimizer::{
     TransitionKey, TransitionMetrics, TransitionOptimizerError, TransitionOptimizerStatistics,
 };
 pub use simulation_runner::SimulationParameters;
+
+// Causal Inversion (Phase 0)
+pub use causal_inversion::{
+    CausalInversionConfig, CausalInversionRunner, CausalSimulationResult, CausalStatistics,
+    CausalTickResult, EntityData, InfinityPulseState, ManifestationPotential, PotentialEntityType,
+    ValidationResult, EXPECTED_PHASE_COUNT, EXPECTED_PHASE_ORDER,
+};
+
+// Observer Registry (Phase 1)
+pub use observer_registry::{CacheStats, ObserverRegistry, ObserverRegistryConfig};
+
+// Embodied Body (Phase 3, P1)
+pub use embodied_body::{BodyEnvironment, DeathCause, EmbodiedBody, SensoryField, SurvivalStatus};
+
+// Living Environment (Phase 4)
+pub use living_environment::{
+    EntitySpatialPosition, LivingEnvironment, LivingEnvironmentConfig, LivingEnvironmentStats,
+    ResourceDistribution, SpatialCell,
+};
+
+// Position Adapter (Phase 9 - Unified Position System)
+pub use position_adapter::{PositionIntegration, SpatialPositionAdapter, UnifiedPositionAdapter};
+
+// Social Processor (Phase 6)
+pub use social_processor::{SocialOutput, SocialProcessor};
+
+// Interactive Interface (Phase 8)
+pub use interactive_interface::{
+    Bookmark, EntityInspector, EventNarrator, InspectorTab, InteractiveInterface, ObserverMode,
+    ScaleController, SimulationEvent,
+};
 
 #[cfg(test)]
 mod tests {

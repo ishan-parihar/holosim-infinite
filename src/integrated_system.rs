@@ -17,12 +17,8 @@ use crate::entity_layer7::EntityId;
 use crate::gaia::GaiaConfig;
 use crate::gui::GuiConfig;
 use crate::hpo::{
-    HpoSystem, 
-    SimulationConfig, 
+    FieldVisualizationData, HolographicSimulation, HpoSystem, RenderableEntity, SimulationConfig,
     SimulationResult,
-    HolographicSimulation,
-    RenderableEntity,
-    FieldVisualizationData,
 };
 use crate::noosphere::NoosphereConfig;
 use crate::simulation_v3::involution_sequence::InvolutionSequenceRunner;
@@ -67,7 +63,6 @@ pub struct IntegratedSystem {
 
     /// Enable holographic mode (field-first simulation)
     holographic_mode: bool,
-
 }
 
 /// Simulation state for the integrated system
@@ -200,7 +195,9 @@ pub enum RunError {
     /// Simulation step failed
     StepFailed(String),
 
-    /// Coherence violation detected
+    /// Coherence violation detected (deprecated - informational only, not an error)
+    /// From V5 Phase 3: Coherence below threshold means "not yet ready to manifest"
+    /// rather than "error". This variant is kept for backward compatibility only.
     CoherenceViolation(Float),
 
     /// Energy conservation violation
@@ -372,7 +369,6 @@ impl IntegratedSystem {
             }
         }
 
-
         // Initialize holographic field-first simulation
         println!("  Initializing holographic simulation...");
         let mut holo_sim = HolographicSimulation::with_defaults();
@@ -479,9 +475,20 @@ impl IntegratedSystem {
         // Update emergence metrics (simplified model)
         self.update_emergence_metrics();
 
-        // Check for coherence violations
+        // Log coherence level for informational purposes
+        // From V5 Phase 3: Coherence below 0.8 means "not yet ready to manifest"
+        // rather than "error". The ManifestationEngine handles manifestation decisions.
+        // Coherence variation is normal - the simulation continues regardless.
         if self.state.coherence < 0.8 {
-            return Err(RunError::CoherenceViolation(self.state.coherence));
+            println!(
+                "  ℹ Coherence {:.3} below threshold 0.8 - entities not yet ready to manifest",
+                self.state.coherence
+            );
+        } else {
+            println!(
+                "  ✓ Coherence {:.3} - good manifestation potential",
+                self.state.coherence
+            );
         }
 
         // Check for energy conservation violations
@@ -495,7 +502,7 @@ impl IntegratedSystem {
         if self.holographic_mode {
             if let Some(ref mut holo_sim) = self.holo_sim {
                 holo_sim.step();
-                
+
                 // Update state from holographic simulation
                 let stats = holo_sim.get_statistics();
                 self.state.coherence = stats.average_coherence as Float;
@@ -735,6 +742,15 @@ impl IntegratedSystem {
     pub fn get_holo_statistics(&self) -> Option<crate::hpo::SimulationStatistics> {
         if let Some(ref holo_sim) = self.holo_sim {
             Some(holo_sim.get_statistics().clone())
+        } else {
+            None
+        }
+    }
+
+    /// Get the holographic field state for real-time visualization
+    pub fn get_holographic_field_state(&self) -> Option<&crate::hpo::HolographicFieldState> {
+        if let Some(ref holo_sim) = self.holo_sim {
+            Some(holo_sim.field_state())
         } else {
             None
         }

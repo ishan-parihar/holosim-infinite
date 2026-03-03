@@ -58,6 +58,8 @@ use crate::spectrum::yellow_realm::YellowRealm;
 use crate::spectrum::archetypical_mind::ArchetypicalMind;
 // Polarization progress
 use crate::polarization::PolarizationProgress;
+// Common types
+use crate::types::{Density, Float, Polarity};
 
 /// Entity-specific data for UniversalTemplate
 ///
@@ -411,5 +413,215 @@ mod tests {
         assert_eq!(entity_data.consciousness_level, 0.8);
         assert_eq!(entity_data.experience_accumulation, 100.0);
         assert_eq!(entity_data.learning_progress, 0.7);
+    }
+}
+
+// =============================================================================
+// IMPLEMENTATION OF TemplateComponent TRAIT
+// =============================================================================
+
+impl super::component_data::TemplateComponent for EntityData {
+    fn from_template_config(_config: &super::TemplateConfig) -> Self {
+        // Create minimal entity data from template config
+        Self::new(
+            EntityId {
+                uuid: uuid::Uuid::new_v4().to_string(),
+                incarnation_number: 0,
+            },
+            EntityType::Individual,
+        )
+    }
+
+    fn component_id(&self) -> u64 {
+        // Use hash of uuid as ID
+        use std::hash::{Hash, Hasher};
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        self.entity_id.uuid.hash(&mut hasher);
+        hasher.finish()
+    }
+
+    fn is_active(&self) -> bool {
+        true // Entities are always active once created
+    }
+}
+
+// =============================================================================
+// IMPLEMENTATION OF EntityBehavior TRAIT for Entity (UniversalTemplate<EntityData>)
+// =============================================================================
+
+impl super::entity_behavior::EntityBehavior for Entity {
+    // =========================================================================
+    // IDENTITY
+    // =========================================================================
+
+    fn entity_id(&self) -> EntityId {
+        self.component_data.entity_id.clone()
+    }
+
+    fn entity_type(&self) -> EntityType {
+        self.component_data.entity_type
+    }
+
+    // =========================================================================
+    // COMPOSITION
+    // =========================================================================
+
+    fn add_component(&mut self, component_id: EntityId) {
+        if !self.component_data.composition.contains(&component_id) {
+            self.component_data.composition.push(component_id);
+        }
+    }
+
+    fn remove_component(&mut self, component_id: &EntityId) -> bool {
+        if let Some(pos) = self
+            .component_data
+            .composition
+            .iter()
+            .position(|id| id == component_id)
+        {
+            self.component_data.composition.remove(pos);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn has_component(&self, component_id: &EntityId) -> bool {
+        self.component_data.composition.contains(component_id)
+    }
+
+    fn composition(&self) -> &[EntityId] {
+        &self.component_data.composition
+    }
+
+    fn component_count(&self) -> usize {
+        self.component_data.composition.len()
+    }
+
+    // =========================================================================
+    // HIERARCHY
+    // =========================================================================
+
+    fn add_child(&mut self, child_id: EntityId) {
+        if !self.component_data.children.contains(&child_id) {
+            self.component_data.children.push(child_id);
+        }
+    }
+
+    fn remove_child(&mut self, child_id: &EntityId) -> bool {
+        if let Some(pos) = self
+            .component_data
+            .children
+            .iter()
+            .position(|id| id == child_id)
+        {
+            self.component_data.children.remove(pos);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn children(&self) -> &[EntityId] {
+        &self.component_data.children
+    }
+
+    fn set_parent(&mut self, parent_id: Option<EntityId>) {
+        self.component_data.parent_id = parent_id;
+    }
+
+    fn parent(&self) -> Option<EntityId> {
+        self.component_data.parent_id.clone()
+    }
+
+    fn has_parent(&self) -> bool {
+        self.component_data.parent_id.is_some()
+    }
+
+    fn is_root(&self) -> bool {
+        self.component_data.parent_id.is_none()
+    }
+
+    fn is_leaf(&self) -> bool {
+        self.component_data.children.is_empty()
+    }
+
+    // =========================================================================
+    // DENSITY & EVOLUTION
+    // =========================================================================
+
+    fn density_level(&self) -> u8 {
+        // Return the density level as a u8
+        match &self.density {
+            crate::evolution_density_octave::density_octave::Density::First(_) => 1,
+            crate::evolution_density_octave::density_octave::Density::Second(_) => 2,
+            crate::evolution_density_octave::density_octave::Density::Third => 3,
+            crate::evolution_density_octave::density_octave::Density::Fourth => 4,
+            crate::evolution_density_octave::density_octave::Density::Fifth => 5,
+            crate::evolution_density_octave::density_octave::Density::Sixth => 6,
+            crate::evolution_density_octave::density_octave::Density::Seventh => 7,
+            crate::evolution_density_octave::density_octave::Density::Eighth => 8,
+        }
+    }
+
+    fn evolution_clock(&self) -> Float {
+        self.component_data.evolution_clock
+    }
+
+    fn advance_evolution_clock(&mut self, dt: Float) {
+        self.component_data.advance_evolution_clock(dt);
+    }
+
+    fn is_ready_for_density_transition(&self) -> bool {
+        // Check if polarization is harvestable
+        self.component_data.polarization.is_harvestable()
+    }
+
+    // =========================================================================
+    // POLARIZATION
+    // =========================================================================
+
+    fn polarization(&self) -> Option<Polarity> {
+        use crate::polarization::{PolarityDirection, PolarizationState};
+
+        match self.component_data.polarization.state {
+            PolarizationState::Unpolarized => None,
+            PolarizationState::STOLeaning
+            | PolarizationState::PolarizedSTO
+            | PolarizationState::HarvestableSTO => Some(Polarity::ServiceToOthers),
+            PolarizationState::STSLeaning
+            | PolarizationState::PolarizedSTS
+            | PolarizationState::HarvestableSTS => Some(Polarity::ServiceToSelf),
+        }
+    }
+
+    fn polarization_strength(&self) -> Float {
+        self.component_data.polarization.intensity
+    }
+
+    // =========================================================================
+    // ARCHETYPE
+    // =========================================================================
+
+    fn archetype_activations(&self) -> &[Float; 22] {
+        // Use the template's archetype activation profile
+        // This is the "consciousness kernel" from the template
+        &self.archetype_activation.coefficients
+    }
+
+    fn archetype_activations_mut(&mut self) -> &mut [Float; 22] {
+        &mut self.archetype_activation.coefficients
+    }
+
+    // =========================================================================
+    // SPECTRUM
+    // =========================================================================
+
+    fn space_time_ratio(&self) -> Float {
+        self.spectrum.ratio.calculate_ratio()
+    }
+
+    fn veil_transparency(&self) -> Float {
+        self.spectrum.veil_transparency
     }
 }

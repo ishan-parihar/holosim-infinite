@@ -1,14 +1,14 @@
 //! Evolution Module - Intelligent Evolution System
 //!
-//! This module implements intelligent evolution for HoloSim_Infinite, replacing mechanical
-//! probabilistic evolution with directed, purposeful evolution.
-//!
 //! From REFACTOR_ROADMAP_HOLOGRAPHIC.md Phase 3 (Weeks 9-12):
 //! "The critical phase that addresses the audit's main finding: evolution is mechanical, not intelligent."
 //!
+//! From ROADMAP: "Implement evolution (ascent D1→D7) path"
+//! "Transcend and Include" applies to all density transitions
+//!
 //! ## Architecture
 //!
-//! The evolution module consists of three components:
+//! The evolution module consists of:
 //!
 //! 1. **Adaptive Attractor Fields** (`adaptive_attractor.rs`):
 //!    - Dynamic attractor fields that adjust based on entity feedback
@@ -25,55 +25,65 @@
 //!    - Pattern analysis of entity behavior
 //!    - Teleological pull toward source
 //!
+//! 4. **Consciousness Awakening** (`consciousness_awakening.rs`) - Phase 7.1:
+//!    - The "I AM" moment for 2nd→3rd density transition
+//!    - Distinct awakening event triggered by first Free Will choice
+//!    - Polarity hint from first choice
+//!
+//! 5. **Density Transition** (`density_transition.rs`) - Phase 7.1:
+//!    - Mechanisms for transitioning between densities
+//!    - Transition requirements and catalysts
+//!
+//! 6. **Evolution Path** (`evolution_path.rs`) - Phase 7.1:
+//!    - Overall path of consciousness evolution
+//!    - Milestone tracking
+//!
 //! ## Key Principles
 //!
 //! - **Feedback-Based Learning**: Attractors adapt based on entity response
 //! - **Teleological Direction**: Evolution has purpose (return to source, having served)
 //! - **Meaningful Choices**: Not random, but aligned with purpose
 //! - **Coherence Matters**: Alignment with purpose affects evolution rate
-//!
-//! ## Usage
-//!
-//! ```rust
-//! use holonic_realms::evolution::{
-//!     AdaptiveAttractorField, EntityFeedback,
-//!     TeleologicalProgress, evaluate_purpose,
-//!     IntelligentInfinity
-//! };
-//!
-//! // Create adaptive attractor field
-//! let mut attractor = AdaptiveAttractorField::new(Density::Third, 0.3);
-//!
-//! // Entity provides feedback
-//! let feedback = EntityFeedback {
-//!     entity_id: EntityId::new("entity-1".to_string()),
-//!     attractor_pull: 0.7,
-//!     evolution_progress: 0.5,
-//!     alignment_with_attractor: 0.8,
-//!     timestamp: 12345,
-//! };
-//! attractor.receive_feedback(feedback);
-//! attractor.adjust_strength();
-//!
-//! // Evaluate entity's purpose alignment
-//! let entity = /* ... */;
-//! let teleological = evaluate_purpose(&entity);
-//!
-//! // Enhanced Intelligent-Infinity collects feedback
-//! let mut ii = IntelligentInfinity::new();
-//! ii.receive_entity_feedback(feedback);
-//! let analysis = ii.analyze_feedback_patterns();
-//! ```
+//! - **Transformative Awakening**: The "I AM" moment is a distinct event, not gradual
 
+// Phase 3: Intelligent Evolution
 pub mod adaptive_attractor;
 pub mod intelligent_infinity;
 pub mod teleological;
 
-pub use adaptive_attractor::{
-    AdaptiveAttractorField, EntityFeedback, FeedbackEffectiveness,
-};
+// Phase 7.1: Consciousness Awakening
+pub mod consciousness_awakening;
+pub mod density_transition;
+pub mod evolution_path;
+
+// Phase 7.3: Social Memory Complex Integration
+pub mod social_memory;
+
+// Re-export Phase 3 types (preserve existing exports)
+pub use adaptive_attractor::{AdaptiveAttractorField, EntityFeedback, FeedbackEffectiveness};
 pub use intelligent_infinity::{FeedbackAnalysis, IntelligentInfinity};
 pub use teleological::{evaluate_purpose, TeleologicalProgress};
+
+// Re-export Phase 7.1 types
+pub use consciousness_awakening::{
+    AwakeningError, AwakeningEvent, AwakeningReady, AwakeningState, ConsciousnessAwakening,
+    FirstChoice, FirstChoiceOption, AWAKENING_THRESHOLD,
+};
+pub use density_transition::{
+    check_transition_readiness, DensityTransitionResult, DensityTransitionSystem,
+    EntityTransitionState, HarvestEligibility, TranscendData, TransitionCatalyst,
+    TransitionRequirements, STO_HARVEST_THRESHOLD, STS_HARVEST_THRESHOLD,
+};
+pub use evolution_path::{EvolutionMilestone, EvolutionPath, EvolutionProgress, MilestoneType};
+
+// Re-export Phase 7.3 types
+pub use social_memory::{
+    CollectiveHarvestEligibility, CollectiveHarvestResult, CollectiveMemoryData, ComplexId,
+    FourthDensitySMC, SMCEntityId, SMCFormationResult, SMCFormationSystem, SMCStatistics,
+    TelepathicLinkData, SMC_MIN_MEMBERS, SMC_RESONANCE_THRESHOLD, SMC_STO_HARVEST_THRESHOLD,
+    SMC_STS_HARVEST_THRESHOLD,
+};
+
 // ============================================================================
 // PHASE 3 INTEGRATION TESTS
 // ============================================================================
@@ -81,18 +91,23 @@ pub use teleological::{evaluate_purpose, TeleologicalProgress};
 #[cfg(test)]
 mod phase3_integration_tests {
     use super::*;
-    use crate::entity_layer7::layer7::{EntityId, EntityType, EntitySpectrumAccess, EntityState, SubSubLogos};
-    use crate::foundation::{IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm, VioletRealm};
+    use crate::entity_layer7::layer7::{
+        EntityId, EntitySpectrumAccess, EntityState, EntityType, SubSubLogos,
+    };
+    use crate::foundation::{
+        IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm,
+        VioletRealm,
+    };
+    use crate::gui::visualization::entity_viz::{
+        format_teleological_progress, get_service_orientation_color, get_teleological_color,
+        update_teleological_metrics, EntityVisualizationData,
+    };
     use crate::spectrum::{OrangeRealm, RedRealm, SpectrumRatio, YellowRealm};
-    use crate::gui::visualization::entity_viz::{EntityVisualizationData, update_teleological_metrics, format_teleological_progress, get_teleological_color, get_service_orientation_color};
 
     #[test]
     fn test_feedback_loop_end_to_end() {
-        let mut attractor = AdaptiveAttractorField::with_learning_rate(
-            crate::types::Density::Third,
-            0.3,
-            0.2,
-        );
+        let mut attractor =
+            AdaptiveAttractorField::with_learning_rate(crate::types::Density::Third, 0.3, 0.2);
 
         let initial_strength = attractor.current_strength;
 

@@ -260,6 +260,66 @@ impl SpectrumAccessMechanism {
         };
     }
 
+    /// Calculate veil transparency effects on entity perception
+    ///
+    /// From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 2:
+    /// "Veil transparency affects entity perception"
+    ///
+    /// As veil transparency increases:
+    /// - Entity can perceive more of the unified field
+    /// - Time/Space aspects become more accessible
+    /// - Individual/collective integration improves
+    /// - Connection to source strengthens
+    pub fn calculate_perception_modifiers(
+        &self,
+        entity_state: &EntityState,
+    ) -> PerceptionModifiers {
+        let veil_transparency = self.calculate_veil_transparency(entity_state, self.access_level);
+
+        PerceptionModifiers {
+            // Field perception - higher transparency = more field awareness
+            field_perception: 0.1 + veil_transparency * 0.9,
+
+            // Time perception - higher transparency = access to non-linear time
+            time_perception: 0.3 + veil_transparency * 0.7,
+
+            // Unity perception - higher transparency = more unity awareness
+            unity_perception: veil_transparency,
+
+            // Catalyst perception - higher transparency = better catalyst integration
+            catalyst_integration: 0.2 + veil_transparency * 0.8,
+
+            // Collective awareness - higher transparency = more collective awareness
+            collective_awareness: veil_transparency * 0.8,
+
+            // Source connection - higher transparency = stronger connection
+            source_connection: veil_transparency * 0.9,
+
+            // Current veil transparency
+            veil_transparency,
+        }
+    }
+
+    /// Apply veil transparency effects to perception
+    ///
+    /// This modifies how an entity perceives reality based on veil transparency
+    pub fn apply_veil_perception_effects(
+        &self,
+        entity_state: &EntityState,
+        base_perception: f64,
+    ) -> VeilPerceptionResult {
+        let modifiers = self.calculate_perception_modifiers(entity_state);
+
+        // Perception is enhanced by veil transparency
+        let enhanced_perception = base_perception * (1.0 + modifiers.veil_transparency * 0.5);
+
+        VeilPerceptionResult {
+            enhanced_perception,
+            perception_modifiers: modifiers,
+            veil_state: self.veil_state.clone(),
+        }
+    }
+
     /// Calculate access improvement between levels
     fn calculate_access_improvement(
         &self,
@@ -487,6 +547,39 @@ pub struct AccessStatistics {
     pub access_capabilities: AccessCapabilities,
 }
 
+/// Perception modifiers based on veil transparency
+///
+/// From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 2:
+/// "Veil transparency affects entity perception"
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PerceptionModifiers {
+    /// Ability to perceive the holographic field
+    pub field_perception: f64,
+    /// Access to non-linear time perception
+    pub time_perception: f64,
+    /// Awareness of unity consciousness
+    pub unity_perception: f64,
+    /// Ability to integrate catalyst experiences
+    pub catalyst_integration: f64,
+    /// Awareness of collective consciousness
+    pub collective_awareness: f64,
+    /// Connection to Intelligent Infinity source
+    pub source_connection: f64,
+    /// Current veil transparency (0.0 = opaque, 1.0 = transparent)
+    pub veil_transparency: f64,
+}
+
+/// Result of applying veil perception effects
+#[derive(Debug, Clone)]
+pub struct VeilPerceptionResult {
+    /// Enhanced perception after veil effects
+    pub enhanced_perception: f64,
+    /// The perception modifiers that were applied
+    pub perception_modifiers: PerceptionModifiers,
+    /// Current veil state
+    pub veil_state: SpectrumAccessVeilState,
+}
+
 // ============================================================================
 // UNIT TESTS
 // ============================================================================
@@ -699,5 +792,71 @@ mod tests {
             mechanism.attempt_access(SpectrumPosition::ExtremeTimeDominance),
             AccessResult::Limited { .. }
         ));
+    }
+
+    // Phase 2 Tests: Veil Transparency Effects on Entity Perception
+
+    #[test]
+    fn test_perception_modifiers_third_density() {
+        let mechanism = SpectrumAccessMechanism::new();
+        let entity_state = create_test_entity_state(0.2);
+
+        let modifiers = mechanism.calculate_perception_modifiers(&entity_state);
+
+        // At 3rd density, veil is fully active - low perception
+        assert!(modifiers.veil_transparency <= 0.1);
+        assert!(modifiers.field_perception < 0.2);
+        assert!(modifiers.unity_perception < 0.2);
+        assert!(modifiers.source_connection < 0.2);
+    }
+
+    #[test]
+    fn test_perception_modifiers_sixth_density() {
+        let mut mechanism = SpectrumAccessMechanism::new();
+        mechanism.access_level = SpectrumAccessLevel::SixthDensity;
+        mechanism.veil_state = SpectrumAccessVeilState::CompletelyDissolved;
+
+        let entity_state = create_test_entity_state(0.9);
+
+        let modifiers = mechanism.calculate_perception_modifiers(&entity_state);
+
+        // At 6th density, veil is dissolved - high perception
+        assert_eq!(modifiers.veil_transparency, 1.0);
+        assert!(modifiers.field_perception > 0.9);
+        assert!(modifiers.unity_perception > 0.9);
+        assert!(modifiers.source_connection > 0.8);
+    }
+
+    #[test]
+    fn test_veil_perception_effects() {
+        let mechanism = SpectrumAccessMechanism::new();
+        let entity_state = create_test_entity_state(0.2);
+
+        let result = mechanism.apply_veil_perception_effects(&entity_state, 0.5);
+
+        // Base perception should be enhanced (even if slightly at 3rd density)
+        assert!(result.enhanced_perception >= 0.5);
+        assert_eq!(result.veil_state, SpectrumAccessVeilState::FullyActive);
+    }
+
+    #[test]
+    fn test_perception_increases_with_evolution() {
+        let mut mechanism_low = SpectrumAccessMechanism::new();
+        mechanism_low.access_level = SpectrumAccessLevel::ThirdDensity;
+
+        let mut mechanism_high = SpectrumAccessMechanism::new();
+        mechanism_high.access_level = SpectrumAccessLevel::FifthDensity;
+        mechanism_high.veil_state = SpectrumAccessVeilState::MostlyDissolved;
+
+        let entity_state = create_test_entity_state(0.5);
+
+        let modifiers_low = mechanism_low.calculate_perception_modifiers(&entity_state);
+        let modifiers_high = mechanism_high.calculate_perception_modifiers(&entity_state);
+
+        // Higher evolution should have higher perception across all dimensions
+        assert!(modifiers_high.field_perception > modifiers_low.field_perception);
+        assert!(modifiers_high.unity_perception > modifiers_low.unity_perception);
+        assert!(modifiers_high.collective_awareness > modifiers_low.collective_awareness);
+        assert!(modifiers_high.source_connection > modifiers_low.source_connection);
     }
 }

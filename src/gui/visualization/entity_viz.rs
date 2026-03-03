@@ -728,7 +728,7 @@ pub fn format_teleological_progress(viz_data: &EntityVisualizationData) -> Strin
 pub fn get_teleological_color(teleological_progress: f32) -> [f32; 4] {
     // Gradient from red (0.0) to yellow (0.5) to green (1.0)
     let progress = teleological_progress.clamp(0.0, 1.0);
-    
+
     if progress < 0.5 {
         // Red to yellow
         let t = progress * 2.0;
@@ -752,7 +752,7 @@ pub fn get_teleological_color(teleological_progress: f32) -> [f32; 4] {
 /// RGBA color for service orientation indicator
 pub fn get_service_orientation_color(service_orientation: f32) -> [f32; 4] {
     let normalized = (service_orientation + 1.0) / 2.0; // -1 to 1 → 0 to 1
-    
+
     if normalized < 0.45 {
         // STS (red)
         [1.0, 0.3, 0.3, 0.8]
@@ -791,14 +791,7 @@ mod phase3_tests {
             teleological_progress: 0.0,
         };
 
-        update_teleological_metrics(
-            &mut viz_data,
-            0.9,
-            0.8,
-            0.6,
-            15.0,
-            0.85,
-        );
+        update_teleological_metrics(&mut viz_data, 0.9, 0.8, 0.6, 15.0, 0.85);
 
         assert_eq!(viz_data.purpose_alignment, 0.9);
         assert_eq!(viz_data.coherence_with_source, 0.8);

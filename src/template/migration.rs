@@ -8,6 +8,8 @@
 //! - SubSubLogosAdapter: Wrapper for backward compatibility
 //! - Conversion functions: SubSubLogos ↔ Entity
 //! - FromConfig implementation for EntityData
+//! - ExtractedEntityPotential conversion (Phase 1.5)
+//! - EntityBehavior trait for unified interface
 
 // Core types from layer7 (publicly accessible)
 use crate::entity_layer7::layer7::{
@@ -29,6 +31,7 @@ use crate::spectrum::yellow_realm::YellowRealm;
 // Polarization progress
 use crate::polarization::PolarizationProgress;
 // Holographic template
+use crate::holographic::holographic_field::ExtractedEntityPotential;
 use crate::holographic::universal_template::{
     ArchetypeActivationProfile, SpectrumConfiguration, UniversalTemplate,
 };
@@ -37,6 +40,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
+use super::entity_behavior::EntityBehavior;
 use super::entity_data::{Entity, EntityData};
 
 /// Adapter for SubSubLogos to work with UniversalTemplate
@@ -369,17 +373,191 @@ impl crate::holographic::universal_template::FromConfig for EntityData {
     }
 }
 
+// =============================================================================
+// PHASE 1.5: ExtractedEntityPotential Conversion
+// =============================================================================
+
+impl ExtractedEntityPotential {
+    /// Convert a field-extracted potential into an Entity template
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Entities manifest at stable interference nodes"
+    ///
+    /// This implements the Phase 1.5 migration where entities emerge from
+    /// the holographic field rather than being created directly.
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - Shared reference to the holographic field
+    ///
+    /// # Returns
+    ///
+    /// A new Entity (UniversalTemplate<EntityData>) created from the potential
+    pub fn into_entity(self, field: Arc<HolographicField>) -> Entity {
+        // Create EntityData from the extracted potential
+        let entity_data = EntityData::from_extracted_potential(self.clone());
+
+        // Create UniversalTemplate with shared holographic field
+        UniversalTemplate::new(
+            field,
+            self.spectrum,
+            self.archetype_activation,
+            self.density,
+            self.free_will_seed,
+            entity_data,
+        )
+    }
+}
+
+impl EntityData {
+    /// Create EntityData from an extracted field potential
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Field is primary reality"
+    ///
+    /// This creates entity-specific data from a potential extracted from
+    /// the holographic field at a stable interference node.
+    ///
+    /// # Arguments
+    ///
+    /// * `potential` - The extracted entity potential from the field
+    ///
+    /// # Returns
+    ///
+    /// A new EntityData initialized from the potential
+    pub fn from_extracted_potential(potential: ExtractedEntityPotential) -> Self {
+        use crate::entity_layer7::layer7::PolarityState;
+        use crate::entity_layer7::layer7::VibrationalState;
+
+        // Create spectrum access from the potential's spectrum configuration
+        let spectrum_access = SpectrumAccess {
+            ratio: potential.spectrum.ratio.calculate_ratio(),
+            veil_active: potential.spectrum.veil_transparency < 0.5,
+            space_time_access: potential.spectrum.space_time_access,
+            time_space_access: potential.spectrum.time_space_access,
+            mannyness_access: potential.coherence,
+        };
+
+        // Create individual spectrum configuration
+        let spectrum_configuration =
+            IndividualSpectrumConfiguration::new(potential.spectrum.ratio.clone());
+
+        // Create archetypical mind blueprint
+        let archetypical_mind_blueprint =
+            crate::entity_layer7::holographic_blueprint::ArchetypicalMindBlueprint::default();
+
+        // Create holographic blueprint
+        let holographic_blueprint = HolographicBlueprint::from_spectrum_configuration(
+            &spectrum_configuration,
+            &archetypical_mind_blueprint,
+        );
+
+        // Create archetypical mind
+        let mut archetypical_mind = ArchetypicalMind::new_from_logos();
+        for (i, &activation) in potential
+            .archetype_activation
+            .coefficients
+            .iter()
+            .enumerate()
+        {
+            let _ = archetypical_mind.activate_archetype(i + 1, activation);
+        }
+
+        // Generate DNA patterns
+        let dna_patterns = holographic_blueprint.generate_dna_patterns();
+
+        // Create evolutionary attractor field
+        let evolutionary_attractor = EvolutionaryAttractorField::new(&holographic_blueprint);
+
+        // Create entity state based on potential
+        let current_state = EntityState {
+            vibrational_state: VibrationalState::new(),
+            polarity_state: PolarityState {
+                polarity_bias: 0.0,
+                polarization_strength: 0.0,
+            },
+            consciousness_level: potential.coherence,
+            experience_accumulation: 0.0,
+            learning_progress: 0.0,
+        };
+
+        // Create veil info
+        let veil = VeilInfo {
+            transparency: potential.spectrum.veil_transparency,
+            active: potential.spectrum.veil_transparency < 0.5,
+            illusion_strength: 1.0 - potential.spectrum.veil_transparency,
+            access_control: crate::entity_layer7::layer7::VeilAccessControl {
+                time_space_access: potential.spectrum.time_space_access,
+                holographic_connection_access: potential.spectrum.time_space_access * 0.8,
+                higher_consciousness_access: potential.spectrum.time_space_access * 0.6,
+            },
+        };
+
+        // Extract energy values
+        let potential_energy = current_state.vibrational_state.potential_energy;
+        let kinetic_energy = current_state.vibrational_state.kinetic_energy;
+        let energy = potential_energy + kinetic_energy;
+
+        // Create entity ID from potential address
+        // Use free_will_seed and coherence_path length as basis for the entity ID
+        let path_hash = potential.address.coherence_path.len();
+        let entity_id = EntityId::new(format!(
+            "entity-{:x}-{}",
+            potential.free_will_seed, path_hash
+        ));
+
+        Self {
+            entity_id,
+            entity_type: EntityType::Individual,
+            parent_id: None,
+            children: Vec::new(),
+            composition: Vec::new(),
+            environment_id: None,
+            spectrum_access,
+            physical_entity: None,
+            violet_realm: VioletRealm::default(),
+            indigo_realm: IntelligentInfinity::default(),
+            blue_realm: Logos::default(),
+            green_realm: GreenRealm::default(),
+            yellow_realm: YellowRealm::default(),
+            orange_realm: OrangeRealm::default(),
+            red_realm: RedRealm::default(),
+            spectrum_configuration,
+            archetypical_mind,
+            holographic_blueprint,
+            dna_patterns,
+            evolutionary_attractor,
+            current_state,
+            evolutionary_rate: 1.0,
+            karmic_patterns: Vec::new(),
+            evolution_clock: 0.0,
+            polarization: PolarizationProgress::new(),
+            consciousness_level: potential.coherence,
+            experience_accumulation: 0.0,
+            learning_progress: 0.0,
+            archetype_activations: potential.archetype_activation.coefficients,
+            veil_transparency: potential.spectrum.veil_transparency,
+            space_time_ratio: potential.spectrum.ratio.calculate_ratio(),
+            time_space_ratio: 1.0 / potential.spectrum.ratio.calculate_ratio().max(0.001),
+            spectrum_position: 0.5,
+            potential_energy,
+            kinetic_energy,
+            energy,
+            veil,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::evolution_density_octave::density_octave::Density;
+    use crate::holographic::complex_vectors::ComplexArchetype;
     use crate::holographic::universal_template::{
         FromConfig, SpectrumConfiguration, TemplateConfig,
     };
 
     fn create_test_holographic_field() -> HolographicField {
-        use crate::holographic::complex_vectors::ComplexArchetype;
-
         let archetypes = {
             let mut a = [ComplexArchetype {
                 amplitude: 0.0,
@@ -456,5 +634,229 @@ mod tests {
         adapter.advance_evolution_clock(1.0);
 
         assert_eq!(adapter.evolution_clock(), 1.0);
+    }
+
+    // =========================================================================
+    // PHASE 1.5 TESTS: EntityBehavior and ExtractedEntityPotential
+    // =========================================================================
+
+    #[test]
+    fn test_entity_behavior_identity() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("behavior-test".to_string()),
+                EntityType::Individual,
+            ),
+        );
+
+        // Test EntityBehavior trait methods
+        assert_eq!(entity.entity_id().uuid, "behavior-test");
+        assert_eq!(entity.entity_type(), EntityType::Individual);
+    }
+
+    #[test]
+    fn test_entity_behavior_composition() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let mut entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("comp-test".to_string()),
+                EntityType::Individual,
+            ),
+        );
+
+        let component_id = EntityId::new("component-1".to_string());
+
+        // Test adding components
+        entity.add_component(component_id.clone());
+        assert_eq!(entity.component_count(), 1);
+        assert!(entity.has_component(&component_id));
+
+        // Test removing components
+        assert!(entity.remove_component(&component_id));
+        assert_eq!(entity.component_count(), 0);
+        assert!(!entity.has_component(&component_id));
+
+        // Test removing non-existent component
+        assert!(!entity.remove_component(&component_id));
+    }
+
+    #[test]
+    fn test_entity_behavior_hierarchy() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let mut entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("hier-test".to_string()),
+                EntityType::Collective,
+            ),
+        );
+
+        let child_id = EntityId::new("child-1".to_string());
+
+        // Test parent relationship
+        assert!(entity.is_root());
+        assert!(!entity.has_parent());
+
+        let parent_id = EntityId::new("parent-1".to_string());
+        entity.set_parent(Some(parent_id.clone()));
+        assert!(entity.has_parent());
+        assert!(!entity.is_root());
+        assert_eq!(entity.parent(), Some(parent_id));
+
+        // Test children relationship
+        assert!(entity.is_leaf());
+        entity.add_child(child_id.clone());
+        assert!(!entity.is_leaf());
+        assert_eq!(entity.children().len(), 1);
+
+        entity.remove_child(&child_id);
+        assert!(entity.is_leaf());
+    }
+
+    #[test]
+    fn test_entity_behavior_evolution() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let mut entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("evo-test".to_string()),
+                EntityType::Individual,
+            ),
+        );
+
+        // Test evolution clock
+        assert_eq!(entity.evolution_clock(), 0.0);
+
+        entity.advance_evolution_clock(1.0);
+        assert_eq!(entity.evolution_clock(), 1.0);
+
+        entity.advance_evolution_clock(0.5);
+        assert_eq!(entity.evolution_clock(), 1.5);
+    }
+
+    #[test]
+    fn test_entity_behavior_archetype() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let mut entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("arch-test".to_string()),
+                EntityType::Individual,
+            ),
+        );
+
+        // Test archetype activations
+        let activations = entity.archetype_activations();
+        assert_eq!(activations.len(), 22);
+
+        // Test mutable access
+        {
+            let activations_mut = entity.archetype_activations_mut();
+            activations_mut[0] = 0.8;
+        }
+
+        assert_eq!(entity.archetype_activations()[0], 0.8);
+    }
+
+    #[test]
+    fn test_entity_behavior_spectrum() {
+        let field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::default();
+
+        let entity = UniversalTemplate::from_config(
+            field,
+            config,
+            EntityData::new(
+                EntityId::new("spec-test".to_string()),
+                EntityType::Individual,
+            ),
+        );
+
+        // Test spectrum access
+        let ratio = entity.space_time_ratio();
+        assert!(ratio > 0.0);
+
+        let transparency = entity.veil_transparency();
+        assert!(transparency >= 0.0 && transparency <= 1.0);
+    }
+
+    #[test]
+    fn test_extracted_entity_potential_into_entity() {
+        use crate::holographic::field_address::HolographicAddress;
+        use crate::holographic::holographic_field::ExtractedEntityPotential;
+        use crate::holographic::universal_template::ArchetypeActivationProfile;
+        use crate::spectrum::larson_framework::SpectrumRatio;
+
+        let field = Arc::new(create_test_holographic_field());
+
+        // Create a potential
+        let potential = ExtractedEntityPotential {
+            address: HolographicAddress::cosmic_origin(),
+            archetype_activation: ArchetypeActivationProfile::new([0.5; 22]),
+            spectrum: SpectrumConfiguration::balanced(),
+            density: Density::First(
+                crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
+            ),
+            coherence: 0.7,
+            free_will_seed: 12345,
+        };
+
+        // Convert to entity
+        let entity = potential.into_entity(field);
+
+        // Verify entity was created correctly
+        assert!(entity.entity_id().uuid.starts_with("entity-"));
+        assert_eq!(entity.entity_type(), EntityType::Individual);
+        assert_eq!(entity.evolution_clock(), 0.0);
+    }
+
+    #[test]
+    fn test_entity_data_from_extracted_potential() {
+        use crate::holographic::field_address::HolographicAddress;
+        use crate::holographic::holographic_field::ExtractedEntityPotential;
+        use crate::holographic::universal_template::ArchetypeActivationProfile;
+        use crate::spectrum::larson_framework::SpectrumRatio;
+
+        // Create a potential with specific values
+        let potential = ExtractedEntityPotential {
+            address: HolographicAddress::cosmic_origin(),
+            archetype_activation: ArchetypeActivationProfile::new([0.6; 22]),
+            spectrum: SpectrumConfiguration::new(
+                SpectrumRatio::space_time(2.0, 1.0),
+                0.3,
+                0.7,
+                0.3,
+            ),
+            density: Density::Third,
+            coherence: 0.8,
+            free_will_seed: 54321,
+        };
+
+        // Create EntityData
+        let entity_data = EntityData::from_extracted_potential(potential);
+
+        // Verify creation
+        assert_eq!(entity_data.entity_type, EntityType::Individual);
+        assert_eq!(entity_data.consciousness_level, 0.8);
+        assert_eq!(entity_data.veil_transparency, 0.3);
+        assert_eq!(entity_data.evolution_clock, 0.0);
     }
 }

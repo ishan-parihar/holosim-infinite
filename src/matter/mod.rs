@@ -22,3 +22,6 @@ pub use particle::{
     Atom, BondType, Cell, Coordinate3D, DNABase, Matter, MolecularStructure, Molecule, Nucleus,
     OrganelleType, Particle, ParticleID, RNABase, Vector3D,
 };
+
+// Re-export holographic addressing (Phase 1 migration)
+pub use crate::holographic::field_address::HolographicAddress;

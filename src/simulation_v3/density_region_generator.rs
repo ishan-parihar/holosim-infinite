@@ -21,6 +21,7 @@
 //! - Density-specific entity spawning
 //! - Density-specific environmental effects
 
+use crate::holographic::field_address::HolographicAddress;
 use crate::simulation_v3::density_mechanics::Density;
 use crate::simulation_v3::multiscale_camera::ScaleLevel;
 use crate::types::Float;
@@ -48,6 +49,10 @@ pub struct DensityRegionConfig {
     /// Primary density of this region
     pub density: Density,
 
+    /// Holographic address for this region (Phase 1)
+    /// Replaces bounded coordinates with infinite field addressing
+    pub holographic_address: Option<HolographicAddress>,
+
     /// Region bounds [min_x, max_x, min_y, max_y, min_z, min_z]
     pub bounds: [Float; 6],
 
@@ -73,6 +78,7 @@ impl DensityRegionConfig {
             environmental_effects: EnvironmentalEffects::default_for_density(density),
             spawn_rules: SpawnRules::default_for_density(density),
             transition_zones: Vec::new(),
+            holographic_address: None,
         }
     }
 }

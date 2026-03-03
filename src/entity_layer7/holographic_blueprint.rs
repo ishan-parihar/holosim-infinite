@@ -672,6 +672,27 @@ impl HolographicBlueprint {
         })
     }
 
+    /// Get DNA pattern for repair reference
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "The holographic blueprint provides the reference pattern for DNA repair"
+    pub fn get_dna_pattern(&self) -> Vec<u8> {
+        // Generate reference pattern from DNA patterns
+        let mut pattern = Vec::new();
+        for dna in &self.dna_patterns {
+            // Convert spectrum encoding to byte pattern
+            for value in &dna.spectrum_encoding {
+                pattern.push((value * 255.0) as u8);
+            }
+        }
+        pattern
+    }
+
+    /// Get all stages in the evolutionary trajectory
+    pub fn get_stages(&self) -> Vec<&EvolutionaryStage> {
+        self.evolutionary_trajectory.stages.iter().collect()
+    }
+
     /// Reconstruct from partial encoding
     ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
@@ -1144,6 +1165,46 @@ pub struct StageBlueprint {
     pub physical_architecture: PhysicalUniverseArchitecture,
 }
 
+impl StageBlueprint {
+    /// Get archetype activation for this stage
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Each stage has a characteristic archetype activation pattern"
+    pub fn get_archetype_activation(&self) -> Vec<Float> {
+        // Get activation from DNA pattern if available
+        if let Some(dna_pattern) = &self.dna_pattern {
+            return dna_pattern.spectrum_encoding.clone();
+        }
+
+        // Get activation from collective pattern if available
+        if let Some(collective) = &self.collective_pattern {
+            return collective.collective_spectrum.spectrum_encoding.clone();
+        }
+
+        // Default activation based on stage type
+        vec![0.5; 22]
+    }
+
+    /// Get the stage type as a string for assembly instruction generation
+    pub fn get_stage_type(&self) -> String {
+        match self.stage {
+            EvolutionaryStage::QuantumRealm => "quantum".to_string(),
+            EvolutionaryStage::AtomicRealm => "atomic".to_string(),
+            EvolutionaryStage::MolecularRealm => "molecular".to_string(),
+            EvolutionaryStage::PlanetaryRealm => "planetary".to_string(),
+            EvolutionaryStage::CellularRealm => "cellular".to_string(),
+            EvolutionaryStage::SimpleLifeRealm => "simple_life".to_string(),
+            EvolutionaryStage::ComplexLifeRealm => "complex_life".to_string(),
+            EvolutionaryStage::ConsciousLifeRealm => "conscious_life".to_string(),
+            EvolutionaryStage::SocietalRealm => "societal".to_string(),
+            EvolutionaryStage::FourthDensityRealm => "fourth_density".to_string(),
+            EvolutionaryStage::FifthDensityRealm => "fifth_density".to_string(),
+            EvolutionaryStage::SixthDensityRealm => "sixth_density".to_string(),
+            EvolutionaryStage::SeventhDensityRealm => "seventh_density".to_string(),
+        }
+    }
+}
+
 // ============================================================================
 // MIGRATION 9: HOLOGRAPHIC PROPERTIES
 // ============================================================================
@@ -1237,10 +1298,7 @@ impl HolographicProperties {
     ///
     /// MIGRATION NOTE: This method analyzes holographic properties across entities
     /// and environments, calculating how well the holographic principle is expressed.
-    pub fn process(
-        &mut self,
-        entities: &HashMap<usize, EntityState>,
-    ) -> HolographicState {
+    pub fn process(&mut self, entities: &HashMap<usize, EntityState>) -> HolographicState {
         // Calculate entity octave containment
         self.calculate_entity_octave_containment(entities);
 
@@ -1266,9 +1324,7 @@ impl HolographicProperties {
 
     /// Calculate environment archetypical reflection
     /// TODO: This function is deprecated and should be reimplemented without Environment stub
-    fn calculate_environment_reflection(
-        &mut self,
-    ) {
+    fn calculate_environment_reflection(&mut self) {
         // Placeholder implementation - environment reflection is currently disabled
         // after removing the Environment stub module
     }

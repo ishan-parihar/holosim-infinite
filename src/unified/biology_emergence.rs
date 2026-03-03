@@ -1,7 +1,7 @@
 //! Biology Emergence - Life from Field
 
+use super::physics_emergence::{EmergentAtom, EmergentMolecule, EmergentParticle};
 use super::unified_field::UnifiedField;
-use super::physics_emergence::{EmergentMolecule, EmergentParticle, EmergentAtom};
 use std::sync::Arc;
 
 #[derive(Debug, Clone)]
@@ -70,26 +70,26 @@ impl BiologyEmergence {
             cells: Vec::new(),
         }
     }
-    
+
     pub fn derive_dna(&mut self, molecules: &[EmergentMolecule]) -> Vec<EmergentDNA> {
         self.dna_patterns.clear();
-        
+
         if molecules.is_empty() {
             return Vec::new();
         }
-        
+
         let mut pattern = [0.0; 22];
         for mol in molecules {
             for (i, _) in mol.atoms.iter().enumerate().take(22) {
                 pattern[i] += mol.bond_energy;
             }
         }
-        
+
         let count = molecules.len() as f64;
         for p in &mut pattern {
             *p = (*p / count).min(1.0);
         }
-        
+
         let avg_pattern: f64 = pattern.iter().sum::<f64>() / 22.0;
         if avg_pattern > self.config.dna_threshold {
             self.dna_patterns.push(EmergentDNA {
@@ -99,13 +99,13 @@ impl BiologyEmergence {
                 coherence: avg_pattern,
             });
         }
-        
+
         self.dna_patterns.clone()
     }
-    
+
     pub fn derive_cells(&mut self, dna_list: &[EmergentDNA]) -> Vec<LivingCell> {
         self.cells.clear();
-        
+
         for (i, dna) in dna_list.iter().enumerate() {
             if dna.coherence > self.config.cell_threshold {
                 self.cells.push(LivingCell {
@@ -117,10 +117,10 @@ impl BiologyEmergence {
                 });
             }
         }
-        
+
         self.cells.clone()
     }
-    
+
     pub fn derive_organisms(&self) -> Vec<BiologicalOrganism> {
         if self.cells.len() >= self.config.min_cells_for_organism {
             vec![BiologicalOrganism {
@@ -133,13 +133,17 @@ impl BiologyEmergence {
             Vec::new()
         }
     }
-    
+
     pub fn emerge_all(&mut self, molecules: &[EmergentMolecule]) -> BiologyEmergenceResult {
         let dna = self.derive_dna(molecules);
         let cells = self.derive_cells(&dna);
         let organisms = self.derive_organisms();
-        
-        BiologyEmergenceResult { dna_patterns: dna, cells, organisms }
+
+        BiologyEmergenceResult {
+            dna_patterns: dna,
+            cells,
+            organisms,
+        }
     }
 }
 
@@ -162,11 +166,16 @@ impl BiologyPhysicsBridge {
             biology: BiologyEmergence::new(field),
         }
     }
-    
-    pub fn process(&mut self) -> (super::physics_emergence::PhysicsEmergenceResult, BiologyEmergenceResult) {
+
+    pub fn process(
+        &mut self,
+    ) -> (
+        super::physics_emergence::PhysicsEmergenceResult,
+        BiologyEmergenceResult,
+    ) {
         let physics_result = self.physics.emerge_all();
         let biology_result = self.biology.emerge_all(&physics_result.molecules);
-        
+
         (physics_result, biology_result)
     }
 }
@@ -174,7 +183,7 @@ impl BiologyPhysicsBridge {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_biology_emergence() {
         let field = Arc::new(UnifiedField::new("test".to_string()));

@@ -59,7 +59,7 @@ pub enum PolarityChoice {
 ///
 /// From COMPREHENSIVE_REFACTOR_PLAN.md Phase 0:
 /// "Possibility space = quantum superposition constrained by entity state"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct EntityConstraints {
     /// Current archetype activations (1-22)
     pub archetype_activations: [f64; 22],

@@ -23,13 +23,13 @@ use std::collections::HashMap;
 pub struct FieldEntityBridgeConfig {
     /// Enable field encoding
     pub enable_encoding: bool,
-    
+
     /// Enable entity extraction
     pub enable_extraction: bool,
-    
+
     /// Sync interval (in simulation steps)
     pub sync_interval: usize,
-    
+
     /// Maximum extracted entities
     pub max_entities: usize,
 }
@@ -49,19 +49,19 @@ impl Default for FieldEntityBridgeConfig {
 pub struct FieldEntityBridge {
     /// Holographic field state
     field: HolographicFieldState,
-    
+
     /// Encoder/decoder codec
     codec: HolographicCodec,
-    
+
     /// Configuration
     config: FieldEntityBridgeConfig,
-    
+
     /// Mapping from extracted entity ID to position
     entity_positions: HashMap<EntityId, [Float; 3]>,
-    
+
     /// Current simulation step
     step: usize,
-    
+
     /// Statistics
     pub statistics: BridgeStatistics,
 }
@@ -71,13 +71,13 @@ pub struct FieldEntityBridge {
 pub struct BridgeStatistics {
     /// Total entities encoded
     pub entities_encoded: usize,
-    
+
     /// Total entities extracted
     pub entities_extracted: usize,
-    
+
     /// Field energy
     pub field_energy: Float,
-    
+
     /// Average coherence
     pub average_coherence: Float,
 }
@@ -97,7 +97,7 @@ impl FieldEntityBridge {
     pub fn with_config(config: FieldEntityBridgeConfig) -> Self {
         let mut encoding_config = EncodingConfig::default();
         encoding_config.max_entities = config.max_entities;
-        
+
         FieldEntityBridge {
             field: HolographicFieldState::with_defaults(),
             codec: HolographicCodec::new(),
@@ -109,47 +109,47 @@ impl FieldEntityBridge {
     }
 
     /// Encode existing entities into the field
-    /// 
+    ///
     /// This takes entities from the existing system and encodes them
     /// into the holographic field representation
     pub fn encode_entities(&mut self, entities: &[SubSubLogos]) {
         if !self.config.enable_encoding {
             return;
         }
-        
+
         let mut entity_data_list = Vec::new();
-        
+
         for entity in entities {
             // Extract entity properties
             let position = self.extract_position(entity);
             let consciousness = self.extract_consciousness(entity);
             let density = self.extract_density(entity);
             let energy = self.extract_energy(entity);
-            
+
             entity_data_list.push(EntityData::new(position, consciousness, density, energy));
         }
-        
+
         // Encode all entities into the field
         self.codec.encode(&mut self.field, &entity_data_list);
-        
+
         self.statistics.entities_encoded = entities.len();
     }
 
     /// Extract entities from the field
-    /// 
+    ///
     /// This derives entity positions and properties from the field
     /// configuration through inverse holographic projection
     pub fn extract_entities(&mut self) -> EntityExtractionResult {
         if !self.config.enable_extraction {
             return EntityExtractionResult::default();
         }
-        
+
         let result = self.codec.decode(&self.field);
-        
+
         self.statistics.entities_extracted = result.entity_count;
         self.statistics.field_energy = self.field.total_energy;
         self.statistics.average_coherence = self.field.average_coherence;
-        
+
         result
     }
 
@@ -215,7 +215,12 @@ impl Default for FieldEntityBridge {
 /// Convert extracted entity to renderable position
 impl ExtractedEntity {
     /// Convert to 2D screen position (for GUI rendering)
-    pub fn to_screen_position(&self, screen_width: f64, screen_height: f64, zoom: Float) -> (f64, f64) {
+    pub fn to_screen_position(
+        &self,
+        screen_width: f64,
+        screen_height: f64,
+        zoom: Float,
+    ) -> (f64, f64) {
         let x = (self.position[0] * zoom + screen_width / 2.0) as f64;
         let y = (self.position[1] * zoom + screen_height / 2.0) as f64;
         (x, y)
@@ -224,13 +229,13 @@ impl ExtractedEntity {
     /// Get color based on density band
     pub fn get_density_color(&self) -> (u8, u8, u8) {
         match self.density {
-            DensityBand::Violet => (128, 0, 128),   // Purple
-            DensityBand::Indigo => (75, 0, 130),   // Indigo
-            DensityBand::Blue => (0, 0, 255),       // Blue
-            DensityBand::Green => (0, 255, 0),      // Green
-            DensityBand::Yellow => (255, 255, 0),   // Yellow
-            DensityBand::Orange => (255, 165, 0),   // Orange
-            DensityBand::Red => (255, 0, 0),        // Red
+            DensityBand::Violet => (128, 0, 128),    // Purple
+            DensityBand::Indigo => (75, 0, 130),     // Indigo
+            DensityBand::Blue => (0, 0, 255),        // Blue
+            DensityBand::Green => (0, 255, 0),       // Green
+            DensityBand::Yellow => (255, 255, 0),    // Yellow
+            DensityBand::Orange => (255, 165, 0),    // Orange
+            DensityBand::Red => (255, 0, 0),         // Red
             DensityBand::Unknown => (128, 128, 128), // Gray
         }
     }
@@ -255,7 +260,7 @@ mod tests {
 
     #[test]
     fn test_extract_entity_color() {
-        let entity = ExtractedEntity::new([0.0, 0.0, 0.0]);
+        let mut entity = ExtractedEntity::new([0.0, 0.0, 0.0]);
         entity.density = DensityBand::Green;
         let color = entity.get_density_color();
         assert_eq!(color, (0, 255, 0));

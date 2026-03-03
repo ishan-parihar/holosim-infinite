@@ -9,14 +9,30 @@
 // 2. Archetype 22 as the choice operator
 // 3. Possibility space generation
 // 4. Non-deterministic selection from possibility space
+// 5. Unified ConsciousnessKernel (Phase 5.1)
 
 pub mod archetype22;
 pub mod choice_operator;
 pub mod free_will;
+pub mod kernel;
+pub mod memory_access;
 pub mod possibility_space;
 
 // Re-export main types for convenience
 pub use free_will::{ChoiceRecord, ConsciousSelection, FreeWillKernel};
+
+// Re-export unified ConsciousnessKernel types (Phase 5.1)
+pub use kernel::{
+    ConsciousSelection as KernelConsciousSelection, ConsciousnessAmplification,
+    ConsciousnessKernel, ConsciousnessSignal, Experience, KernelChoiceContext, Memory, MemoryQuery,
+    Possibility,
+};
+
+// Re-export Memory as Spectrum Access types (Phase 5.3)
+pub use memory_access::{
+    MemoryAccessRecord, MemoryAccessResult, MemoryStorageResult, MemorySystem,
+    MemorySystemStatistics, MemoryType, SpectrumExperience, SpectrumMemory, SpectrumMemoryQuery,
+};
 
 // ============================================================================
 // INTEGRATION TESTS

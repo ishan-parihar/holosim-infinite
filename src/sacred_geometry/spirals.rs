@@ -113,18 +113,18 @@ impl SpiralPattern {
         let phi: Float = 1.6180339887498948482;
         let mut points = Vec::new();
         let steps = (turns * 100.0) as usize;
-        
+
         for i in 0..steps {
             let t = i as Float / steps as Float;
             let angle = t * turns * 2.0 * std::f64::consts::PI;
             let radius = 0.1 * phi.powf(angle / (std::f64::consts::PI / 2.0));
-            
+
             let x = center_x + radius * angle.cos();
             let y = center_y + radius * angle.sin();
-            
+
             points.push(SpiralPoint::new(x, y, radius, angle, i));
         }
-        
+
         SpiralPattern {
             spiral_type: SpiralType::Golden,
             points,
@@ -140,21 +140,21 @@ impl SpiralPattern {
         let mut points = Vec::new();
         let mut a: u64 = 0;
         let mut b: u64 = 1;
-        
+
         for i in 0..generations {
             let radius = b as Float * 0.1;
             let angle = i as Float * std::f64::consts::PI / 2.0;
-            
+
             let x = center_x + radius * angle.cos();
             let y = center_y + radius * angle.sin();
-            
+
             points.push(SpiralPoint::new(x, y, radius, angle, i));
-            
+
             let temp = a + b;
             a = b;
             b = temp;
         }
-        
+
         SpiralPattern {
             spiral_type: SpiralType::Fibonacci,
             points,
@@ -166,21 +166,27 @@ impl SpiralPattern {
     }
 
     /// Create an Archimedean spiral
-    pub fn archimedean_spiral(center_x: Float, center_y: Float, turns: Float, a: Float, b: Float) -> Self {
+    pub fn archimedean_spiral(
+        center_x: Float,
+        center_y: Float,
+        turns: Float,
+        a: Float,
+        b: Float,
+    ) -> Self {
         let mut points = Vec::new();
         let steps = (turns * 100.0) as usize;
-        
+
         for i in 0..steps {
             let t = i as Float / steps as Float;
             let angle = t * turns * 2.0 * std::f64::consts::PI;
             let radius = a + b * angle;
-            
+
             let x = center_x + radius * angle.cos();
             let y = center_y + radius * angle.sin();
-            
+
             points.push(SpiralPoint::new(x, y, radius, angle, i));
         }
-        
+
         SpiralPattern {
             spiral_type: SpiralType::Archimedean,
             points,
@@ -192,21 +198,27 @@ impl SpiralPattern {
     }
 
     /// Create a logarithmic spiral
-    pub fn logarithmic_spiral(center_x: Float, center_y: Float, turns: Float, a: Float, b: Float) -> Self {
+    pub fn logarithmic_spiral(
+        center_x: Float,
+        center_y: Float,
+        turns: Float,
+        a: Float,
+        b: Float,
+    ) -> Self {
         let mut points = Vec::new();
         let steps = (turns * 100.0) as usize;
-        
+
         for i in 0..steps {
             let t = i as Float / steps as Float;
             let angle = t * turns * 2.0 * std::f64::consts::PI;
             let radius = a * (b * angle).exp();
-            
+
             let x = center_x + radius * angle.cos();
             let y = center_y + radius * angle.sin();
-            
+
             points.push(SpiralPoint::new(x, y, radius, angle, i));
         }
-        
+
         SpiralPattern {
             spiral_type: SpiralType::Logarithmic,
             points,
@@ -314,11 +326,8 @@ impl FibonacciSpiral {
             let next = sequence[sequence.len() - 1] + sequence[sequence.len() - 2];
             sequence.push(next);
         }
-        
-        FibonacciSpiral {
-            pattern,
-            sequence,
-        }
+
+        FibonacciSpiral { pattern, sequence }
     }
 
     /// Get pattern
@@ -355,11 +364,7 @@ impl ArchimedeanSpiral {
     /// Create a new Archimedean spiral
     pub fn new(center_x: Float, center_y: Float, turns: Float, a: Float, b: Float) -> Self {
         let pattern = SpiralPattern::archimedean_spiral(center_x, center_y, turns, a, b);
-        ArchimedeanSpiral {
-            pattern,
-            a,
-            b,
-        }
+        ArchimedeanSpiral { pattern, a, b }
     }
 
     /// Get pattern
@@ -397,11 +402,7 @@ impl LogarithmicSpiral {
     /// Create a new logarithmic spiral
     pub fn new(center_x: Float, center_y: Float, turns: Float, a: Float, b: Float) -> Self {
         let pattern = SpiralPattern::logarithmic_spiral(center_x, center_y, turns, a, b);
-        LogarithmicSpiral {
-            pattern,
-            a,
-            b,
-        }
+        LogarithmicSpiral { pattern, a, b }
     }
 
     /// Get pattern
@@ -449,7 +450,7 @@ pub fn spiral_point(
             a * phi.powf(angle / (std::f64::consts::PI / 2.0))
         }
     };
-    
+
     let x = center_x + radius * angle.cos();
     let y = center_y + radius * angle.sin();
     (x, y)
@@ -462,7 +463,7 @@ mod tests {
     #[test]
     fn test_golden_spiral_creation() {
         let spiral = SpiralPattern::golden_spiral(0.0, 0.0, 3.0);
-        
+
         assert_eq!(spiral.spiral_type(), SpiralType::Golden);
         assert!(!spiral.points().is_empty());
         assert_eq!(spiral.center_x(), 0.0);
@@ -474,7 +475,7 @@ mod tests {
     #[test]
     fn test_fibonacci_spiral_creation() {
         let spiral = SpiralPattern::fibonacci_spiral(0.0, 0.0, 10);
-        
+
         assert_eq!(spiral.spiral_type(), SpiralType::Fibonacci);
         assert_eq!(spiral.points().len(), 10);
     }
@@ -482,7 +483,7 @@ mod tests {
     #[test]
     fn test_archimedean_spiral_creation() {
         let spiral = SpiralPattern::archimedean_spiral(0.0, 0.0, 2.0, 1.0, 0.5);
-        
+
         assert_eq!(spiral.spiral_type(), SpiralType::Archimedean);
         assert_eq!(spiral.growth_factor(), 0.5);
     }
@@ -490,25 +491,25 @@ mod tests {
     #[test]
     fn test_logarithmic_spiral_creation() {
         let spiral = SpiralPattern::logarithmic_spiral(0.0, 0.0, 2.0, 1.0, 0.1);
-        
+
         assert_eq!(spiral.spiral_type(), SpiralType::Logarithmic);
     }
 
     #[test]
     fn test_spiral_points_on_path() {
         let spiral = SpiralPattern::golden_spiral(0.0, 0.0, 1.0);
-        
+
         // Points should spiral outward
         let first = spiral.point_at(0).unwrap();
         let last = spiral.last_point().unwrap();
-        
+
         assert!(last.radius() > first.radius());
     }
 
     #[test]
     fn test_golden_spiral_struct() {
         let golden = GoldenSpiral::new(0.0, 0.0, 2.0);
-        
+
         assert!((golden.phi() - 1.618).abs() < 0.01);
         assert!(!golden.pattern().points().is_empty());
     }
@@ -516,7 +517,7 @@ mod tests {
     #[test]
     fn test_fibonacci_spiral_struct() {
         let fib = FibonacciSpiral::new(0.0, 0.0, 10);
-        
+
         assert_eq!(fib.sequence().len(), 11);
         assert_eq!(fib.fibonacci_number(0), 0);
         assert_eq!(fib.fibonacci_number(1), 1);
@@ -525,8 +526,14 @@ mod tests {
 
     #[test]
     fn test_spiral_point_function() {
-        let (x, y) = spiral_point(SpiralType::Golden, 0.0, 0.0, std::f64::consts::PI, (1.0, 0.0));
-        
+        let (x, y) = spiral_point(
+            SpiralType::Golden,
+            0.0,
+            0.0,
+            std::f64::consts::PI,
+            (1.0, 0.0),
+        );
+
         // Point should be on the spiral
         assert!(!x.is_nan());
         assert!(!y.is_nan());

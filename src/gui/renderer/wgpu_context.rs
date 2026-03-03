@@ -3,7 +3,6 @@
 //! From GUI_IMPLEMENTATION_ROADMAP.md:
 //! "Implement actual WGPU initialization with instance, adapter, device, queue, and surface"
 
-use std::sync::Mutex;
 use wgpu::{Adapter, Device, Instance, Queue, Surface, SurfaceConfiguration};
 use winit::window::Window;
 
@@ -30,17 +29,15 @@ impl std::fmt::Debug for WgpuContext {
 
 impl WgpuContext {
     /// Initialize WGPU with a window
-    pub async fn new(window: &Window) -> Result<Self, String> {
+    pub async fn new(window: std::sync::Arc<Window>) -> Result<Self, String> {
         let instance = Instance::new(wgpu::InstanceDescriptor {
             backends: wgpu::Backends::all(),
             ..Default::default()
         });
 
-        let surface = unsafe {
-            instance
-                .create_surface(window)
-                .map_err(|e| format!("Failed to create surface: {}", e))?
-        };
+        let surface = instance
+            .create_surface(window.clone())
+            .map_err(|e| format!("Failed to create surface: {}", e))?;
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
@@ -87,7 +84,7 @@ impl WgpuContext {
             adapter,
             device,
             queue,
-            surface: Some(unsafe { std::mem::transmute(surface) }),
+            surface: Some(surface),
             surface_config,
         })
     }

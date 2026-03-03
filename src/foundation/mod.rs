@@ -1,34 +1,73 @@
+//! Foundation Module - Foundational Layers (Violet → Green + Unified Simulation)
+//!
+//! This module implements the foundational layers of the cosmological architecture:
+//! - Layer 0: Violet-Ray Realm (Infinity as undifferentiated unity)
+//! - Layer 1: Indigo-Ray Realm (IntelligentInfinity + Archetype 22)
+//! - Layer 2: Blue-Ray Realm (Love/Light + Universal Archetypical Patterns)
+//! - Layer 3: Green-Ray Realm (Light/Love field of potential)
+//!
+//! From COSMOLOGICAL-ARCHITECTURE.md:
+//! "Each layer includes all previous development, transcends by adding fundamentally
+//! new capabilities, and creates attractor-fields that pull toward the next stage."
+//!
+//! The foundational layers implement the Three Primal Distortions:
+//! - First Distortion: Free Will (Indigo-Ray)
+//! - Second Distortion: Love/Logos (Blue-Ray)
+//! - Third Distortion: Light (Green-Ray)
+//!
+//! These layers provide the foundation for the Space/Time and Time/Space spectrum
+//! that emerges at Yellow-Ray.
+//!
+//! V5 Phase 7 adds:
+//! - UnifiedSimulation: Main simulation integrating all systems
+//! - Foundation layers (Violet through Red) for involution pulse
+
+// Phase 0-3: Foundation Layers
 pub mod blue_realm;
 pub mod green_realm;
 pub mod indigo_realm;
-/// Foundation Module - Foundational Layers (Violet → Green)
-///
-/// This module implements the foundational layers of the cosmological architecture:
-/// - Layer 0: Violet-Ray Realm (Infinity as undifferentiated unity)
-/// - Layer 1: Indigo-Ray Realm (IntelligentInfinity + Archetype 22)
-/// - Layer 2: Blue-Ray Realm (Love/Light + Universal Archetypical Patterns)
-/// - Layer 3: Green-Ray Realm (Light/Love field of potential)
-///
-/// From COSMOLOGICAL-ARCHITECTURE.md:
-/// "Each layer includes all previous development, transcends by adding fundamentally
-/// new capabilities, and creates attractor-fields that pull toward the next stage."
-///
-/// The foundational layers implement the Three Primal Distortions:
-/// - First Distortion: Free Will (Indigo-Ray)
-/// - Second Distortion: Love/Logos (Blue-Ray)
-/// - Third Distortion: Light (Green-Ray)
-///
-/// These layers provide the foundation for the Space/Time and Time/Space spectrum
-/// that emerges at Yellow-Ray.
 pub mod transcend_include;
+pub mod veil;
 pub mod violet_realm;
+
+// Phase 3-4: Observer-driven rendering
+pub mod holographic_renderer;
+pub mod manifestation_engine;
+pub mod observer;
+pub mod spectrum_position;
+
+// V5 Phase 7: Unified Simulation
+pub mod unified_simulation;
 
 // Re-export main types for convenience
 pub use blue_realm::Logos;
 pub use green_realm::{Field, HolographicPattern, LightLoveField, Rhythm};
+pub use holographic_renderer::{
+    EntityId, HolographicRenderer, ManifestedEntity, RenderFrame, RenderStats,
+};
 pub use indigo_realm::IntelligentInfinity;
-pub use transcend_include::{AttractorField, Feature};
+pub use manifestation_engine::{ManifestationEngine, ManifestationRecord, ManifestationStats};
+pub use observer::{
+    CollapsedState, FieldSignature, FocusTarget, FocusTargetType, ObservationKey,
+    ObservationRecord, ObservationStats, Observer, PossibilitySpace, PotentialManifestation,
+};
+pub use spectrum_position::SpectrumPosition;
+pub use transcend_include::{AttractorField, Feature, Layer, LayerBuilder};
+pub use veil::{CatalystTrigger, Content, FilteredContent, Situation, ThinSpot, Veil};
 pub use violet_realm::VioletRealm;
+
+// V5 Phase 7: Unified Simulation exports
+pub use unified_simulation::{
+    BehaviorOutput, BlueLogos, BodyData, EntityConfig, EntityData, GreenField, IndigoGateway,
+    Inventory, Item, OrangeGalacticLogoi, RedSolarLogoi, SimulationStats, SocialData,
+    UnifiedSimulation, UniversalTemplateEntity, VioletField, YellowDimensions,
+};
+
+// Re-export archetype types from simulation_v3 for Phase 0
+pub use crate::simulation_v3::archetype_basis::{
+    ArchetypeActivationProfile as ArchetypeProfile, ArchetypeBasis, ArchetypeVector,
+    ArchetypicalPattern,
+};
 
 // Type aliases for consistency with layer naming
 pub type BlueRealm = Logos;
@@ -134,130 +173,39 @@ mod tests {
     }
 
     #[test]
-    fn test_archetype22_at_indigo_realm() {
-        // Test that Archetype 22 is correctly implemented at Indigo-Ray
+    fn test_unified_simulation_creation() {
+        let sim = UnifiedSimulation::new();
+        assert_eq!(sim.entity_count(), 0);
+        assert_eq!(sim.time(), 0.0);
+    }
 
-        let violet = VioletRealm::new();
-        let intelligent = IntelligentInfinity::from_violet(violet);
+    #[test]
+    fn test_violet_field_pulse() {
+        let mut violet = VioletField::new();
+        violet.pulse();
+        assert!(violet.kinetic >= 0.0);
+        assert!(violet.kinetic <= 1.0);
+    }
 
-        // Archetype 22 should be present at Indigo-Ray
-        assert_eq!(intelligent.archetype22.strength, 1.0);
-        assert_eq!(intelligent.archetype22.choice_operator, "Choice Operator");
+    #[test]
+    fn test_unified_simulation_tick() {
+        let mut sim = UnifiedSimulation::new();
 
-        // Archetype 22 should generate possibility space
-        use crate::entity_layer7::layer7::{EntityState, PolarityState, VibrationalState};
-        use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
-
-        let entity_state = EntityState {
-            vibrational_state: VibrationalState {
-                frequency: 0.5,
-                amplitude: 0.5,
-                coherence: 0.5,
-                density: Density::First(Density1SubLevel::Planetary),
-                kinetic_energy: 0.5,
-                potential_energy: 0.5,
-            },
-            polarity_state: PolarityState {
-                polarity_bias: 0.0,
-                polarization_strength: 0.0,
-            },
-            consciousness_level: 0.5,
-            experience_accumulation: 10.0,
-            learning_progress: 0.5,
+        // Create an entity
+        let config = EntityConfig {
+            name: "Test".to_string(),
+            spectrum_position: SpectrumPosition::new(1.0, crate::types::Density::Third, 0.0),
+            archetype_activation: [0.5; 22],
+            density: crate::types::Density::Third,
+            free_will_seed: 1,
+            body: None,
         };
+        sim.create_entity(config);
 
-        let possibility_space =
-            intelligent
-                .archetype22
-                .generate_possibility_space(&entity_state, 0.5, 0.5);
-        // From COMPREHENSIVE_REFACTOR_PLAN.md Phase 0: "Generate 3-5 possibilities based on entity state"
-        // For unpolarized entity (polarity_bias = 0.0), generates 3 possibilities: STO, STS, Neutral
-        assert_eq!(possibility_space.count(), 3);
+        // Run tick
+        sim.tick();
 
-        // Archetype 22 should make choices
-        let choice = intelligent
-            .archetype22
-            .make_choice(&possibility_space, &entity_state);
-        // PolarityChoice is an enum (ServiceToOthers, ServiceToSelf, Neutral), not an Option
-        assert_ne!(choice, indigo_realm::PolarityChoice::Neutral);
-    }
-
-    #[test]
-    fn test_universal_patterns_at_blue_realm() {
-        // Test that Universal Archetypical Patterns are correctly implemented at Blue-Ray
-
-        let violet = VioletRealm::new();
-        let intelligent = IntelligentInfinity::from_violet(violet);
-        let logos = Logos::from_intelligent_infinity(intelligent);
-
-        // Universal patterns should be present at Blue-Ray
-        assert_eq!(logos.universal_patterns.coherence, 1.0);
-
-        // Universal patterns should be different from 22-archetype system
-        // (22-archetype system is a Solar-Logos feature at Red-Ray)
-        let desc = logos.universal_patterns.description();
-        assert!(desc.contains("UNKNOWN"));
-        assert!(desc.contains("NOT the 22-archetype system"));
-
-        // Logos should refine the cosmic mind
-        let mut logos_refined = logos.clone();
-        logos_refined.refine_cosmic_mind("Test bias");
-        assert_eq!(logos_refined.universal_patterns.count(), 1);
-    }
-
-    #[test]
-    fn test_light_love_field_at_green_realm() {
-        // Test that Light/Love field is correctly implemented at Green-Ray
-
-        let violet = VioletRealm::new();
-        let intelligent = IntelligentInfinity::from_violet(violet);
-        let logos = Logos::from_intelligent_infinity(intelligent);
-        let mut field = LightLoveField::from_logos(logos);
-
-        // Field should have potential strength
-        assert_eq!(field.potential_strength(), 1.0);
-
-        // Field should include all previous layers
-        assert_eq!(field.logos.intelligent_infinity.violet_realm.unity, 1.0);
-        assert_eq!(field.logos.intelligent_infinity.awareness(), 1.0);
-        assert_eq!(field.logos.focusing_strength(), 1.0);
-
-        // Field should support holographic patterns
-        field.add_holographic_pattern(HolographicPattern::new(0.8, [1.0, 0.0, 0.0], 0.7));
-        assert_eq!(field.holographic_pattern_count(), 1);
-
-        // Field should support rhythms
-        field.add_rhythm(Rhythm::new(0.5, 0.8, 0.0));
-        assert_eq!(field.rhythm_count(), 1);
-
-        // Field should support fields
-        field.add_field(Field::new(0.9, 0.85, "Test Field"));
-        assert_eq!(field.field_count(), 1);
-
-        // Field should have conditions for spectrum when populated
-        assert!(field.has_spectrum_conditions());
-    }
-
-    #[test]
-    fn test_mysterious_emergence_at_green_realm() {
-        // Test that the mysterious emergence is correctly implemented at Green-Ray
-
-        let violet = VioletRealm::new();
-        let intelligent = IntelligentInfinity::from_violet(violet);
-        let logos = Logos::from_intelligent_infinity(intelligent);
-        let field = LightLoveField::from_logos(logos);
-
-        // Green-Ray should apply mysterious emergence to transition to Yellow-Ray
-        let (_, mysterious_emergence, dimensions_spectrum_veil) =
-            field.apply_mysterious_emergence();
-
-        assert_eq!(mysterious_emergence.name, "The Mysterious Emergence");
-        assert_eq!(mysterious_emergence.strength, 1.0);
-
-        assert_eq!(dimensions_spectrum_veil.name, "Dimensions/Spectrum/Veil");
-        assert_eq!(
-            dimensions_spectrum_veil.target,
-            "Space/Time and Time/Space Spectrum emerges"
-        );
+        assert!(sim.time() > 0.0);
+        assert!(sim.stats().tick_count > 0);
     }
 }

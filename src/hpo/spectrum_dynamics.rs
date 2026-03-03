@@ -1,7 +1,7 @@
 //! Spectrum Dynamics and the Veil (Phase 2)
 //!
 //! From REFACTOR_ROADMAP_COMPREHENSIVE_2026.md:
-//! "The third phase implements the eight density bands as coupled oscillator fields 
+//! "The third phase implements the eight density bands as coupled oscillator fields
 //! and the Veil crossing dynamics at v=1."
 //!
 //! This module implements:
@@ -21,22 +21,22 @@ use super::field_state::{Complex, DensityBand, FieldNodeData, Float, OctreeNode}
 pub struct SpectrumDynamicsConfig {
     /// Number of density bands (typically 8)
     pub density_band_count: usize,
-    
+
     /// Base frequencies for each density band
     pub base_frequencies: [Float; 8],
-    
+
     /// Coupling strength between adjacent densities
     pub coupling_strength: Float,
-    
+
     /// Veil position (v = 1.0 is the crossing point)
     pub veil_position: Float,
-    
+
     /// Veil thickness (region where crossing occurs)
     pub veil_thickness: Float,
-    
+
     /// Rate of energy transfer between densities
     pub energy_transfer_rate: Float,
-    
+
     /// Time step
     pub time_step: Float,
 }
@@ -72,16 +72,16 @@ impl Default for SpectrumDynamicsConfig {
 pub struct DensityOscillator {
     /// Density band index (0-7)
     pub density_index: usize,
-    
+
     /// Current amplitude
     pub amplitude: Float,
-    
+
     /// Current phase
     pub phase: Float,
-    
+
     /// Angular frequency
     pub frequency: Float,
-    
+
     /// Damping coefficient
     pub damping: Float,
 }
@@ -101,15 +101,15 @@ impl DensityOscillator {
     /// d²x/dt² = ω²x - γ dx/dt (damped harmonic oscillator)
     pub fn evolve(&mut self, dt: Float, driving_force: Float) {
         // Damped harmonic oscillator equation
-        let acceleration = self.frequency * self.frequency * driving_force 
-            - self.damping * self.phase;
-        
+        let acceleration =
+            self.frequency * self.frequency * driving_force - self.damping * self.phase;
+
         // Update phase (phase is like position in oscillator)
         self.phase += acceleration * dt;
-        
+
         // Update amplitude (simplified)
         self.amplitude = self.amplitude * (1.0 - self.damping * dt) + driving_force * dt;
-        
+
         // Keep amplitude bounded
         self.amplitude = self.amplitude.clamp(0.0, 1.0);
     }
@@ -126,7 +126,7 @@ impl DensityOscillator {
 pub struct DensityCoupling {
     /// Coupling matrix (strength of coupling between densities i and j)
     coupling_matrix: [[Float; 8]; 8],
-    
+
     /// Coupling strength
     pub strength: Float,
 }
@@ -135,7 +135,7 @@ impl DensityCoupling {
     pub fn new(strength: Float) -> Self {
         // Initialize coupling matrix
         let mut coupling_matrix = [[0.0; 8]; 8];
-        
+
         // Each density couples to adjacent densities
         // Higher densities include lower densities (transcend and include)
         for i in 0..8 {
@@ -155,7 +155,7 @@ impl DensityCoupling {
                 }
             }
         }
-        
+
         DensityCoupling {
             coupling_matrix,
             strength,
@@ -166,7 +166,7 @@ impl DensityCoupling {
     /// Each oscillator is influenced by its neighbors
     pub fn calculate_coupling(&self, amplitudes: &[Float; 8]) -> [Float; 8] {
         let mut result = [0.0; 8];
-        
+
         for i in 0..8 {
             let mut coupling_effect = 0.0;
             for j in 0..8 {
@@ -174,7 +174,7 @@ impl DensityCoupling {
             }
             result[i] = coupling_effect;
         }
-        
+
         result
     }
 }
@@ -185,10 +185,10 @@ impl DensityCoupling {
 pub struct VeilDynamics {
     /// Position of the veil (v = 1.0 is the crossing point)
     pub veil_position: Float,
-    
+
     /// Thickness of the veil region
     pub veil_thickness: Float,
-    
+
     /// Current veil transparency (0.0 = opaque, 1.0 = transparent)
     pub transparency: Float,
 }
@@ -206,14 +206,14 @@ impl VeilDynamics {
     /// Returns 0.0 outside veil, transitions through veil region
     pub fn get_veil_factor(&self, spectrum_position: Float) -> Float {
         let distance = (spectrum_position - self.veil_position).abs();
-        
+
         if distance > self.veil_thickness {
             // Outside veil region
             if spectrum_position < self.veil_position {
                 // Below veil - Space/Time dominant
                 0.0
             } else {
-                // Above veil - Time/Space dominant  
+                // Above veil - Time/Space dominant
                 1.0
             }
         } else {
@@ -237,16 +237,21 @@ impl VeilDynamics {
 
     /// Transform coordinates across the veil
     /// Space/Time ↔ Time/Space transformation
-    pub fn transform_across_veil(&self, position: &[Float; 3], spectrum_position: Float, _dt: Float) -> [Float; 3] {
+    pub fn transform_across_veil(
+        &self,
+        position: &[Float; 3],
+        spectrum_position: Float,
+        _dt: Float,
+    ) -> [Float; 3] {
         let veil_factor = self.get_veil_factor(spectrum_position);
-        
+
         // Below veil (space/time dominant): time flows forward, space is fixed
         // Above veil (time/space dominant): time becomes flexible, space flows
         // At veil: transformation occurs
-        
+
         let time_dilation = 1.0 + veil_factor; // Time slows down approaching veil
-        let space_flexibility = veil_factor;    // Space becomes more flexible above veil
-        
+        let space_flexibility = veil_factor; // Space becomes more flexible above veil
+
         [
             position[0] * (1.0 + space_flexibility * 0.1),
             position[1] * (1.0 + space_flexibility * 0.1),
@@ -264,10 +269,10 @@ pub struct SpectrumPosition {
     /// 0.875 = 8th density (Red)
     /// > 1.0 = Beyond the physical octave
     pub position: Float,
-    
+
     /// Rate of change
     pub velocity: Float,
-    
+
     /// Rate of change of velocity (acceleration)
     pub acceleration: Float,
 }
@@ -285,19 +290,19 @@ impl SpectrumPosition {
     pub fn evolve(&mut self, dt: Float, experience_accumulation: Float, coherence: Float) {
         // Higher experience and coherence = progression toward higher densities
         // But progression is gradual (continuous), not discrete jumps
-        
+
         // Acceleration based on experience
         self.acceleration = experience_accumulation * 0.001 * coherence;
-        
+
         // Update velocity
         self.velocity += self.acceleration * dt;
-        
+
         // Apply damping to prevent runaway progression
         self.velocity *= 0.99;
-        
+
         // Update position
         self.position += self.velocity * dt;
-        
+
         // Clamp to valid range (can exceed 1.0 for beings beyond physical octave)
         if self.position < 0.0 {
             self.position = 0.0;
@@ -309,18 +314,18 @@ impl SpectrumPosition {
     /// Returns amplitudes for each of the 8 density bands
     pub fn get_density_amplitudes(&self) -> [Float; 8] {
         let mut result = [0.0; 8];
-        
+
         // Map continuous position to density bands
         // Each density has a Gaussian distribution centered at its position
         for i in 0..8 {
             let density_center = i as Float / 8.0;
             let distance = (self.position - density_center).abs();
-            
+
             // Gaussian falloff
             let amplitude = (-distance * distance * 50.0).exp();
             result[i] = amplitude;
         }
-        
+
         // Normalize
         let sum: Float = result.iter().sum();
         if sum > 0.0 {
@@ -328,7 +333,7 @@ impl SpectrumPosition {
                 *r /= sum;
             }
         }
-        
+
         result
     }
 }
@@ -337,19 +342,19 @@ impl SpectrumPosition {
 pub struct SpectrumDynamics {
     /// Configuration
     config: SpectrumDynamicsConfig,
-    
+
     /// Oscillators for each density band
     oscillators: [DensityOscillator; 8],
-    
+
     /// Coupling between densities
     coupling: DensityCoupling,
-    
+
     /// Veil dynamics
     veil: VeilDynamics,
-    
+
     /// Current spectrum positions (one per entity/region)
     spectrum_positions: Vec<SpectrumPosition>,
-    
+
     /// Statistics
     pub statistics: SpectrumStatistics,
 }
@@ -359,13 +364,13 @@ pub struct SpectrumDynamics {
 pub struct SpectrumStatistics {
     /// Average spectrum position
     pub average_position: Float,
-    
+
     /// Number of veil crossings
     pub veil_crossings: usize,
-    
+
     /// Average coherence
     pub average_coherence: Float,
-    
+
     /// Density distribution
     pub density_distribution: [Float; 8],
 }
@@ -383,7 +388,7 @@ impl SpectrumDynamics {
             DensityOscillator::new(6, config.base_frequencies[6]),
             DensityOscillator::new(7, config.base_frequencies[7]),
         ];
-        
+
         SpectrumDynamics {
             config: config.clone(),
             oscillators,
@@ -401,7 +406,7 @@ impl SpectrumDynamics {
     /// Initialize spectrum positions for entities
     pub fn initialize_entities(&mut self, entity_count: usize) {
         self.spectrum_positions.clear();
-        
+
         for i in 0..entity_count {
             // Entities start at different densities based on their nature
             let initial = if i < entity_count / 4 {
@@ -413,7 +418,7 @@ impl SpectrumDynamics {
             } else {
                 0.875 // 7th density
             };
-            
+
             self.spectrum_positions.push(SpectrumPosition::new(initial));
         }
     }
@@ -425,32 +430,32 @@ impl SpectrumDynamics {
         for (i, osc) in self.oscillators.iter().enumerate() {
             amplitudes[i] = osc.amplitude;
         }
-        
+
         // Calculate coupling effects
         let coupling_effects = self.coupling.calculate_coupling(&amplitudes);
-        
+
         // Evolve each oscillator
         for (i, osc) in self.oscillators.iter_mut().enumerate() {
             // Driving force from coupling + experience
             let driving = coupling_effects[i] + experience_accumulation * 0.1;
             osc.evolve(dt, driving);
         }
-        
+
         // Evolve spectrum positions
         for pos in self.spectrum_positions.iter_mut() {
             let was_at_veil = self.veil.is_at_veil(pos.position);
             pos.evolve(dt, experience_accumulation, coherence);
             let is_at_veil = self.veil.is_at_veil(pos.position);
-            
+
             // Track veil crossings
             if was_at_veil != is_at_veil {
                 self.statistics.veil_crossings += 1;
             }
         }
-        
+
         // Update veil transparency
         self.veil.update_transparency(coherence);
-        
+
         // Update statistics
         self.update_statistics();
     }
@@ -464,7 +469,7 @@ impl SpectrumDynamics {
         } else {
             0.5
         };
-        
+
         // Density distribution
         for i in 0..8 {
             self.statistics.density_distribution[i] = self.oscillators[i].amplitude;
@@ -481,16 +486,26 @@ impl SpectrumDynamics {
     /// Check if entity is at veil crossing
     pub fn is_entity_at_veil(&self, entity_idx: usize) -> bool {
         if entity_idx < self.spectrum_positions.len() {
-            self.veil.is_at_veil(self.spectrum_positions[entity_idx].position)
+            self.veil
+                .is_at_veil(self.spectrum_positions[entity_idx].position)
         } else {
             false
         }
     }
 
     /// Transform entity position across veil
-    pub fn transform_entity_across_veil(&self, entity_idx: usize, position: &[Float; 3], dt: Float) -> [Float; 3] {
+    pub fn transform_entity_across_veil(
+        &self,
+        entity_idx: usize,
+        position: &[Float; 3],
+        dt: Float,
+    ) -> [Float; 3] {
         if entity_idx < self.spectrum_positions.len() {
-            self.veil.transform_across_veil(position, self.spectrum_positions[entity_idx].position, dt)
+            self.veil.transform_across_veil(
+                position,
+                self.spectrum_positions[entity_idx].position,
+                dt,
+            )
         } else {
             *position
         }
@@ -541,7 +556,7 @@ pub fn apply_spectrum_to_node(
     // Get density amplitudes from spectrum position
     if let Some(pos) = spectrum.get_spectrum_position(entity_idx) {
         let amplitudes = spectrum.get_density_amplitudes_at(pos);
-        
+
         // Apply to node's density amplitudes
         for (i, amp) in node.field_data.density_amplitudes.iter_mut().enumerate() {
             // Combine with existing field
@@ -549,10 +564,10 @@ pub fn apply_spectrum_to_node(
             let phase = amp.phase();
             *amp = Complex::from_polar(new_amp, phase);
         }
-        
+
         // Update spectrum position in node
         node.field_data.spectrum_position = pos;
-        
+
         // Update veil transparency
         node.field_data.veil_transparency = spectrum.get_veil_transparency();
     }

@@ -41,7 +41,7 @@ impl FlowerOfLife {
             circles: Vec::new(),
             layers,
         };
-        
+
         flower.generate();
         flower
     }
@@ -50,7 +50,7 @@ impl FlowerOfLife {
     fn generate(&mut self) {
         // Add center circle
         self.circles.push((self.center, self.radius));
-        
+
         // Add circles in layers around center
         for layer in 1..=self.layers {
             self.add_layer(layer);
@@ -62,7 +62,7 @@ impl FlowerOfLife {
         let circles_in_layer = if layer == 1 { 6 } else { layer * 6 };
         let angle_step = 2.0 * std::f64::consts::PI / circles_in_layer as Float;
         let distance = layer as Float * self.radius;
-        
+
         for i in 0..circles_in_layer {
             let angle = i as Float * angle_step;
             let x = self.center.0 + distance * angle.cos();
@@ -104,21 +104,22 @@ impl FlowerOfLife {
     /// Get connections between circles (overlaps)
     pub fn connections(&self) -> Vec<(usize, usize)> {
         let mut connections = Vec::new();
-        
+
         for i in 0..self.circles.len() {
             for j in (i + 1)..self.circles.len() {
                 let (center_a, radius_a) = self.circles[i];
                 let (center_b, radius_b) = self.circles[j];
-                
-                let distance = ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
-                
+
+                let distance =
+                    ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
+
                 // Circles overlap if distance < sum of radii
                 if distance < radius_a + radius_b && distance > 0.001 {
                     connections.push((i, j));
                 }
             }
         }
-        
+
         connections
     }
 }
@@ -138,7 +139,12 @@ pub struct FlowerPattern {
 
 impl FlowerPattern {
     /// Create a new flower pattern
-    pub fn new(pattern_type: FlowerType, center: (Float, Float), radius: Float, layers: usize) -> Self {
+    pub fn new(
+        pattern_type: FlowerType,
+        center: (Float, Float),
+        radius: Float,
+        layers: usize,
+    ) -> Self {
         let mut pattern = FlowerPattern {
             pattern_type,
             center,
@@ -147,7 +153,7 @@ impl FlowerPattern {
             connections: Vec::new(),
             layers: Vec::new(),
         };
-        
+
         pattern.generate(layers);
         pattern
     }
@@ -160,10 +166,10 @@ impl FlowerPattern {
             FlowerType::FruitOfLife => self.generate_fruit_of_life(),
             FlowerType::MetatronsCube => self.generate_metatrons_cube(),
         }
-        
+
         // Calculate connections
         self.connections = self.calculate_connections();
-        
+
         // Create layers
         self.create_layers(layers);
     }
@@ -184,7 +190,7 @@ impl FlowerPattern {
     fn generate_fruit_of_life(&mut self) {
         let mut flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, 2);
         self.circles = flower.circles().to_vec();
-        
+
         // Add 13 additional circles for complete Fruit of Life
         let angle_step = 2.0 * std::f64::consts::PI / 6.0;
         for i in 0..6 {
@@ -205,21 +211,22 @@ impl FlowerPattern {
     /// Calculate connections between circles
     fn calculate_connections(&self) -> Vec<(usize, usize)> {
         let mut connections = Vec::new();
-        
+
         for i in 0..self.circles.len() {
             for j in (i + 1)..self.circles.len() {
                 let (center_a, radius_a) = self.circles[i];
                 let (center_b, radius_b) = self.circles[j];
-                
-                let distance = ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
-                
+
+                let distance =
+                    ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
+
                 // Circles overlap if distance < sum of radii
                 if distance < radius_a + radius_b && distance > 0.001 {
                     connections.push((i, j));
                 }
             }
         }
-        
+
         connections
     }
 
@@ -229,7 +236,7 @@ impl FlowerPattern {
             let circles_in_layer = if layer == 0 { 1 } else { layer * 6 };
             let start = if layer == 0 { 0 } else { 1 + (layer - 1) * 6 };
             let end = (start + circles_in_layer).min(self.circles.len());
-            
+
             self.layers.push(FlowerLayer {
                 layer_index: layer,
                 circles: self.circles[start..end].to_vec(),
@@ -322,7 +329,11 @@ impl FlowerLayer {
 /// Get circles for Flower of Life pattern
 ///
 /// Convenience function for creating Flower of Life circles.
-pub fn flower_of_life_circles(center: (Float, Float), radius: Float, layers: usize) -> Vec<((Float, Float), Float)> {
+pub fn flower_of_life_circles(
+    center: (Float, Float),
+    radius: Float,
+    layers: usize,
+) -> Vec<((Float, Float), Float)> {
     let flower = FlowerOfLife::new(center.0, center.1, radius, layers);
     flower.circles().to_vec()
 }
@@ -330,7 +341,11 @@ pub fn flower_of_life_circles(center: (Float, Float), radius: Float, layers: usi
 /// Get complete Flower of Life pattern
 ///
 /// Convenience function for creating a complete Flower of Life pattern.
-pub fn flower_of_life_pattern(center: (Float, Float), radius: Float, layers: usize) -> FlowerPattern {
+pub fn flower_of_life_pattern(
+    center: (Float, Float),
+    radius: Float,
+    layers: usize,
+) -> FlowerPattern {
     FlowerPattern::new(FlowerType::Standard, center, radius, layers)
 }
 
@@ -341,7 +356,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_creation() {
         let flower = FlowerOfLife::new(0.0, 0.0, 1.0, 2);
-        
+
         assert_eq!(flower.center(), (0.0, 0.0));
         assert_eq!(flower.radius(), 1.0);
         assert_eq!(flower.layers(), 2);
@@ -351,7 +366,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_single_layer() {
         let flower = FlowerOfLife::new(0.0, 0.0, 1.0, 1);
-        
+
         // Should have 7 circles (1 center + 6 surrounding)
         assert_eq!(flower.circle_count(), 7);
     }
@@ -359,7 +374,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_two_layers() {
         let flower = FlowerOfLife::new(0.0, 0.0, 1.0, 2);
-        
+
         // Should have 19 circles (1 + 6 + 12)
         assert_eq!(flower.circle_count(), 19);
     }
@@ -367,7 +382,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_connections() {
         let flower = FlowerOfLife::new(0.0, 0.0, 1.0, 1);
-        
+
         // Should have connections between overlapping circles
         let connections = flower.connections();
         assert!(!connections.is_empty());
@@ -376,7 +391,7 @@ mod tests {
     #[test]
     fn test_flower_pattern_standard() {
         let pattern = FlowerPattern::new(FlowerType::Standard, (0.0, 0.0), 1.0, 2);
-        
+
         assert_eq!(pattern.pattern_type(), FlowerType::Standard);
         assert!(!pattern.circles().is_empty());
         assert!(!pattern.connections().is_empty());
@@ -385,7 +400,7 @@ mod tests {
     #[test]
     fn test_flower_pattern_seed_of_life() {
         let pattern = FlowerPattern::new(FlowerType::SeedOfLife, (0.0, 0.0), 1.0, 1);
-        
+
         assert_eq!(pattern.pattern_type(), FlowerType::SeedOfLife);
         assert_eq!(pattern.circles().len(), 7);
     }
@@ -393,7 +408,7 @@ mod tests {
     #[test]
     fn test_flower_pattern_fruit_of_life() {
         let pattern = FlowerPattern::new(FlowerType::FruitOfLife, (0.0, 0.0), 1.0, 2);
-        
+
         assert_eq!(pattern.pattern_type(), FlowerType::FruitOfLife);
         assert!(pattern.circles().len() > 7);
     }
@@ -401,7 +416,7 @@ mod tests {
     #[test]
     fn test_flower_pattern_metatrons_cube() {
         let pattern = FlowerPattern::new(FlowerType::MetatronsCube, (0.0, 0.0), 1.0, 2);
-        
+
         assert_eq!(pattern.pattern_type(), FlowerType::MetatronsCube);
     }
 
@@ -417,7 +432,7 @@ mod tests {
     fn test_flower_layer() {
         let circles = vec![((0.0, 0.0), 1.0), ((1.0, 0.0), 1.0)];
         let layer = FlowerLayer::new(0, circles);
-        
+
         assert_eq!(layer.layer_index(), 0);
         assert_eq!(layer.circle_count(), 2);
     }
@@ -425,7 +440,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_circles_function() {
         let circles = flower_of_life_circles((0.0, 0.0), 1.0, 1);
-        
+
         assert!(!circles.is_empty());
         assert_eq!(circles.len(), 7);
     }
@@ -433,7 +448,7 @@ mod tests {
     #[test]
     fn test_flower_of_life_pattern_function() {
         let pattern = flower_of_life_pattern((0.0, 0.0), 1.0, 1);
-        
+
         assert!(!pattern.circles().is_empty());
     }
 }

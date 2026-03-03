@@ -365,6 +365,7 @@ impl FieldLayer {
 ///
 /// Wraps HolographicField with MERA compression for multi-scale representation.
 /// Enables O(log n) decompression for specific queries instead of O(n).
+#[derive(Debug)]
 pub struct MeraField {
     /// Hierarchical layers for multi-scale representation
     pub layers: Vec<FieldLayer>,
@@ -432,6 +433,61 @@ impl MeraField {
                 [1.0 / current_resolution as Float; 3],
                 i,
             );
+
+            current_resolution = (current_resolution + 1) / 2;
+        }
+
+        Ok(())
+    }
+
+    /// Compress with extracted data (Phase 1.7)
+    ///
+    /// This method allows compression without borrowing the full HolographicField,
+    /// avoiding borrow conflicts.
+    ///
+    /// # Arguments
+    ///
+    /// * `archetype_data` - Flattened archetype complex vector data (real, imag pairs)
+    /// * `coherence` - Current phase coherence of the field
+    /// * `aperture` - Current aperture size
+    ///
+    /// # Returns
+    ///
+    /// Ok(()) if compression succeeds
+    pub fn compress_with_data(
+        &mut self,
+        archetype_data: &[Float],
+        coherence: Float,
+        aperture: Float,
+    ) -> Result<(), MeraError> {
+        // Initialize layers with progressively coarser data
+        let mut current_resolution = 32usize;
+
+        // Use archetype data and coherence to influence the compressed representation
+        let base_value = coherence * aperture;
+
+        for (i, layer) in self.layers.iter_mut().enumerate() {
+            layer.level = i;
+            layer.resolution = current_resolution;
+
+            // Create representative node data influenced by field state
+            let layer_scale = 1.0 / (1 << i) as Float;
+            let data_size = current_resolution * current_resolution;
+
+            // Fill layer data based on archetype values and scale
+            let mut values = Vec::with_capacity(data_size);
+            for j in 0..data_size {
+                // Interleave archetype data with scale-appropriate values
+                let archetype_idx = j % (archetype_data.len().max(1));
+                let value = if archetype_idx < archetype_data.len() {
+                    (archetype_data[archetype_idx].abs() + base_value) * layer_scale
+                } else {
+                    base_value * layer_scale
+                };
+                values.push(value.clamp(0.0, 1.0));
+            }
+
+            layer.data = FieldNodeData::new(values, [layer_scale; 3], i);
 
             current_resolution = (current_resolution + 1) / 2;
         }

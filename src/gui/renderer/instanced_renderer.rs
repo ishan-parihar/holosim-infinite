@@ -237,7 +237,6 @@ impl InstancedRenderer {
                         ],
                     },
                 ],
-                compilation_options: Default::default(),
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader_module,
@@ -258,7 +257,6 @@ impl InstancedRenderer {
                     }),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
-                compilation_options: Default::default(),
             }),
             primitive: wgpu::PrimitiveState {
                 topology: wgpu::PrimitiveTopology::TriangleList,

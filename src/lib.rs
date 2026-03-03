@@ -3,6 +3,9 @@
 //! This library implements holographic architecture, density octave evolution,
 //! and the emergence of consciousness through free will based on the Law of One.
 
+// Phase 0: Unified Holographic Foundation
+pub mod holographic_foundation;
+
 // Foundation modules (Layers 0-3)
 pub mod entity_layer7;
 pub mod foundation;
@@ -25,19 +28,22 @@ pub mod evolution_chain;
 pub mod evolution_density_octave;
 pub mod involution;
 
-// Physical Manifestation and Matter
+// Matter Module - Phase 2: Physical Manifestation
 pub mod matter;
 pub mod physical_manifestation;
 
+// Particle Module - Phase 2.3: Archetype-Derived Properties
+pub mod particle;
+
 // Holographic and Energy Systems
+pub mod compression;
 pub mod energy_center_interface;
 pub mod energy_fields;
 pub mod energy_flow_system;
 pub mod energy_ray_centers;
 pub mod holographic;
-pub mod template;
-pub mod compression;
 pub mod sacred_geometry;
+pub mod template;
 
 // Simulation and Entity Management
 pub mod entity;
@@ -76,6 +82,9 @@ pub mod physics;
 pub mod physics_derivation;
 pub mod physics_engine;
 
+// Quantum Mechanics (Phase 2.1: Light Manifestation)
+pub mod quantum;
+
 // Polarity
 pub mod polarization;
 
@@ -99,6 +108,15 @@ pub mod dynamic_mechanisms;
 
 // Biological Emergence (Phase 3)
 pub mod biology;
+
+// Chemistry - Elements as Stable Attractor Fields (Phase 3.1)
+pub mod chemistry;
+
+// Social Emergence & Civilization (Phase 6)
+pub mod social;
+
+// Civilization System (Phase 5 - Visualization Integration)
+pub mod civilization;
 
 // Noospheric Systems (Phase 4)
 pub mod noosphere;
@@ -131,6 +149,12 @@ pub mod transformation_engine;
 
 // Adapters for compatibility
 pub mod adapters;
+
+// Active Intelligence (Phase 8)
+pub mod intelligence;
+
+// Geometry and Morphogenetic Templates (Phase 8.3)
+pub mod geometry;
 
 // Performance testing infrastructure (Phase 8)
 #[cfg(test)]
@@ -195,14 +219,13 @@ pub use hpo::selection::{ConvergenceStatus, SelectionStatistics};
 
 // Main simulation runner
 pub use simulation_v3::simulation_runner::{
-    SimulationRunner as V3SimulationRunner, 
-    SimulationParameters, 
-    SimulationResult as V3SimulationResult,
+    SimulationParameters, SimulationResult as V3SimulationResult,
+    SimulationRunner as V3SimulationRunner,
 };
 
 // Involution sequence
 pub use simulation_v3::involution_sequence::{
-    InvolutionSequenceRunner, InvolutionResult, InvolutionStage,
+    InvolutionResult, InvolutionSequenceRunner, InvolutionStage,
 };
 
 // Entity lifecycle
@@ -212,7 +235,7 @@ pub use simulation_v3::entity_lifecycle::{
 
 // Holographic field
 pub use simulation_v3::holographic_field::{
-    HolographicFieldManager, HolographicFieldResult, HolographicFieldConfig,
+    HolographicFieldConfig, HolographicFieldManager, HolographicFieldResult,
 };
 
 // Collective dynamics
@@ -225,9 +248,8 @@ pub use simulation_v3::scale_physics::{
 
 // Statistics
 pub use simulation_v3::statistics::{
-    SimulationStatistics as V3SimulationStatistics, 
-    PolarizationDistribution as V3PolarizationDistribution, 
-    EmergentProperties,
+    EmergentProperties, PolarizationDistribution as V3PolarizationDistribution,
+    SimulationStatistics as V3SimulationStatistics,
 };
 
 // ============================================================================
@@ -237,46 +259,25 @@ pub use simulation_v3::statistics::{
 // Spatial module - Spectrum-derived positions instead of golden ratio
 pub mod spatial;
 pub use spatial::{
-    SpectrumSpatialDynamics,
-    SpectrumSpatialConfig,
-    CoherenceDerivedPosition,
-    SpatialPerspective,
-    SpatialStatistics,
-    VeilTransform,
-    VeilTransformConfig,
-    EntityExperience,
-    Perspective,
-    TimeFlowType,
-    PerceptionType,
-    TransformedPosition,
-    VeilStatistics,
+    CoherenceDerivedPosition, EntityExperience, PerceptionType, Perspective, SpatialPerspective,
+    SpatialStatistics, SpectrumSpatialConfig, SpectrumSpatialDynamics, TimeFlowType,
+    TransformedPosition, VeilStatistics, VeilTransform, VeilTransformConfig,
 };
 
 // Environment module - Entity-planet coupling
+pub mod cosmos;
 pub mod environment;
+pub mod planet;
 pub use environment::{
-    PlanetId,
-    EnvironmentId,
-    EntityEnvironmentState,
-    WeatherPattern,
-    EnvironmentTerrain,
-    EntityBridge,
-    EntityBridgeConfig,
-    EntityPlanetAssignment,
-    EntityBridgeStatistics,
-    EnvironmentalEffects,
-    EnvironmentalEffectsConfig,
-    EntityMutableState,
-    ConsciousnessState,
-    EnvironmentalEffectsStatistics,
+    ConsciousnessState, EntityBridge, EntityBridgeConfig, EntityBridgeStatistics,
+    EntityEnvironmentState, EntityMutableState, EntityPlanetAssignment, EnvironmentId,
+    EnvironmentTerrain, EnvironmentalEffects, EnvironmentalEffectsConfig,
+    EnvironmentalEffectsStatistics, PlanetId, WeatherPattern,
 };
 
 // Emergent attractors module
 pub use attractors::{
-    EmergentAttractors,
-    EmergentAttractorsConfig,
-    CoherencePeak,
-    EmergentAttractorType,
-    EmergentAttractor,
-    EmergentAttractorStatistics,
+    CoherencePeak, EmergentAttractor, EmergentAttractorStatistics, EmergentAttractorType,
+    EmergentAttractors, EmergentAttractorsConfig,
 };
+pub mod test_wgpu;

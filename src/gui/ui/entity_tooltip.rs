@@ -18,11 +18,28 @@ use egui::{Color32, Context, RichText};
 
 /// Archetype names for tooltip display
 const ARCHETYPE_NAMES_SHORT: [&str; 22] = [
-    "Magician", "High Priestess", "Empress", "Emperor", "Hierophant",
-    "Lovers", "Chariot", "Strength", "Hermit", "Wheel of Fortune",
-    "Justice", "Hanged Man", "Death", "Temperance", "Devil",
-    "Tower", "Star", "Moon", "Sun", "Judgement",
-    "World", "Choice",
+    "Magician",
+    "High Priestess",
+    "Empress",
+    "Emperor",
+    "Hierophant",
+    "Lovers",
+    "Chariot",
+    "Strength",
+    "Hermit",
+    "Wheel of Fortune",
+    "Justice",
+    "Hanged Man",
+    "Death",
+    "Temperance",
+    "Devil",
+    "Tower",
+    "Star",
+    "Moon",
+    "Sun",
+    "Judgement",
+    "World",
+    "Choice",
 ];
 
 /// Entity tooltip component
@@ -66,7 +83,7 @@ impl EntityTooltip {
         if !self.show_tooltip {
             return false;
         }
-        
+
         if let Some(start) = self.hover_start_time {
             let elapsed = start.elapsed().as_secs_f32();
             elapsed >= self.delay_seconds
@@ -110,10 +127,7 @@ impl EntityTooltip {
         };
 
         // Position tooltip near cursor
-        let tooltip_pos = egui::Pos2::new(
-            mouse_pos.x + 15.0,
-            mouse_pos.y + 15.0,
-        );
+        let tooltip_pos = egui::Pos2::new(mouse_pos.x + 15.0, mouse_pos.y + 15.0);
 
         egui::Area::new(egui::Id::new("entity_tooltip"))
             .pivot(egui::Align2::LEFT_TOP)
@@ -128,20 +142,33 @@ impl EntityTooltip {
                     .show(ui, |ui| {
                         ui.vertical(|ui| {
                             // Entity type
-                            ui.label(RichText::new(entity.entity_type.display_name()).color(Color32::LIGHT_BLUE).size(14.0));
+                            ui.label(
+                                RichText::new(entity.entity_type.display_name())
+                                    .color(Color32::LIGHT_BLUE)
+                                    .size(14.0),
+                            );
                             ui.add_space(5.0);
 
                             // Top archetype
                             ui.horizontal(|ui| {
                                 ui.label("Top Archetype:");
-                                ui.label(RichText::new(format!("#{}: {}", 
-                                    top_archetype_idx + 1, top_archetype_name)).color(Color32::GOLD));
+                                ui.label(
+                                    RichText::new(format!(
+                                        "#{}: {}",
+                                        top_archetype_idx + 1,
+                                        top_archetype_name
+                                    ))
+                                    .color(Color32::GOLD),
+                                );
                             });
                             ui.label(format!("Activation: {:.3}", top_activation));
                             ui.add_space(5.0);
 
                             // Density
-                            ui.label(format!("Density: {}", format_density(entity.current_density.clone())));
+                            ui.label(format!(
+                                "Density: {}",
+                                format_density(entity.current_density.clone())
+                            ));
                             ui.add_space(5.0);
 
                             // Polarity
@@ -199,15 +226,15 @@ mod tests {
     #[test]
     fn test_tooltip_hover() {
         let mut tooltip = EntityTooltip::new();
-        
+
         // Initially should not show
         assert!(!tooltip.should_show());
-        
+
         // Start hover
         tooltip.start_hover();
         // Still should not show immediately
         assert!(!tooltip.should_show());
-        
+
         // Reset
         tooltip.reset_hover();
         assert!(!tooltip.should_show());

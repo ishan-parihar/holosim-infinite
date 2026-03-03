@@ -37,16 +37,18 @@ impl VesicaPiscis {
     /// * `center_b` - Center of second circle
     /// * `radius` - Radius of both circles
     pub fn new(center_a: (Float, Float), center_b: (Float, Float), radius: Float) -> Self {
-        let distance = ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
-        
+        let distance =
+            ((center_b.0 - center_a.0).powi(2) + (center_b.1 - center_a.1).powi(2)).sqrt();
+
         // Calculate intersection points
-        let intersection_points = Self::calculate_intersections(center_a, center_b, radius, distance);
-        
+        let intersection_points =
+            Self::calculate_intersections(center_a, center_b, radius, distance);
+
         // Calculate dimensions
         let width = distance;
         let height = Self::calculate_height(radius, distance);
         let area = Self::calculate_area(radius, distance);
-        
+
         VesicaPiscis {
             center_a,
             center_b,
@@ -68,26 +70,26 @@ impl VesicaPiscis {
         if distance > 2.0 * radius || distance == 0.0 {
             return Vec::new();
         }
-        
+
         // Midpoint between centers
         let mid_x = (center_a.0 + center_b.0) / 2.0;
         let mid_y = (center_a.1 + center_b.1) / 2.0;
-        
+
         // Distance from midpoint to intersection points
         let d = (radius.powi(2) - (distance / 2.0).powi(2)).sqrt();
-        
+
         // Direction from center_a to center_b
         let dir_x = (center_b.0 - center_a.0) / distance;
         let dir_y = (center_b.1 - center_a.1) / distance;
-        
+
         // Perpendicular direction
         let perp_x = -dir_y;
         let perp_y = dir_x;
-        
+
         // Intersection points
         let p1 = (mid_x + perp_x * d, mid_y + perp_y * d);
         let p2 = (mid_x - perp_x * d, mid_y - perp_y * d);
-        
+
         vec![p1, p2]
     }
 
@@ -101,7 +103,7 @@ impl VesicaPiscis {
         if distance >= 2.0 * radius {
             return 0.0;
         }
-        
+
         let theta = 2.0 * (distance / (2.0 * radius)).acos();
         let segment_area = (radius.powi(2) / 2.0) * (theta - theta.sin());
         2.0 * segment_area
@@ -158,7 +160,9 @@ impl VesicaPiscis {
 
     /// Check if this is a perfect Vesica Piscis (centers on each other's circumference)
     pub fn is_perfect(&self) -> bool {
-        let distance = ((self.center_b.0 - self.center_a.0).powi(2) + (self.center_b.1 - self.center_a.1).powi(2)).sqrt();
+        let distance = ((self.center_b.0 - self.center_a.0).powi(2)
+            + (self.center_b.1 - self.center_a.1).powi(2))
+        .sqrt();
         (distance - self.radius).abs() < 0.001
     }
 }
@@ -187,15 +191,12 @@ impl VesicaPiscisPattern {
         let center_a = vesica.center_a();
         let center_b = vesica.center_b();
         let radius = vesica.radius();
-        
+
         self.vesica_piscis.push(vesica);
-        
+
         // Add circles if not already present
-        let circles: [((Float, Float), Float); 2] = [
-            (center_a, radius),
-            (center_b, radius),
-        ];
-        
+        let circles: [((Float, Float), Float); 2] = [(center_a, radius), (center_b, radius)];
+
         for circle in circles {
             if !self.circles.contains(&circle) {
                 self.circles.push(circle);
@@ -239,11 +240,21 @@ pub struct EntityVesicaPiscis {
 
 impl EntityVesicaPiscis {
     /// Create a new entity Vesica Piscis
-    pub fn new(entity_a: u64, entity_b: u64, center_a: (Float, Float), center_b: (Float, Float), radius: Float) -> Self {
+    pub fn new(
+        entity_a: u64,
+        entity_b: u64,
+        center_a: (Float, Float),
+        center_b: (Float, Float),
+        radius: Float,
+    ) -> Self {
         let vesica = VesicaPiscis::new(center_a, center_b, radius);
-        let overlap_ratio = if radius > 0.0 { vesica.area() / (std::f64::consts::PI * radius.powi(2)) } else { 0.0 };
+        let overlap_ratio = if radius > 0.0 {
+            vesica.area() / (std::f64::consts::PI * radius.powi(2))
+        } else {
+            0.0
+        };
         let resonance = overlap_ratio; // Resonance equals overlap ratio
-        
+
         EntityVesicaPiscis {
             entity_a,
             entity_b,
@@ -316,7 +327,7 @@ mod tests {
     #[test]
     fn test_vesica_piscis_creation() {
         let vesica = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         assert_eq!(vesica.center_a(), (0.0, 0.0));
         assert_eq!(vesica.center_b(), (1.0, 0.0));
         assert_eq!(vesica.radius(), 1.0);
@@ -327,7 +338,7 @@ mod tests {
     fn test_vesica_piscis_perfect() {
         // Perfect Vesica Piscis: distance = radius
         let vesica = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         assert!(vesica.is_perfect());
     }
 
@@ -335,14 +346,14 @@ mod tests {
     fn test_vesica_piscis_no_intersection() {
         // Circles too far apart
         let vesica = VesicaPiscis::new((0.0, 0.0), (3.0, 0.0), 1.0);
-        
+
         assert!(!vesica.has_intersection());
     }
 
     #[test]
     fn test_vesica_piscis_intersection_points() {
         let vesica = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         // Should have 2 intersection points
         assert_eq!(vesica.intersection_points().len(), 2);
     }
@@ -350,7 +361,7 @@ mod tests {
     #[test]
     fn test_vesica_piscis_area() {
         let vesica = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         // Area should be positive
         assert!(vesica.area() > 0.0);
     }
@@ -358,13 +369,13 @@ mod tests {
     #[test]
     fn test_vesica_piscis_pattern() {
         let mut pattern = VesicaPiscisPattern::new();
-        
+
         let vesica1 = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
         let vesica2 = VesicaPiscis::new((1.0, 0.0), (2.0, 0.0), 1.0);
-        
+
         pattern.add(vesica1);
         pattern.add(vesica2);
-        
+
         assert_eq!(pattern.vesica_piscis().len(), 2);
         assert!(pattern.total_area() > 0.0);
     }
@@ -372,7 +383,7 @@ mod tests {
     #[test]
     fn test_entity_vesica_piscis() {
         let entity_vesica = EntityVesicaPiscis::new(1, 2, (0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         assert_eq!(entity_vesica.entity_a(), 1);
         assert_eq!(entity_vesica.entity_b(), 2);
         assert!(entity_vesica.overlap_ratio() > 0.0);
@@ -382,10 +393,10 @@ mod tests {
     #[test]
     fn test_entity_resonance_check() {
         let entity_vesica = EntityVesicaPiscis::new(1, 2, (0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         // Should be resonant with low threshold
         assert!(entity_vesica.is_resonant(0.1));
-        
+
         // May not be resonant with high threshold
         assert!(!entity_vesica.is_resonant(0.9));
     }
@@ -393,7 +404,7 @@ mod tests {
     #[test]
     fn test_calculate_entity_resonance() {
         let resonance = calculate_entity_resonance((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         // Resonance should be between 0 and 1
         assert!(resonance >= 0.0 && resonance <= 1.0);
     }
@@ -401,7 +412,7 @@ mod tests {
     #[test]
     fn test_vesica_piscis_aspect_ratio() {
         let vesica = VesicaPiscis::new((0.0, 0.0), (1.0, 0.0), 1.0);
-        
+
         // Aspect ratio should be positive
         assert!(vesica.aspect_ratio() > 0.0);
     }

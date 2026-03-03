@@ -1908,6 +1908,188 @@ impl HolographicFieldManager {
             no_resonance_count,
         }
     }
+
+    // ========================================================================
+    // PHASE 1.6: CAUSAL FLOW INVERSION METHODS
+    // ========================================================================
+
+    /// Evolve the holographic field (Phase 1.6)
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+    /// "Field is primary reality"
+    ///
+    /// This method evolves the underlying holographic field, demonstrating
+    /// that the field is the primary reality from which entities emerge.
+    ///
+    /// # Arguments
+    ///
+    /// * `dt` - Time delta for evolution step
+    ///
+    /// # Returns
+    ///
+    /// FieldEvolutionResult with evolution metrics
+    pub fn evolve_field(&mut self, dt: Float) -> crate::holographic::FieldEvolutionResult {
+        // Record initial state
+        let old_coherence = self.statistics.global_phase_coherence;
+        let old_stable_count: usize = self
+            .interference_patterns
+            .iter()
+            .map(|p| p.constructive_nodes.len())
+            .sum();
+
+        // Update field (this recalculates connections and interference patterns)
+        // This is where field evolution happens
+        self.calculate_interference_patterns();
+        self.track_resonance_for_all_entities();
+        self.update_statistics();
+
+        // Calculate coherence delta
+        let new_coherence = self.statistics.global_phase_coherence;
+        let coherence_delta = new_coherence - old_coherence;
+
+        // Count new stable nodes
+        let new_stable_count = self
+            .interference_patterns
+            .iter()
+            .map(|p| p.constructive_nodes.len())
+            .sum();
+        let dissolved_count = old_stable_count.saturating_sub(new_stable_count);
+
+        // Aperture change represents veil thinning
+        // As coherence improves, the veil thins
+        let aperture_change = coherence_delta.max(0.0) * dt * 0.001;
+
+        crate::holographic::FieldEvolutionResult {
+            coherence_delta,
+            stable_nodes_count: new_stable_count,
+            dissolved_nodes_count: dissolved_count,
+            aperture_change,
+        }
+    }
+
+    /// Extract entity potentials from field coherence patterns (Phase 1.6)
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Entities manifest at stable interference nodes"
+    ///
+    /// This method extracts potential entity configurations from the
+    /// interference patterns in the holographic field.
+    ///
+    /// # Arguments
+    ///
+    /// * `min_coherence` - Minimum coherence threshold for extraction
+    ///
+    /// # Returns
+    ///
+    /// Vector of ExtractedEntityPotential representing potential manifestations
+    pub fn extract_potentials(
+        &self,
+        min_coherence: Float,
+    ) -> Vec<crate::holographic::ExtractedEntityPotential> {
+        let mut potentials = Vec::new();
+        let global_coherence = self.statistics.global_phase_coherence;
+
+        // Extract from each interference pattern's constructive nodes
+        for (pattern_idx, pattern) in self.interference_patterns.iter().enumerate() {
+            // Skip patterns with low coherence
+            if pattern.phase_coherence < min_coherence {
+                continue;
+            }
+
+            for (node_idx, node) in pattern.constructive_nodes.iter().enumerate() {
+                // Calculate local coherence
+                let local_coherence = node.amplitude * pattern.phase_coherence;
+
+                // Skip if below threshold
+                if local_coherence < min_coherence {
+                    continue;
+                }
+
+                // Create holographic address from node position
+                use crate::holographic::{HolographicAddress, ScaleLevel, Vector3};
+
+                let scale = ScaleLevel::Biological; // Default scale
+                let local_offset = Vector3::new(
+                    node.position.spatial[0],
+                    node.position.spatial[1],
+                    node.position.spatial[2],
+                );
+                let address = HolographicAddress::new(scale, vec![], local_offset);
+
+                // Derive archetype activation from pattern
+                use crate::holographic::universal_template::ArchetypeActivationProfile;
+                let mut archetype_coefficients = [0.5; 22];
+                // Use node phase to modulate archetype activations
+                for (i, coef) in archetype_coefficients.iter_mut().enumerate() {
+                    let phase_influence = ((i as Float + 1.0) * node.phase).cos();
+                    *coef = (0.5 + 0.3 * phase_influence * node.amplitude).clamp(0.0, 1.0);
+                }
+                let archetype_activation = ArchetypeActivationProfile::new(archetype_coefficients);
+
+                // Derive spectrum from coherence
+                use crate::holographic::universal_template::SpectrumConfiguration;
+                use crate::spectrum::larson_framework::SpectrumRatio;
+
+                let ratio = if local_coherence > 0.5 {
+                    SpectrumRatio::time_space(1.0, 1.0 + local_coherence)
+                } else {
+                    SpectrumRatio::space_time(1.0 + (1.0 - local_coherence), 1.0)
+                };
+
+                let spectrum = SpectrumConfiguration::new(
+                    ratio,
+                    local_coherence,
+                    1.0 - local_coherence,
+                    local_coherence,
+                );
+
+                // Determine density from coherence
+                use crate::evolution_density_octave::density_octave::Density;
+                let density = match local_coherence {
+                    c if c >= 0.9 => Density::Eighth,
+                    c if c >= 0.8 => Density::Seventh,
+                    c if c >= 0.7 => Density::Sixth,
+                    c if c >= 0.55 => Density::Fifth,
+                    c if c >= 0.4 => Density::Fourth,
+                    c if c >= 0.25 => Density::Third,
+                    c if c >= 0.12 => Density::Second(
+                        crate::evolution_density_octave::density_octave::Density2SubLevel::Cellular,
+                    ),
+                    _ => Density::First(
+                        crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
+                    ),
+                };
+
+                // Generate free will seed
+                use std::collections::hash_map::DefaultHasher;
+                use std::hash::{Hash, Hasher};
+                let mut hasher = DefaultHasher::new();
+                pattern_idx.hash(&mut hasher);
+                node_idx.hash(&mut hasher);
+                node.phase.to_bits().hash(&mut hasher);
+                node.amplitude.to_bits().hash(&mut hasher);
+                let free_will_seed = hasher.finish();
+
+                potentials.push(crate::holographic::ExtractedEntityPotential {
+                    address,
+                    archetype_activation,
+                    spectrum,
+                    density,
+                    coherence: local_coherence,
+                    free_will_seed,
+                });
+            }
+        }
+
+        potentials
+    }
+
+    /// Get the current field coherence level (Phase 1.6)
+    ///
+    /// Returns the global phase coherence of the holographic field.
+    pub fn get_field_coherence(&self) -> Float {
+        self.statistics.global_phase_coherence
+    }
 }
 
 /// Resonance statistics (Phase 6)

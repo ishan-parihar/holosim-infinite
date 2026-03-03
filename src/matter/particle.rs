@@ -174,6 +174,22 @@ impl Complex {
             imag: -self.imag,
         }
     }
+
+    /// Create from polar coordinates (magnitude and phase)
+    ///
+    /// Creates a complex number from magnitude r and phase θ:
+    /// z = r * (cos(θ) + i*sin(θ))
+    ///
+    /// # Arguments
+    ///
+    /// * `r` - Magnitude (amplitude)
+    /// * `theta` - Phase angle in radians
+    pub fn from_polar(r: Float, theta: Float) -> Complex {
+        Complex {
+            real: r * theta.cos(),
+            imag: r * theta.sin(),
+        }
+    }
 }
 
 impl Default for Complex {
@@ -352,6 +368,75 @@ impl Particle {
         // initialize_global_physics_system(mode, holographic_threshold);
         // For now, this is a no-op placeholder
         let _ = (mode, holographic_threshold);
+    }
+
+    /// Create particle from holographic field discovery (Phase 2.3)
+    ///
+    /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK:
+    /// "Particle properties emerge from archetype activation, not fundamental attributes"
+    ///
+    /// This method connects the Particle to the HolographicField, allowing
+    /// particle properties to be discovered from field coherence at a position.
+    ///
+    /// # Arguments
+    ///
+    /// * `field` - Reference to the holographic field
+    /// * `position` - Position in the field for particle discovery
+    /// * `id` - Unique particle identifier
+    ///
+    /// # Returns
+    ///
+    /// A new Particle with properties derived from holographic discovery
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use crate::holographic::HolographicField;
+    /// use crate::matter::particle::{Particle, Coordinate3D};
+    ///
+    /// let field = HolographicField::new(layer, archetypes);
+    /// let position = Coordinate3D::new(0.5, 0.5, 0.5);
+    /// let particle = Particle::from_holographic_discovery(&field, position, 1);
+    /// ```
+    pub fn from_holographic_discovery(
+        field: &crate::holographic::HolographicField,
+        position: Coordinate3D,
+        id: ParticleID,
+    ) -> Self {
+        use crate::particle::ParticleProperties;
+
+        // Convert Coordinate3D to Position for holographic field query
+        let field_position = crate::holographic::Position::new(position.x, position.y, position.z);
+
+        // Get particle properties from holographic discovery
+        let props = ParticleProperties::from_holographic_discovery(field, &field_position);
+
+        // Get archetype activation from field
+        let archetype_activation = field.derive_archetype_activation(&field_position);
+
+        // Initialize wavefunction with coherence
+        let coherence = props.coherence;
+        let wavefunction = Complex::from_polar(coherence, 0.0);
+
+        // Calculate initial energy
+        let energy = props.mass * crate::particle::SPEED_OF_LIGHT.powi(2);
+
+        Self {
+            id,
+            archetype_activation: archetype_activation.coefficients,
+            position,
+            velocity: Vector3D::default(),
+            mass: props.mass,
+            charge: props.charge,
+            spin: props.spin,
+            lifetime: props.lifetime,
+            wavefunction,
+            creation_time: 0,
+            age: 0,
+            energy,
+            holographic_ref: None,
+            light_origin: None,
+        }
     }
 
     /// Emerge from Light condensation (LEGACY - for backward compatibility)

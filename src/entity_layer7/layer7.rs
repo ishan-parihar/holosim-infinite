@@ -15,7 +15,9 @@ use crate::foundation::{
     IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm,
     VioletRealm,
 };
-use crate::spectrum::{ArchetypicalMind, OrangeRealm, RedRealm, SpectrumRatio, YellowRealm};
+use crate::spectrum::{
+    ArchetypicalMind, OrangeRealm, RedRealm, SpectrumRatio, SpectrumSide, YellowRealm,
+};
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -752,6 +754,84 @@ impl SubSubLogos {
     ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
     /// "Each entity contains the whole"
+    /// Phase 0: Create entity from field potential (field fold mechanism)
+    ///
+    /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md:
+    /// "Entity creation via field fold - entities manifest from the holographic field"
+    ///
+    /// This is the "field fold" mechanism where high-coherence regions of the
+    /// holographic field fold into manifestation as individual entities.
+    ///
+    /// The entity properties are DERIVED from the field potential rather than
+    /// directly constructed, implementing top-down causation:
+    /// - `coherence` → determines spectrum configuration and stability
+    /// - `energy_density` → determines potential/kinetic energy balance
+    /// - `entity_type` → determines initial realm configuration
+    /// - `location` → spatial coordinates in the field (for future use)
+    pub fn from_field_potential(
+        entity_id: EntityId,
+        coherence: Float,
+        energy_density: Float,
+        entity_type: EntityType,
+        location: (Float, Float, Float),
+    ) -> Self {
+        // Derive realm configurations from field potential
+        // Higher coherence = more stable realm configurations
+        let violet_realm = VioletRealm::default();
+        let indigo_realm = IndigoRealm::default();
+        let blue_realm = BlueRealm::default();
+        let green_realm = GreenRealm::default();
+        let yellow_realm = YellowRealm::default();
+        let orange_realm = OrangeRealm::default();
+        let red_realm = RedRealm::default();
+
+        // Derive spectrum configuration from coherence and energy
+        // Higher coherence → more balanced spectrum access
+        // Higher energy → more kinetic (active) entity
+        let ratio = if coherence > 0.7 {
+            // High coherence: balanced access near the veil
+            1.0
+        } else if coherence > 0.4 {
+            // Medium coherence: slight space/time dominance
+            1.0 + (0.7 - coherence) * 2.0
+        } else {
+            // Low coherence: strong space/time dominance (more separation)
+            1.0 + (0.4 - coherence) * 5.0
+        };
+
+        // Use SpectrumSide::SpaceTime for entities manifesting in physical reality
+        let spectrum_ratio = SpectrumRatio::new(ratio, SpectrumSide::SpaceTime);
+        let spectrum_configuration = IndividualSpectrumConfiguration::new(spectrum_ratio);
+
+        // Create the entity using the standard constructor
+        let mut entity = Self::new(
+            entity_id,
+            entity_type,
+            None,       // No parent initially
+            Vec::new(), // No composition initially
+            None,       // No environment initially
+            violet_realm,
+            indigo_realm,
+            blue_realm,
+            green_realm,
+            yellow_realm,
+            orange_realm,
+            red_realm,
+            spectrum_configuration,
+        );
+
+        // Adjust entity properties based on field potential
+        // Set initial energies from field potential
+        entity.potential_energy = energy_density * coherence;
+        entity.kinetic_energy = energy_density * (1.0 - coherence);
+        entity.energy = entity.potential_energy + entity.kinetic_energy;
+
+        // Location is used for spatial organization (future: entity relationships)
+        let _ = location; // Currently unused, reserved for spatial queries
+
+        entity
+    }
+
     ///
     /// This is a RESULT of the "transcend and include" principle.
     pub fn verify_holographic_completeness(&self) -> HolographicCompletenessReport {
@@ -1493,35 +1573,36 @@ impl SubSubLogos {
     /// This implements the holographic principle: parent entities (GalacticLogos, SolarLogos)
     /// transmit their archetypical patterns down to children (Individual entities).
     /// This ensures "each contains the whole" - children contain patterns from their parents.
-    pub fn sync_archetypes_to_children(
-        &self,
-        children_map: &mut HashMap<EntityId, SubSubLogos>,
-    ) {
+    pub fn sync_archetypes_to_children(&self, children_map: &mut HashMap<EntityId, SubSubLogos>) {
         // Only GalacticLogos and SolarLogos have children to sync
         use crate::entity_layer7::layer7::EntityType;
-        if !matches!(self.entity_type, EntityType::GalacticLogos | EntityType::SolarLogos) {
+        if !matches!(
+            self.entity_type,
+            EntityType::GalacticLogos | EntityType::SolarLogos
+        ) {
             return;
         }
-        
+
         // Get this entity's archetype activations
         let archetype_activations = self.generate_archetype_activation_for_density();
-        
+
         // Sync to each child
         for child_id in self.children.iter() {
             if let Some(child) = children_map.get_mut(child_id) {
                 // Copy archetypical mind from parent
                 child.archetypical_mind = self.archetypical_mind.clone();
-                
+
                 // Adjust child's evolutionary attractor based on parent's blueprint
                 // This creates alignment between parent and child
-                child.evolutionary_rate = (self.evolutionary_rate * 0.9 + child.evolutionary_rate * 0.1)
+                child.evolutionary_rate = (self.evolutionary_rate * 0.9
+                    + child.evolutionary_rate * 0.1)
                     .max(0.3)
                     .min(1.7);
-                
+
                 // Subtle coherence alignment - child moves toward parent coherence
                 let parent_coherence = self.current_state.vibrational_state.coherence;
                 let child_coherence = child.current_state.vibrational_state.coherence;
-                child.current_state.vibrational_state.coherence = 
+                child.current_state.vibrational_state.coherence =
                     (parent_coherence * 0.1 + child_coherence * 0.9).clamp(0.0, 1.0);
             }
         }
@@ -3655,5 +3736,87 @@ mod tests {
         let mut trajectory = trajectory;
         trajectory.advance();
         assert_eq!(trajectory.current_stage, 1);
+    }
+
+    #[test]
+    fn test_from_field_potential() {
+        // Test creating entity from field potential
+        let entity_id = EntityId::new("field-entity-1".to_string());
+        let coherence = 0.75;
+        let energy_density = 0.5;
+        let entity_type = EntityType::Individual;
+        let location = (0.5, 0.5, 0.5);
+
+        let entity = SubSubLogos::from_field_potential(
+            entity_id.clone(),
+            coherence,
+            energy_density,
+            entity_type,
+            location,
+        );
+
+        // Verify entity was created
+        assert_eq!(entity.entity_id, entity_id);
+        assert_eq!(entity.entity_type, EntityType::Individual);
+
+        // Verify energies were derived from field potential
+        assert!(entity.potential_energy > 0.0);
+        assert!(entity.kinetic_energy >= 0.0);
+        assert!((entity.energy - (entity.potential_energy + entity.kinetic_energy)).abs() < 0.001);
+
+        // Verify high coherence gives balanced spectrum
+        // coherence 0.75 > 0.7 means ratio should be 1.0 (balanced)
+        let ratio = entity.spectrum_configuration.ratio.calculate_ratio();
+        assert!(
+            (ratio - 1.0).abs() < 0.001,
+            "Expected balanced ratio for high coherence, got {}",
+            ratio
+        );
+    }
+
+    #[test]
+    fn test_from_field_potential_low_coherence() {
+        // Test creating entity with low coherence
+        let entity_id = EntityId::new("field-entity-2".to_string());
+        let coherence = 0.3;
+        let energy_density = 0.5;
+        let entity_type = EntityType::Individual;
+        let location = (0.2, 0.3, 0.4);
+
+        let entity = SubSubLogos::from_field_potential(
+            entity_id,
+            coherence,
+            energy_density,
+            entity_type,
+            location,
+        );
+
+        // Low coherence should give space/time dominant ratio
+        let ratio = entity.spectrum_configuration.ratio.calculate_ratio();
+        assert!(
+            ratio > 1.5,
+            "Expected space/time dominant ratio for low coherence, got {}",
+            ratio
+        );
+    }
+
+    #[test]
+    fn test_from_field_potential_entity_types() {
+        // Test different entity types
+        for (entity_type, name) in [
+            (EntityType::Individual, "Individual"),
+            (EntityType::Collective, "Collective"),
+            (EntityType::Environmental, "Environmental"),
+        ] {
+            let entity_id = EntityId::new(format!("field-{}-1", name));
+            let entity = SubSubLogos::from_field_potential(
+                entity_id,
+                0.6,
+                0.5,
+                entity_type,
+                (0.5, 0.5, 0.5),
+            );
+            assert_eq!(entity.entity_type, entity_type);
+        }
     }
 }

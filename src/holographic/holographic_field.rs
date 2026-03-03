@@ -31,8 +31,11 @@
 //! The holographic encoding at any layer contains the COMPLETE information about
 //! all other layers. The difference is only in resolution (spatial frequency).
 
+use crate::evolution_density_octave::density_octave::Density;
 use crate::holographic::complex_vectors::{ComplexArchetype, ComplexVector};
+use crate::holographic::field_address::HolographicAddress;
 use crate::holographic::interference_pattern::InterferencePattern;
+use crate::holographic::universal_template::{ArchetypeActivationProfile, SpectrumConfiguration};
 use crate::holographic::Position;
 
 /// Float type for holographic calculations
@@ -255,6 +258,114 @@ impl InvolutionLayer {
 ///
 /// The holographic field at ANY layer contains the COMPLETE encoding of all other layers.
 /// The difference is only in resolution (spatial frequency * aperture_size).
+// ============================================================================
+// PHASE 1: MERA CONFIGURATION AND TYPES
+// ============================================================================
+
+/// MERA Configuration for holographic compression (Phase 1)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "MERA implements holographic compression through hierarchical layers
+/// that progressively compress data while maintaining information."
+#[derive(Debug, Clone)]
+pub struct MeraConfig {
+    /// Number of MERA hierarchy levels (typically 7 for density octave)
+    pub num_levels: usize,
+    /// Maximum cache size in megabytes for decompressed views
+    pub cache_size_mb: usize,
+    /// Compression threshold for wavelet coefficient pruning
+    pub compression_threshold: Float,
+}
+
+impl Default for MeraConfig {
+    fn default() -> Self {
+        Self {
+            num_levels: 7,
+            cache_size_mb: 100,
+            compression_threshold: 0.01,
+        }
+    }
+}
+
+impl MeraConfig {
+    /// Create a new MERA configuration
+    pub fn new(num_levels: usize, cache_size_mb: usize, compression_threshold: Float) -> Self {
+        Self {
+            num_levels,
+            cache_size_mb,
+            compression_threshold,
+        }
+    }
+}
+
+/// Result of field evolution (Phase 1)
+///
+/// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+/// "Field is primary reality"
+#[derive(Debug, Clone, Default)]
+pub struct FieldEvolutionResult {
+    /// Change in phase coherence during evolution
+    pub coherence_delta: Float,
+    /// Number of stable constructive interference nodes after evolution
+    pub stable_nodes_count: usize,
+    /// Number of nodes that dissolved during evolution
+    pub dissolved_nodes_count: usize,
+    /// Change in aperture size (veil thinning)
+    pub aperture_change: Float,
+}
+
+/// Potential entity extracted from field coherence (Phase 1)
+///
+/// From COSMOLOGICAL-ARCHITECTURE.md:
+/// "Entities manifest at stable interference nodes"
+///
+/// When the holographic field has high-coherence constructive interference
+/// patterns, entity potentials can be extracted. These represent the
+/// possibility of entity manifestation, not yet actualized.
+#[derive(Debug, Clone)]
+pub struct ExtractedEntityPotential {
+    /// Holographic address in the field
+    /// From Phase 1: Space emerges from field coherence, position is an address
+    pub address: HolographicAddress,
+
+    /// Archetype activation profile derived from local field values
+    /// The 22 archetype coefficients represent the consciousness pattern
+    pub archetype_activation: crate::holographic::universal_template::ArchetypeActivationProfile,
+
+    /// Spectrum configuration derived from field ratio at location
+    /// Space/Time ↔ Time/Space ratio determines the density of manifestation
+    pub spectrum: crate::holographic::universal_template::SpectrumConfiguration,
+
+    /// Density level determined by coherence level
+    /// Higher coherence = higher density potential
+    pub density: crate::evolution_density_octave::density_octave::Density,
+
+    /// Local coherence at this manifestation point
+    /// Must be above threshold for stable entity potential
+    pub coherence: Float,
+
+    /// Free Will seed for non-deterministic choice
+    /// From COSMOLOGICAL-ARCHITECTURE.md: "Free Will is the First Distortion"
+    pub free_will_seed: u64,
+}
+
+impl Default for ExtractedEntityPotential {
+    fn default() -> Self {
+        use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
+        use crate::holographic::universal_template::{
+            ArchetypeActivationProfile, SpectrumConfiguration,
+        };
+
+        Self {
+            address: HolographicAddress::cosmic_origin(),
+            archetype_activation: ArchetypeActivationProfile::default(),
+            spectrum: SpectrumConfiguration::balanced(),
+            density: Density::First(Density1SubLevel::Quantum),
+            coherence: 0.5,
+            free_will_seed: 0,
+        }
+    }
+}
 #[derive(Clone, Debug)]
 pub struct HolographicField {
     /// The involution layer (Violet → Red)
@@ -429,6 +540,205 @@ impl HolographicField {
     /// Grid resolution (32 for default holographic field)
     pub fn grid_resolution(&self) -> usize {
         32
+    }
+
+    // ========================================================================
+    // PHASE 1: ENTITY EXTRACTION METHODS
+    // ========================================================================
+
+    /// Calculate local intensity at a position in the field
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Entities manifest at stable interference nodes"
+    pub fn calculate_local_intensity(&self, _position: &Position) -> Float {
+        // Use the interference pattern's intensity field
+        let intensity = self
+            .interference_pattern
+            .intensity_field
+            .grid
+            .iter()
+            .sum::<Float>()
+            / self.interference_pattern.intensity_field.grid.len().max(1) as Float;
+        intensity.clamp(0.0, 1.0)
+    }
+
+    /// Derive archetype activation profile from local field values
+    ///
+    /// Phase 1: Entities emerge from the field with archetypical patterns
+    pub fn derive_archetype_activation(&self, _position: &Position) -> ArchetypeActivationProfile {
+        let mut coefficients = [0.5; 22];
+
+        // Each archetype coefficient is influenced by the archetype vectors
+        for i in 0..22 {
+            let cv = &self.archetype_complex_vectors[i];
+            coefficients[i] = cv.amplitude().clamp(0.0, 1.0);
+        }
+
+        ArchetypeActivationProfile::new(coefficients)
+    }
+
+    /// Extract entity potentials from the field
+    ///
+    /// From COSMOLOGICAL-ARCHITECTURE.md:
+    /// "Entities manifest at stable interference nodes"
+    ///
+    /// This method extracts potential entities from the holographic field
+    /// based on coherence thresholds. Entities emerge FROM the field.
+    pub fn extract_entities(&self, min_coherence: Float) -> Vec<ExtractedEntityPotential> {
+        let mut potentials = Vec::new();
+        let global_coherence = self.phase_coherence();
+
+        // Get constructive interference nodes (stable configurations)
+        let constructive_nodes = self.accessible_constructive_nodes();
+
+        for (node_index, node) in constructive_nodes.iter().enumerate() {
+            // Calculate local coherence at this node
+            let local_intensity = self.calculate_local_intensity(node);
+            let local_coherence = local_intensity * global_coherence;
+
+            // Skip if below minimum coherence threshold
+            if local_coherence < min_coherence {
+                continue;
+            }
+
+            // Create holographic address from node position
+            let address = self.position_to_address(node);
+
+            // Derive archetype activation from local field values
+            let archetype_activation = self.derive_archetype_activation(node);
+
+            // Calculate spectrum configuration from field ratio at location
+            let spectrum = self.derive_spectrum_configuration(node, local_coherence);
+
+            // Determine density from coherence level
+            let density = self.determine_density_from_coherence(local_coherence);
+
+            // Generate free will seed from position hash and node index
+            let free_will_seed = self.generate_free_will_seed(node, node_index);
+
+            potentials.push(ExtractedEntityPotential {
+                address,
+                archetype_activation,
+                spectrum,
+                density,
+                coherence: local_coherence,
+                free_will_seed,
+            });
+        }
+
+        potentials
+    }
+
+    /// Convert a Position to a HolographicAddress
+    fn position_to_address(&self, position: &Position) -> HolographicAddress {
+        use crate::holographic::field_address::ScaleLevel;
+        use crate::holographic::field_address::Vector3;
+
+        // Determine scale level based on spatial frequency
+        let scale = self.spatial_frequency_to_scale_level();
+
+        // Create local offset (normalized to [0, 1))
+        let local_offset = Vector3::new(
+            (position.x.fract() + 1.0).fract(),
+            (position.y.fract() + 1.0).fract(),
+            (position.z.fract() + 1.0).fract(),
+        );
+
+        HolographicAddress::new(scale, vec![], local_offset)
+    }
+
+    /// Map spatial frequency to scale level
+    fn spatial_frequency_to_scale_level(&self) -> crate::holographic::field_address::ScaleLevel {
+        use crate::holographic::field_address::ScaleLevel;
+        match self.spatial_frequency {
+            f if f >= 5000.0 => ScaleLevel::Quantum,
+            f if f >= 3500.0 => ScaleLevel::Atomic,
+            f if f >= 2500.0 => ScaleLevel::Molecular,
+            f if f >= 1500.0 => ScaleLevel::Cellular,
+            f if f >= 800.0 => ScaleLevel::Biological,
+            f if f >= 300.0 => ScaleLevel::Planetary,
+            f if f >= 150.0 => ScaleLevel::Stellar,
+            _ => ScaleLevel::Cosmic,
+        }
+    }
+
+    /// Derive spectrum configuration from field ratio at location
+    fn derive_spectrum_configuration(
+        &self,
+        _position: &Position,
+        local_coherence: Float,
+    ) -> SpectrumConfiguration {
+        // Calculate space/time ratio based on coherence
+        // Higher coherence shifts toward time/space (oneness)
+        let ratio_value = 1.0 + (1.0 - local_coherence) * 10.0;
+
+        // Determine spectrum side based on coherence
+        let ratio = if local_coherence > 0.5 {
+            crate::spectrum::larson_framework::SpectrumRatio::time_space(1.0, ratio_value)
+        } else {
+            crate::spectrum::larson_framework::SpectrumRatio::space_time(ratio_value, 1.0)
+        };
+
+        // Veil transparency based on coherence
+        let veil_transparency = local_coherence;
+
+        // Access levels
+        let space_time_access = 1.0 - local_coherence;
+        let time_space_access = local_coherence;
+
+        SpectrumConfiguration::new(
+            ratio,
+            veil_transparency,
+            space_time_access,
+            time_space_access,
+        )
+    }
+
+    /// Determine density from coherence level
+    fn determine_density_from_coherence(&self, coherence: Float) -> Density {
+        use crate::evolution_density_octave::density_octave::{
+            Density, Density1SubLevel, Density2SubLevel,
+        };
+        match coherence {
+            c if c >= 0.95 => Density::Eighth,
+            c if c >= 0.85 => Density::Seventh,
+            c if c >= 0.75 => Density::Sixth,
+            c if c >= 0.60 => Density::Fifth,
+            c if c >= 0.45 => Density::Fourth,
+            c if c >= 0.30 => Density::Third,
+            c if c >= 0.15 => Density::Second(Density2SubLevel::Cellular),
+            _ => Density::First(Density1SubLevel::Quantum),
+        }
+    }
+
+    /// Generate free will seed from position and index
+    fn generate_free_will_seed(&self, position: &Position, index: usize) -> u64 {
+        use std::collections::hash_map::DefaultHasher;
+        use std::hash::{Hash, Hasher};
+
+        let mut hasher = DefaultHasher::new();
+        position.x.to_bits().hash(&mut hasher);
+        position.y.to_bits().hash(&mut hasher);
+        position.z.to_bits().hash(&mut hasher);
+        index.hash(&mut hasher);
+        self.spatial_frequency.to_bits().hash(&mut hasher);
+
+        hasher.finish()
+    }
+
+    /// Compute molecular interference pattern at a position
+    ///
+    /// From ROADMAP Phase 3.2: "Molecular Shape = Field interference patterns"
+    pub fn compute_molecular_interference(
+        &self,
+        position: &Position,
+    ) -> crate::chemistry::molecular_geometry::MolecularInterferencePattern {
+        // Create a simple pattern for now
+        crate::chemistry::molecular_geometry::MolecularInterferencePattern::new(
+            18,
+            36,
+            crate::holographic::field_address::Vector3::new(position.x, position.y, position.z),
+        )
     }
 }
 

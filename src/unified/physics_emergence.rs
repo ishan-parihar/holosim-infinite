@@ -5,8 +5,8 @@
 //!
 //! Matter emerges from field coherence, NOT the reverse.
 
-use crate::hpo::spatial_field::Position3D;
 use super::unified_field::UnifiedField;
+use crate::hpo::spatial_field::Position3D;
 use std::sync::Arc;
 
 /// Matter emergence configuration
@@ -77,10 +77,10 @@ impl PhysicsEmergence {
             molecules: Vec::new(),
         }
     }
-    
+
     pub fn derive_particles(&mut self) -> Vec<EmergentParticle> {
         self.particles.clear();
-        
+
         for i in 0..100 {
             let coherence = (i as f64) / 100.0;
             if coherence > self.config.particle_threshold {
@@ -97,27 +97,27 @@ impl PhysicsEmergence {
                 });
             }
         }
-        
+
         self.particles.clone()
     }
-    
+
     pub fn derive_atoms(&mut self) -> Vec<EmergentAtom> {
         self.atoms.clear();
-        
+
         if self.particles.len() < 3 {
             return Vec::new();
         }
-        
+
         let atoms_needed = self.particles.len() / 3;
-        
+
         for i in 0..atoms_needed {
             let start = i * 3;
             let end = (start + 3).min(self.particles.len());
             let particle_group = &self.particles[start..end];
-            
-            let avg_energy: f64 = particle_group.iter().map(|p| p.energy).sum::<f64>() 
-                / particle_group.len() as f64;
-            
+
+            let avg_energy: f64 =
+                particle_group.iter().map(|p| p.energy).sum::<f64>() / particle_group.len() as f64;
+
             if avg_energy > self.config.atom_threshold {
                 let pos = Position3D {
                     x: i as f64 * 0.5,
@@ -133,27 +133,27 @@ impl PhysicsEmergence {
                 });
             }
         }
-        
+
         self.atoms.clone()
     }
-    
+
     pub fn derive_molecules(&mut self) -> Vec<EmergentMolecule> {
         self.molecules.clear();
-        
+
         if self.atoms.len() < 2 {
             return Vec::new();
         }
-        
+
         let molecules_needed = self.atoms.len() / 2;
-        
+
         for i in 0..molecules_needed {
             let start = i * 2;
             let end = (start + 2).min(self.atoms.len());
             let atom_group = &self.atoms[start..end];
-            
-            let avg_mass: f64 = atom_group.iter().map(|a| a.mass).sum::<f64>() 
-                / atom_group.len() as f64;
-            
+
+            let avg_mass: f64 =
+                atom_group.iter().map(|a| a.mass).sum::<f64>() / atom_group.len() as f64;
+
             if avg_mass > self.config.molecule_threshold {
                 let pos = Position3D {
                     x: i as f64 * 0.8,
@@ -169,16 +169,20 @@ impl PhysicsEmergence {
                 });
             }
         }
-        
+
         self.molecules.clone()
     }
-    
+
     pub fn emerge_all(&mut self) -> PhysicsEmergenceResult {
         let particles = self.derive_particles();
         let atoms = self.derive_atoms();
         let molecules = self.derive_molecules();
-        
-        PhysicsEmergenceResult { particles, atoms, molecules }
+
+        PhysicsEmergenceResult {
+            particles,
+            atoms,
+            molecules,
+        }
     }
 }
 
@@ -192,12 +196,12 @@ pub struct PhysicsEmergenceResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_physics_emergence() {
         let field = Arc::new(UnifiedField::new("test".to_string()));
         let mut physics = PhysicsEmergence::new(field);
-        
+
         let particles = physics.derive_particles();
         assert!(!particles.is_empty());
     }

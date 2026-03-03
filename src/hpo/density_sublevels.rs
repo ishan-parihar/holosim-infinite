@@ -18,20 +18,24 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DensitySubLevel {
     // 1st Density (Red Ray)
-    Quantum = 0,        // Quantum particles and fields
-    Atomic = 1,         // Atoms and galaxies
-    Molecular = 2,      // Molecules and planets
-    Planetary = 3,      // Planetary structures, Gaia precursors
-    
-    // For densities 2-8, we use similar patterns
-    // Cellular (2nd), Simple, Complex, etc.
+    Quantum = 0,   // Quantum particles and fields
+    Atomic = 1,    // Atoms and galaxies
+    Molecular = 2, // Molecules and planets
+    Planetary = 3, // Planetary structures, Gaia precursors
+
+                   // For densities 2-8, we use similar patterns
+                   // Cellular (2nd), Simple, Complex, etc.
 }
 
 impl DensitySubLevel {
-    pub fn count() -> usize { 4 }
-    
-    pub fn index(&self) -> usize { *self as usize }
-    
+    pub fn count() -> usize {
+        4
+    }
+
+    pub fn index(&self) -> usize {
+        *self as usize
+    }
+
     pub fn from_index(index: usize) -> Option<DensitySubLevel> {
         match index {
             0 => Some(DensitySubLevel::Quantum),
@@ -41,17 +45,17 @@ impl DensitySubLevel {
             _ => None,
         }
     }
-    
+
     /// Get the characteristic scale for this sub-level
     pub fn scale(&self) -> Float {
         match self {
-            DensitySubLevel::Quantum => 0.001,      // Nanometer scale
-            DensitySubLevel::Atomic => 0.1,        // Angstrom scale  
-            DensitySubLevel::Molecular => 10.0,     // Nanometer to micrometer
+            DensitySubLevel::Quantum => 0.001,     // Nanometer scale
+            DensitySubLevel::Atomic => 0.1,        // Angstrom scale
+            DensitySubLevel::Molecular => 10.0,    // Nanometer to micrometer
             DensitySubLevel::Planetary => 10000.0, // Kilometer scale
         }
     }
-    
+
     /// Get name for display
     pub fn name(&self) -> &'static str {
         match self {
@@ -61,7 +65,7 @@ impl DensitySubLevel {
             DensitySubLevel::Planetary => "Planetary Realm",
         }
     }
-    
+
     /// Get coherence threshold for transitioning to next sub-level
     pub fn transition_threshold(&self) -> Float {
         match self {
@@ -93,16 +97,17 @@ impl DensityWithSubLevel {
             progress: 0.0,
         }
     }
-    
+
     /// Get the combined index (density * 4 + sub_level)
     pub fn combined_index(&self) -> usize {
         self.density.index() * 4 + self.sub_level.index()
     }
-    
+
     /// Get description
     pub fn description(&self) -> String {
-        format!("{} - {} ({:.0}%)", 
-            format!("{:?}", self.density), 
+        format!(
+            "{} - {} ({:.0}%)",
+            format!("{:?}", self.density),
             self.sub_level.name(),
             self.progress * 100.0
         )
@@ -114,13 +119,13 @@ impl DensityWithSubLevel {
 pub struct DensitySubLevelConfig {
     /// Number of sub-levels per density
     pub sub_levels_per_density: usize,
-    
+
     /// Base coherence threshold for first sub-level
     pub base_threshold: Float,
-    
+
     /// Rate of sub-level progression
     pub progression_rate: Float,
-    
+
     /// Enable transcend and include
     pub transcend_include: bool,
 }
@@ -140,13 +145,13 @@ impl Default for DensitySubLevelConfig {
 pub struct DensitySubLevels {
     /// Configuration
     config: DensitySubLevelConfig,
-    
+
     /// Entity density/sub-level tracking
     entity_densities: HashMap<usize, DensityWithSubLevel>,
-    
+
     /// Current coherence level
     current_coherence: Float,
-    
+
     /// Statistics
     pub statistics: DensitySubLevelStatistics,
 }
@@ -170,21 +175,21 @@ impl DensitySubLevels {
             statistics: DensitySubLevelStatistics::default(),
         }
     }
-    
+
     pub fn with_defaults() -> Self {
         Self::new(DensitySubLevelConfig::default())
     }
-    
+
     /// Initialize entities with default densities
     pub fn initialize_entities(&mut self, entity_count: usize) {
         self.entity_densities.clear();
-        
+
         for i in 0..entity_count {
             // Start entities at different sub-levels based on some initial condition
             // For example, spread them across 1st density sub-levels
             let density = DensityBand::Red; // Start at 1st density
             let mut density_with_sub = DensityWithSubLevel::new(density);
-            
+
             // Vary starting sub-level
             let initial_sub = match i % 4 {
                 0 => DensitySubLevel::Quantum,
@@ -194,50 +199,52 @@ impl DensitySubLevels {
             };
             density_with_sub.sub_level = initial_sub;
             density_with_sub.progress = 0.1;
-            
+
             self.entity_densities.insert(i, density_with_sub);
         }
     }
-    
+
     /// Update all entities based on current coherence
     pub fn update(&mut self, coherence: Float) {
         self.current_coherence = coherence;
-        
+
         let mut transitions = 0;
         let mut total_progress = 0.0;
-        
+
         for density_with_sub in self.entity_densities.values_mut() {
             let old_sub = density_with_sub.sub_level;
-            
+
             // Update progress within current sub-level
             // Higher coherence = faster progression
             let threshold = density_with_sub.sub_level.transition_threshold();
-            
+
             if coherence >= threshold {
                 // Progress toward next sub-level
                 density_with_sub.progress += self.config.progression_rate * coherence;
-                
+
                 // Check for sub-level transition
                 if density_with_sub.progress >= 1.0 && density_with_sub.sub_level.index() < 3 {
                     // Transition to next sub-level
-                    if let Some(next_sub) = DensitySubLevel::from_index(density_with_sub.sub_level.index() + 1) {
+                    if let Some(next_sub) =
+                        DensitySubLevel::from_index(density_with_sub.sub_level.index() + 1)
+                    {
                         density_with_sub.sub_level = next_sub;
                         density_with_sub.progress = 0.0;
                         transitions += 1;
                     }
                 }
             }
-            
+
             // Clamp progress
             density_with_sub.progress = density_with_sub.progress.clamp(0.0, 1.0);
             total_progress += density_with_sub.progress;
         }
-        
+
         // Apply transcend and include - lower sub-levels persist
         if self.config.transcend_include {
             self.apply_transcend_include();
         }
-        
+
         // Update statistics
         self.statistics.sub_level_transitions += transitions;
         let count = self.entity_densities.len() as Float;
@@ -246,21 +253,21 @@ impl DensitySubLevels {
         }
         self.update_sub_level_counts();
     }
-    
+
     /// Apply transcend and include
     /// Lower sub-levels contribute to field even as higher ones emerge
     fn apply_transcend_include(&self) {
         // This affects how the field is computed
         // Each sub-level adds its contribution to the overall field
     }
-    
+
     /// Update sub-level counts for statistics
     fn update_sub_level_counts(&mut self) {
         self.statistics.entities_at_quantum = 0;
         self.statistics.entities_at_atomic = 0;
         self.statistics.entities_at_molecular = 0;
         self.statistics.entities_at_planetary = 0;
-        
+
         for density_with_sub in self.entity_densities.values() {
             match density_with_sub.sub_level {
                 DensitySubLevel::Quantum => self.statistics.entities_at_quantum += 1,
@@ -270,12 +277,12 @@ impl DensitySubLevels {
             }
         }
     }
-    
+
     /// Get entity's density with sub-level
     pub fn get_entity_density(&self, entity_id: usize) -> Option<DensityWithSubLevel> {
         self.entity_densities.get(&entity_id).cloned()
     }
-    
+
     /// Get the characteristic scale for an entity
     pub fn get_entity_scale(&self, entity_id: usize) -> Float {
         if let Some(density_with_sub) = self.entity_densities.get(&entity_id) {
@@ -287,7 +294,7 @@ impl DensitySubLevels {
             1.0 // Default scale
         }
     }
-    
+
     /// Get statistics
     pub fn get_statistics(&self) -> DensitySubLevelStatistics {
         self.statistics.clone()
@@ -304,20 +311,20 @@ pub fn apply_sublevel_to_field(
 ) {
     let density_idx = density.index();
     let sub_idx = sub_level.index();
-    
+
     // Get base amplitude for this density
     let base_amplitude = node.field_data.density_amplitudes[density_idx].magnitude();
-    
+
     // Sub-level modifies the amplitude
     // Higher sub-levels = more manifested = higher amplitude
     let sub_level_factor = 1.0 + (sub_idx as Float / 4.0) + progress * 0.25;
-    
+
     // Apply to coherence
     node.field_data.coherence *= sub_level_factor.min(1.5);
-    
+
     // Sub-level affects energy distribution
     node.field_data.energy *= sub_level_factor;
-    
+
     // Modify spectrum position based on sub-level
     let base_position = density_idx as Float / 8.0;
     let sub_position = sub_idx as Float / 32.0;
@@ -327,31 +334,31 @@ pub fn apply_sublevel_to_field(
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_sub_level_creation() {
         let sub = DensitySubLevel::Quantum;
         assert_eq!(sub.index(), 0);
         assert_eq!(sub.name(), "Quantum Realm");
     }
-    
+
     #[test]
     fn test_density_with_sub_level() {
         let d = DensityWithSubLevel::new(DensityBand::Red);
         assert_eq!(d.density, DensityBand::Red);
         assert_eq!(d.sub_level, DensitySubLevel::Quantum);
     }
-    
+
     #[test]
     fn test_sub_level_transitions() {
         let mut system = DensitySubLevels::with_defaults();
         system.initialize_entities(10);
-        
+
         // Update with high coherence - should trigger transitions
         for _ in 0..100 {
             system.update(0.8);
         }
-        
+
         // Should have some transitions
         assert!(system.statistics.sub_level_transitions >= 0);
     }

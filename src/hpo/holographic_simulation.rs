@@ -6,25 +6,25 @@
 //! Phase F5: BiologicalEmergence for life from molecular field
 //! Phase F6: PlanetaryEmergence for environment from field patterns
 
-use super::field_state::{DensityBand, Float, HolographicFieldConfig, HolographicFieldState};
-use super::spatial_field::{Position3D, SpatialField, SpatialFieldConfig};
-use super::spectrum_spatial::{SpectrumSpatialDynamics, SpectrumSpatialConfig, SpatialConfig};
-use super::archetype_matter::{MatterEmergence, ArchetypeMatterConfig, MatterScale, ParticleType};
-use super::complexity_emergence::{ComplexityEmergence, ComplexityPhase, ComplexMolecule};
+use super::archetype_matter::{ArchetypeMatterConfig, MatterEmergence, MatterScale, ParticleType};
+use super::attractor_fields::{AttractorFieldStatistics, AttractorFields};
 use super::biological_emergence::{BiologicalEmergence, BiologicalEmergenceConfig, BiologyBridge};
-use super::holographic_encoder::EntityExtractor;
-use super::unified_field::{UnifiedFieldConfig, UnifiedFieldEquation};
-use super::spectrum_dynamics::SpectrumDynamics;
-use super::involution_flow::CosmicHierarchy;
-use super::evolution_feedback::{DecisionType, EntityDecision, EvolutionFeedback};
-use super::social_memory::{SocialMemory, SocialMemoryConfig};
+use super::complexity_emergence::{ComplexMolecule, ComplexityEmergence, ComplexityPhase};
 use super::cosmic_sequence::{CosmicSequence, CosmologicalLayer};
-use super::larson_framework::{LarsonFramework, LarsonStatistics};
-use super::density_sublevels::{DensitySubLevels, DensitySubLevelStatistics};
-use super::attractor_fields::{AttractorFields, AttractorFieldStatistics};
+use super::density_sublevels::{DensitySubLevelStatistics, DensitySubLevels};
 use super::entity_emergence::{EntityEmergence, EntityEmergenceStatistics};
-use super::planetary_emergence::{PlanetaryConfig, PlanetaryBridge};
-use super::full_integration::{IntegrationConfig, IntegrationBridge};
+use super::evolution_feedback::{DecisionType, EntityDecision, EvolutionFeedback};
+use super::field_state::{DensityBand, Float, HolographicFieldConfig, HolographicFieldState};
+use super::full_integration::{IntegrationBridge, IntegrationConfig};
+use super::holographic_encoder::EntityExtractor;
+use super::involution_flow::CosmicHierarchy;
+use super::larson_framework::{LarsonFramework, LarsonStatistics};
+use super::planetary_emergence::{PlanetaryBridge, PlanetaryConfig};
+use super::social_memory::{SocialMemory, SocialMemoryConfig};
+use super::spatial_field::{Position3D, SpatialField, SpatialFieldConfig};
+use super::spectrum_dynamics::SpectrumDynamics;
+use super::spectrum_spatial::{SpatialConfig, SpectrumSpatialConfig, SpectrumSpatialDynamics};
+use super::unified_field::{UnifiedFieldConfig, UnifiedFieldEquation};
 
 /// Unified simulation configuration
 #[derive(Debug, Clone)]
@@ -196,31 +196,31 @@ impl HolographicSimulation {
         self.entity_emergence.initialize(10000);
         self.entity_emergence.apply_to_field(&mut self.field);
         self.hierarchy.initialize(&mut self.field);
-        
+
         // Create ray configuration
         let mut rays = [0.0; 7];
         rays[1] = 0.4;
         let galactic = super::involution_flow::SubLogos::galactic(rays);
         self.hierarchy.add_sublogos(galactic);
-        
+
         rays[2] = 0.3;
         let solar = super::involution_flow::SubLogos::solar(rays);
         self.hierarchy.add_sublogos(solar);
-        
+
         rays[3] = 0.2;
         let mut planetary = super::involution_flow::SubSubLogos::new(rays);
         planetary.entity_count = 137;
         self.hierarchy.add_subsublogos(planetary);
-        
+
         self.spectrum.initialize_entities(137);
-        
+
         // Initialize spatial field with entities
         for i in 0..137 {
             let pos = self.spatial_field.derive_entity_position(i, 137);
             self.spatial_field.add_entity(i, pos);
             self.social_memory.register_entity(i, pos.to_array());
         }
-        
+
         // Add field energy at entity positions
         for i in 0..137 {
             if let Some(pos) = self.spatial_field.get_entity_position(i) {
@@ -228,25 +228,30 @@ impl HolographicSimulation {
                 self.spatial_field.add_energy_at(pos, density.min(7), 0.5);
             }
         }
-        
+
         // Initialize matter and complexity
         self.initialize_matter_from_field();
     }
-    
+
     /// Phase F3/F4/F5: Create matter, complexity, and life from field
     fn initialize_matter_from_field(&mut self) {
-        let active_positions = self.spatial_field.get_active_positions(self.config.archetype_matter.particle_threshold);
-        
+        let active_positions = self
+            .spatial_field
+            .get_active_positions(self.config.archetype_matter.particle_threshold);
+
         for (position, energy) in active_positions {
             let field_data = self.spatial_field.sample_field(&position);
-            
+
             // Phase F3: Create particles
-            self.matter_emergence.derive_particle_from_field(&field_data, position);
-            
+            self.matter_emergence
+                .derive_particle_from_field(&field_data, position);
+
             // Phase F4: Process complexity
             let particles: Vec<_> = self.matter_emergence.get_particles().values().collect();
-            let particle_refs: Vec<&super::archetype_matter::Particle> = particles.iter().map(|p| *p).collect();
-            self.complexity_emergence.process_field(&field_data, position, &particle_refs);
+            let particle_refs: Vec<&super::archetype_matter::Particle> =
+                particles.iter().map(|p| *p).collect();
+            self.complexity_emergence
+                .process_field(&field_data, position, &particle_refs);
         }
     }
 
@@ -257,10 +262,15 @@ impl HolographicSimulation {
         } else {
             self.spatial_field.derive_entity_position(entity_id, 137)
         };
-        
-        let spectrum_pos = self.spectrum.get_spectrum_position(entity_id).unwrap_or(0.5);
-        let perceived_pos = self.spectrum_spatial.get_perceived_position(spatial_pos, spectrum_pos);
-        
+
+        let spectrum_pos = self
+            .spectrum
+            .get_spectrum_position(entity_id)
+            .unwrap_or(0.5);
+        let perceived_pos = self
+            .spectrum_spatial
+            .get_perceived_position(spatial_pos, spectrum_pos);
+
         perceived_pos.to_array()
     }
 
@@ -274,66 +284,68 @@ impl HolographicSimulation {
     /// Advance simulation by one step
     pub fn step(&mut self) {
         self.step += 1;
-        
+
         // Cosmic sequence
         let coherence = self.field.average_coherence;
         self.cosmic_sequence.step(&mut self.field, coherence);
-        
+
         // Larson
         self.larson.update_veil(coherence);
         for i in 0..137 {
             let spectrum_pos = self.spectrum.get_spectrum_position(i).unwrap_or(0.5);
             self.larson.update_entity(i, spectrum_pos);
         }
-        
+
         // Density sub-levels
         self.density_sub_levels.update(coherence);
-        
+
         // Attractors
         for i in 0..137 {
             let pos = self.get_entity_position(i);
             self.attractor_fields.update_entity_attractors(i, pos, 0.5);
         }
-        self.attractor_fields.update_archetypal(self.cosmic_sequence.get_layer_activations());
+        self.attractor_fields
+            .update_archetypal(self.cosmic_sequence.get_layer_activations());
         self.attractor_fields.apply_to_node(&mut self.field.root);
-        
+
         // Entity emergence
         self.entity_emergence.update(1.0);
         self.entity_emergence.apply_to_field(&mut self.field);
-        
+
         // Spatial field
         self.spatial_field.step(0.1);
-        
+
         // Spectrum-spatial
         self.spectrum_spatial.step(0.1);
-        
+
         // Matter emergence (Phase F3)
         self.update_matter();
-        
+
         // Complexity emergence (Phase F4)
         self.update_complexity();
-        
+
         // Biological emergence (Phase F5)
         self.update_biology();
-        
+
         // Planetary emergence (Phase F6)
         self.update_planetary();
-        
+
         // Hierarchy
         self.hierarchy.propagate_down(&mut self.field);
         self.hierarchy.process_entity_emergence(&mut self.field);
-        
+
         // Unified field
         self.unified_field.evolve(&mut self.field.root);
-        
+
         // Spectrum
         self.spectrum.evolve(0.01, coherence, 0.1);
-        
+
         // Evolution feedback
         if self.step % 10 == 0 {
             for i in 0..137 {
                 let decision_idx = (i * 7 + self.step) % 8;
-                let decision_type = DecisionType::from_index(decision_idx).unwrap_or(DecisionType::Growth);
+                let decision_type =
+                    DecisionType::from_index(decision_idx).unwrap_or(DecisionType::Growth);
                 let significance = ((i * 13 + self.step) % 100) as Float / 100.0;
                 let position = self.get_entity_position(i);
                 let decision = EntityDecision::new(position, decision_type, significance);
@@ -341,145 +353,163 @@ impl HolographicSimulation {
             }
         }
         self.evolution.process(&mut self.field);
-        
+
         // Social memory
         for i in 0..137 {
             self.social_memory.update_entity_phase(i, &self.field);
         }
-        
+
         if self.step % 50 == 0 {
             self.social_memory.compute_all_resonances();
             self.social_memory.form_collectives();
         }
-        
-        self.social_memory.apply_collective_to_field(&mut self.field);
-        
+
+        self.social_memory
+            .apply_collective_to_field(&mut self.field);
+
         // Extract entities
         if self.step % self.config.visualization_interval == 0 {
             let result = self.extractor.extract_entities(&self.field);
             self.statistics.entity_count = result.entity_count;
         }
-        
+
         // Update statistics
         self.update_statistics();
     }
-    
+
     /// Phase F3: Update matter from field
     fn update_matter(&mut self) {
-        let active_positions = self.spatial_field.get_active_positions(self.config.archetype_matter.particle_threshold);
-        
+        let active_positions = self
+            .spatial_field
+            .get_active_positions(self.config.archetype_matter.particle_threshold);
+
         let step_size = (active_positions.len() / 10).max(1);
         for (position, _) in active_positions.iter().step_by(step_size) {
             let field_data = self.spatial_field.sample_field(position);
-            self.matter_emergence.derive_particle_from_field(&field_data, *position);
+            self.matter_emergence
+                .derive_particle_from_field(&field_data, *position);
         }
-        
+
         self.matter_emergence.update(0.1);
     }
-    
+
     /// Phase F4: Update complexity from matter
     fn update_complexity(&mut self) {
         let active_positions = self.spatial_field.get_active_positions(0.3);
-        
+
         let step_size = (active_positions.len() / 20).max(1);
         for (position, _) in active_positions.iter().step_by(step_size) {
             let field_data = self.spatial_field.sample_field(position);
-            
+
             let particles: Vec<_> = self.matter_emergence.get_particles().values().collect();
-            let particle_refs: Vec<&super::archetype_matter::Particle> = particles.iter().map(|p| *p).collect();
-            
-            self.complexity_emergence.process_field(&field_data, *position, &particle_refs);
+            let particle_refs: Vec<&super::archetype_matter::Particle> =
+                particles.iter().map(|p| *p).collect();
+
+            self.complexity_emergence
+                .process_field(&field_data, *position, &particle_refs);
         }
-        
+
         if self.step % 10 == 0 {
             self.complexity_emergence.try_form_molecules();
         }
-        
+
         self.complexity_emergence.update(0.1);
     }
-    
+
     /// Phase F5: Update biology (R&D-5: actual molecular input)
     fn update_biology(&mut self) {
         // Only check periodically for performance
         if self.step % 5 != 0 {
             return;
         }
-        
+
         // Try to create life at high-complexity positions
         let active_positions = self.spatial_field.get_active_positions(0.7);
-        
+
         // Get molecules from complexity emergence (R&D-5)
         let molecules = self.complexity_emergence.get_molecules();
-        
+
         let step_size = (active_positions.len() / 50).max(1);
         for (position, _) in active_positions.iter().step_by(step_size) {
             let field_data = self.spatial_field.sample_field(position);
-            
+
             // Check if complexity is high enough for life
             if field_data.coherence > 0.6 {
                 // Get molecules near this position (R&D-5)
                 let nearby_molecules = self.get_molecules_near_position(*position, &molecules);
-                
+
                 // Try to create life with actual molecular data (not empty array!)
                 if !nearby_molecules.is_empty() {
                     // Use emergent biology if available
-                    if let Some(_cell) = self.biological_emergence.emerge_cell_from_molecules(*position, &nearby_molecules) {
+                    if let Some(_cell) = self
+                        .biological_emergence
+                        .emerge_cell_from_molecules(*position, &nearby_molecules)
+                    {
                         // Life emerged!
                     } else {
                         // Fallback to old method
-                        self.biological_emergence.try_create_life(*position, &nearby_molecules);
+                        self.biological_emergence
+                            .try_create_life(*position, &nearby_molecules);
                     }
                 }
             }
         }
-        
+
         // Update biological systems
         self.biological_emergence.update(0.1);
     }
-    
+
     /// Get molecules near a position (R&D-5)
-    fn get_molecules_near_position(&self, position: Position3D, molecules: &[ComplexMolecule]) -> Vec<ComplexMolecule> {
+    fn get_molecules_near_position(
+        &self,
+        position: Position3D,
+        molecules: &[ComplexMolecule],
+    ) -> Vec<ComplexMolecule> {
         let mut nearby = Vec::new();
         let threshold = 100.0; // Distance threshold
-        
+
         for mol in molecules {
             let dist = position.distance_to(&mol.position);
             if dist < threshold {
                 nearby.push(mol.clone()); // Clone to avoid move
             }
         }
-        
+
         // Limit to prevent performance issues
         nearby.truncate(50);
         nearby
     }
-    
+
     /// Phase F6: Update planetary environments
     fn update_planetary(&mut self) {
         // Only check periodically for performance
         if self.step % 20 != 0 {
             return;
         }
-        
+
         // Process high-coherence regions for planet formation
-        let active_positions = self.spatial_field.get_active_positions(self.config.planetary.planet_formation_threshold);
-        
-        let positions_with_field: Vec<_> = active_positions.iter()
+        let active_positions = self
+            .spatial_field
+            .get_active_positions(self.config.planetary.planet_formation_threshold);
+
+        let positions_with_field: Vec<_> = active_positions
+            .iter()
             .map(|(pos, _)| {
                 let field_data = self.spatial_field.sample_field(pos);
                 (*pos, field_data)
             })
             .collect();
-        
-        self.planetary_emergence.process_field_positions(&positions_with_field);
-        
+
+        self.planetary_emergence
+            .process_field_positions(&positions_with_field);
+
         // Update planetary systems
         self.planetary_emergence.update(0.1);
-        
+
         // Full integration (Phase F7)
         self.update_integration();
     }
-    
+
     /// Phase F7: Full integration - unify all systems
     fn update_integration(&mut self) {
         // Gather all statistics for integration
@@ -495,10 +525,10 @@ impl HolographicSimulation {
         let terrain_cells = self.statistics.terrain_cells;
         let terrain_coherence = 0.5; // Would come from planetary
         let biological_activity = 0.3; // Would come from biology
-        
+
         // Sample field data
         let field_data = self.spatial_field.sample_field(&Position3D::origin());
-        
+
         // Process full integration
         self.full_integration.step(
             field_coherence,
@@ -516,38 +546,38 @@ impl HolographicSimulation {
             biological_activity,
         );
     }
-    
+
     /// Update all statistics
     fn update_statistics(&mut self) {
         self.statistics.field_energy = self.field.total_energy;
         self.statistics.average_coherence = self.field.average_coherence;
         self.statistics.average_spectrum_position = self.spectrum.statistics.average_position;
         self.statistics.veil_transparency = self.spectrum.get_veil_transparency();
-        
+
         let sm_stats = self.social_memory.get_statistics();
         self.statistics.collective_count = sm_stats.collective_count;
         self.statistics.entities_in_collectives = sm_stats.entities_in_collectives;
         self.statistics.decisions_processed = self.evolution.statistics.decisions_processed;
         self.statistics.peak_magnitude = self.field.statistics.peak_magnitude;
-        
+
         // Cosmic sequence
         self.statistics.current_layer = self.cosmic_sequence.get_current_layer().index();
         self.statistics.layer_activations = self.cosmic_sequence.get_layer_activations();
         self.statistics.attractor_strength = self.cosmic_sequence.statistics.max_attractor_strength;
-        
+
         let larson_stats = self.larson.get_statistics();
         self.statistics.veil_transparency = larson_stats.veil_transparency;
-        
+
         // Spatial
         let spatial_stats = self.spatial_field.get_statistics();
         self.statistics.spatial_nodes = spatial_stats.total_nodes;
         self.statistics.spatial_leaf_nodes = spatial_stats.leaf_nodes;
-        
+
         // Spectrum-spatial
         let mut below_veil = 0;
         let mut at_veil = 0;
         let mut above_veil = 0;
-        
+
         for i in 0..137 {
             let spectrum_pos = self.spectrum.get_spectrum_position(i).unwrap_or(0.5);
             if self.spectrum_spatial.veil.is_in_veil(spectrum_pos) {
@@ -558,33 +588,33 @@ impl HolographicSimulation {
                 above_veil += 1;
             }
         }
-        
+
         self.statistics.entities_below_veil = below_veil;
         self.statistics.entities_at_veil = at_veil;
         self.statistics.entities_above_veil = above_veil;
         self.statistics.veil_activity = self.spectrum_spatial.veil.activity;
-        
+
         // Matter
         let matter_stats = self.matter_emergence.get_statistics();
         self.statistics.particles = matter_stats.active_particles;
         self.statistics.atoms = matter_stats.active_atoms;
         self.statistics.molecules = matter_stats.active_molecules;
-        
+
         // Complexity
         let phase_stats = self.complexity_emergence.get_phase_statistics();
         self.statistics.quantum_regions = phase_stats.quantum_regions;
         self.statistics.atomic_regions = phase_stats.atomic_regions;
         self.statistics.molecular_regions = phase_stats.molecular_regions;
         self.statistics.planetary_regions = phase_stats.planetary_regions;
-        
+
         // Biology
         self.statistics.cells = self.biological_emergence.cell_count();
         self.statistics.species = self.biological_emergence.species_count();
-        
+
         // Planetary (Phase F6)
         self.statistics.planets = self.planetary_emergence.planet_count();
         self.statistics.terrain_cells = self.planetary_emergence.terrain_cell_count();
-        
+
         // Full Integration (Phase F7)
         self.statistics.integration_coherence = self.full_integration.get_coherence();
         self.statistics.integration_stability = self.full_integration.get_stability();
@@ -593,15 +623,15 @@ impl HolographicSimulation {
     /// Get entities for rendering
     pub fn get_entities(&self) -> Vec<RenderableEntity> {
         let mut entities = Vec::new();
-        
+
         for i in 0..self.statistics.entity_count.min(137) {
             let position = self.get_entity_position(i);
             let raw_position = self.get_raw_spatial_position(i);
-            
+
             let density = self.spectrum.get_spectrum_position(i).unwrap_or(0.5);
             let density_band = DensityBand::from_index((density * 8.0) as usize % 8);
             let in_collective = self.social_memory.get_entity_collective(i).is_some();
-            
+
             let spatial_config = self.spectrum_spatial.derive_spatial_structure(density);
 
             entities.push(RenderableEntity {
@@ -615,7 +645,7 @@ impl HolographicSimulation {
                 veil_distance: self.spectrum_spatial.distance_to_veil(density),
             });
         }
-        
+
         entities
     }
 
@@ -634,34 +664,39 @@ impl HolographicSimulation {
         &self.statistics
     }
 
+    /// Get the holographic field state for visualization
+    pub fn field_state(&self) -> &HolographicFieldState {
+        &self.field
+    }
+
     pub fn get_step(&self) -> usize {
         self.step
     }
-    
+
     pub fn get_spatial_field(&self) -> &SpatialField {
         &self.spatial_field
     }
-    
+
     pub fn get_spectrum_spatial(&self) -> &SpectrumSpatialDynamics {
         &self.spectrum_spatial
     }
-    
+
     pub fn get_matter_emergence(&self) -> &MatterEmergence {
         &self.matter_emergence
     }
-    
+
     pub fn get_complexity_emergence(&self) -> &ComplexityEmergence {
         &self.complexity_emergence
     }
-    
+
     pub fn get_biological_emergence(&self) -> &BiologyBridge {
         &self.biological_emergence
     }
-    
+
     pub fn get_planetary_emergence(&self) -> &PlanetaryBridge {
         &self.planetary_emergence
     }
-    
+
     pub fn get_full_integration(&self) -> &IntegrationBridge {
         &self.full_integration
     }
@@ -723,18 +758,18 @@ mod tests {
         sim.step();
         assert_eq!(sim.get_step(), 1);
     }
-    
+
     #[test]
     fn test_all_phases_integrated() {
         let mut sim = HolographicSimulation::with_defaults();
         sim.initialize();
-        
+
         let _spatial = sim.get_spatial_field();
         let _spectrum = sim.get_spectrum_spatial();
         let _matter = sim.get_matter_emergence();
         let _complexity = sim.get_complexity_emergence();
         let _biology = sim.get_biological_emergence();
-        
+
         assert!(true);
     }
 }

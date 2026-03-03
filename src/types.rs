@@ -107,6 +107,54 @@ impl Density {
             _ => Density::First,
         }
     }
+
+    /// Veil transparency based on density
+    /// Higher density = more transparent veil
+    /// Returns 0.0 to 1.0 where 1.0 is fully transparent
+    pub fn veil_transparency(&self) -> Float {
+        match self {
+            Density::First => 0.0, // Fully veiled
+            Density::Second => 0.1,
+            Density::Third => 0.3,
+            Density::Fourth => 0.5, // Half transparent
+            Density::Fifth => 0.7,
+            Density::Sixth => 0.9,
+            Density::Seventh => 1.0, // Fully transparent
+            Density::Eighth => 1.0,  // Beyond the spectrum
+        }
+    }
+
+    /// Veil thickness by density
+    /// Lower density = thicker veil
+    /// Returns 0.0 to 1.0 where 0.0 is no veil
+    pub fn veil_thickness(&self) -> Float {
+        match self {
+            Density::First => 0.95, // Almost completely opaque
+            Density::Second => 0.85,
+            Density::Third => 0.70, // 3rd density - thick veil
+            Density::Fourth => 0.40,
+            Density::Fifth => 0.20,
+            Density::Sixth => 0.10,
+            Density::Seventh => 0.0, // No veil
+            Density::Eighth => 0.0,  // Beyond veil
+        }
+    }
+
+    /// Direction of evolution on spectrum
+    /// Higher density = faster evolution toward time-dominance
+    /// Returns factor determining evolution speed
+    pub fn evolution_direction(&self) -> Float {
+        match self {
+            Density::First => 0.1, // Slow evolution
+            Density::Second => 0.2,
+            Density::Third => 0.3,
+            Density::Fourth => 0.5,
+            Density::Fifth => 0.7,
+            Density::Sixth => 1.0, // Fast evolution
+            Density::Seventh => 1.5,
+            Density::Eighth => 2.0,
+        }
+    }
 }
 
 impl std::fmt::Display for Density {
@@ -120,6 +168,198 @@ impl std::fmt::Display for Density {
             Density::Sixth => write!(f, "6th Density"),
             Density::Seventh => write!(f, "7th Density"),
             Density::Eighth => write!(f, "8th Density"),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_density_veil_transparency() {
+        // From V5 Phase 1 specifications
+        assert_eq!(
+            Density::First.veil_transparency(),
+            0.0,
+            "1st density should be fully veiled"
+        );
+        assert_eq!(Density::Second.veil_transparency(), 0.1);
+        assert_eq!(Density::Third.veil_transparency(), 0.3);
+        assert_eq!(
+            Density::Fourth.veil_transparency(),
+            0.5,
+            "4th density should be half transparent"
+        );
+        assert_eq!(Density::Fifth.veil_transparency(), 0.7);
+        assert_eq!(Density::Sixth.veil_transparency(), 0.9);
+        assert_eq!(
+            Density::Seventh.veil_transparency(),
+            1.0,
+            "7th density should be fully transparent"
+        );
+        assert_eq!(
+            Density::Eighth.veil_transparency(),
+            1.0,
+            "8th density should be fully transparent"
+        );
+
+        // Verify transparency increases with density
+        assert!(Density::First.veil_transparency() < Density::Second.veil_transparency());
+        assert!(Density::Third.veil_transparency() < Density::Fourth.veil_transparency());
+        assert!(Density::Fifth.veil_transparency() < Density::Sixth.veil_transparency());
+    }
+
+    #[test]
+    fn test_density_veil_thickness() {
+        // From V5 Phase 1 specifications
+        assert_eq!(
+            Density::First.veil_thickness(),
+            0.95,
+            "1st density should have thickest veil"
+        );
+        assert_eq!(Density::Second.veil_thickness(), 0.85);
+        assert_eq!(
+            Density::Third.veil_thickness(),
+            0.70,
+            "3rd density should have thick veil"
+        );
+        assert_eq!(Density::Fourth.veil_thickness(), 0.40);
+        assert_eq!(Density::Fifth.veil_thickness(), 0.20);
+        assert_eq!(Density::Sixth.veil_thickness(), 0.10);
+        assert_eq!(
+            Density::Seventh.veil_thickness(),
+            0.0,
+            "7th density should have no veil"
+        );
+        assert_eq!(
+            Density::Eighth.veil_thickness(),
+            0.0,
+            "8th density should have no veil"
+        );
+
+        // Verify thickness decreases with density
+        assert!(Density::First.veil_thickness() > Density::Second.veil_thickness());
+        assert!(Density::Third.veil_thickness() > Density::Fourth.veil_thickness());
+        assert!(Density::Fifth.veil_thickness() > Density::Sixth.veil_thickness());
+    }
+
+    #[test]
+    fn test_density_evolution_direction() {
+        // From V5 Phase 1 specifications
+        assert_eq!(
+            Density::First.evolution_direction(),
+            0.1,
+            "1st density should have slow evolution"
+        );
+        assert_eq!(Density::Second.evolution_direction(), 0.2);
+        assert_eq!(Density::Third.evolution_direction(), 0.3);
+        assert_eq!(Density::Fourth.evolution_direction(), 0.5);
+        assert_eq!(Density::Fifth.evolution_direction(), 0.7);
+        assert_eq!(
+            Density::Sixth.evolution_direction(),
+            1.0,
+            "6th density should have fast evolution"
+        );
+        assert_eq!(Density::Seventh.evolution_direction(), 1.5);
+        assert_eq!(Density::Eighth.evolution_direction(), 2.0);
+
+        // Verify evolution direction increases with density
+        assert!(Density::First.evolution_direction() < Density::Second.evolution_direction());
+        assert!(Density::Third.evolution_direction() < Density::Fourth.evolution_direction());
+        assert!(Density::Fifth.evolution_direction() < Density::Sixth.evolution_direction());
+    }
+
+    #[test]
+    fn test_density_inverse_relationship() {
+        // Transparency and thickness should have inverse relationship
+        for i in 1..=8 {
+            let density = Density::from_u8(i);
+            let sum = density.veil_transparency() + density.veil_thickness();
+            // Sum should be approximately 1.0 for most densities
+            // 1st: 0.0 + 0.95 = 0.95
+            // 2nd: 0.1 + 0.85 = 0.95
+            // 3rd: 0.3 + 0.70 = 1.0
+            // 4th: 0.5 + 0.40 = 0.9
+            // 5th: 0.7 + 0.20 = 0.9
+            // 6th: 0.9 + 0.10 = 1.0
+            // 7th: 1.0 + 0.0 = 1.0
+            // 8th: 1.0 + 0.0 = 1.0
+            assert!(
+                sum >= 0.899 && sum <= 1.001,
+                "Density {:?}: transparency + thickness = {}, expected ~1.0",
+                density,
+                sum
+            );
+        }
+    }
+
+    #[test]
+    fn test_density_hash_implementation() {
+        // Verify Density implements Hash trait (needed for spectrum_position.rs)
+        use std::collections::HashSet;
+
+        let mut set = HashSet::new();
+        set.insert(Density::First);
+        set.insert(Density::Second);
+        set.insert(Density::Third);
+
+        assert_eq!(set.len(), 3, "Density should be hashable");
+        assert!(set.contains(&Density::First));
+        assert!(set.contains(&Density::Second));
+        assert!(set.contains(&Density::Third));
+        assert!(!set.contains(&Density::Fourth));
+    }
+
+    #[test]
+    fn test_density_monotonic_properties() {
+        // All three methods should have monotonic relationships with density
+        let densities = [
+            Density::First,
+            Density::Second,
+            Density::Third,
+            Density::Fourth,
+            Density::Fifth,
+            Density::Sixth,
+            Density::Seventh,
+            Density::Eighth,
+        ];
+
+        let mut prev_transparency = densities[0].veil_transparency();
+        let mut prev_thickness = densities[0].veil_thickness();
+        let mut prev_direction = densities[0].evolution_direction();
+
+        for density in densities.iter().skip(1) {
+            let transparency = density.veil_transparency();
+            let thickness = density.veil_thickness();
+            let direction = density.evolution_direction();
+
+            // Transparency should increase or stay same
+            assert!(
+                transparency >= prev_transparency,
+                "Veil transparency should increase: {:?} -> {:?}",
+                prev_transparency,
+                transparency
+            );
+            prev_transparency = transparency;
+
+            // Thickness should decrease or stay same
+            assert!(
+                thickness <= prev_thickness,
+                "Veil thickness should decrease: {:?} -> {:?}",
+                prev_thickness,
+                thickness
+            );
+            prev_thickness = thickness;
+
+            // Evolution direction should increase
+            assert!(
+                direction > prev_direction,
+                "Evolution direction should increase: {:?} -> {:?}",
+                prev_direction,
+                direction
+            );
+            prev_direction = direction;
         }
     }
 }
@@ -204,6 +444,23 @@ impl std::fmt::Display for HealthStatus {
             HealthStatus::PathologicalHigh => write!(f, "Pathological High"),
             HealthStatus::Imbalanced => write!(f, "Imbalanced"),
             HealthStatus::Degraded => write!(f, "Degraded"),
+        }
+    }
+}
+
+// Additional Density methods
+impl Density {
+    /// Get the next density level
+    pub fn next(&self) -> Self {
+        match self {
+            Density::First => Density::Second,
+            Density::Second => Density::Third,
+            Density::Third => Density::Fourth,
+            Density::Fourth => Density::Fifth,
+            Density::Fifth => Density::Sixth,
+            Density::Sixth => Density::Seventh,
+            Density::Seventh => Density::Eighth,
+            Density::Eighth => Density::Eighth, // No further transition
         }
     }
 }

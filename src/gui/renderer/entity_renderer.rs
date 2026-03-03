@@ -4,6 +4,7 @@
 
 use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gui::renderer::entity_instance::{ArchetypeData, EntityInstance};
+use crate::hpo::RenderableEntity;
 use wgpu::util::DeviceExt;
 
 /// Renderer for simulation entities
@@ -54,7 +55,7 @@ impl EntityRenderer {
                 label: Some("Archetype Bind Group Layout"),
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 1,
-                    visibility: wgpu::ShaderStages::FRAGMENT,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,  // Phase 16: Vertex needs archetype interference
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Storage { read_only: true },
                         has_dynamic_offset: false,
@@ -72,11 +73,11 @@ impl EntityRenderer {
                 label: Some("Camera Bind Group Layout"),
                 entries: &[wgpu::BindGroupLayoutEntry {
                     binding: 0,
-                    visibility: wgpu::ShaderStages::VERTEX,
+                    visibility: wgpu::ShaderStages::VERTEX_FRAGMENT,
                     ty: wgpu::BindingType::Buffer {
                         ty: wgpu::BufferBindingType::Uniform,
                         has_dynamic_offset: false,
-                        min_binding_size: wgpu::BufferSize::new(80),
+                        min_binding_size: wgpu::BufferSize::new(96),
                     },
                     count: None,
                 }],
@@ -85,7 +86,7 @@ impl EntityRenderer {
         // Create camera uniform buffer (4x4 matrix = 16 floats * 4 bytes)
         let camera_uniform_buffer = device.create_buffer(&wgpu::BufferDescriptor {
             label: Some("Camera Uniform Buffer"),
-            size: 80, // 16 floats * 4 bytes + 1 float for time (Phase 2)
+            size: 96, // 24 floats * 4 bytes (matrix + selection focus data)
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -211,7 +212,7 @@ impl EntityRenderer {
                                 shader_location: 11,
                                 format: wgpu::VertexFormat::Float32, // size
                             },
-                            // Hierarchy data (offset 72-79, 8 bytes) - MOVED TO END
+                            // Hierarchy data (offset 72-79, 8 bytes)
                             wgpu::VertexAttribute {
                                 offset: 72,
                                 shader_location: 12,
@@ -222,10 +223,15 @@ impl EntityRenderer {
                                 shader_location: 13,
                                 format: wgpu::VertexFormat::Uint32, // environment_id
                             },
+                            // Morphology parameters (offset 96-111, 16 bytes)
+                            wgpu::VertexAttribute {
+                                offset: 96,
+                                shader_location: 14,
+                                format: wgpu::VertexFormat::Float32x4, // anisotropy, depth_bias, lobe_count, interference_phase
+                            },
                         ],
                     },
                 ],
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -235,7 +241,6 @@ impl EntityRenderer {
                     blend: Some(wgpu::BlendState::ALPHA_BLENDING),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
-                compilation_options: wgpu::PipelineCompilationOptions::default(),
             }),
             primitive: wgpu::PrimitiveState {
                 topology: wgpu::PrimitiveTopology::TriangleList,
@@ -313,6 +318,41 @@ impl EntityRenderer {
         }
     }
 
+    /// Update entity instances from field-derived holographic entities
+    pub fn update_holo_entities(&mut self, queue: &wgpu::Queue, entities: &[RenderableEntity]) {
+        let instances: Vec<EntityInstance> = entities
+            .iter()
+            .map(EntityInstance::from_renderable_entity)
+            .take(self.max_instances)
+            .collect();
+
+        self.current_instance_count = instances.len() as u32;
+
+        if !instances.is_empty() {
+            let instance_data = bytemuck::cast_slice(&instances);
+            queue.write_buffer(&self.instance_buffer, 0, instance_data);
+        }
+
+        let archetype_data: Vec<ArchetypeData> = entities
+            .iter()
+            .take(self.max_instances)
+            .map(|entity| {
+                let mut data = ArchetypeData {
+                    activations: [0.0; 22],
+                };
+                let seed = (entity.density_band.index().min(7) as f32) / 7.0;
+                data.activations[0] = seed;
+                data.activations[1] = entity.consciousness.clamp(0.0, 1.0) as f32;
+                data
+            })
+            .collect();
+
+        if !archetype_data.is_empty() {
+            let archetype_bytes = bytemuck::cast_slice(&archetype_data);
+            queue.write_buffer(&self.archetype_buffer, 0, archetype_bytes);
+        }
+    }
+
     /// Update with test instances (for debugging)
     pub fn update_test_instances(&mut self, queue: &wgpu::Queue, count: usize) {
         let instances: Vec<EntityInstance> =
@@ -335,17 +375,40 @@ impl EntityRenderer {
     }
 
     /// Update camera uniform buffer
-    pub fn update_camera(&self, queue: &wgpu::Queue, view_projection: [[f32; 4]; 4], time: f32) {
-        // Phase 2: Flatten view_projection matrix and append time
-        let mut camera_data = Vec::new();
+    pub fn update_camera(
+        &self,
+        queue: &wgpu::Queue,
+        view_projection: [[f32; 4]; 4],
+        time: f32,
+        morphology_enabled: bool,
+        selected_focus: Option<[f32; 3]>,
+        selection_focus_enabled: bool,
+    ) {
+        // Camera buffer layout at 96 bytes:
+        // 16 floats matrix + time + morphology_mode + selection fields + padding.
+        let mut camera_data = [0.0_f32; 24];
 
         // Add 4x4 view_projection matrix (16 floats)
-        for row in &view_projection {
-            camera_data.extend_from_slice(row);
+        for (row_index, row) in view_projection.iter().enumerate() {
+            let base = row_index * 4;
+            camera_data[base..base + 4].copy_from_slice(row);
         }
 
-        // Add time for realm ring animations (1 float)
-        camera_data.push(time);
+        // Add time and morphology mode flag
+        camera_data[16] = time;
+        camera_data[17] = if morphology_enabled { 1.0 } else { 0.0 };
+        camera_data[18] = if selection_focus_enabled && selected_focus.is_some() {
+            1.0
+        } else {
+            0.0
+        };
+        camera_data[19] = 0.20;
+        if let Some(position) = selected_focus {
+            camera_data[20] = position[0];
+            camera_data[21] = position[1];
+            camera_data[22] = position[2];
+        }
+        camera_data[23] = 0.0;
 
         queue.write_buffer(
             &self.camera_uniform_buffer,

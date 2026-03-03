@@ -72,13 +72,13 @@ impl HarmonicSeries {
         for n in 2..=MAX_OVERTONES + 1 {
             overtones.push(fundamental * n as Float);
         }
-        
+
         HarmonicSeries {
             fundamental,
             overtones,
         }
     }
-    
+
     /// Create a harmonic series from entity frequency (0.0-1.0)
     ///
     /// Scales entity frequency to meaningful Hz using golden ratio scaling.
@@ -95,7 +95,7 @@ impl HarmonicSeries {
         let fundamental = BASE_FREQUENCY_SCALE * (entity_frequency * PHI.powi(2));
         Self::new(fundamental)
     }
-    
+
     /// Get a specific overtone
     ///
     /// # Arguments
@@ -114,7 +114,7 @@ impl HarmonicSeries {
             None
         }
     }
-    
+
     /// Check if a frequency aligns with this harmonic series
     ///
     /// From REFACTOR_ROADMAP_HOLOGRAPHIC.md:
@@ -132,22 +132,26 @@ impl HarmonicSeries {
         if (frequency - self.fundamental).abs() < self.fundamental * HARMONIC_TOLERANCE {
             return Some(0);
         }
-        
+
         // Check overtones
         for (i, &overtone) in self.overtones.iter().enumerate() {
             if (frequency - overtone).abs() < overtone * HARMONIC_TOLERANCE {
                 return Some(i + 1);
             }
         }
-        
+
         None
     }
 }
 
 impl fmt::Display for HarmonicSeries {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "HarmonicSeries(f₀={:.2}Hz, overtones={})", 
-               self.fundamental, self.overtones.len())
+        write!(
+            f,
+            "HarmonicSeries(f₀={:.2}Hz, overtones={})",
+            self.fundamental,
+            self.overtones.len()
+        )
     }
 }
 
@@ -179,7 +183,7 @@ impl MusicalNote {
     pub fn new(frequency: Float) -> Self {
         let harmonic_series = HarmonicSeries::new(frequency);
         let (note_name, octave) = Self::calculate_note_name(frequency);
-        
+
         MusicalNote {
             frequency,
             note_name,
@@ -187,7 +191,7 @@ impl MusicalNote {
             harmonic_series,
         }
     }
-    
+
     /// Create a musical note from entity frequency
     ///
     /// # Arguments
@@ -201,7 +205,7 @@ impl MusicalNote {
         let harmonic_series = HarmonicSeries::from_entity_frequency(entity_frequency);
         let frequency = harmonic_series.fundamental;
         let (note_name, octave) = Self::calculate_note_name(frequency);
-        
+
         MusicalNote {
             frequency,
             note_name,
@@ -209,7 +213,7 @@ impl MusicalNote {
             harmonic_series,
         }
     }
-    
+
     /// Calculate note name and octave from frequency
     ///
     /// Uses A4 = 440Hz as reference (standard tuning).
@@ -223,16 +227,18 @@ impl MusicalNote {
     /// (note_name, octave)
     fn calculate_note_name(frequency: Float) -> (String, i32) {
         const A4: Float = 440.0;
-        const NOTE_NAMES: [&str; 12] = ["A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"];
-        
+        const NOTE_NAMES: [&str; 12] = [
+            "A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#",
+        ];
+
         // Calculate semitones from A4
         let semitones = (frequency / A4).log2() * 12.0;
         let octave = 4 + (semitones / 12.0).floor() as i32;
         let note_index = ((semitones % 12.0).round() as i32 + 12) % 12;
-        
+
         (NOTE_NAMES[note_index as usize].to_string(), octave)
     }
-    
+
     /// Check if this note is harmonically related to another
     ///
     /// # Arguments
@@ -248,20 +254,24 @@ impl MusicalNote {
             let ratio = other.frequency / self.frequency;
             return Some((overtone, ratio));
         }
-        
+
         // Check if this note's frequency aligns with other's harmonic series
         if let Some(overtone) = other.harmonic_series.check_alignment(self.frequency) {
             let ratio = self.frequency / other.frequency;
             return Some((overtone, ratio));
         }
-        
+
         None
     }
 }
 
 impl fmt::Display for MusicalNote {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}{} ({:.2}Hz)", self.note_name, self.octave, self.frequency)
+        write!(
+            f,
+            "{}{} ({:.2}Hz)",
+            self.note_name, self.octave, self.frequency
+        )
     }
 }
 
@@ -291,7 +301,7 @@ impl OvertonePattern {
     pub fn new(strengths: Vec<Float>) -> Self {
         OvertonePattern { strengths }
     }
-    
+
     /// Create a natural overtone pattern (1/n falloff)
     ///
     /// Natural harmonics decrease in strength: 1, 1/2, 1/3, 1/4, ...
@@ -306,7 +316,7 @@ impl OvertonePattern {
         }
         OvertonePattern { strengths }
     }
-    
+
     /// Create an overtone pattern based on Fibonacci sequence
     ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
@@ -319,17 +329,17 @@ impl OvertonePattern {
         let mut strengths = Vec::with_capacity(MAX_OVERTONES + 1);
         let mut fib_prev: u64 = 1;
         let mut fib_curr: u64 = 1;
-        
+
         for _ in 0..=MAX_OVERTONES {
             strengths.push(1.0 / fib_curr as Float);
             let fib_next = fib_prev + fib_curr;
             fib_prev = fib_curr;
             fib_curr = fib_next;
         }
-        
+
         OvertonePattern { strengths }
     }
-    
+
     /// Create an overtone pattern based on golden ratio
     ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
@@ -345,7 +355,7 @@ impl OvertonePattern {
         }
         OvertonePattern { strengths }
     }
-    
+
     /// Create an overtone pattern for a specific archetype
     ///
     /// # Arguments
@@ -379,7 +389,7 @@ impl OvertonePattern {
             _ => Self::fibonacci(),
         }
     }
-    
+
     /// Get the strength of a specific overtone
     ///
     /// # Arguments
@@ -392,7 +402,7 @@ impl OvertonePattern {
     pub fn get_strength(&self, overtone: usize) -> Float {
         self.strengths.get(overtone).copied().unwrap_or(0.0)
     }
-    
+
     /// Normalize the pattern so total strength = 1.0
     ///
     /// # Returns
@@ -403,7 +413,7 @@ impl OvertonePattern {
         if total == 0.0 {
             return self.clone();
         }
-        
+
         let strengths = self.strengths.iter().map(|&s| s / total).collect();
         OvertonePattern { strengths }
     }
@@ -460,40 +470,43 @@ impl StandingWave {
         let (interference_type, center_amplitude) = if ratio.is_finite() && ratio > 0.0 {
             // Check for harmonic relationship
             let is_integer = (ratio - ratio.round()).abs() < HARMONIC_TOLERANCE;
-            let is_reciprocal = (1.0/ratio - (1.0/ratio).round()).abs() < HARMONIC_TOLERANCE;
-            
+            let is_reciprocal = (1.0 / ratio - (1.0 / ratio).round()).abs() < HARMONIC_TOLERANCE;
+
             if is_integer || is_reciprocal {
                 // Harmonic relationship: constructive interference
-                let amplitude = 2.0 * (ratio.min(1.0/ratio).min(1.0));
+                let amplitude = 2.0 * (ratio.min(1.0 / ratio).min(1.0));
                 (InterferenceType::Constructive, amplitude)
             } else if ratio > 0.9 && ratio < 1.1 {
                 // Nearly equal frequencies: beating pattern
                 (InterferenceType::Partial, 1.0 + (1.0 - (ratio - 1.0).abs()))
             } else {
                 // Non-harmonic: destructive interference
-                (InterferenceType::Destructive, (ratio.min(1.0/ratio)).max(0.0))
+                (
+                    InterferenceType::Destructive,
+                    (ratio.min(1.0 / ratio)).max(0.0),
+                )
             }
         } else {
             (InterferenceType::Destructive, 0.0)
         };
-        
+
         // Calculate nodes and antinodes
         let wavelength = if freq_a > freq_b {
             1.0 / freq_a
         } else {
             1.0 / freq_b
         };
-        
+
         let mut nodes = Vec::new();
         let mut antinodes = Vec::new();
-        
+
         // Nodes occur at n * wavelength / 2
         for n in 0..=10 {
             nodes.push(n as Float * wavelength / 2.0);
             // Antinodes occur at (2n + 1) * wavelength / 4
             antinodes.push((2 * n + 1) as Float * wavelength / 4.0);
         }
-        
+
         StandingWave {
             primary_frequency: freq_a,
             secondary_frequency: freq_b,
@@ -503,7 +516,7 @@ impl StandingWave {
             center_amplitude,
         }
     }
-    
+
     /// Get the interference strength at a specific position
     ///
     /// # Arguments
@@ -522,9 +535,14 @@ impl StandingWave {
 
 impl fmt::Display for StandingWave {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "StandingWave({:.2}Hz × {:.2}Hz, {:?}, amplitude={:.2})", 
-               self.primary_frequency, self.secondary_frequency, 
-               self.interference_type, self.center_amplitude)
+        write!(
+            f,
+            "StandingWave({:.2}Hz × {:.2}Hz, {:?}, amplitude={:.2})",
+            self.primary_frequency,
+            self.secondary_frequency,
+            self.interference_type,
+            self.center_amplitude
+        )
     }
 }
 
@@ -568,11 +586,11 @@ impl FrequencyResonance {
     pub fn calculate(freq_a: Float, freq_b: Float, coherence_a: Float, coherence_b: Float) -> Self {
         // Calculate frequency ratio
         let frequency_ratio = if freq_b > 0.0 { freq_a / freq_b } else { 0.0 };
-        
+
         // Check for harmonic alignment
         let harmonic_series = HarmonicSeries::new(freq_a);
         let harmonic_overtone = harmonic_series.check_alignment(freq_b);
-        
+
         // Calculate resonance strength
         let resonance_strength = if let Some(overtone) = harmonic_overtone {
             // Perfect harmonic alignment: 1.0
@@ -593,16 +611,16 @@ impl FrequencyResonance {
                 }
             }
         };
-        
+
         // Calculate standing wave
         let standing_wave = StandingWave::calculate(freq_a, freq_b);
-        
+
         // Coherence contribution (average of both entities' coherence)
         let coherence_contribution = (coherence_a + coherence_b) / 2.0;
-        
+
         // Final resonance combines harmonic alignment and coherence
         let final_resonance = resonance_strength * (0.5 + coherence_contribution * 0.5);
-        
+
         FrequencyResonance {
             resonance_strength: final_resonance,
             harmonic_overtone,
@@ -611,7 +629,7 @@ impl FrequencyResonance {
             coherence_contribution,
         }
     }
-    
+
     /// Calculate resonance between two entity frequencies
     ///
     /// # Arguments
@@ -632,10 +650,10 @@ impl FrequencyResonance {
     ) -> Self {
         let freq_a = HarmonicSeries::from_entity_frequency(entity_freq_a).fundamental;
         let freq_b = HarmonicSeries::from_entity_frequency(entity_freq_b).fundamental;
-        
+
         Self::calculate(freq_a, freq_b, coherence_a, coherence_b)
     }
-    
+
     /// Check if resonance is strong (above threshold)
     ///
     /// # Arguments
@@ -648,7 +666,7 @@ impl FrequencyResonance {
     pub fn is_strong(&self, threshold: Float) -> bool {
         self.resonance_strength >= threshold
     }
-    
+
     /// Check if resonance is harmonic (exact overtone relationship)
     ///
     /// # Returns
@@ -666,10 +684,15 @@ impl fmt::Display for FrequencyResonance {
         } else {
             "non-harmonic".to_string()
         };
-        
-        write!(f, "FrequencyResonance(strength={:.3}, {}, ratio={:.3}, coherence={:.3})", 
-               self.resonance_strength, harmonic_info, self.frequency_ratio, 
-               self.coherence_contribution)
+
+        write!(
+            f,
+            "FrequencyResonance(strength={:.3}, {}, ratio={:.3}, coherence={:.3})",
+            self.resonance_strength,
+            harmonic_info,
+            self.frequency_ratio,
+            self.coherence_contribution
+        )
     }
 }
 
@@ -698,14 +721,14 @@ mod tests {
     #[test]
     fn test_harmonic_series_alignment() {
         let series = HarmonicSeries::new(440.0);
-        
+
         // Check fundamental alignment
         assert_eq!(series.check_alignment(440.0), Some(0));
-        
+
         // Check overtone alignment (2f = 880Hz)
         assert_eq!(series.check_alignment(880.0), Some(1));
         assert_eq!(series.check_alignment(1320.0), Some(2));
-        
+
         // Check non-alignment
         assert_eq!(series.check_alignment(450.0), None);
     }
@@ -722,7 +745,7 @@ mod tests {
     fn test_musical_note_harmonic_relationship() {
         let note_a = MusicalNote::new(440.0);
         let note_octave = MusicalNote::new(880.0);
-        
+
         let relationship = note_a.is_harmonically_related(&note_octave);
         assert!(relationship.is_some());
         let (overtone, ratio) = relationship.unwrap();
@@ -755,8 +778,8 @@ mod tests {
         assert_eq!(pattern.strengths.len(), MAX_OVERTONES + 1);
         // Golden ratio falloff
         assert!((pattern.strengths[0] - 1.0).abs() < 0.01); // φ^0 = 1
-        assert!((pattern.strengths[1] - 1.0/PHI).abs() < 0.01); // φ^-1
-        assert!((pattern.strengths[2] - 1.0/PHI.powi(2)).abs() < 0.01); // φ^-2
+        assert!((pattern.strengths[1] - 1.0 / PHI).abs() < 0.01); // φ^-1
+        assert!((pattern.strengths[2] - 1.0 / PHI.powi(2)).abs() < 0.01); // φ^-2
     }
 
     #[test]
@@ -765,7 +788,7 @@ mod tests {
         assert_eq!(pattern_22.strengths.len(), MAX_OVERTONES + 1);
         // Archetype 22 should have strong fundamental
         assert!(pattern_22.strengths[0] > 0.9);
-        
+
         let pattern_7 = OvertonePattern::archetype(7);
         // Great Way archetype should have stronger higher overtones
         assert!(pattern_7.strengths[MAX_OVERTONES] > pattern_7.strengths[0]);
@@ -775,7 +798,7 @@ mod tests {
     fn test_overtone_pattern_normalize() {
         let pattern = OvertonePattern::natural();
         let normalized = pattern.normalize();
-        
+
         // Check that sum is approximately 1.0
         let sum: Float = normalized.strengths.iter().sum();
         assert!((sum - 1.0).abs() < 0.01);
@@ -800,12 +823,12 @@ mod tests {
     #[test]
     fn test_standing_wave_amplitude_at_position() {
         let wave = StandingWave::calculate(440.0, 880.0);
-        
+
         // Check amplitude at different positions
         let amp_0 = wave.get_amplitude_at(0.0);
         let amp_0_5 = wave.get_amplitude_at(0.5);
         let amp_1 = wave.get_amplitude_at(1.0);
-        
+
         assert!(amp_0 >= 0.0 && amp_0 <= 1.0);
         assert!(amp_0_5 >= 0.0 && amp_0_5 <= 1.0);
         assert!(amp_1 >= 0.0 && amp_1 <= 1.0);
@@ -814,7 +837,7 @@ mod tests {
     #[test]
     fn test_frequency_resonance_harmonic() {
         let resonance = FrequencyResonance::calculate(440.0, 880.0, 0.8, 0.8);
-        
+
         // Should be harmonic (880 = 2 * 440)
         assert!(resonance.is_harmonic());
         assert_eq!(resonance.harmonic_overtone, Some(1));
@@ -825,7 +848,7 @@ mod tests {
     #[test]
     fn test_frequency_resonance_non_harmonic() {
         let resonance = FrequencyResonance::calculate(440.0, 450.0, 0.5, 0.5);
-        
+
         // Should not be harmonic
         assert!(!resonance.is_harmonic());
         assert_eq!(resonance.harmonic_overtone, None);
@@ -835,7 +858,7 @@ mod tests {
     #[test]
     fn test_frequency_resonance_from_entities() {
         let resonance = FrequencyResonance::calculate_from_entities(0.5, 0.5, 0.8, 0.8);
-        
+
         // Same frequency should resonate
         assert!(resonance.resonance_strength > 0.5);
         assert!((resonance.frequency_ratio - 1.0).abs() < 0.01);
@@ -845,10 +868,10 @@ mod tests {
     fn test_frequency_resonance_coherence_contribution() {
         // Low coherence
         let resonance_low = FrequencyResonance::calculate(440.0, 880.0, 0.2, 0.2);
-        
+
         // High coherence
         let resonance_high = FrequencyResonance::calculate(440.0, 880.0, 0.9, 0.9);
-        
+
         // Higher coherence should result in stronger resonance
         assert!(resonance_high.resonance_strength > resonance_low.resonance_strength);
     }
@@ -857,7 +880,7 @@ mod tests {
     fn test_frequency_resonance_is_strong() {
         let strong = FrequencyResonance::calculate(440.0, 880.0, 0.9, 0.9);
         let weak = FrequencyResonance::calculate(440.0, 450.0, 0.3, 0.3);
-        
+
         assert!(strong.is_strong(0.7));
         assert!(!weak.is_strong(0.7));
     }

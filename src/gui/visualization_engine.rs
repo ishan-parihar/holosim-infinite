@@ -20,7 +20,8 @@
 
 use crate::entity_layer7::layer7::EntityId;
 use crate::gui::renderer::{BufferManager, EntityRenderPipeline, WgpuContext};
-use crate::gui::{Coordinate3D, GuiConfig, ScaleLevel, ScreenPosition};
+use crate::gui::{Coordinate3D, GuiConfig, ScaleLevel};
+use std::sync::Arc;
 
 /// 3D camera with multi-scale capabilities
 #[derive(Debug, Clone)]
@@ -623,7 +624,7 @@ impl WgpuRenderer {
     }
 
     /// Initialize the renderer with a surface
-    pub async fn initialize(&mut self, window: &winit::window::Window) -> Result<(), String> {
+    pub async fn initialize(&mut self, window: Arc<winit::window::Window>) -> Result<(), String> {
         let context = WgpuContext::new(window).await?;
 
         let buffer_manager = BufferManager::new(
@@ -788,7 +789,7 @@ impl VisualizationEngine {
     /// Initialize the engine
     pub async fn initialize(
         &mut self,
-        window: Option<&winit::window::Window>,
+        window: Option<Arc<winit::window::Window>>,
     ) -> Result<(), String> {
         if let Some(window) = window {
             self.renderer.initialize(window).await?;

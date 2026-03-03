@@ -21,11 +21,14 @@
 
 pub mod complex_vectors;
 pub mod configuration_discovery;
+pub mod field_address;
 pub mod holographic_entity;
 pub mod holographic_field;
 pub mod holographic_memory;
 pub mod interference_pattern;
 pub mod light_condensation;
+pub mod mera_integration;
+pub mod observer_driven_field;
 pub mod oscillator_network;
 pub mod universal_template;
 
@@ -34,7 +37,15 @@ pub mod universal_template;
 // They generate unused import warnings in the binary but are required by library modules.
 pub use complex_vectors::{ComplexArchetype, ComplexVector};
 pub use configuration_discovery::ConfigurationDiscoveryEngine;
-pub use holographic_field::{HolographicField, InvolutionLayer};
+pub use field_address::{AddressRange, CoherenceStep, HolographicAddress, ScaleLevel, Vector3};
+pub use holographic_field::{
+    ExtractedEntityPotential, FieldEvolutionResult, HolographicField, InvolutionLayer, MeraConfig,
+};
+pub use mera_integration::{CacheStats, MeraIntegration, MeraIntegrationBuilder};
+pub use observer_driven_field::{
+    CoherenceStatistics, DecompressedRegion, FieldOfView, FreeWillField, LightField, LoveField,
+    Observer, ObserverDrivenField, ObserverId, ObserverType,
+};
 pub use universal_template::{FromConfig, TemplateConfig, TemplateFactory, UniversalTemplate};
 
 use crate::types::Float;

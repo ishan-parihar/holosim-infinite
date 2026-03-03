@@ -23,7 +23,7 @@ pub use veil_transform::*;
 // ============================================================================
 
 /// Position derived from field coherence gradients
-/// 
+///
 /// From COSMOLOGICAL-ARCHITECTURE.md:
 /// > Space is not a fixed container - it EMERGES from the spectrum
 /// > Positions should emerge from field coherence gradients, NOT mathematical formulas
@@ -31,16 +31,16 @@ pub use veil_transform::*;
 pub struct CoherenceDerivedPosition {
     /// The 3D position in space
     pub position: [f64; 3],
-    
+
     /// Spectrum position (v = s/t) for this entity
     pub spectrum_position: f64,
-    
+
     /// Local coherence at this position
     pub coherence: f64,
-    
+
     /// Coherence gradient (direction of increasing coherence)
     pub coherence_gradient: [f64; 3],
-    
+
     /// Which perspective: Space/Time or Time/Space
     pub perspective: SpatialPerspective,
 }
@@ -56,7 +56,12 @@ pub enum SpatialPerspective {
 }
 
 impl CoherenceDerivedPosition {
-    pub fn new(position: [f64; 3], spectrum_position: f64, coherence: f64, gradient: [f64; 3]) -> Self {
+    pub fn new(
+        position: [f64; 3],
+        spectrum_position: f64,
+        coherence: f64,
+        gradient: [f64; 3],
+    ) -> Self {
         let perspective = if spectrum_position < 1.0 {
             SpatialPerspective::SpaceTime
         } else if spectrum_position > 1.0 {
@@ -64,7 +69,7 @@ impl CoherenceDerivedPosition {
         } else {
             SpatialPerspective::Transitional
         };
-        
+
         CoherenceDerivedPosition {
             position,
             spectrum_position,

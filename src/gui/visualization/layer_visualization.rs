@@ -117,7 +117,15 @@ impl LayerView {
         let resolution = 1.0_f32 - (layer_index as f32) * 0.1_f32;
         let strength = 1.0_f32 - (layer_index as f32) * 0.1_f32;
 
-        LayerView::new(layer_index, name, color, opacity, scale, resolution, strength)
+        LayerView::new(
+            layer_index,
+            name,
+            color,
+            opacity,
+            scale,
+            resolution,
+            strength,
+        )
     }
 
     pub fn visualization_size(&self) -> f64 {
@@ -299,10 +307,7 @@ impl LayerVisualization {
     }
 
     pub fn active_layers(&self) -> Vec<&LayerView> {
-        self.all_layers()
-            .into_iter()
-            .filter(|l| l.active)
-            .collect()
+        self.all_layers().into_iter().filter(|l| l.active).collect()
     }
 
     pub fn visible_layers(&self) -> Vec<&LayerView> {
@@ -353,22 +358,40 @@ impl LayerVisualization {
         }
 
         self.interactions.push(LayerInteraction::new(
-            1, 2, 0.7, LayerInteractionType::AttractorInfluence,
+            1,
+            2,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
         self.interactions.push(LayerInteraction::new(
-            2, 3, 0.7, LayerInteractionType::AttractorInfluence,
+            2,
+            3,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
         self.interactions.push(LayerInteraction::new(
-            3, 4, 0.7, LayerInteractionType::AttractorInfluence,
+            3,
+            4,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
         self.interactions.push(LayerInteraction::new(
-            4, 5, 0.7, LayerInteractionType::AttractorInfluence,
+            4,
+            5,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
         self.interactions.push(LayerInteraction::new(
-            5, 6, 0.7, LayerInteractionType::AttractorInfluence,
+            5,
+            6,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
         self.interactions.push(LayerInteraction::new(
-            6, 7, 0.7, LayerInteractionType::AttractorInfluence,
+            6,
+            7,
+            0.7,
+            LayerInteractionType::AttractorInfluence,
         ));
     }
 
@@ -485,7 +508,11 @@ mod tests {
 
     #[test]
     fn test_entity_layer_mapping_creation() {
-        let mapping = EntityLayerMapping::new(EntityId::new("entity_1".to_string()), EntityType::Individual, Density::Third);
+        let mapping = EntityLayerMapping::new(
+            EntityId::new("entity_1".to_string()),
+            EntityType::Individual,
+            Density::Third,
+        );
         assert_eq!(mapping.entity_id, EntityId::new("entity_1".to_string()));
         assert_eq!(mapping.density, Density::Third);
     }

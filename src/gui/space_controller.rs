@@ -253,6 +253,140 @@ impl ScaleTransition {
     }
 }
 
+/// Hierarchy navigation state for nested entity exploration
+///
+/// This enables drilling down into entities to explore their internal structure:
+/// - Double-click an entity to "enter" it and see its children/composition
+/// - Press Escape or Back to go up one level
+/// - Maintains a navigation stack for full history
+#[derive(Debug, Clone)]
+pub struct HierarchyNavigationState {
+    /// Navigation stack - each entry is an entity ID we've entered
+    /// The last entry is the current focus entity
+    pub navigation_stack: Vec<String>,
+
+    /// Current focus entity ID (None = root/universe level)
+    pub focus_entity_id: Option<String>,
+
+    /// Current focus entity name for display
+    pub focus_entity_name: String,
+
+    /// Current hierarchy level depth (0 = universe root)
+    pub depth: usize,
+
+    /// Entity types at each level for UI display
+    pub level_types: Vec<String>,
+
+    /// Transition animation progress (0.0 to 1.0)
+    pub transition_progress: f64,
+
+    /// Is currently transitioning between levels
+    pub is_transitioning: bool,
+}
+
+impl Default for HierarchyNavigationState {
+    fn default() -> Self {
+        HierarchyNavigationState {
+            navigation_stack: Vec::new(),
+            focus_entity_id: None,
+            focus_entity_name: "Universe".to_string(),
+            depth: 0,
+            level_types: vec!["Universe".to_string()],
+            transition_progress: 1.0,
+            is_transitioning: false,
+        }
+    }
+}
+
+impl HierarchyNavigationState {
+    /// Create a new hierarchy navigation state
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    /// Enter an entity (drill down into its children/composition)
+    pub fn enter_entity(&mut self, entity_id: String, entity_name: String, entity_type: String) {
+        self.navigation_stack.push(entity_id.clone());
+        self.focus_entity_id = Some(entity_id);
+        self.focus_entity_name = entity_name;
+        self.depth += 1;
+        self.level_types.push(entity_type);
+        self.transition_progress = 0.0;
+        self.is_transitioning = true;
+    }
+
+    /// Go back up one level
+    pub fn go_back(&mut self) -> bool {
+        if self.navigation_stack.is_empty() {
+            return false;
+        }
+
+        self.navigation_stack.pop();
+        self.focus_entity_id = self.navigation_stack.last().cloned();
+        self.depth = self.depth.saturating_sub(1);
+
+        if self.level_types.len() > 1 {
+            self.level_types.pop();
+        }
+
+        self.focus_entity_name = if let Some(id) = &self.focus_entity_id {
+            id.clone()
+        } else {
+            "Universe".to_string()
+        };
+
+        self.transition_progress = 0.0;
+        self.is_transitioning = true;
+        true
+    }
+
+    /// Go back to the root (universe level)
+    pub fn go_to_root(&mut self) {
+        self.navigation_stack.clear();
+        self.focus_entity_id = None;
+        self.focus_entity_name = "Universe".to_string();
+        self.depth = 0;
+        self.level_types = vec!["Universe".to_string()];
+        self.transition_progress = 0.0;
+        self.is_transitioning = true;
+    }
+
+    /// Check if we can go back
+    pub fn can_go_back(&self) -> bool {
+        !self.navigation_stack.is_empty()
+    }
+
+    /// Get the current focus path as a string (for UI display)
+    pub fn get_path_string(&self) -> String {
+        if self.navigation_stack.is_empty() {
+            "Universe".to_string()
+        } else {
+            format!("Universe → {}", self.navigation_stack.join(" → "))
+        }
+    }
+
+    /// Update transition animation
+    pub fn update_transition(&mut self, delta_time: f64) {
+        if self.is_transitioning {
+            self.transition_progress += delta_time * 3.0; // ~333ms transition
+            if self.transition_progress >= 1.0 {
+                self.transition_progress = 1.0;
+                self.is_transitioning = false;
+            }
+        }
+    }
+
+    /// Check if a specific entity is an ancestor of the current focus
+    pub fn is_ancestor(&self, entity_id: &str) -> bool {
+        self.navigation_stack.iter().any(|id| id == entity_id)
+    }
+
+    /// Check if we're currently inside a specific entity
+    pub fn is_inside(&self, entity_id: &str) -> bool {
+        self.focus_entity_id.as_ref().map(|id| id.as_str()) == Some(entity_id)
+    }
+}
+
 /// Space controller - manages spatial navigation and zoom
 #[derive(Debug, Clone)]
 pub struct SpaceController {
@@ -285,6 +419,9 @@ pub struct SpaceController {
 
     /// Target scale level
     pub target_scale: ScaleLevel,
+
+    /// Hierarchy navigation for nested entity exploration
+    pub hierarchy: HierarchyNavigationState,
 }
 
 impl Default for SpaceController {
@@ -300,6 +437,7 @@ impl Default for SpaceController {
             scale_transition: ScaleTransition::default(),
             current_scale: ScaleLevel::Cellular,
             target_scale: ScaleLevel::Cellular,
+            hierarchy: HierarchyNavigationState::default(),
         }
     }
 }
@@ -408,6 +546,9 @@ impl SpaceController {
         // Update scale transition
         self.scale_transition.update(delta_time);
 
+        // Update hierarchy transition
+        self.hierarchy.update_transition(delta_time);
+
         // Update current scale if transition complete
         if !self.scale_transition.is_transitioning() {
             self.current_scale = self.target_scale;
@@ -433,6 +574,7 @@ impl SpaceController {
         self.scale_transition = ScaleTransition::default();
         self.current_scale = ScaleLevel::Cellular;
         self.target_scale = ScaleLevel::Cellular;
+        self.hierarchy = HierarchyNavigationState::default();
     }
 
     /// Get the current scale level
@@ -446,7 +588,7 @@ impl SpaceController {
 
     /// Check if navigating
     pub fn is_navigating(&self) -> bool {
-        self.navigation.is_navigating() || self.scale_transition.is_transitioning()
+        self.navigation.is_navigating() || self.scale_transition.is_transitioning() || self.hierarchy.is_transitioning
     }
 
     /// Get the navigation progress (0.0 to 1.0)
@@ -455,8 +597,78 @@ impl SpaceController {
             self.navigation.navigation_progress
         } else if self.scale_transition.is_transitioning() {
             self.scale_transition.progress
+        } else if self.hierarchy.is_transitioning {
+            self.hierarchy.transition_progress
         } else {
             1.0
+        }
+    }
+
+    // ========================================================================
+    // Hierarchy Navigation Methods
+    // ========================================================================
+
+    /// Enter an entity (drill down into its internal structure)
+    ///
+    /// This "zooms into" an entity to show its children and composition.
+    /// The scale level is automatically adjusted based on entity type.
+    pub fn enter_entity(&mut self, entity_id: String, entity_name: String, entity_type: String, target_scale: ScaleLevel) {
+        self.hierarchy.enter_entity(entity_id, entity_name, entity_type);
+        self.navigate_scale(target_scale);
+    }
+
+    /// Go back up one level in the hierarchy
+    ///
+    /// Returns true if successful, false if already at root level.
+    pub fn hierarchy_go_back(&mut self) -> bool {
+        if self.hierarchy.go_back() {
+            // Adjust scale based on new depth
+            let target_scale = self.scale_for_depth(self.hierarchy.depth);
+            self.navigate_scale(target_scale);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Go to the root (universe level)
+    pub fn hierarchy_go_to_root(&mut self) {
+        self.hierarchy.go_to_root();
+        self.navigate_scale(ScaleLevel::Universal);
+    }
+
+    /// Check if we can go back in hierarchy
+    pub fn can_go_back_hierarchy(&self) -> bool {
+        self.hierarchy.can_go_back()
+    }
+
+    /// Get current hierarchy depth
+    pub fn hierarchy_depth(&self) -> usize {
+        self.hierarchy.depth
+    }
+
+    /// Get the current hierarchy path for display
+    pub fn hierarchy_path(&self) -> String {
+        self.hierarchy.get_path_string()
+    }
+
+    /// Get the current focus entity ID
+    pub fn focus_entity_id(&self) -> Option<&String> {
+        self.hierarchy.focus_entity_id.as_ref()
+    }
+
+    /// Determine appropriate scale level for hierarchy depth
+    fn scale_for_depth(&self, depth: usize) -> ScaleLevel {
+        match depth {
+            0 => ScaleLevel::Universal,    // Universe root
+            1 => ScaleLevel::Galactic,     // Galactic Logos / Galaxy
+            2 => ScaleLevel::Stellar,      // Solar Logos / Star
+            3 => ScaleLevel::Planetary,    // Planet
+            4 => ScaleLevel::Organism,     // Lifeform / Being
+            5 => ScaleLevel::Cellular,     // Cell
+            6 => ScaleLevel::Molecular,    // Molecule
+            7 => ScaleLevel::Atomic,       // Atom
+            _ => ScaleLevel::Quantum,      // Quantum particles
         }
     }
 }

@@ -38,7 +38,7 @@ impl FibonacciSequence {
         if self.sequence.is_empty() {
             self.sequence.push(0); // F(0) = 0
         }
-        
+
         while self.sequence.len() <= self.max_generation {
             let len = self.sequence.len();
             if len == 1 {
@@ -65,7 +65,7 @@ impl FibonacciSequence {
     fn calculate_binet(&self, n: usize) -> u64 {
         let phi = (1.0 + 5.0_f64.sqrt()) / 2.0;
         let psi = (1.0 - 5.0_f64.sqrt()) / 2.0;
-        
+
         let result = (phi.powi(n as i32) - psi.powi(n as i32)) / 5.0_f64.sqrt();
         result.round() as u64
     }
@@ -179,7 +179,7 @@ impl FibonacciSpiral {
         let seq = FibonacciSequence::new(self.generations);
         let mut angle = 0.0;
         let angle_increment = std::f64::consts::PI / 2.0; // 90 degrees
-        
+
         for i in 0..=self.generations {
             let radius = seq.get(i as u64) as Float;
             let x = radius * (angle as f64).cos();
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn test_fibonacci_sequence_first_10() {
         let seq = FibonacciSequence::new(10);
-        
+
         assert_eq!(seq.get(0), 0);
         assert_eq!(seq.get(1), 1);
         assert_eq!(seq.get(2), 1);
@@ -236,11 +236,11 @@ mod tests {
     #[test]
     fn test_fibonacci_ratio_converges_to_phi() {
         let seq = FibonacciSequence::new(20);
-        
+
         // Ratio should approach φ = 1.618...
         let ratio_10 = seq.ratio(10);
         let ratio_20 = seq.ratio(20);
-        
+
         // Higher generation should be closer to φ
         assert!((ratio_20 - 1.618).abs() < (ratio_10 - 1.618).abs());
     }
@@ -248,22 +248,22 @@ mod tests {
     #[test]
     fn test_fibonacci_growth() {
         let mut growth = FibonacciGrowth::new(0);
-        
+
         // Initial population should be F(0) = 0
         assert_eq!(growth.population(), 0);
-        
+
         growth.advance();
         assert_eq!(growth.population(), 1);
-        
+
         growth.advance();
         assert_eq!(growth.population(), 1);
-        
+
         growth.advance();
         assert_eq!(growth.population(), 2);
-        
+
         growth.advance();
         assert_eq!(growth.population(), 3);
-        
+
         growth.advance();
         assert_eq!(growth.population(), 5);
     }
@@ -271,10 +271,10 @@ mod tests {
     #[test]
     fn test_fibonacci_spiral_points() {
         let spiral = FibonacciSpiral::new(5);
-        
+
         // Should have 6 points (0 through 5)
         assert_eq!(spiral.points().len(), 6);
-        
+
         // First point should be at origin
         assert_eq!(spiral.point_at(0), Some((0.0, 0.0)));
     }
@@ -291,7 +291,7 @@ mod tests {
     #[test]
     fn test_fibonacci_sequence_function() {
         let seq = fibonacci_sequence(10);
-        
+
         assert_eq!(seq.len(), 11); // 0 through 10
         assert_eq!(seq[10], 55);
     }

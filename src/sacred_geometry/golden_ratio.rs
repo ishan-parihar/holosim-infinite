@@ -120,22 +120,14 @@ impl GoldenRectangle {
     pub fn from_width(width: Float) -> Self {
         let phi = GOLDEN_RATIO;
         let height = width / phi;
-        GoldenRectangle {
-            width,
-            height,
-            phi,
-        }
+        GoldenRectangle { width, height, phi }
     }
 
     /// Create a golden rectangle with specified height
     pub fn from_height(height: Float) -> Self {
         let phi = GOLDEN_RATIO;
         let width = height * phi;
-        GoldenRectangle {
-            width,
-            height,
-            phi,
-        }
+        GoldenRectangle { width, height, phi }
     }
 
     /// Create a golden rectangle with specified short side
@@ -186,7 +178,7 @@ impl GoldenRectangle {
         let long = self.width;
         let square_side = short;
         let remaining = long - short;
-        
+
         let new_rectangle = GoldenRectangle::from_short_side(remaining);
         (new_rectangle, square_side)
     }
@@ -265,13 +257,13 @@ mod tests {
     #[test]
     fn test_golden_proportion_values() {
         let gp = GoldenProportion::new();
-        
+
         // φ × 1/φ should equal 1
         assert!((gp.phi() * gp.phi_inverse() - 1.0).abs() < 1e-10);
-        
+
         // φ - 1 should equal 1/φ
         assert!((gp.phi() - 1.0 - gp.phi_inverse()).abs() < 1e-10);
-        
+
         // φ² should equal φ + 1
         assert!((gp.phi_squared() - (gp.phi() + 1.0)).abs() < 1e-10);
     }
@@ -279,10 +271,10 @@ mod tests {
     #[test]
     fn test_golden_rectangle() {
         let rect = GoldenRectangle::from_width(10.0);
-        
+
         // Should be valid golden rectangle
         assert!(rect.is_valid(0.01));
-        
+
         // Height should be width / φ
         assert!((rect.height() - (rect.width() / GOLDEN_RATIO)).abs() < 0.01);
     }
@@ -290,10 +282,10 @@ mod tests {
     #[test]
     fn test_golden_rectangle_from_height() {
         let rect = GoldenRectangle::from_height(10.0);
-        
+
         // Should be valid golden rectangle
         assert!(rect.is_valid(0.01));
-        
+
         // Width should be height × φ
         assert!((rect.width() - (rect.height() * GOLDEN_RATIO)).abs() < 0.01);
     }
@@ -302,10 +294,10 @@ mod tests {
     fn test_golden_rectangle_subdivision() {
         let rect = GoldenRectangle::from_width(10.0);
         let (new_rect, square_side) = rect.subdivide();
-        
+
         // Square side should equal original height
         assert!((square_side - rect.height()).abs() < 0.01);
-        
+
         // New rectangle should also be golden
         assert!(new_rect.is_valid(0.01));
     }
@@ -313,10 +305,10 @@ mod tests {
     #[test]
     fn test_golden_angle() {
         let ga = GoldenAngle::new();
-        
+
         // Golden angle should be ≈ 137.5°
         assert!((ga.degrees() - 137.5).abs() < 0.1);
-        
+
         // In radians, should be ≈ 2.4
         assert!((ga.radians() - 2.4).abs() < 0.01);
     }
@@ -325,10 +317,10 @@ mod tests {
     fn test_golden_angle_points() {
         let ga = GoldenAngle::new();
         let points = ga.points_on_circle(1.0, 10);
-        
+
         // Should have 10 points
         assert_eq!(points.len(), 10);
-        
+
         // All points should be on unit circle
         for (x, y) in points {
             assert!((x.powi(2) + y.powi(2) - 1.0).abs() < 0.01);
@@ -339,13 +331,13 @@ mod tests {
     fn test_is_golden_proportion() {
         // φ and 1 are in golden ratio
         assert!(is_golden_proportion(GOLDEN_RATIO, 1.0, 0.01));
-        
+
         // 1.618 and 1 are in golden ratio
         assert!(is_golden_proportion(1.618, 1.0, 0.01));
-        
+
         // φ² and φ are in golden ratio
         assert!(is_golden_proportion(GOLDEN_RATIO + 1.0, GOLDEN_RATIO, 0.01));
-        
+
         // 2 and 1 are NOT in golden ratio
         assert!(!is_golden_proportion(2.0, 1.0, 0.01));
     }
@@ -354,10 +346,10 @@ mod tests {
     fn test_golden_section() {
         let length = 10.0;
         let section = golden_section(length);
-        
+
         // Should be length / φ
         assert!((section - (length / GOLDEN_RATIO)).abs() < 0.01);
-        
+
         // Should be less than original length
         assert!(section < length);
     }

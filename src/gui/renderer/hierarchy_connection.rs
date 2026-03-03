@@ -9,6 +9,7 @@
 
 use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gui::renderer::entity_instance::EntityInstance;
+use crate::hpo::RenderableEntity;
 
 /// Type of hierarchical relationship between entities
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -20,12 +21,16 @@ pub enum ConnectionType {
     Composition = 1,
     /// Entity-environment relationship
     Environment = 2,
+    /// Field-derived phase coherence relationship
+    PhaseCoherence = 3,
+    /// Strong phase-lock / entanglement relationship
+    Entanglement = 4,
 }
 
 /// Connection data for rendering a relationship between two entities
 ///
 /// Memory layout (GPU-friendly, aligned):
-/// - Total size: 32 bytes
+/// - Total size: 44 bytes
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct HierarchyConnection {
@@ -42,8 +47,13 @@ pub struct HierarchyConnection {
     /// Used for alpha blending and line thickness
     pub intensity: f32,
 
+    /// Phase difference proxy in [0, 1].
+    /// 0 means phase-aligned, 1 means maximally offset.
+    /// For phase edges without explicit phase delta, this is derived as `1 - coherence`.
+    pub phase_delta: f32,
+
     /// Padding for alignment
-    pub _padding: [f32; 3],
+    pub _padding: [f32; 2],
 }
 
 impl HierarchyConnection {
@@ -54,7 +64,8 @@ impl HierarchyConnection {
             to_position: to_pos,
             connection_type: ConnectionType::ParentChild as u32,
             intensity: intensity.clamp(0.0, 1.0),
-            _padding: [0.0; 3],
+            phase_delta: 0.0,
+            _padding: [0.0; 2],
         }
     }
 
@@ -65,7 +76,8 @@ impl HierarchyConnection {
             to_position: to_pos,
             connection_type: ConnectionType::Composition as u32,
             intensity: intensity.clamp(0.0, 1.0),
-            _padding: [0.0; 3],
+            phase_delta: 0.0,
+            _padding: [0.0; 2],
         }
     }
 
@@ -76,7 +88,48 @@ impl HierarchyConnection {
             to_position: to_pos,
             connection_type: ConnectionType::Environment as u32,
             intensity: intensity.clamp(0.0, 1.0),
-            _padding: [0.0; 3],
+            phase_delta: 0.0,
+            _padding: [0.0; 2],
+        }
+    }
+
+    /// Create a phase-coherence connection
+    pub fn phase_coherence(from_pos: [f32; 3], to_pos: [f32; 3], intensity: f32) -> Self {
+        let coherence = intensity.clamp(0.0, 1.0);
+        Self::phase_coherence_with_delta(from_pos, to_pos, coherence, 1.0 - coherence)
+    }
+
+    /// Create a phase-coherence connection with explicit phase delta/proxy
+    pub fn phase_coherence_with_delta(
+        from_pos: [f32; 3],
+        to_pos: [f32; 3],
+        intensity: f32,
+        phase_delta: f32,
+    ) -> Self {
+        Self {
+            from_position: from_pos,
+            to_position: to_pos,
+            connection_type: ConnectionType::PhaseCoherence as u32,
+            intensity: intensity.clamp(0.0, 1.0),
+            phase_delta: phase_delta.clamp(0.0, 1.0),
+            _padding: [0.0; 2],
+        }
+    }
+
+    /// Create an entanglement connection with explicit phase delta/proxy
+    pub fn entanglement(
+        from_pos: [f32; 3],
+        to_pos: [f32; 3],
+        intensity: f32,
+        phase_delta: f32,
+    ) -> Self {
+        Self {
+            from_position: from_pos,
+            to_position: to_pos,
+            connection_type: ConnectionType::Entanglement as u32,
+            intensity: intensity.clamp(0.0, 1.0),
+            phase_delta: phase_delta.clamp(0.0, 1.0),
+            _padding: [0.0; 2],
         }
     }
 }
@@ -151,6 +204,107 @@ pub fn generate_connections(
     connections
 }
 
+/// Generate structural connections directly from field-derived renderable entities.
+///
+/// Heuristic graph constraints:
+/// - Up to 3 nearest neighbors per entity
+/// - Distance threshold: `0.45 + 0.10 * clamp(avg_veil_distance, 0, 1)`
+/// - Density band difference <= 2
+/// - Duplicate undirected edges removed
+/// - Hard cap at 3000 total edges
+pub fn generate_holo_connections(entities: &[RenderableEntity]) -> Vec<HierarchyConnection> {
+    if entities.len() < 2 {
+        return Vec::new();
+    }
+
+    const MAX_NEIGHBORS: usize = 3;
+    const MAX_EDGES: usize = 3000;
+
+    let avg_veil_distance = (entities
+        .iter()
+        .map(|entity| entity.veil_distance)
+        .sum::<f64>()
+        / entities.len() as f64)
+        .clamp(0.0, 1.0) as f32;
+    let threshold = 0.45 + 0.10 * avg_veil_distance;
+
+    let mut connections = Vec::with_capacity(entities.len().saturating_mul(MAX_NEIGHBORS));
+    let mut seen_edges = std::collections::HashSet::new();
+
+    for (i, entity) in entities.iter().enumerate() {
+        let mut candidates: Vec<(usize, f32)> = Vec::new();
+
+        for (j, other) in entities.iter().enumerate() {
+            if i == j {
+                continue;
+            }
+
+            let density_diff = entity
+                .density_band
+                .index()
+                .abs_diff(other.density_band.index());
+            if density_diff > 2 {
+                continue;
+            }
+
+            let dx = entity.position[0] as f32 - other.position[0] as f32;
+            let dy = entity.position[1] as f32 - other.position[1] as f32;
+            let dz = entity.position[2] as f32 - other.position[2] as f32;
+            let distance = (dx * dx + dy * dy + dz * dz).sqrt();
+
+            if distance < threshold {
+                candidates.push((j, distance));
+            }
+        }
+
+        candidates.sort_by(|(a_idx, a_dist), (b_idx, b_dist)| {
+            a_dist
+                .partial_cmp(b_dist)
+                .unwrap_or(std::cmp::Ordering::Equal)
+                .then_with(|| a_idx.cmp(b_idx))
+        });
+
+        for (j, distance) in candidates.into_iter().take(MAX_NEIGHBORS) {
+            let (a, b) = if i < j { (i, j) } else { (j, i) };
+            if !seen_edges.insert((a, b)) {
+                continue;
+            }
+
+            let from = [
+                entities[a].position[0] as f32,
+                entities[a].position[1] as f32,
+                entities[a].position[2] as f32,
+            ];
+            let to = [
+                entities[b].position[0] as f32,
+                entities[b].position[1] as f32,
+                entities[b].position[2] as f32,
+            ];
+
+            let proximity = (1.0 - (distance / threshold)).clamp(0.0, 1.0);
+            let consciousness_avg =
+                (((entities[a].consciousness + entities[b].consciousness) * 0.5) as f32)
+                    .clamp(0.0, 1.0);
+            let intensity = (0.65 * proximity + 0.35 * consciousness_avg).clamp(0.0, 1.0);
+
+            let connection = if entities[a].in_collective && entities[b].in_collective {
+                HierarchyConnection::parent_child(from, to, intensity)
+            } else if entities[a].density_band == entities[b].density_band {
+                HierarchyConnection::composition(from, to, intensity)
+            } else {
+                HierarchyConnection::environment(from, to, intensity)
+            };
+
+            connections.push(connection);
+            if connections.len() >= MAX_EDGES {
+                return connections;
+            }
+        }
+    }
+
+    connections
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -186,6 +340,22 @@ mod tests {
         assert_eq!(conn.to_position, [1.0, 1.0, 0.0]);
         assert_eq!(conn.connection_type, ConnectionType::Environment as u32);
         assert_eq!(conn.intensity, 0.4);
+        assert_eq!(conn.phase_delta, 0.0);
+    }
+
+    #[test]
+    fn test_phase_coherence_derives_phase_delta_from_coherence() {
+        let conn = HierarchyConnection::phase_coherence([0.0, 0.0, 0.0], [1.0, 0.0, 0.0], 0.75);
+        assert_eq!(conn.connection_type, ConnectionType::PhaseCoherence as u32);
+        assert!((conn.phase_delta - 0.25).abs() < 1e-6);
+    }
+
+    #[test]
+    fn test_entanglement_connection_type() {
+        let conn = HierarchyConnection::entanglement([0.0, 0.0, 0.0], [0.0, 1.0, 0.0], 0.9, 0.1);
+        assert_eq!(conn.connection_type, ConnectionType::Entanglement as u32);
+        assert_eq!(conn.intensity, 0.9);
+        assert_eq!(conn.phase_delta, 0.1);
     }
 
     #[test]

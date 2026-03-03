@@ -1,7 +1,7 @@
 //! Involution Flow (Phase 3)
 //!
 //! From REFACTOR_ROADMAP_COMPREHENSIVE_2026.md:
-//! "The fourth phase implements the top-down causal chain from THE ONE through LOGOS, 
+//! "The fourth phase implements the top-down causal chain from THE ONE through LOGOS,
 //! SubLogos, SubSubLogos to individual entities."
 //!
 //! This module implements the cosmological hierarchy:
@@ -14,28 +14,32 @@
 //! From COSMOLOGICAL-ARCHITECTURE.md:
 //! "The LOGOS divides into 7 + 3 aspects, each SubLogos creates a cosmic evol"
 
-use super::field_state::{Complex, DensityBand, FieldNodeData, Float, HolographicFieldState, OctreeNode};
+use super::field_state::{
+    Complex, DensityBand, FieldNodeData, Float, HolographicFieldState, OctreeNode,
+};
 use super::spectrum_dynamics::SpectrumDynamics;
 
 /// The Seven Rays - fundamental vibrational frequencies
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Ray {
-    Will = 0,    // Red ray - 1st ray
-    Love = 1,    // Blue ray - 2nd ray
-    Wisdom = 2,  // Yellow ray - 3rd ray
+    Will = 0,      // Red ray - 1st ray
+    Love = 1,      // Blue ray - 2nd ray
+    Wisdom = 2,    // Yellow ray - 3rd ray
     Execution = 3, // Green ray - 4th ray
     Knowledge = 4, // Orange ray - 5th ray
-    Order = 5,   // Indigo ray - 6th ray
-    Essence = 6, // Violet ray - 7th ray
+    Order = 5,     // Indigo ray - 6th ray
+    Essence = 6,   // Violet ray - 7th ray
 }
 
 impl Ray {
-    pub fn count() -> usize { 7 }
-    
+    pub fn count() -> usize {
+        7
+    }
+
     pub fn index(&self) -> usize {
         *self as usize
     }
-    
+
     pub fn from_index(i: usize) -> Option<Ray> {
         match i {
             0 => Some(Ray::Will),
@@ -48,7 +52,7 @@ impl Ray {
             _ => None,
         }
     }
-    
+
     /// Get the characteristic frequency for this ray
     pub fn frequency(&self) -> Float {
         match self {
@@ -61,17 +65,17 @@ impl Ray {
             Ray::Essence => 64.0,
         }
     }
-    
+
     /// Get the color for this ray (RGB)
     pub fn color(&self) -> (u8, u8, u8) {
         match self {
-            Ray::Will => (255, 0, 0),       // Red
-            Ray::Love => (0, 0, 255),       // Blue
-            Ray::Wisdom => (255, 255, 0),   // Yellow
+            Ray::Will => (255, 0, 0),        // Red
+            Ray::Love => (0, 0, 255),        // Blue
+            Ray::Wisdom => (255, 255, 0),    // Yellow
             Ray::Execution => (0, 255, 0),   // Green
             Ray::Knowledge => (255, 165, 0), // Orange
-            Ray::Order => (75, 0, 130),     // Indigo
-            Ray::Essence => (128, 0, 128),  // Violet
+            Ray::Order => (75, 0, 130),      // Indigo
+            Ray::Essence => (128, 0, 128),   // Violet
         }
     }
 }
@@ -79,13 +83,15 @@ impl Ray {
 /// The Three Aspects (additional to 7 rays)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Aspect {
-    Active = 0,   // Active masculine
-    Passive = 1,  // Passive feminine  
+    Active = 0,  // Active masculine
+    Passive = 1, // Passive feminine
     Neutral = 2, // Neutral/unified
 }
 
 impl Aspect {
-    pub fn count() -> usize { 3 }
+    pub fn count() -> usize {
+        3
+    }
 }
 
 /// Configuration for the cosmic hierarchy
@@ -93,16 +99,16 @@ impl Aspect {
 pub struct CosmicHierarchyConfig {
     /// Number of SubLogos levels (galactic, solar, etc.)
     pub sublogos_levels: usize,
-    
+
     /// Number of SubSubLogos per SubLogos
     pub subsublogos_per_sublogos: usize,
-    
+
     /// Entity spawn threshold (field energy required for emergence)
     pub entity_threshold: Float,
-    
+
     /// Initial field coherence
     pub initial_coherence: Float,
-    
+
     /// Veil position for SubSubLogos
     pub veil_position: Float,
 }
@@ -110,7 +116,7 @@ pub struct CosmicHierarchyConfig {
 impl Default for CosmicHierarchyConfig {
     fn default() -> Self {
         CosmicHierarchyConfig {
-            sublogos_levels: 2,     // Galactic, Solar
+            sublogos_levels: 2, // Galactic, Solar
             subsublogos_per_sublogos: 10,
             entity_threshold: 0.5,
             initial_coherence: 0.5,
@@ -120,15 +126,15 @@ impl Default for CosmicHierarchyConfig {
 }
 
 /// THE ONE - Intelligent Infinity (Ground State)
-/// From COSMOLOGICAL-ARCHITECTURE.md: "THE ONE or Intelligent Infinity represents 
+/// From COSMOLOGICAL-ARCHITECTURE.md: "THE ONE or Intelligent Infinity represents
 /// the ground state from which all emerges"
 pub struct TheOne {
     /// Unity - perfect, undifferentiated state
     pub unity: Float,
-    
+
     /// Potential - infinite possibility
     pub potential: Float,
-    
+
     /// Config
     pub config: CosmicHierarchyConfig,
 }
@@ -136,7 +142,7 @@ pub struct TheOne {
 impl TheOne {
     pub fn new() -> Self {
         TheOne {
-            unity: 1.0,  // Perfect unity
+            unity: 1.0,     // Perfect unity
             potential: 1.0, // Infinite potential
             config: CosmicHierarchyConfig::default(),
         }
@@ -148,43 +154,43 @@ impl TheOne {
         // This creates the initial field perturbations
         let bounds = field.root.bounds;
         let center = bounds.center();
-        
+
         // Add small perturbations at the center
         field.add_energy_at(center, 0, 0.001);
-        
+
         // The unity is now potentially broken
         // Field can evolve from this point
     }
-    
+
     /// Initialize the field from THE ONE
     pub fn initialize_field(&self, field: &mut HolographicFieldState) {
         // Start with perfect coherence
         field.root.field_data.coherence = self.config.initial_coherence;
-        
+
         // Initialize spectrum at the ONE's perspective (beyond densities)
         field.root.field_data.spectrum_position = 2.0; // Beyond physical octave
-        
+
         // Apply first distortion
         self.apply_first_distortion(field);
     }
 }
 
 /// LOGOS - The Creative Principle
-/// From COSMOLOGICAL-ARCHITECTURE.md: "The LOGOS divides into 7 + 3 aspects, 
+/// From COSMOLOGICAL-ARCHITECTURE.md: "The LOGOS divides into 7 + 3 aspects,
 /// each SubLogos creates a cosmic evol"
 pub struct Logos {
     /// The Seven Rays
     pub rays: [Float; 7],
-    
+
     /// The Three Aspects
     pub aspects: [Float; 3],
-    
+
     /// Dominant ray
     pub dominant_ray: Ray,
-    
+
     /// LOGOS creates coherence
     pub coherence: Float,
-    
+
     /// Parent (THE ONE)
     pub parent_unity: Float,
 }
@@ -205,15 +211,15 @@ impl Logos {
         let mut logos = Logos::new();
         logos.parent_unity = the_one.unity;
         logos.coherence = the_one.unity;
-        
+
         // Initialize rays at equal strength initially
         for i in 0..7 {
             logos.rays[i] = 1.0 / 7.0;
         }
-        
+
         // Initialize aspects
-        logos.aspects = [1.0/3.0; 3];
-        
+        logos.aspects = [1.0 / 3.0; 3];
+
         logos
     }
 
@@ -221,7 +227,7 @@ impl Logos {
     pub fn with_ray_emphasis(mut self, ray: Ray, strength: Float) -> Self {
         // Increase the specified ray
         self.rays[ray.index()] = strength;
-        
+
         // Normalize others
         let remaining = 1.0 - strength;
         for i in 0..7 {
@@ -229,7 +235,7 @@ impl Logos {
                 self.rays[i] = remaining / 6.0;
             }
         }
-        
+
         self.dominant_ray = ray;
         self
     }
@@ -238,7 +244,7 @@ impl Logos {
     pub fn apply_to_field(&self, field: &mut HolographicFieldState) {
         // Set root node coherence
         field.root.field_data.coherence = self.coherence;
-        
+
         // Apply ray frequencies to density bands
         for (i, &ray_strength) in self.rays.iter().enumerate() {
             if let Some(density_idx) = self.ray_to_density(i) {
@@ -248,7 +254,7 @@ impl Logos {
             }
         }
     }
-    
+
     /// Map ray index to density band
     fn ray_to_density(&self, ray_idx: usize) -> Option<usize> {
         // Rays correspond to densities 1-7 (index 0-6)
@@ -258,7 +264,7 @@ impl Logos {
             None
         }
     }
-    
+
     /// Get the ray frequencies
     pub fn get_ray_frequencies(&self) -> [Float; 7] {
         let mut freqs = [0.0; 7];
@@ -272,24 +278,24 @@ impl Logos {
 }
 
 /// SubLogos - Galactic/Solar Scale Structures
-/// From COSMOLOGICAL-ARCHITECTURE.md: "SubLogos at galactic and solar scales set 
+/// From COSMOLOGICAL-ARCHITECTURE.md: "SubLogos at galactic and solar scales set
 /// boundary conditions and parameters for field evolution"
 pub struct SubLogos {
     /// LOGOS configuration inherited
     pub rays: [Float; 7],
-    
+
     /// Scale level (0 = galactic, 1 = solar)
     pub scale_level: usize,
-    
+
     /// Spatial bounds of this SubLogos domain
     pub bounds: [[Float; 3]; 2], // [min, max]
-    
+
     /// Dominant ray at this scale
     pub dominant_ray: Ray,
-    
+
     /// Consciousness density in this region
     pub consciousness_density: Float,
-    
+
     /// Speed of light in this region
     pub speed_of_light: Float,
 }
@@ -300,7 +306,12 @@ impl SubLogos {
             rays,
             scale_level,
             bounds: [[-1000.0, -1000.0, -1000.0], [1000.0, 1000.0, 1000.0]],
-            dominant_ray: Ray::from_index(rays.iter().position(|&r| r == rays.iter().cloned().fold(0.0, |a, b| a.max(b))).unwrap_or(1)).unwrap_or(Ray::Love),
+            dominant_ray: Ray::from_index(
+                rays.iter()
+                    .position(|&r| r == rays.iter().cloned().fold(0.0_f64, |a: f64, b| a.max(b)))
+                    .unwrap_or(1),
+            )
+            .unwrap_or(Ray::Love),
             consciousness_density: 0.5,
             speed_of_light: 1.0,
         }
@@ -309,7 +320,10 @@ impl SubLogos {
     /// Create a SubLogos at galactic scale
     pub fn galactic(rays: [Float; 7]) -> Self {
         let mut sub = SubLogos::new(0, rays);
-        sub.bounds = [[-100000.0, -100000.0, -100000.0], [100000.0, 100000.0, 100000.0]];
+        sub.bounds = [
+            [-100000.0, -100000.0, -100000.0],
+            [100000.0, 100000.0, 100000.0],
+        ];
         sub
     }
 
@@ -325,40 +339,41 @@ impl SubLogos {
     pub fn apply_to_field(&self, field: &mut HolographicFieldState) {
         // Set consciousness density
         field.root.field_data.energy = self.consciousness_density;
-        
+
         // Apply ray configuration
         for (i, &ray_strength) in self.rays.iter().enumerate() {
             if i < 8 {
                 let amp = field.root.field_data.density_amplitudes[i];
                 let new_mag = amp.magnitude() * (1.0 + ray_strength * 0.1);
-                field.root.field_data.density_amplitudes[i] = Complex::from_polar(new_mag, amp.phase());
+                field.root.field_data.density_amplitudes[i] =
+                    Complex::from_polar(new_mag, amp.phase());
             }
         }
     }
 }
 
 /// SubSubLogos - Planetary Scale + Veil Crossing
-/// From COSMOLOGICAL-ARCHITECTURE.md: "SubSubLogos at planetary scales further 
+/// From COSMOLOGICAL-ARCHITECTURE.md: "SubSubLogos at planetary scales further
 /// refine parameters for entities within a specific cosmic evol"
 pub struct SubSubLogos {
     /// Parent SubLogos rays inherited
     pub rays: [Float; 7],
-    
+
     /// Planetary bounds
     pub bounds: [[Float; 3]; 2],
-    
+
     /// Veil parameters specific to this planet
     pub veil_position: Float,
     pub veil_thickness: Float,
     pub veil_transparency: Float,
-    
+
     /// Physical constants for this world
     pub gravity: Float,
     pub time_flow: Float,
-    
+
     /// Entity capacity
     pub max_entities: usize,
-    
+
     /// Current entity count
     pub entity_count: usize,
 }
@@ -382,7 +397,7 @@ impl SubSubLogos {
     pub fn apply_to_field(&self, field: &mut HolographicFieldState) {
         // Set veil parameters
         field.root.field_data.veil_transparency = self.veil_transparency;
-        
+
         // The spectrum position at SubSubLogos level crosses the veil
         // This is where physical manifestation begins
         field.root.field_data.spectrum_position = self.veil_position - self.veil_thickness;
@@ -408,22 +423,22 @@ impl SubSubLogos {
 pub struct CosmicHierarchy {
     /// THE ONE
     pub the_one: TheOne,
-    
+
     /// LOGOS
     pub logos: Logos,
-    
+
     /// SubLogos (galactic, solar)
     pub sublogos: Vec<SubLogos>,
-    
+
     /// SubSubLogos (planetary)
     pub subsublogos: Vec<SubSubLogos>,
-    
+
     /// Current active SubSubLogos
     pub active_subsublogos: Option<usize>,
-    
+
     /// Configuration
     pub config: CosmicHierarchyConfig,
-    
+
     /// Statistics
     pub statistics: HierarchyStatistics,
 }
@@ -433,13 +448,13 @@ pub struct CosmicHierarchy {
 pub struct HierarchyStatistics {
     /// Total entities spawned
     pub entities_spawned: usize,
-    
+
     /// Total veil crossings
     pub veil_crossings: usize,
-    
+
     /// Average consciousness level
     pub average_consciousness: Float,
-    
+
     /// Hierarchy depth reached
     pub max_depth: usize,
 }
@@ -448,7 +463,7 @@ impl CosmicHierarchy {
     pub fn new() -> Self {
         let the_one = TheOne::new();
         let logos = Logos::from_the_one(&the_one);
-        
+
         CosmicHierarchy {
             the_one,
             logos,
@@ -464,10 +479,10 @@ impl CosmicHierarchy {
     pub fn initialize(&mut self, field: &mut HolographicFieldState) {
         // THE ONE initializes the field
         self.the_one.initialize_field(field);
-        
+
         // LOGOS configures the field
         self.logos.apply_to_field(field);
-        
+
         self.statistics.max_depth = 1;
     }
 
@@ -488,12 +503,12 @@ impl CosmicHierarchy {
     pub fn propagate_down(&self, field: &mut HolographicFieldState) {
         // Apply LOGOS
         self.logos.apply_to_field(field);
-        
+
         // Apply SubLogos
         for sub in &self.sublogos {
             sub.apply_to_field(field);
         }
-        
+
         // Apply active SubSubLogos
         if let Some(idx) = self.active_subsublogos {
             if idx < self.subsublogos.len() {
@@ -503,13 +518,16 @@ impl CosmicHierarchy {
     }
 
     /// Process entity emergence
-    pub fn process_entity_emergence(&mut self, field: &mut HolographicFieldState) -> Vec<[Float; 3]> {
+    pub fn process_entity_emergence(
+        &mut self,
+        field: &mut HolographicFieldState,
+    ) -> Vec<[Float; 3]> {
         let mut new_entities = Vec::new();
-        
+
         if let Some(idx) = self.active_subsublogos {
             if idx < self.subsublogos.len() {
                 let subsub = &mut self.subsublogos[idx];
-                
+
                 // Check root energy for entity spawn
                 if subsub.can_spawn_entity(field.root.field_data.energy) {
                     // Spawn at random position within bounds
@@ -518,14 +536,14 @@ impl CosmicHierarchy {
                         (rand_pos() * 20.0 - 10.0),
                         (rand_pos() * 20.0 - 10.0),
                     ];
-                    
+
                     // Add energy at position
                     field.add_energy_at(pos, 3, 0.5);
-                    
+
                     new_entities.push(pos);
                     self.statistics.entities_spawned += 1;
                     subsub.entity_count += 1;
-                    
+
                     // Check for veil crossing
                     if field.root.field_data.spectrum_position < subsub.veil_position {
                         self.statistics.veil_crossings += 1;
@@ -533,7 +551,7 @@ impl CosmicHierarchy {
                 }
             }
         }
-        
+
         new_entities
     }
 }
@@ -575,7 +593,7 @@ mod tests {
         let mut hierarchy = CosmicHierarchy::new();
         let mut field = HolographicFieldState::with_defaults();
         hierarchy.initialize(&mut field);
-        
+
         assert!(hierarchy.statistics.max_depth >= 1);
     }
 }

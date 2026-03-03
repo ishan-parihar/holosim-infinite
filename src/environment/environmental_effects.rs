@@ -15,26 +15,26 @@
 //! - Atmospheric effects on consciousness
 
 use super::*;
-use crate::hpo::planetary_emergence::{WeatherSystem, WeatherPattern as PlanetWeather};
+use crate::hpo::planetary_emergence::{WeatherPattern as PlanetWeather, WeatherSystem};
 
 /// Configuration for environmental effects
 #[derive(Debug, Clone)]
 pub struct EnvironmentalEffectsConfig {
     /// Enable weather effects
     pub enable_weather_effects: bool,
-    
+
     /// Enable terrain effects
     pub enable_terrain_effects: bool,
-    
+
     /// Enable temperature effects
     pub enable_temperature_effects: bool,
-    
+
     /// Enable atmospheric effects
     pub enable_atmosphere_effects: bool,
-    
+
     /// Base metabolic rate
     pub base_metabolic_rate: f64,
-    
+
     /// Temperature deviation threshold
     pub temp_deviation_threshold: f64,
 }
@@ -57,19 +57,19 @@ impl Default for EnvironmentalEffectsConfig {
 pub struct EntityMutableState {
     /// Metabolic rate multiplier
     pub metabolism_rate: f64,
-    
+
     /// Consciousness state (affected by environment)
     pub consciousness_state: ConsciousnessState,
-    
+
     /// Energy level
     pub energy: f64,
-    
+
     /// Mood modifier
     pub mood_modifier: f64,
-    
+
     /// Movement efficiency
     pub movement_efficiency: f64,
-    
+
     /// Perception clarity
     pub perception_clarity: f64,
 }
@@ -92,9 +92,9 @@ impl Default for ConsciousnessState {
 }
 
 /// Environmental Effects Applicator
-/// 
+///
 /// Applies environmental conditions to entity state
-/// 
+///
 /// From COSMOLOGICAL-ARCHITECTURE.md:
 /// > "The entity contains within it all densities and sub-densities of the octave"
 /// > "Environment affects entity through field coherence patterns"
@@ -122,16 +122,16 @@ impl EnvironmentalEffects {
             statistics: EnvironmentalEffectsStatistics::default(),
         }
     }
-    
+
     pub fn with_config(config: EnvironmentalEffectsConfig) -> Self {
         EnvironmentalEffects {
             config,
             statistics: EnvironmentalEffectsStatistics::default(),
         }
     }
-    
+
     /// Apply all environmental effects to entity
-    /// 
+    ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
     /// > "Entities experience their environment through field coherence"
     pub fn apply_effects(
@@ -140,34 +140,34 @@ impl EnvironmentalEffects {
         entity_mutable: &mut EntityMutableState,
     ) {
         self.statistics.entities_affected += 1;
-        
+
         // Apply weather effects
         if self.config.enable_weather_effects {
             self.apply_weather_effects(entity_state, entity_mutable);
             self.statistics.weather_effects_applied += 1;
         }
-        
+
         // Apply terrain effects
         if self.config.enable_terrain_effects {
             self.apply_terrain_effects(entity_state, entity_mutable);
             self.statistics.terrain_effects_applied += 1;
         }
-        
+
         // Apply temperature effects
         if self.config.enable_temperature_effects {
             self.apply_temperature_effects(entity_state, entity_mutable);
             self.statistics.temperature_effects_applied += 1;
         }
-        
+
         // Apply atmosphere effects
         if self.config.enable_atmosphere_effects {
             self.apply_atmosphere_effects(entity_state, entity_mutable);
             self.statistics.atmosphere_effects_applied += 1;
         }
     }
-    
+
     /// Apply weather effects on entity
-    /// 
+    ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
     /// > "Weather affects mood/state"
     fn apply_weather_effects(
@@ -192,11 +192,12 @@ impl EnvironmentalEffects {
             WeatherPattern::Rain => {
                 // Rain - introspective, calm
                 entity_mutable.mood_modifier -= 0.05;
-                entity_mutable.consciousness_state = if entity_mutable.consciousness_state == ConsciousnessState::Agitated {
-                    ConsciousnessState::Calm
-                } else {
-                    entity_mutable.consciousness_state
-                };
+                entity_mutable.consciousness_state =
+                    if entity_mutable.consciousness_state == ConsciousnessState::Agitated {
+                        ConsciousnessState::Calm
+                    } else {
+                        entity_mutable.consciousness_state
+                    };
             }
             WeatherPattern::Storm => {
                 // Storm - agitated, anxious
@@ -216,7 +217,7 @@ impl EnvironmentalEffects {
             }
         }
     }
-    
+
     /// Apply terrain effects on entity
     fn apply_terrain_effects(
         &self,
@@ -268,7 +269,7 @@ impl EnvironmentalEffects {
             }
         }
     }
-    
+
     /// Apply temperature effects on entity
     fn apply_temperature_effects(
         &self,
@@ -277,12 +278,12 @@ impl EnvironmentalEffects {
     ) {
         let optimal_temp = 20.0; // Celsius
         let deviation = (env_state.temperature - optimal_temp).abs();
-        
+
         if deviation > self.config.temp_deviation_threshold {
             // Outside optimal range - metabolism affected
             let metabolic_change = deviation / 20.0;
             entity_mutable.metabolism_rate *= 1.0 + metabolic_change;
-            
+
             // Mood affected by extreme temperatures
             if deviation > 20.0 {
                 entity_mutable.mood_modifier -= 0.15;
@@ -294,7 +295,7 @@ impl EnvironmentalEffects {
             }
         }
     }
-    
+
     /// Apply atmosphere effects on entity
     fn apply_atmosphere_effects(
         &self,
@@ -303,20 +304,20 @@ impl EnvironmentalEffects {
     ) {
         let optimal_oxygen = 0.21;
         let oxygen_deviation = (env_state.oxygen_level - optimal_oxygen).abs();
-        
+
         if oxygen_deviation > 0.05 {
             // Oxygen level affects clarity and energy
             let effect = oxygen_deviation * 2.0;
             entity_mutable.perception_clarity *= 1.0 - effect;
             entity_mutable.energy *= 1.0 - effect;
-            
+
             // Low oxygen causes anxiety
             if env_state.oxygen_level < 0.15 {
                 entity_mutable.consciousness_state = ConsciousnessState::Anxious;
             }
         }
     }
-    
+
     /// Update weather for entity from planet weather system
     pub fn update_weather(
         &self,
@@ -333,10 +334,10 @@ impl EnvironmentalEffects {
             PlanetWeather::Snow => WeatherPattern::Snow,
             _ => WeatherPattern::Clear,
         };
-        
+
         entity_state.weather = entity_weather;
     }
-    
+
     /// Create default mutable state
     pub fn create_default_mutable_state() -> EntityMutableState {
         EntityMutableState {
@@ -348,12 +349,12 @@ impl EnvironmentalEffects {
             perception_clarity: 1.0,
         }
     }
-    
+
     /// Update statistics
     pub fn update_statistics(&mut self, affected_count: usize) {
         self.statistics.entities_affected = affected_count;
     }
-    
+
     /// Get statistics
     pub fn get_statistics(&self) -> &EnvironmentalEffectsStatistics {
         &self.statistics
@@ -373,53 +374,53 @@ impl Default for EnvironmentalEffects {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_weather_effects() {
         let effects = EnvironmentalEffects::new();
-        
+
         // Test clear weather
         let mut env_state = EntityEnvironmentState {
             weather: WeatherPattern::Clear,
             ..Default::default()
         };
         let mut mutable_state = EnvironmentalEffects::create_default_mutable_state();
-        
+
         effects.apply_weather_effects(&env_state, &mut mutable_state);
-        
+
         assert!(mutable_state.mood_modifier > 0.0);
     }
-    
+
     #[test]
     fn test_terrain_effects() {
         let effects = EnvironmentalEffects::new();
-        
+
         // Test mountains
         let mut env_state = EntityEnvironmentState {
             terrain: EnvironmentTerrain::Mountains,
             ..Default::default()
         };
         let mut mutable_state = EnvironmentalEffects::create_default_mutable_state();
-        
+
         effects.apply_terrain_effects(&env_state, &mut mutable_state);
-        
+
         assert!(mutable_state.movement_efficiency < 1.0);
         assert!(mutable_state.metabolism_rate > 1.0);
     }
-    
+
     #[test]
     fn test_temperature_effects() {
         let effects = EnvironmentalEffects::new();
-        
+
         // Test extreme heat
         let mut env_state = EntityEnvironmentState {
             temperature: 45.0,
             ..Default::default()
         };
         let mut mutable_state = EnvironmentalEffects::create_default_mutable_state();
-        
+
         effects.apply_temperature_effects(&env_state, &mut mutable_state);
-        
+
         assert!(mutable_state.metabolism_rate > 1.0);
     }
 }

@@ -1,10 +1,10 @@
 //! View Factory - Different Perspectives on the Same Unified Field
 
-use std::sync::Arc;
-use super::physics_emergence::{EmergentParticle, EmergentAtom, EmergentMolecule};
-use super::biology_emergence::{EmergentDNA, LivingCell, CellType, BiologicalOrganism};
-use super::consciousness_emergence::{Awareness, Mind, Spirit, PolarityOrientation};
+use super::biology_emergence::{BiologicalOrganism, CellType, EmergentDNA, LivingCell};
+use super::consciousness_emergence::{Awareness, Mind, PolarityOrientation, Spirit};
+use super::physics_emergence::{EmergentAtom, EmergentMolecule, EmergentParticle};
 use super::unified_field::UnifiedField;
+use std::sync::Arc;
 
 pub trait FieldView: Send + Sync {
     fn name(&self) -> &str;
@@ -36,19 +36,19 @@ impl ViewFactory {
     pub fn new(field: Arc<UnifiedField>) -> Self {
         Self { field }
     }
-    
+
     pub fn physics_view(&self) -> PhysicsViewImpl {
         PhysicsViewImpl {
             field: self.field.clone(),
         }
     }
-    
+
     pub fn biology_view(&self) -> BiologyViewImpl {
         BiologyViewImpl {
             field: self.field.clone(),
         }
     }
-    
+
     pub fn consciousness_view(&self) -> ConsciousnessViewImpl {
         ConsciousnessViewImpl {
             field: self.field.clone(),
@@ -61,7 +61,9 @@ pub struct PhysicsViewImpl {
 }
 
 impl FieldView for PhysicsViewImpl {
-    fn name(&self) -> &str { "PhysicsView" }
+    fn name(&self) -> &str {
+        "PhysicsView"
+    }
 }
 
 impl PhysicsView for PhysicsViewImpl {
@@ -70,7 +72,11 @@ impl PhysicsView for PhysicsViewImpl {
         if coherence > 0.7 {
             Some(EmergentParticle {
                 id: "particle".to_string(),
-                position: crate::hpo::spatial_field::Position3D { x: position[0], y: position[1], z: position[2] },
+                position: crate::hpo::spatial_field::Position3D {
+                    x: position[0],
+                    y: position[1],
+                    z: position[2],
+                },
                 energy: coherence,
                 coherence,
             })
@@ -78,7 +84,7 @@ impl PhysicsView for PhysicsViewImpl {
             None
         }
     }
-    
+
     fn get_atom(&self, particles: &[EmergentParticle]) -> Option<EmergentAtom> {
         if particles.len() >= 3 {
             Some(EmergentAtom {
@@ -86,13 +92,17 @@ impl PhysicsView for PhysicsViewImpl {
                 atomic_number: 1,
                 mass: 1.0,
                 electrons: 1,
-                position: crate::hpo::spatial_field::Position3D { x: 0.0, y: 0.0, z: 0.0 },
+                position: crate::hpo::spatial_field::Position3D {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
             })
         } else {
             None
         }
     }
-    
+
     fn get_molecule(&self, atoms: &[EmergentAtom]) -> Option<EmergentMolecule> {
         if atoms.len() >= 2 {
             Some(EmergentMolecule {
@@ -100,7 +110,11 @@ impl PhysicsView for PhysicsViewImpl {
                 atoms: atoms.iter().map(|a| a.id.clone()).collect(),
                 mass: 1.0,
                 bond_energy: 0.5,
-                position: crate::hpo::spatial_field::Position3D { x: 0.0, y: 0.0, z: 0.0 },
+                position: crate::hpo::spatial_field::Position3D {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                },
             })
         } else {
             None
@@ -113,7 +127,9 @@ pub struct BiologyViewImpl {
 }
 
 impl FieldView for BiologyViewImpl {
-    fn name(&self) -> &str { "BiologyView" }
+    fn name(&self) -> &str {
+        "BiologyView"
+    }
 }
 
 impl BiologyView for BiologyViewImpl {
@@ -129,7 +145,7 @@ impl BiologyView for BiologyViewImpl {
             None
         }
     }
-    
+
     fn get_cell(&self, dna: &EmergentDNA) -> Option<LivingCell> {
         Some(LivingCell {
             id: "cell".to_string(),
@@ -139,7 +155,7 @@ impl BiologyView for BiologyViewImpl {
             alive: true,
         })
     }
-    
+
     fn get_organism(&self, cells: &[LivingCell]) -> Option<BiologicalOrganism> {
         if cells.len() >= 10 {
             Some(BiologicalOrganism {
@@ -159,7 +175,9 @@ pub struct ConsciousnessViewImpl {
 }
 
 impl FieldView for ConsciousnessViewImpl {
-    fn name(&self) -> &str { "ConsciousnessView" }
+    fn name(&self) -> &str {
+        "ConsciousnessView"
+    }
 }
 
 impl ConsciousnessView for ConsciousnessViewImpl {
@@ -175,7 +193,7 @@ impl ConsciousnessView for ConsciousnessViewImpl {
             None
         }
     }
-    
+
     fn get_mind(&self, awareness: &Awareness, archetypes: &[f64; 22]) -> Option<Mind> {
         Some(Mind {
             awareness: awareness.clone(),
@@ -183,7 +201,7 @@ impl ConsciousnessView for ConsciousnessViewImpl {
             cognitive_capacity: awareness.level * awareness.capacity,
         })
     }
-    
+
     fn get_spirit(&self, mind: &Mind) -> Option<Spirit> {
         Some(Spirit {
             mind: mind.clone(),
@@ -197,12 +215,12 @@ impl ConsciousnessView for ConsciousnessViewImpl {
 mod tests {
     use super::*;
     use crate::unified::UnifiedField;
-    
+
     #[test]
     fn test_view_factory() {
         let field = Arc::new(UnifiedField::new("test".to_string()));
         let factory = ViewFactory::new(field);
-        
+
         let _physics = factory.physics_view();
         let _biology = factory.biology_view();
         let _consciousness = factory.consciousness_view();

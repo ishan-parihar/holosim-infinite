@@ -479,7 +479,12 @@ impl AttractorField {
     /// * `strength` - Strength of the attractor (0.0 to 1.0)
     /// * `orientation` - Orientation (STO, STS, or Balanced)
     /// * `target_density` - Target density this attractor leads toward
-    pub fn new(name: String, strength: f64, orientation: Orientation, target_density: TargetDensity) -> Self {
+    pub fn new(
+        name: String,
+        strength: f64,
+        orientation: Orientation,
+        target_density: TargetDensity,
+    ) -> Self {
         Self {
             name,
             strength: strength.clamp(0.0, 1.0),
@@ -596,7 +601,9 @@ impl fmt::Display for AttractorField {
             self.name,
             self.strength,
             self.orientation,
-            self.target_density.map(|d| d.to_string()).unwrap_or_else(|| "None".to_string())
+            self.target_density
+                .map(|d| d.to_string())
+                .unwrap_or_else(|| "None".to_string())
         )
     }
 }
@@ -673,8 +680,7 @@ mod tests {
             TargetDensity::Second,
         );
 
-        let transcend_include =
-            TranscendInclude::apply(previous, new_feature, next_attractor);
+        let transcend_include = TranscendInclude::apply(previous, new_feature, next_attractor);
 
         assert_eq!(transcend_include.includes, "Violet Realm");
     }
@@ -690,8 +696,7 @@ mod tests {
             TargetDensity::Second,
         );
 
-        let transcend_include =
-            TranscendInclude::apply(previous, new_feature, next_attractor);
+        let transcend_include = TranscendInclude::apply(previous, new_feature, next_attractor);
 
         let next_stage = transcend_include.generate_next_stage();
         assert_eq!(next_stage, "Violet Realm");
@@ -824,14 +829,8 @@ mod tests {
 
     #[test]
     fn test_target_density_name() {
-        assert_eq!(
-            TargetDensity::First.name(),
-            "1st Density - Awareness"
-        );
-        assert_eq!(
-            TargetDensity::Third.name(),
-            "3rd Density - Self-awareness"
-        );
+        assert_eq!(TargetDensity::First.name(), "1st Density - Awareness");
+        assert_eq!(TargetDensity::Third.name(), "3rd Density - Self-awareness");
         assert_eq!(
             TargetDensity::Eighth.name(),
             "8th Density - Return to Infinity"

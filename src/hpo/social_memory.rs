@@ -1,9 +1,9 @@
 //! Social Memory via Resonance (Phase 5)
 //!
 //! From REFACTOR_ROADMAP_COMPREHENSIVE_2026.md:
-//! "The sixth phase implements collective consciousness formation through resonance rather 
-//! than proximity. This transforms the current proximity-based collective formation into a 
-//! more sophisticated system where entities can form mental or spiritual connections across 
+//! "The sixth phase implements collective consciousness formation through resonance rather
+//! than proximity. This transforms the current proximity-based collective formation into a
+//! more sophisticated system where entities can form mental or spiritual connections across
 //! any distance if their field configurations align sufficiently."
 //!
 //! This module implements:
@@ -23,13 +23,13 @@ use std::collections::{HashMap, HashSet};
 pub struct EntityPhase {
     /// Entity position
     pub position: [Float; 3],
-    
+
     /// Phase vector (8 components for 8 densities)
     pub phase_vector: [Float; 8],
-    
+
     /// Consciousness level
     pub consciousness: Float,
-    
+
     /// Entity ID
     pub entity_id: usize,
 }
@@ -49,14 +49,15 @@ impl EntityPhase {
         // Get field data at position
         // Simplified - in full implementation would query octree
         let center = field.root.bounds.center();
-        
+
         // Use position as seed for phase
         let seed = (center[0] * 10.0 + center[1] * 100.0 + center[2] * 1000.0) as usize;
-        
+
         for i in 0..8 {
-            self.phase_vector[i] = ((seed * (i + 1) * 7) % 360) as Float / 180.0 * std::f64::consts::PI;
+            self.phase_vector[i] =
+                ((seed * (i + 1) * 7) % 360) as Float / 180.0 * std::f64::consts::PI;
         }
-        
+
         // Consciousness from field
         self.consciousness = field.root.field_data.coherence;
     }
@@ -67,13 +68,13 @@ impl EntityPhase {
 pub struct Resonance {
     /// First entity ID
     pub entity_a: usize,
-    
+
     /// Second entity ID
     pub entity_b: usize,
-    
+
     /// Resonance strength (0.0 - 1.0)
     pub strength: Float,
-    
+
     /// Whether entities are in a collective
     pub is_collective: bool,
 }
@@ -94,16 +95,16 @@ impl Resonance {
 pub struct SocialMemoryConfig {
     /// Resonance threshold for collective formation (0.0 - 1.0)
     pub collective_threshold: Float,
-    
+
     /// Maximum collective size
     pub max_collective_size: usize,
-    
+
     /// Resonance decay rate
     pub resonance_decay: Float,
-    
+
     /// Whether to enable cosmic-scale collectives
     pub enable_cosmic_collectives: bool,
-    
+
     /// Minimum consciousness for collective membership
     pub min_consciousness: Float,
 }
@@ -125,19 +126,19 @@ impl Default for SocialMemoryConfig {
 pub struct Collective {
     /// Collective ID
     pub id: usize,
-    
+
     /// Member entity IDs
     pub members: HashSet<usize>,
-    
+
     /// Collective consciousness level
     pub collective_consciousness: Float,
-    
+
     /// Collective phase (merged from members)
     pub collective_phase: [Float; 8],
-    
+
     /// Shared experiences/memories
     pub shared_experiences: Vec<SharedExperience>,
-    
+
     /// Creation time
     pub created_at: Float,
 }
@@ -147,13 +148,13 @@ pub struct Collective {
 pub struct SharedExperience {
     /// Experience ID
     pub id: usize,
-    
+
     /// Experience data
     pub data: Float,
-    
+
     /// When shared
     pub timestamp: Float,
-    
+
     /// Importance
     pub importance: Float,
 }
@@ -171,19 +172,26 @@ impl Collective {
     }
 
     /// Add a member to the collective
-    pub fn add_member(&mut self, entity_id: usize, phase: &[Float; 8], consciousness: Float) -> bool {
+    pub fn add_member(
+        &mut self,
+        entity_id: usize,
+        phase: &[Float; 8],
+        consciousness: Float,
+    ) -> bool {
         if self.members.len() < 1000 {
             self.members.insert(entity_id);
-            
+
             // Update collective phase (average of members)
             for i in 0..8 {
-                self.collective_phase[i] = (self.collective_phase[i] * (self.members.len() - 1) as Float 
-                    + phase[i]) / self.members.len() as Float;
+                self.collective_phase[i] =
+                    (self.collective_phase[i] * (self.members.len() - 1) as Float + phase[i])
+                        / self.members.len() as Float;
             }
-            
+
             // Update collective consciousness (can exceed individual)
-            self.collective_consciousness = (self.collective_consciousness + consciousness).min(1.0);
-            
+            self.collective_consciousness =
+                (self.collective_consciousness + consciousness).min(1.0);
+
             true
         } else {
             false
@@ -211,7 +219,7 @@ impl Collective {
             timestamp: 0.0,
             importance,
         });
-        
+
         // Keep bounded
         if self.shared_experiences.len() > 1000 {
             self.shared_experiences.remove(0);
@@ -223,7 +231,7 @@ impl Collective {
         if self.members.is_empty() {
             return 0.0;
         }
-        
+
         // Simplified coherence calculation
         // In full implementation would calculate variance of member phases
         self.collective_consciousness
@@ -234,19 +242,19 @@ impl Collective {
 pub struct SocialMemory {
     /// Entity phases
     entity_phases: HashMap<usize, EntityPhase>,
-    
+
     /// Computed resonances
     resonances: HashMap<(usize, usize), Resonance>,
-    
+
     /// Active collectives
     collectives: Vec<Collective>,
-    
+
     /// Entity to collective mapping
     entity_collective: HashMap<usize, usize>,
-    
+
     /// Configuration
     config: SocialMemoryConfig,
-    
+
     /// Statistics
     pub statistics: SocialMemoryStatistics,
 }
@@ -256,19 +264,19 @@ pub struct SocialMemory {
 pub struct SocialMemoryStatistics {
     /// Total entities tracked
     pub entity_count: usize,
-    
+
     /// Total resonances computed
     pub resonance_count: usize,
-    
+
     /// Active collective count
     pub collective_count: usize,
-    
+
     /// Average collective size
     pub average_collective_size: Float,
-    
+
     /// Entities in collectives
     pub entities_in_collectives: usize,
-    
+
     /// Cosmic-scale collectives
     pub cosmic_collectives: usize,
 }
@@ -309,24 +317,24 @@ impl SocialMemory {
             Some(p) => p,
             None => return 0.0,
         };
-        
+
         let phase_b = match self.entity_phases.get(&entity_b) {
             Some(p) => p,
             None => return 0.0,
         };
-        
+
         // Resonance = dot product of normalized phase vectors
         // This measures how aligned the entities' field configurations are
         let mut dot_product = 0.0;
         let mut norm_a = 0.0;
         let mut norm_b = 0.0;
-        
+
         for i in 0..8 {
             dot_product += phase_a.phase_vector[i] * phase_b.phase_vector[i];
             norm_a += phase_a.phase_vector[i] * phase_a.phase_vector[i];
             norm_b += phase_b.phase_vector[i] * phase_b.phase_vector[i];
         }
-        
+
         let norm = (norm_a * norm_b).sqrt();
         if norm > 0.001 {
             // Convert to 0-1 range
@@ -340,23 +348,23 @@ impl SocialMemory {
     pub fn compute_all_resonances(&mut self) {
         let entities: Vec<_> = self.entity_phases.keys().cloned().collect();
         let entity_count = entities.len();
-        
+
         self.resonances.clear();
-        
+
         // Compute pairwise resonances
         for i in 0..entity_count {
             for j in (i + 1)..entity_count {
                 let a = entities[i];
                 let b = entities[j];
                 let strength = self.compute_resonance(a, b);
-                
+
                 if strength > 0.0 {
                     let resonance = Resonance::new(a, b, strength);
                     self.resonances.insert((a, b), resonance);
                 }
             }
         }
-        
+
         self.statistics.resonance_count = self.resonances.len();
     }
 
@@ -364,21 +372,21 @@ impl SocialMemory {
     pub fn form_collectives(&mut self) {
         // Start new collective formation cycle
         self.collectives.retain(|c| !c.members.is_empty());
-        
+
         // Group entities by resonance
         let mut potential_groups: Vec<HashSet<usize>> = Vec::new();
         let entities: Vec<_> = self.entity_phases.keys().cloned().collect();
-        
+
         for &entity_id in &entities {
             // Skip if already in collective
             if self.entity_collective.contains_key(&entity_id) {
                 continue;
             }
-            
+
             // Find all entities with high resonance
             let mut group = HashSet::new();
             group.insert(entity_id);
-            
+
             for (&(a, b), resonance) in &self.resonances {
                 if resonance.strength >= self.config.collective_threshold {
                     if a == entity_id {
@@ -388,13 +396,13 @@ impl SocialMemory {
                     }
                 }
             }
-            
+
             // Add group if large enough
             if group.len() > 1 {
                 potential_groups.push(group);
             }
         }
-        
+
         // Form collectives from groups
         for group in potential_groups {
             // Check if any group members are already in collectives
@@ -403,16 +411,24 @@ impl SocialMemory {
                 if let Some(&collective_id) = self.entity_collective.get(&member) {
                     // Add to existing collective
                     if collective_id < self.collectives.len() {
-                        let phase = self.entity_phases.get(&member)
+                        let phase = self
+                            .entity_phases
+                            .get(&member)
                             .map(|p| p.phase_vector.clone())
                             .unwrap_or([0.0; 8]);
-                        let consciousness = self.entity_phases.get(&member)
+                        let consciousness = self
+                            .entity_phases
+                            .get(&member)
                             .map(|p| p.consciousness)
                             .unwrap_or(0.5);
-                        
+
                         for &m in &group {
                             if !self.entity_collective.contains_key(&m) {
-                                let _ = self.collectives[collective_id].add_member(m, &phase, consciousness);
+                                let _ = self.collectives[collective_id].add_member(
+                                    m,
+                                    &phase,
+                                    consciousness,
+                                );
                                 self.entity_collective.insert(m, collective_id);
                             }
                         }
@@ -420,35 +436,39 @@ impl SocialMemory {
                     }
                 }
             }
-            
+
             // Create new collective
             if new_group {
                 let id = self.collectives.len();
                 let mut collective = Collective::new(id);
-                
+
                 for &member in &group {
                     if let Some(phase) = self.entity_phases.get(&member) {
-                        let _ = collective.add_member(member, &phase.phase_vector, phase.consciousness);
+                        let _ =
+                            collective.add_member(member, &phase.phase_vector, phase.consciousness);
                         self.entity_collective.insert(member, id);
                     }
                 }
-                
+
                 self.collectives.push(collective);
             }
         }
-        
+
         // Update statistics
         self.statistics.collective_count = self.collectives.len();
         self.statistics.entities_in_collectives = self.entity_collective.len();
-        
+
         // Calculate average collective size
         if !self.collectives.is_empty() {
             let total: usize = self.collectives.iter().map(|c| c.members.len()).sum();
-            self.statistics.average_collective_size = total as Float / self.collectives.len() as Float;
+            self.statistics.average_collective_size =
+                total as Float / self.collectives.len() as Float;
         }
-        
+
         // Count cosmic collectives
-        self.statistics.cosmic_collectives = self.collectives.iter()
+        self.statistics.cosmic_collectives = self
+            .collectives
+            .iter()
             .filter(|c| c.members.len() > 100)
             .count();
     }
@@ -461,7 +481,11 @@ impl SocialMemory {
 
     /// Get resonance between two entities
     pub fn get_resonance(&self, entity_a: usize, entity_b: usize) -> Float {
-        let key = if entity_a < entity_b { (entity_a, entity_b) } else { (entity_b, entity_a) };
+        let key = if entity_a < entity_b {
+            (entity_a, entity_b)
+        } else {
+            (entity_b, entity_a)
+        };
         self.resonances.get(&key).map(|r| r.strength).unwrap_or(0.0)
     }
 
@@ -476,11 +500,11 @@ impl SocialMemory {
             if collective.members.is_empty() {
                 continue;
             }
-            
+
             // Get collective center (average of member positions)
             let mut center = [0.0, 0.0, 0.0];
             let mut count = 0;
-            
+
             for &member_id in &collective.members {
                 if let Some(phase) = self.entity_phases.get(&member_id) {
                     center[0] += phase.position[0];
@@ -489,16 +513,16 @@ impl SocialMemory {
                     count += 1;
                 }
             }
-            
+
             if count > 0 {
                 center[0] /= count as Float;
                 center[1] /= count as Float;
                 center[2] /= count as Float;
-                
+
                 // Apply collective influence to field
                 // The collective creates a stronger field signature
                 let collective_strength = collective.get_coherence();
-                
+
                 // Add energy at collective center
                 field.add_energy_at(center, 3, collective_strength * 2.0);
             }
@@ -519,10 +543,10 @@ pub fn apply_social_memory_to_node(
 ) {
     // Collective consciousness boosts local field
     let boost = collective_coherence * resonance_strength * 0.1;
-    
+
     // Increase coherence
     node.field_data.coherence = (node.field_data.coherence + boost).min(1.0);
-    
+
     // Add energy
     node.field_data.energy += boost * 0.5;
 }
@@ -551,7 +575,7 @@ mod tests {
         let mut memory = SocialMemory::with_defaults();
         memory.register_entity(0, [0.0, 0.0, 0.0]);
         memory.register_entity(1, [1.0, 1.0, 1.0]);
-        
+
         assert_eq!(memory.statistics.entity_count, 2);
     }
 
@@ -560,7 +584,7 @@ mod tests {
         let mut memory = SocialMemory::with_defaults();
         memory.register_entity(0, [0.0, 0.0, 0.0]);
         memory.register_entity(1, [1.0, 1.0, 1.0]);
-        
+
         let resonance = memory.compute_resonance(0, 1);
         assert!(resonance >= 0.0 && resonance <= 1.0);
     }

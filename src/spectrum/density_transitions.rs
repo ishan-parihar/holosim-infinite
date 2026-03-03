@@ -13,8 +13,10 @@
 //! - Transcend and Include during transitions
 //! - Attractor field spawning for next density
 
+use crate::evolution_density_octave::density_octave::{
+    Density, Density1SubLevel, Density2SubLevel,
+};
 use std::collections::HashMap;
-use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel, Density2SubLevel};
 
 /// Transition readiness assessment
 #[derive(Debug, Clone)]
@@ -113,9 +115,9 @@ impl EntityTransitionState {
 }
 
 /// Density Transition System
-/// 
+///
 /// Manages density transitions for entities
-/// 
+///
 /// From COSMOLOGICAL-ARCHITECTURE.md:
 /// > "Transcend and Include: retain previous densities, add new"
 #[derive(Debug, Clone)]
@@ -144,7 +146,7 @@ impl DensityTransitionSystem {
             statistics: DensityTransitionStatistics::default(),
         }
     }
-    
+
     pub fn with_config(config: DensityTransitionConfig) -> Self {
         DensityTransitionSystem {
             config,
@@ -153,13 +155,13 @@ impl DensityTransitionSystem {
             statistics: DensityTransitionStatistics::default(),
         }
     }
-    
+
     /// Register entity in transition system
     pub fn register_entity(&mut self, entity_id: u64) {
         let state = EntityTransitionState::new(entity_id);
         self.entity_states.insert(entity_id, state);
     }
-    
+
     /// Check if entity is ready for density transition
     pub fn check_readiness(
         &self,
@@ -173,35 +175,35 @@ impl DensityTransitionSystem {
     ) -> TransitionReadiness {
         let mut requirements_met = Vec::new();
         let mut requirements_pending = Vec::new();
-        
+
         // Check coherence
         if coherence >= self.config.coherence_threshold {
             requirements_met.push(TransitionRequirement::Coherence(coherence));
         } else {
             requirements_pending.push(TransitionRequirement::Coherence(coherence));
         }
-        
+
         // Check experience
         if experience >= self.config.experience_threshold {
             requirements_met.push(TransitionRequirement::Experience(experience));
         } else {
             requirements_pending.push(TransitionRequirement::Experience(experience));
         }
-        
+
         // Check polarity
         if polarity >= self.config.polarity_threshold {
             requirements_met.push(TransitionRequirement::Polarity(polarity));
         } else {
             requirements_pending.push(TransitionRequirement::Polarity(polarity));
         }
-        
+
         // Calculate readiness score
-        let readiness_score = requirements_met.len() as f64 / 
-            (requirements_met.len() + requirements_pending.len()) as f64;
-        
+        let readiness_score = requirements_met.len() as f64
+            / (requirements_met.len() + requirements_pending.len()) as f64;
+
         // Determine target density
         let target_density = self.get_next_density(current_density);
-        
+
         TransitionReadiness {
             entity_id,
             current_density,
@@ -211,7 +213,7 @@ impl DensityTransitionSystem {
             requirements_pending,
         }
     }
-    
+
     /// Get next density in the octave
     fn get_next_density(&self, current: Density) -> Density {
         match current {
@@ -225,56 +227,67 @@ impl DensityTransitionSystem {
             Density::Eighth => Density::Eighth, // Already at max
         }
     }
-    
+
     /// Initiate density transition
-    pub fn initiate_transition(&mut self, entity_id: u64, target_density: Density, current_step: usize) -> bool {
+    pub fn initiate_transition(
+        &mut self,
+        entity_id: u64,
+        target_density: Density,
+        current_step: usize,
+    ) -> bool {
         // Get or create state
-        let state = self.entity_states
+        let state = self
+            .entity_states
             .entry(entity_id)
             .or_insert_with(|| EntityTransitionState::new(entity_id));
-        
+
         // Can't transition if already transitioning
         if state.is_transitioning {
             return false;
         }
-        
+
         // Start transition
         state.is_transitioning = true;
         state.transition_start = Some(current_step);
         state.target_density = Some(target_density.clone());
         state.progress = 0.0;
-        
+
         true
     }
-    
+
     /// Update transition progress
-    pub fn update_transition(&mut self, entity_id: u64, current_step: usize) -> Option<DensityTransitionResult> {
+    pub fn update_transition(
+        &mut self,
+        entity_id: u64,
+        current_step: usize,
+    ) -> Option<DensityTransitionResult> {
         let state = self.entity_states.get_mut(&entity_id)?;
-        
+
         if !state.is_transitioning {
             return None;
         }
-        
+
         let start_step = state.transition_start?;
         let target_density = state.target_density.clone()?;
-        
+
         // Calculate progress
         let elapsed = current_step - start_step;
         state.progress = (elapsed as f64 / self.config.transition_duration as f64).min(1.0);
-        
+
         // Check if transition complete
         if state.progress >= 1.0 {
             let previous = Density::First(Density1SubLevel::Quantum); // Would get from entity
-            
+
             // Complete transition first (releases mutable borrow)
             state.is_transitioning = false;
             state.transition_start = None;
             state.progress = 0.0;
             state.target_density = None;
-            
+
             // Now compute transcend_and_include (after mutable borrow released)
-            let transcend_and_include = self.compute_transcend_include(previous, target_density.clone());
-            
+            let transcend_and_include =
+                self.compute_transcend_include(previous, target_density.clone());
+
             let result = DensityTransitionResult {
                 entity_id,
                 previous_density: previous,
@@ -283,26 +296,26 @@ impl DensityTransitionSystem {
                 success: true,
                 transcend_and_include,
             };
-            
+
             // Update statistics
             self.statistics.total_transitions += 1;
             self.statistics.successful_transitions += 1;
             self.transition_history.push(result.clone());
-            
+
             return Some(result);
         }
-        
+
         None
     }
-    
+
     /// Compute Transcend and Include
-    /// 
+    ///
     /// From COSMOLOGICAL-ARCHITECTURE.md:
     /// > "Transcend and Include: retain previous densities, add new"
     fn compute_transcend_include(&self, previous: Density, new: Density) -> TranscendAndInclude {
         let mut retained = vec![previous];
         let mut new_capabilities = Vec::new();
-        
+
         // Include previous capabilities
         match previous {
             Density::First(_) => {
@@ -325,7 +338,7 @@ impl DensityTransitionSystem {
             }
             _ => {}
         }
-        
+
         // Add new capabilities
         match new {
             Density::Second(_) => {
@@ -351,7 +364,7 @@ impl DensityTransitionSystem {
             }
             _ => {}
         }
-        
+
         // Calculate expanded consciousness
         let expanded_consciousness = match (&previous, &new) {
             (Density::First(_), Density::Second(_)) => 0.2,
@@ -363,14 +376,14 @@ impl DensityTransitionSystem {
             (Density::Seventh, Density::Eighth) => 0.1,
             _ => 0.0,
         };
-        
+
         TranscendAndInclude {
             retained_densities: retained,
             new_capabilities,
             expanded_consciousness,
         }
     }
-    
+
     /// Check if entity is transitioning
     pub fn is_transitioning(&self, entity_id: u64) -> bool {
         self.entity_states
@@ -378,7 +391,7 @@ impl DensityTransitionSystem {
             .map(|s| s.is_transitioning)
             .unwrap_or(false)
     }
-    
+
     /// Get transition progress
     pub fn get_progress(&self, entity_id: u64) -> f64 {
         self.entity_states
@@ -386,12 +399,12 @@ impl DensityTransitionSystem {
             .map(|s| s.progress)
             .unwrap_or(0.0)
     }
-    
+
     /// Get statistics
     pub fn get_statistics(&self) -> &DensityTransitionStatistics {
         &self.statistics
     }
-    
+
     /// Remove entity
     pub fn remove_entity(&mut self, entity_id: u64) {
         self.entity_states.remove(&entity_id);
@@ -411,47 +424,43 @@ impl Default for DensityTransitionSystem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_transition_readiness() {
         let system = DensityTransitionSystem::new();
-        
+
         let readiness = system.check_readiness(
             1,
             Density::First(Density1SubLevel::Quantum),
-            0.8, // coherence
+            0.8,  // coherence
             1000, // experience
-            0.7, // polarity
-            10, // lessons
-            0.5, // spectrum position
+            0.7,  // polarity
+            10,   // lessons
+            0.5,  // spectrum position
         );
-        
+
         assert!(readiness.readiness_score >= 0.5);
     }
-    
+
     #[test]
     fn test_transition_initiation() {
         let mut system = DensityTransitionSystem::new();
-        
-        let result = system.initiate_transition(
-            1,
-            Density::Second(Density2SubLevel::Cellular),
-            0,
-        );
-        
+
+        let result = system.initiate_transition(1, Density::Second(Density2SubLevel::Cellular), 0);
+
         assert!(result);
         assert!(system.is_transitioning(1));
     }
-    
+
     #[test]
     fn test_transcend_and_include() {
         let system = DensityTransitionSystem::new();
-        
+
         let result = system.compute_transcend_include(
             Density::First(Density1SubLevel::Quantum),
             Density::Second(Density2SubLevel::Cellular),
         );
-        
+
         assert!(!result.retained_densities.is_empty());
         assert!(!result.new_capabilities.is_empty());
     }

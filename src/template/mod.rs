@@ -1,43 +1,79 @@
-//! Template Module - Phase 1: Universal Template Architecture
+//! # Template Module - Phase 0: Universal Template Architecture
 //!
-//! From HOLOSIM_INFINITE_COMPLETION_ROADMAP_V3.md Phase 1:
-//! "Implement the UniversalTemplate that instantiates the same logic for all scales"
+//! This module implements the foundational template-based architecture for HoloSim Infinite.
 //!
-//! This module provides:
-//! - EntityData struct for entity-specific data
-//! - Universal template infrastructure from holographic module
-//! - Transcend and Include universal mechanism
-//! - Migration utilities for SubSubLogos → Entity conversion
+//! ## Core Concepts
 //!
-//! ## Key Design Principles
+//! ### UniversalTemplate<T>
+//! Every component in the simulation follows the same template structure:
+//! - Shared reference to HolographicField (Arc<HolographicField>)
+//! - Spectrum configuration (Space/Time ↔ Time/Space ratio)
+//! - Archetype activation profile (22 coefficients)
+//! - Density (1st → 8th)
+//! - Free Will seed (non-deterministic choice)
+//! - Component-specific data (T)
 //!
-//! 1. **Build Once, Instantiate Many**: All holographic operations are defined ONCE
-//!    on the UniversalTemplate and apply to ANY component type (quantum, atomic,
-//!    molecular, cellular, biological, planetary, stellar, galactic, entity, logos)
+//! ### Transcend and Include (LayerReference)
+//! Each layer INCLUDES all previous layers (via Arc reference) and TRANSCENDS
+//! by adding new data. This implements the holographic principle where each
+//! part contains the whole.
 //!
-//! 2. **Shared References**: The holographic field is stored as Arc<HolographicField>
-//!    so all template instances share the same field reference (O(1) memory per instance)
+//! ### Memory Efficiency
+//! - Traditional: O(n) memory for n entities (each owns all data)
+//! - Holographic: O(n^2/3) via shared references (entities share common field data)
 //!
-//! 3. **Transcend and Include**: Every layer transition follows the universal constant:
-//!    - INCLUDE: Retain all previous development
-//!    - TRANSCEND: Add new development
-//!    - EVOLVES INTO: Create attractor-field for next stage
+//! ### Phase 0 Deliverables (from HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md)
+//! - [x] UniversalTemplate<T> generic type
+//! - [x] HolographicFieldState with recursive subdivision
+//! - [x] TemplateFactory for instantiation with caching
+//! - [x] Reference-based "include" mechanism
+//! - [x] Multi-scale field storage (8 scale levels)
+//! - [x] EntityData component type
+//! - [x] ParticleData component type  
+//! - [x] AtomData component type
+//! - [x] WorldData component type
+//! - [x] StarData component type
+//! - [x] GalaxyData component type
+//! - [x] CellData component type
+//!
+//! ### Phase 1.5: Entity Migration
+//! - EntityBehavior trait: Unified interface for all entity types
+//! - ExtractedEntityPotential → Entity conversion
+//! - Backward compatibility with SubSubLogos
+//!
+//! From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
+//! "Implement holographic logic ONCE, it applies to EVERYTHING."
 
+pub mod component_data;
+pub mod entity_behavior;
 pub mod entity_data;
+pub mod layer_reference;
 pub mod migration;
+pub mod template_factory;
 pub mod transcend_include;
 
-// Re-export key types for convenience
-pub use entity_data::{Entity, EntityData};
-
-// Re-export from holographic module
-pub use crate::holographic::universal_template::{
-    ArchetypeActivationProfile, ArchetypicalInterference, Choice, Possibility, PossibilitySpace,
-    SpectrumConfiguration, TemplateConfig, TemplateFactory, UniversalTemplate,
+// Re-export main types from component_data
+pub use component_data::{
+    AtmosphereData, AtomData, CellData, CellType, DivisionState, GalaxyData, GalaxyType,
+    HydrologySummary, MolecularGeometry, MolecularShape, MoleculeData, ParticleData, ParticleType,
+    SpectralClass, StarData, TemplateComponent, TerrainSummary, WorldData,
 };
-
-// Re-export Transcend and Include types
+pub use entity_behavior::EntityBehavior;
+pub use entity_data::EntityData;
+pub use layer_reference::*;
+pub use template_factory::*;
 pub use transcend_include::{
     AttractorField, Feature, LayerTransition, Orientation, TargetDensity, TranscendInclude,
-    TranscendIncludeBuilder,
 };
+
+// Re-export from existing universal_template.rs
+pub use crate::holographic::universal_template::{
+    ArchetypeActivationProfile, Possibility, PossibilitySpace, SpectrumConfiguration,
+    TemplateConfig, TemplateKey,
+};
+
+// Re-export coordinate types from matter module
+pub use crate::matter::particle::{Complex, Coordinate3D, Vector3D};
+
+// Type alias for Entity using UniversalTemplate
+pub use entity_data::Entity;

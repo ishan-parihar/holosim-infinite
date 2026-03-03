@@ -105,16 +105,16 @@ impl DensityBand {
 pub struct FieldNodeData {
     /// Complex amplitudes for each density band [0-7]
     pub density_amplitudes: [Complex; 8],
-    
+
     /// Field coherence at this node (0.0 - 1.0)
     pub coherence: Float,
-    
+
     /// Spectrum position (0.0 - 1.0, continuous)
     pub spectrum_position: Float,
-    
+
     /// Veil transparency at this node (0.0 = opaque, 1.0 = transparent)
     pub veil_transparency: Float,
-    
+
     /// Energy level at this node
     pub energy: Float,
 }
@@ -165,9 +165,12 @@ impl FieldBounds {
     }
 
     pub fn contains(&self, point: &[Float; 3]) -> bool {
-        point[0] >= self.min[0] && point[0] <= self.max[0]
-            && point[1] >= self.min[1] && point[1] <= self.max[1]
-            && point[2] >= self.min[2] && point[2] <= self.max[2]
+        point[0] >= self.min[0]
+            && point[0] <= self.max[0]
+            && point[1] >= self.min[1]
+            && point[1] <= self.max[1]
+            && point[2] >= self.min[2]
+            && point[2] <= self.max[2]
     }
 
     pub fn volume(&self) -> Float {
@@ -182,22 +185,22 @@ impl FieldBounds {
 pub struct OctreeNode {
     /// Spatial bounds of this node
     pub bounds: FieldBounds,
-    
+
     /// Depth in the octree (0 = root)
     pub depth: usize,
-    
+
     /// Field data at this node
     pub field_data: FieldNodeData,
-    
+
     /// Child nodes (8 children for 3D)
     pub children: Option<Box<[OctreeNode; 8]>>,
-    
+
     /// Whether this node is subdivided
     pub subdivided: bool,
-    
+
     /// Total field energy in this subtree
     pub subtree_energy: Float,
-    
+
     /// Maximum amplitude in this subtree
     pub max_amplitude: Float,
 }
@@ -217,9 +220,7 @@ impl OctreeNode {
 
     /// Check if this node should be subdivided based on field activity
     pub fn should_subdivide(&self, max_depth: usize, energy_threshold: Float) -> bool {
-        !self.subdivided 
-            && self.depth < max_depth 
-            && self.field_data.energy > energy_threshold
+        !self.subdivided && self.depth < max_depth && self.field_data.energy > energy_threshold
     }
 
     /// Subdivide this node into 8 children
@@ -234,39 +235,63 @@ impl OctreeNode {
 
         let mut children = Box::new([
             // Bottom layer (y = min)
-            OctreeNode::new(FieldBounds::new(
-                [self.bounds.min[0], self.bounds.min[1], self.bounds.min[2]],
-                [center[0], center[1], center[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [center[0], self.bounds.min[1], self.bounds.min[2]],
-                [self.bounds.max[0], center[1], center[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [self.bounds.min[0], self.bounds.min[1], center[2]],
-                [center[0], center[1], self.bounds.max[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [center[0], self.bounds.min[1], center[2]],
-                [self.bounds.max[0], center[1], self.bounds.max[2]],
-            ), self.depth + 1),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [self.bounds.min[0], self.bounds.min[1], self.bounds.min[2]],
+                    [center[0], center[1], center[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [center[0], self.bounds.min[1], self.bounds.min[2]],
+                    [self.bounds.max[0], center[1], center[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [self.bounds.min[0], self.bounds.min[1], center[2]],
+                    [center[0], center[1], self.bounds.max[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [center[0], self.bounds.min[1], center[2]],
+                    [self.bounds.max[0], center[1], self.bounds.max[2]],
+                ),
+                self.depth + 1,
+            ),
             // Top layer (y = max)
-            OctreeNode::new(FieldBounds::new(
-                [self.bounds.min[0], center[1], self.bounds.min[2]],
-                [center[0], self.bounds.max[1], center[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [center[0], center[1], self.bounds.min[2]],
-                [self.bounds.max[0], self.bounds.max[1], center[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [self.bounds.min[0], center[1], center[2]],
-                [center[0], self.bounds.max[1], self.bounds.max[2]],
-            ), self.depth + 1),
-            OctreeNode::new(FieldBounds::new(
-                [center[0], center[1], center[2]],
-                [self.bounds.max[0], self.bounds.max[1], self.bounds.max[2]],
-            ), self.depth + 1),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [self.bounds.min[0], center[1], self.bounds.min[2]],
+                    [center[0], self.bounds.max[1], center[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [center[0], center[1], self.bounds.min[2]],
+                    [self.bounds.max[0], self.bounds.max[1], center[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [self.bounds.min[0], center[1], center[2]],
+                    [center[0], self.bounds.max[1], self.bounds.max[2]],
+                ),
+                self.depth + 1,
+            ),
+            OctreeNode::new(
+                FieldBounds::new(
+                    [center[0], center[1], center[2]],
+                    [self.bounds.max[0], self.bounds.max[1], self.bounds.max[2]],
+                ),
+                self.depth + 1,
+            ),
         ]);
 
         // Distribute field energy to children (simplified)
@@ -288,9 +313,15 @@ impl OctreeNode {
     pub fn child_index(&self, point: &[Float; 3]) -> usize {
         let center = self.bounds.center();
         let mut index = 0;
-        if point[0] >= center[0] { index |= 1; }
-        if point[1] >= center[1] { index |= 2; }
-        if point[2] >= center[2] { index |= 4; }
+        if point[0] >= center[0] {
+            index |= 1;
+        }
+        if point[1] >= center[1] {
+            index |= 2;
+        }
+        if point[2] >= center[2] {
+            index |= 4;
+        }
         index
     }
 
@@ -298,7 +329,10 @@ impl OctreeNode {
     pub fn update_subtree_stats(&mut self) {
         if let Some(ref children) = self.children {
             self.subtree_energy = children.iter().map(|c| c.subtree_energy).sum();
-            self.max_amplitude = children.iter().map(|c| c.max_amplitude).fold(0.0, Float::max);
+            self.max_amplitude = children
+                .iter()
+                .map(|c| c.max_amplitude)
+                .fold(0.0, Float::max);
         } else {
             self.subtree_energy = self.field_data.energy;
             self.max_amplitude = self.field_data.total_magnitude();
@@ -311,25 +345,25 @@ impl OctreeNode {
 pub struct HolographicFieldConfig {
     /// Maximum octree depth
     pub max_depth: usize,
-    
+
     /// Energy threshold for subdivision
     pub subdivision_threshold: Float,
-    
+
     /// Number of density bands (typically 8)
     pub density_band_count: usize,
-    
+
     /// Initial field coherence
     pub initial_coherence: Float,
-    
+
     /// Veil position (v = 1.0 is the crossing point)
     pub veil_position: Float,
-    
+
     /// Field evolution time step
     pub time_step: Float,
-    
+
     /// Wave propagation speed (speed of "light")
     pub propagation_speed: Float,
-    
+
     /// Spatial bounds of the simulation
     pub bounds: FieldBounds,
 }
@@ -344,10 +378,7 @@ impl Default for HolographicFieldConfig {
             veil_position: 1.0,
             time_step: 0.1,
             propagation_speed: 1.0,
-            bounds: FieldBounds::new(
-                [-1000.0, -1000.0, -1000.0],
-                [1000.0, 1000.0, 1000.0],
-            ),
+            bounds: FieldBounds::new([-1000.0, -1000.0, -1000.0], [1000.0, 1000.0, 1000.0]),
         }
     }
 }
@@ -364,25 +395,25 @@ impl Default for HolographicFieldConfig {
 pub struct HolographicFieldState {
     /// Configuration
     pub config: HolographicFieldConfig,
-    
+
     /// Root of the octree
     pub root: OctreeNode,
-    
+
     /// Current simulation time
     pub time: Float,
-    
+
     /// Total field energy
     pub total_energy: Float,
-    
+
     /// Average coherence across the field
     pub average_coherence: Float,
-    
+
     /// Number of active nodes
     pub active_node_count: usize,
-    
+
     /// Number of leaf nodes
     pub leaf_node_count: usize,
-    
+
     /// Statistics
     pub statistics: FieldStatistics,
 }
@@ -392,19 +423,19 @@ pub struct HolographicFieldState {
 pub struct FieldStatistics {
     /// Peak field magnitude
     pub peak_magnitude: Float,
-    
+
     /// Minimum field magnitude
     pub min_magnitude: Float,
-    
+
     /// Average field magnitude
     pub avg_magnitude: Float,
-    
+
     /// Total nodes visited in last update
     pub nodes_visited: usize,
-    
+
     /// Subdivisions performed
     pub subdivisions: usize,
-    
+
     /// Merge operations performed
     pub merges: usize,
 }
@@ -437,7 +468,7 @@ impl HolographicFieldState {
         }
 
         let mut current = &mut self.root;
-        
+
         while current.subdivided {
             let index = current.child_index(&point);
             if let Some(ref mut children) = current.children {
@@ -455,15 +486,15 @@ impl HolographicFieldState {
         // Extract config values first to avoid borrow issues
         let max_depth = self.config.max_depth;
         let threshold = self.config.subdivision_threshold;
-        
+
         let node = self.get_or_create_node(point);
         node.field_data.energy += energy;
-        
+
         if density < 8 {
             let amplitude = Complex::from_polar(energy.sqrt(), point[0] * 0.01 + point[1] * 0.01);
             node.field_data.density_amplitudes[density] = amplitude;
         }
-        
+
         // Check if we should subdivide
         if node.should_subdivide(max_depth, threshold) {
             node.subdivide();
@@ -493,19 +524,19 @@ impl HolographicFieldState {
 pub struct ExtractedEntity {
     /// Position in space
     pub position: [Float; 3],
-    
+
     /// Consciousness level (derived from coherence)
     pub consciousness: Float,
-    
+
     /// Density band
     pub density: DensityBand,
-    
+
     /// Spectrum position
     pub spectrum_position: Float,
-    
+
     /// Energy/importance
     pub energy: Float,
-    
+
     /// Phase (for resonance calculations)
     pub phase: Float,
 }
@@ -528,10 +559,10 @@ impl ExtractedEntity {
 pub struct EntityExtractionResult {
     /// Extracted entities
     pub entities: Vec<ExtractedEntity>,
-    
+
     /// Extraction time
     pub extraction_time_ms: Float,
-    
+
     /// Entities found
     pub entity_count: usize,
 }

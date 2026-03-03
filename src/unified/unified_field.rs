@@ -22,33 +22,33 @@ impl UnifiedField {
             awareness_level: 0.5,
         }
     }
-    
+
     pub fn sample_coherence(&self, position: [f64; 3]) -> f64 {
         self.holographic_state.root.field_data.coherence
     }
-    
+
     pub fn sample_energy(&self, position: [f64; 3]) -> f64 {
         self.holographic_state.root.field_data.energy
     }
-    
+
     pub fn get_archetypes(&self, position: [f64; 3]) -> [f64; 22] {
         [0.5; 22]
     }
-    
+
     pub fn matter_emerges(&self, position: [f64; 3]) -> bool {
         self.sample_coherence(position) > 0.7
     }
-    
+
     pub fn life_emerges(&self, position: [f64; 3]) -> bool {
         let coherence = self.sample_coherence(position);
         let energy = self.sample_energy(position);
         coherence > 0.8 && energy > 0.5
     }
-    
+
     pub fn consciousness_emerges(&self, position: [f64; 3]) -> bool {
         self.sample_coherence(position) > 0.9
     }
-    
+
     pub fn get_awareness(&self, position: [f64; 3]) -> f64 {
         if self.consciousness_emerges(position) {
             self.awareness_level * self.sample_coherence(position)
@@ -84,13 +84,13 @@ impl UnifiedField {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_unified_field_creation() {
         let field = UnifiedField::new("test".to_string());
         assert_eq!(field.id, "test");
     }
-    
+
     #[test]
     fn test_matter_emergence() {
         let field = UnifiedField::new("test".to_string());

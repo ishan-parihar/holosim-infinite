@@ -24,8 +24,8 @@ pub mod renderer;
 pub mod scene;
 pub mod space_controller;
 pub mod time_controller;
-pub mod view_system;
 pub mod ui;
+pub mod view_system;
 pub mod visualization;
 pub mod visualization_engine;
 
@@ -34,6 +34,9 @@ pub mod application;
 pub mod demo_scenarios;
 pub mod profiler;
 pub mod simulation_integration;
+
+// Phase 2: Simulation Runner Adapter - Bridges SimulationRunner to GUI
+pub mod simulation_adapter;
 
 // SDL2 Windowing System (replaces Winit)
 // Temporarily disabled due to WGPU Send+Sync requirements
@@ -74,6 +77,13 @@ pub use simulation_integration::{
     CollectiveRenderData, EmergenceMetrics as SimEmergenceMetrics,
     EntityRenderData as SimEntityRenderData, EventBridge, SimulationEvent,
     SimulationGuiIntegration, SpectrumData as SimSpectrumData,
+};
+
+// Phase 2: Simulation Runner Adapter exports
+pub use simulation_adapter::{
+    CivilizationRenderData, CivilizationSummary, CosmicFilament, CosmicRenderData,
+    PlanetOrbitData, PlanetRenderData, PopulationDensity, SettlementData, StormData,
+    StellarSystemData, TradeRoute, SimulationRunnerAdapter,
 };
 
 /// Configuration for the GUI system
@@ -483,3 +493,7 @@ mod tests {
         assert_eq!(config.enable_vsync, false);
     }
 }
+pub mod observation_bridge;
+pub use observation_bridge::{
+    EntityObservation, ObservationBridge, ObservationFormatter, ObservationStats,
+};

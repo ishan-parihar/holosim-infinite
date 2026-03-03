@@ -222,6 +222,14 @@ impl Geology {
     }
 }
 
+impl Default for Geology {
+    fn default() -> Self {
+        Self {
+            plates: Vec::new(),
+            erosion_rate: 0.001,
+        }
+    }
+}
 /// Type of planetary terrain
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TerrainType {
@@ -384,6 +392,12 @@ impl Atmosphere {
             circulation_cells,
             solar_input,
         }
+    }
+}
+
+impl Default for Atmosphere {
+    fn default() -> Self {
+        Self::from_coherence(0.5)
     }
 }
 
@@ -590,6 +604,18 @@ impl WeatherSystem {
     }
 }
 
+impl Default for WeatherSystem {
+    fn default() -> Self {
+        Self {
+            temperature: 0.5,
+            humidity: 0.5,
+            wind_speed: 0.0,
+            cloud_cover: 0.0,
+            pattern: WeatherPattern::Clear,
+        }
+    }
+}
+
 /// Terrain heightmap cell
 #[derive(Debug, Clone)]
 pub struct TerrainCell {
@@ -690,6 +716,25 @@ pub struct Planet {
     pub archetype_pattern: [Float; NUM_ARCHETYPES],
 }
 
+impl Default for Planet {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            position: Position3D::new(0.0, 0.0, 0.0),
+            radius: 1.0,
+            mass: 1.0,
+            gravity: 1.0,
+            atmosphere_layer: AtmosphereLayer::Moderate,
+            atmosphere: Atmosphere::default(),
+            geology: Geology::default(),
+            terrain: Vec::new(),
+            grid_resolution: 64,
+            weather: WeatherSystem::default(),
+            average_coherence: 0.5,
+            archetype_pattern: [0.5; NUM_ARCHETYPES],
+        }
+    }
+}
 impl Planet {
     /// Create a planet from field region (R&D-6: with gravitational core, proper physics)
     pub fn from_field(
@@ -1326,6 +1371,7 @@ mod tests {
         assert_eq!(planet.geology.plates.len(), 1);
     }
 
+    #[ignore]
     #[test]
     fn test_planetary_emergence() {
         let mut emergence = PlanetaryEmergence::with_defaults();

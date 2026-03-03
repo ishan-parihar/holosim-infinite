@@ -19,6 +19,7 @@
 //! - Free Will seed (8 bytes for non-deterministic choice)
 //! - Component-specific data (T)
 
+use super::field_address::HolographicAddress;
 use crate::evolution_density_octave::density_octave::Density;
 use crate::holographic::holographic_field::HolographicField;
 use crate::spectrum::larson_framework::SpectrumRatio;
@@ -543,6 +544,10 @@ pub struct UniversalTemplate<T> {
     /// SHARED across all instances (reference)
     pub field: Arc<HolographicField>,
 
+    /// Holographic address in the field (replaces coordinate concept)
+    /// From Phase 1: Space emerges from field coherence, position is an address
+    pub address: HolographicAddress,
+
     /// UNIQUE per instance (parameter values)
     pub spectrum: SpectrumConfiguration,
 
@@ -571,6 +576,7 @@ impl<T> UniversalTemplate<T> {
     ) -> Self {
         Self {
             field,
+            address: HolographicAddress::cosmic_origin(),
             spectrum,
             archetype_activation,
             density,
@@ -587,6 +593,7 @@ impl<T> UniversalTemplate<T> {
     ) -> Self {
         Self {
             field,
+            address: HolographicAddress::cosmic_origin(),
             spectrum: config.spectrum,
             archetype_activation: config.archetype_activation,
             density: config.density,
@@ -768,6 +775,16 @@ impl<T> UniversalTemplate<T> {
     /// Get a mutable reference to the component data
     pub fn component_data_mut(&mut self) -> &mut T {
         &mut self.component_data
+    }
+
+    /// Get the holographic address
+    pub fn address(&self) -> &HolographicAddress {
+        &self.address
+    }
+
+    /// Set the holographic address
+    pub fn set_address(&mut self, address: HolographicAddress) {
+        self.address = address;
     }
 }
 

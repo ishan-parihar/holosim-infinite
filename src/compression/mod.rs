@@ -43,28 +43,19 @@
 //! | Memory | O(n) | O(n^2/3) | Surface area encoding |
 //! | Query | O(n) | O(log n) | Fractal caching |
 
-pub mod mera_network;
-pub mod tensor;
 pub mod archetype_basis;
-pub mod predictive_cache;
 pub mod fractal_cache;
+pub mod mera_network;
+pub mod predictive_cache;
+pub mod tensor;
 
-pub use mera_network::{MeraLayer, MeraNetwork, MeraScale};
-pub use tensor::{Tensor, TensorShape, TensorData};
 pub use archetype_basis::{ArchetypeBasis, ArchetypicalInterferenceCache, CompressionStats};
-pub use predictive_cache::{
-    PredictiveCache, 
-    PredictiveCacheConfig, 
-    CacheKey, 
-    EntityTrajectory, 
-    PredictiveCacheStats,
-};
 pub use fractal_cache::{
-    FractalCache,
-    FractalCacheConfig,
-    ScaleLevel,
-    FractalCacheKey,
-    FractalCacheEntry,
-    FractalCacheStats,
-    EvictionStrategy,
+    EvictionStrategy, FractalCache, FractalCacheConfig, FractalCacheEntry, FractalCacheKey,
+    FractalCacheStats, ScaleLevel,
 };
+pub use mera_network::{MeraLayer, MeraNetwork, MeraScale};
+pub use predictive_cache::{
+    CacheKey, EntityTrajectory, PredictiveCache, PredictiveCacheConfig, PredictiveCacheStats,
+};
+pub use tensor::{Tensor, TensorData, TensorShape};
