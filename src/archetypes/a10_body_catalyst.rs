@@ -4,11 +4,10 @@
 // Sigma Axis: σB (Body Capacity)
 // Functional Pair: Process Pair (with A11)
 
-use crate::archetypes::archetype_traits::CatalystArchetypeTrait;
 use crate::archetypes::common::{
-    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, DevelopmentalPosition,
+    FunctionalPair, HealthStatus, HolonicLevel, LambdaMeasurement,
+    LambdaMeasurementType, SigmaAxis, TarotCorrelation,
 };
 use crate::types::{Float, Octant, Polarity, Rung};
 use std::collections::HashMap;
@@ -64,7 +63,7 @@ impl CatalystBodyArchetype {
                 healthy_max: 0.8,
                 measurement_type: LambdaMeasurementType::CatalystProcessingRate,
             },
-            tarot_correlation: TarotCorrelation::new(format!("Wheel of Fortune (X): Cyclical nature of catalyst, turning of fortune")),
+            tarot_correlation: TarotCorrelation::new("Wheel of Fortune (X): Cyclical nature of catalyst, turning of fortune".to_string()),
             sensation_intensity: 0.7,
             physical_friction: 0.6,
             processing_capacity: 0.65,
@@ -141,7 +140,6 @@ impl CatalystBodyArchetype {
             Rung::R7 => "Unity catalyst: Unity interactions and non-dual exchanges".to_string(),
             Rung(0_u8) => "Invalid rung".to_string(),
             Rung(8_u8..=u8::MAX) => "Invalid rung".to_string(),
-            _ => "Unknown rung".to_string(),
         }
     }
 
@@ -197,7 +195,7 @@ impl ArchetypeTrait for CatalystBodyArchetype {
         ArchetypeRole::Catalyst
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         self.process_catalyst(catalyst);
     }
 
@@ -206,7 +204,7 @@ impl ArchetypeTrait for CatalystBodyArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn update_lambda(&mut self, value: Float) {
@@ -312,7 +310,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {

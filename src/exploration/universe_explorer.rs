@@ -253,8 +253,8 @@ pub struct LayerArchitecture {
 }
 
 impl LayerArchitecture {
-    /// Create a default layer architecture
-    pub fn default() -> Self {
+    /// Create an initial layer architecture
+    pub fn initial() -> Self {
         Self {
             yellow_laws: PhysicalLawsVariant::new(1.0, 1.0, 1.0, 1.0),
             yellow_bias: PlanetaryBiasVariant::new(1.0, 1.0, 1.0, 1.0),
@@ -292,7 +292,7 @@ impl UniverseExplorer {
 
     /// Create a universe explorer with default architecture
     pub fn with_default_architecture() -> Self {
-        Self::new(LayerArchitecture::default())
+        Self::new(LayerArchitecture::initial())
     }
 
     /// Explore a single variant
@@ -453,9 +453,9 @@ impl UniverseExplorer {
             let mut activation = [0.5; 22];
 
             // Modify activation based on architecture
-            for j in 0..22 {
-                activation[j] *= architecture.yellow_laws.gravity_modifier;
-                activation[j] *= architecture.spatial_frequencies.violet_modifier;
+            for act in &mut activation {
+                *act *= architecture.yellow_laws.gravity_modifier;
+                *act *= architecture.spatial_frequencies.violet_modifier;
             }
 
             // Add some variation
@@ -782,7 +782,7 @@ mod tests {
 
     #[test]
     fn test_layer_architecture() {
-        let arch = LayerArchitecture::default();
+        let arch = LayerArchitecture::initial();
         assert_eq!(arch.yellow_laws.gravity_modifier, 1.0);
         assert_eq!(arch.yellow_bias.atmosphere_modifier, 1.0);
         assert_eq!(arch.orange_stream.karmic_modifier, 1.0);

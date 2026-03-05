@@ -174,11 +174,11 @@ impl ArchitectureValidator {
 
         // Check constructive and destructive nodes
         assert!(
-            pattern.constructive_nodes.len() > 0,
+            !pattern.constructive_nodes.is_empty(),
             "No constructive nodes found"
         );
         assert!(
-            pattern.destructive_nodes.len() > 0,
+            !pattern.destructive_nodes.is_empty(),
             "No destructive nodes found"
         );
 
@@ -450,8 +450,8 @@ impl ArchitectureValidator {
             amplitude: 0.0,
             phase: 0.0,
         }; 22];
-        for i in 0..22 {
-            archetypes[i] = ComplexArchetype {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
+            *archetype = ComplexArchetype {
                 amplitude: (i as Float + 1.0) / 22.0, // 0.045 to 1.0
                 phase: (i as Float) * PI / 11.0,      // 0 to 2π
             };
@@ -517,7 +517,7 @@ mod tests {
         let result = validator.validate_all();
 
         assert_eq!(result.total_tests, 8);
-        assert!(result.tests_passed >= 0);
+        // tests_passed is usize, always >= 0
         assert!(result.tests_passed <= 8);
     }
 

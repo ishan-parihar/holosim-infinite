@@ -423,7 +423,7 @@ mod tests {
 
         // Create test entities (we'll use the seed itself for testing)
         // In real usage, these would be Photon, Particle, Entity, etc.
-        let entities = vec![seed.clone(), seed.clone(), seed.clone()];
+        let _entities = vec![seed.clone(), seed.clone(), seed.clone()];
 
         // We can't directly test this without entities that implement HolographicReference
         // This test is a placeholder for when we implement HolographicReference on entities
@@ -432,10 +432,10 @@ mod tests {
     #[test]
     fn test_calculate_holographic_coherence() {
         let seed1 = create_shared_holographic_ref();
-        let seed2 = create_shared_holographic_ref();
+        let _seed2 = create_shared_holographic_ref();
 
         // Create test entities
-        let entities = vec![seed1.clone(), seed1.clone(), seed2];
+        let _entities = vec![seed1.clone(), seed1.clone()];
 
         // We can't directly test this without entities that implement HolographicReference
         // This test is a placeholder for when we implement HolographicReference on entities

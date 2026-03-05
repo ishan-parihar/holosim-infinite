@@ -11,9 +11,7 @@
 //! Position is a MANIFESTATION POINT, not a coordinate assignment.
 
 use crate::holographic_foundation::field_state::Position3D;
-use crate::holographic_foundation::spectrum::SpectrumPosition;
 use crate::types::Float;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PositionStability {

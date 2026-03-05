@@ -9,7 +9,7 @@ use crate::hpo::types::*;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 /// Thread pool size for parallel simulation execution
 const DEFAULT_THREAD_POOL_SIZE: usize = 8;
@@ -28,6 +28,7 @@ pub struct SimulationRunner {
     thread_pool_size: usize,
 
     /// Next simulation ID to assign
+    #[allow(dead_code)]
     next_simulation_id: Arc<Mutex<SimulationId>>,
 
     /// Optional progress callback
@@ -202,7 +203,7 @@ impl SimulationRunner {
         let mut coherence_history = Vec::with_capacity(config.num_steps);
         let mut completed_steps = 0;
 
-        for step in 0..config.num_steps {
+        for _step in 0..config.num_steps {
             // Check timeout
             let elapsed = start_time.elapsed().as_secs_f64();
             if elapsed > self.simulation_timeout {

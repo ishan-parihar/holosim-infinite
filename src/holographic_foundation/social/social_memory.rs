@@ -199,7 +199,7 @@ impl SocialMemoryEntry {
         &mut self,
         experience_id: u64,
         significance: Float,
-        experience_type: ExperienceType,
+        _experience_type: ExperienceType,
     ) {
         self.experiences.push(experience_id);
         self.total_significance += significance;
@@ -269,7 +269,7 @@ impl SocialMemory {
 
         self.experience_index
             .entry(experience_type)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(experience_id);
 
         self.experiences.insert(experience_id, experience);

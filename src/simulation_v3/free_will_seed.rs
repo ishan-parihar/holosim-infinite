@@ -442,8 +442,8 @@ fn derive_action_archetype_signature(action: ActionType, profile: &[Float]) -> [
 }
 
 fn apply_archetype_constraints(space: &mut PossibilitySpace, archetype_profile: &[Float]) {
-    for i in 0..22 {
-        if archetype_profile[i] < 0.1 {
+    for (i, &profile_i) in archetype_profile.iter().enumerate() {
+        if profile_i < 0.1 {
             space.add_constraint(ArchetypeConstraint::new(i, 0.1, 1.0));
         }
     }
@@ -734,7 +734,7 @@ mod tests {
 
     #[test]
     fn test_action_type_variations() {
-        let space = PossibilitySpace::new();
+        let _space = PossibilitySpace::new();
         let actions = [
             ActionType::Move,
             ActionType::Interact,

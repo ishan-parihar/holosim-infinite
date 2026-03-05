@@ -33,6 +33,7 @@ use std::fmt;
 
 /// Unique identifier for a collective manifestation
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct ManifestationId(pub u64);
 
 impl ManifestationId {
@@ -51,11 +52,6 @@ impl fmt::Display for ManifestationId {
     }
 }
 
-impl Default for ManifestationId {
-    fn default() -> Self {
-        ManifestationId(0)
-    }
-}
 
 impl From<u64> for ManifestationId {
     fn from(id: u64) -> Self {
@@ -75,8 +71,10 @@ pub type CatalystAmount = Float;
 
 /// State of a collective manifestation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum ManifestationState {
     /// Gathering participants
+    #[default]
     Gathering,
     /// Building collective resonance
     ResonanceBuilding,
@@ -100,16 +98,13 @@ impl fmt::Display for ManifestationState {
     }
 }
 
-impl Default for ManifestationState {
-    fn default() -> Self {
-        ManifestationState::Gathering
-    }
-}
 
 /// Type of contribution to collective manifestation
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum ContributionType {
     /// Direct resonance contribution
+    #[default]
     DirectResonance,
     /// Catalyst contribution
     Catalyst,
@@ -133,11 +128,6 @@ impl fmt::Display for ContributionType {
     }
 }
 
-impl Default for ContributionType {
-    fn default() -> Self {
-        ContributionType::DirectResonance
-    }
-}
 
 /// Player's contribution to collective manifestation
 #[derive(Debug, Clone, PartialEq)]
@@ -178,7 +168,7 @@ impl Default for ResonanceContribution {
             player_id: PeerId::default(),
             contribution_amount: 0.0,
             contribution_type: ContributionType::default(),
-            resonance_pattern: ResonancePattern::default(),
+            resonance_pattern: ResonancePattern::initial(),
             contribution_timestamp: 0.0,
         }
     }
@@ -219,7 +209,7 @@ impl CollectiveManifestation {
             manifestation_id,
             participating_players: players,
             target_structure_type: structure_type,
-            collective_resonance: ResonancePattern::default(),
+            collective_resonance: ResonancePattern::initial(),
             required_resonance,
             current_progress: 0.0,
             contribution_tracker: HashMap::new(),
@@ -381,8 +371,8 @@ impl Default for CollectiveManifestation {
             manifestation_id: ManifestationId::default(),
             participating_players: Vec::new(),
             target_structure_type: StructureType::CommunityCenter,
-            collective_resonance: ResonancePattern::default(),
-            required_resonance: ResonancePattern::default(),
+            collective_resonance: ResonancePattern::initial(),
+            required_resonance: ResonancePattern::initial(),
             current_progress: 0.0,
             contribution_tracker: HashMap::new(),
             manifestation_state: ManifestationState::default(),
@@ -503,7 +493,7 @@ impl DensityState {
     pub fn new() -> Self {
         Self {
             entities: Vec::new(),
-            resonance_field: ResonancePattern::default(),
+            resonance_field: ResonancePattern::initial(),
             collective_catalyst: 0.0,
             evolution_rate: 1.0,
         }
@@ -537,7 +527,7 @@ impl DensityShare {
             density,
             sharing_players: Vec::new(),
             density_state: DensityState::new(),
-            resonance_signature: ResonancePattern::default(),
+            resonance_signature: ResonancePattern::initial(),
             last_update: 0.0,
         }
     }
@@ -551,6 +541,7 @@ impl Default for DensityShare {
 
 /// Type of density update
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum DensityUpdateType {
     /// Entity added
     EntityAdded,
@@ -561,6 +552,7 @@ pub enum DensityUpdateType {
     /// Catalyst updated
     CatalystUpdated,
     /// Full state sync
+    #[default]
     FullSync,
 }
 
@@ -576,11 +568,6 @@ impl fmt::Display for DensityUpdateType {
     }
 }
 
-impl Default for DensityUpdateType {
-    fn default() -> Self {
-        DensityUpdateType::FullSync
-    }
-}
 
 /// Data for a density update
 #[derive(Debug, Clone, PartialEq)]
@@ -634,8 +621,10 @@ impl DensityUpdate {
 
 /// Status of density synchronization
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum SyncStatus {
     /// Synchronized
+    #[default]
     Synchronized,
     /// Synchronizing
     Synchronizing,
@@ -656,11 +645,6 @@ impl fmt::Display for SyncStatus {
     }
 }
 
-impl Default for SyncStatus {
-    fn default() -> Self {
-        SyncStatus::Synchronized
-    }
-}
 
 /// Synchronizes density states across players
 #[derive(Debug, Clone, PartialEq)]
@@ -762,10 +746,7 @@ impl DensitySharing {
         densities: Vec<Density>,
     ) -> Result<(), MultiplayerFeaturesError> {
         for density in densities {
-            if !self.shared_densities.contains_key(&density) {
-                self.shared_densities
-                    .insert(density, DensityShare::new(density));
-            }
+            self.shared_densities.entry(density).or_insert_with(|| DensityShare::new(density));
         }
         Ok(())
     }
@@ -863,6 +844,7 @@ impl Default for DensitySharing {
 
 /// Result of a synchronization operation
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub struct SyncResult {
     /// Whether the sync succeeded
     pub success: bool,
@@ -872,15 +854,6 @@ pub struct SyncResult {
     pub message: String,
 }
 
-impl Default for SyncResult {
-    fn default() -> Self {
-        Self {
-            success: false,
-            synced_players: 0,
-            message: String::new(),
-        }
-    }
-}
 
 // ============================================================================
 // Scale Sharing System
@@ -888,6 +861,7 @@ impl Default for SyncResult {
 
 /// Scale level in the holographic universe
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum ScaleLevel {
     /// Planck scale (10^-35 m)
     Quantum,
@@ -896,6 +870,7 @@ pub enum ScaleLevel {
     /// Molecular scale (10^-9 m)
     Molecular,
     /// Cellular scale (10^-6 m)
+    #[default]
     Cellular,
     /// Planetary scale (10^7 m)
     Planetary,
@@ -922,11 +897,6 @@ impl fmt::Display for ScaleLevel {
     }
 }
 
-impl Default for ScaleLevel {
-    fn default() -> Self {
-        ScaleLevel::Cellular
-    }
-}
 
 impl ScaleLevel {
     /// Get the magnitude order of this scale
@@ -1051,7 +1021,7 @@ impl ScaleState {
             entities: Vec::new(),
             spatial_dimensions: SpatialDimensions::default(),
             temporal_dimensions: TemporalDimensions::default(),
-            resonance_signature: ResonancePattern::default(),
+            resonance_signature: ResonancePattern::initial(),
         }
     }
 }
@@ -1140,6 +1110,7 @@ impl Default for ScaleSynchronization {
 
 /// Type of scale update
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum ScaleUpdateType {
     /// Entity added
     EntityAdded,
@@ -1150,6 +1121,7 @@ pub enum ScaleUpdateType {
     /// Temporal dimensions updated
     TemporalUpdated,
     /// Full state sync
+    #[default]
     FullSync,
 }
 
@@ -1165,11 +1137,6 @@ impl fmt::Display for ScaleUpdateType {
     }
 }
 
-impl Default for ScaleUpdateType {
-    fn default() -> Self {
-        ScaleUpdateType::FullSync
-    }
-}
 
 /// Data for a scale update
 #[derive(Debug, Clone, PartialEq)]
@@ -1277,9 +1244,7 @@ impl ScaleSharing {
         scales: Vec<Scale>,
     ) -> Result<(), MultiplayerFeaturesError> {
         for scale in scales {
-            if !self.shared_scales.contains_key(&scale) {
-                self.shared_scales.insert(scale, ScaleShare::new(scale));
-            }
+            self.shared_scales.entry(scale).or_insert_with(|| ScaleShare::new(scale));
         }
         Ok(())
     }
@@ -1510,6 +1475,7 @@ impl Default for CompressedMessage {
 
 /// Batched message
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub struct BatchMessage {
     /// Messages in the batch
     pub messages: Vec<NetworkMessage>,
@@ -1519,15 +1485,6 @@ pub struct BatchMessage {
     pub total_size: usize,
 }
 
-impl Default for BatchMessage {
-    fn default() -> Self {
-        Self {
-            messages: Vec::new(),
-            batch_id: 0,
-            total_size: 0,
-        }
-    }
-}
 
 /// Bandwidth allocation
 #[derive(Debug, Clone, PartialEq)]
@@ -2269,7 +2226,7 @@ mod tests {
             player_id,
             0.5,
             ContributionType::Catalyst,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
             100.0,
         );
 
@@ -2302,7 +2259,7 @@ mod tests {
             ManifestationId::new(1),
             vec![PeerId::new(1)],
             StructureType::Temple,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
         );
 
         manifestation.add_participant(PeerId::new(2)).unwrap();
@@ -2318,7 +2275,7 @@ mod tests {
             ManifestationId::new(1),
             vec![player_id],
             StructureType::Temple,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
         );
 
         manifestation.remove_participant(player_id).unwrap();
@@ -2460,7 +2417,7 @@ mod tests {
 
     #[test]
     fn test_density_sharing_get_player_view() {
-        let mut sharing = DensitySharing::new();
+        let sharing = DensitySharing::new();
         let player_id = PeerId::new(1);
 
         let view = sharing.get_player_density_view(player_id);
@@ -2608,7 +2565,7 @@ mod tests {
 
     #[test]
     fn test_scale_sharing_get_player_view() {
-        let mut sharing = ScaleSharing::new();
+        let sharing = ScaleSharing::new();
         let player_id = PeerId::new(1);
 
         let view = sharing.get_player_scale_view(player_id);
@@ -2956,7 +2913,7 @@ mod tests {
             ManifestationId::new(1),
             vec![PeerId::new(1)],
             StructureType::Temple,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
         );
 
         let result = manifestation.add_participant(PeerId::new(1));
@@ -2969,14 +2926,14 @@ mod tests {
             ManifestationId::new(1),
             vec![PeerId::new(1)],
             StructureType::Temple,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
         );
 
         let contribution = ResonanceContribution::new(
             PeerId::new(999),
             0.5,
             ContributionType::DirectResonance,
-            ResonancePattern::default(),
+            ResonancePattern::initial(),
             100.0,
         );
 

@@ -567,11 +567,9 @@ impl Polarity {
     /// Check if two polarities are compatible
     /// STO and STS are incompatible, Balanced/Undecided is compatible with both
     pub fn is_compatible_with(&self, other: &Polarity) -> bool {
-        match (self, other) {
-            (Polarity::ServiceToOthers, Polarity::ServiceToSelf) => false,
-            (Polarity::ServiceToSelf, Polarity::ServiceToOthers) => false,
-            _ => true,
-        }
+        !matches!((self, other),
+            (Polarity::ServiceToOthers, Polarity::ServiceToSelf) |
+            (Polarity::ServiceToSelf, Polarity::ServiceToOthers))
     }
 
     /// Calculate compatibility score between two polarities
@@ -605,7 +603,7 @@ impl Catalyst {
     /// Create new catalyst
     pub fn new(intensity: Float, polarity_affinity: Option<Polarity>, source: String) -> Self {
         Catalyst {
-            intensity: intensity.max(0.0).min(MAX_CATALYST_INTENSITY),
+            intensity: intensity.clamp(0.0, MAX_CATALYST_INTENSITY),
             polarity_affinity,
             source,
         }
@@ -614,7 +612,7 @@ impl Catalyst {
     /// Create random catalyst
     pub fn random(intensity: Float) -> Self {
         Catalyst {
-            intensity: intensity.max(0.0).min(MAX_CATALYST_INTENSITY),
+            intensity: intensity.clamp(0.0, MAX_CATALYST_INTENSITY),
             polarity_affinity: None,
             source: "random".to_string(),
         }

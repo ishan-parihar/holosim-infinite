@@ -32,17 +32,12 @@ pub const MAX_DECISION_HISTORY: usize = 10000;
 pub const FEEDBACK_DECAY_RATE: Float = 0.99;
 pub const MIN_SIGNIFICANCE_THRESHOLD: Float = 0.01;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FeedbackMode {
     Individual,
     Collective,
+    #[default]
     Hierarchical,
-}
-
-impl Default for FeedbackMode {
-    fn default() -> Self {
-        FeedbackMode::Hierarchical
-    }
 }
 
 #[derive(Debug, Clone)]

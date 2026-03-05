@@ -15,12 +15,8 @@ use crate::types::Float;
 use std::collections::HashMap;
 use std::fmt;
 
-use super::super::archetype_profile::NUM_ARCHETYPES;
-use super::super::quantum_consciousness::quantum_numbers::{QuantumNumberSet, Spin};
-use super::attractor_field::{AttractorBasin, AttractorId, AttractorStability, FieldConfiguration};
-use super::element_attractor::{
-    ChargeConfiguration, ElementAttractorField, ElementId, ElementIdentity,
-};
+use super::attractor_field::{AttractorBasin, AttractorId, FieldConfiguration};
+use super::element_attractor::ElementAttractorField;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ElementPosition {
@@ -450,7 +446,7 @@ impl PeriodicTableAttractors {
     pub fn transition_elements(
         &self,
         from_z: u32,
-        to_z: u32,
+        _to_z: u32,
         energy_available: Float,
     ) -> Vec<&ElementAttractorField> {
         let from = match self.get(from_z) {

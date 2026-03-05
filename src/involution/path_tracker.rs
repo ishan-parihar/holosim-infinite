@@ -7,9 +7,7 @@
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 
 /// Represents a single step in an entity's involution path
@@ -117,11 +115,7 @@ impl PathAnalysis {
     pub fn involution_depth(&self) -> u8 {
         let start = self.starting_density.as_u8();
         let current = self.current_density.as_u8();
-        if start >= current {
-            start - current
-        } else {
-            0
-        }
+        start.saturating_sub(current)
     }
 
     /// Calculate the average descent rate (densities per hour)
@@ -187,7 +181,7 @@ impl InvolutionPathTracker {
         sub_density: u8,
     ) -> usize {
         let step = InvolutionStep::new(density, sub_density);
-        let path = self.paths.entry(entity_id).or_insert_with(Vec::new);
+        let path = self.paths.entry(entity_id).or_default();
         let index = path.len();
         path.push(step);
         index
@@ -202,7 +196,7 @@ impl InvolutionPathTracker {
     /// # Returns
     /// The index of the recorded step in the path
     pub fn record_step(&mut self, entity_id: u64, step: InvolutionStep) -> usize {
-        let path = self.paths.entry(entity_id).or_insert_with(Vec::new);
+        let path = self.paths.entry(entity_id).or_default();
         let index = path.len();
         path.push(step);
         index
@@ -343,7 +337,7 @@ impl InvolutionPathTracker {
             .iter()
             .map(|step| step.density.as_u8())
             .min()
-            .and_then(|d| Density::from_u8(d))
+            .and_then(Density::from_u8)
             .unwrap_or(current_density);
 
         let first_timestamp = path.first()?.timestamp;
@@ -418,7 +412,7 @@ impl InvolutionPathTracker {
 
         // Add reversal point marker if detected
         if let Some(reversal) = self.reversal_points.get(&entity_id) {
-            visualization.push_str("\n");
+            visualization.push('\n');
             visualization.push_str(&format!(
                 "🔄 REVERSAL POINT at Step {}: D{} | Pol: {:.2} | Catalyst: {}\n",
                 reversal.step_index,
@@ -466,6 +460,7 @@ impl Default for InvolutionPathTracker {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 
     #[test]
     fn test_involution_step_creation() {

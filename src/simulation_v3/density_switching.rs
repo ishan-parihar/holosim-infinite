@@ -17,11 +17,10 @@
 //! 4. Spectrum access by density
 //! 5. Holographic continuity across densities
 
-use crate::entity_layer7::layer7::{EntitySpectrumAccess, EntityState, SpectrumAccessLevel};
 use crate::evolution_density_octave::density_octave::{
     Density, Density1SubLevel, Density2SubLevel,
 };
-use crate::evolution_density_octave::spectrum_access::{SpectrumAccessVeilState, SpectrumPosition};
+use crate::evolution_density_octave::spectrum_access::SpectrumPosition;
 use crate::types::Float;
 use std::time::{Duration, Instant};
 

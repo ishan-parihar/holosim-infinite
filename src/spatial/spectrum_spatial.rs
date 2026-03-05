@@ -171,7 +171,7 @@ impl SpectrumSpatialDynamics {
         let c = (id * 5.0).sin() * self.config.spatial_scale;
 
         // Scale by spectrum position (higher spectrum = more expanded)
-        let scale = (1.0 + spectrum_position * 0.5);
+        let scale = 1.0 + spectrum_position * 0.5;
 
         [a * scale, b * scale, c * scale]
     }

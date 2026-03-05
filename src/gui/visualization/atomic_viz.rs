@@ -26,19 +26,16 @@ use std::f32::consts::{PI, TAU};
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::atomic_emergence::attractor_field::{
-    AttractorBasin, AttractorField, AttractorStability, FieldConfiguration,
+    AttractorBasin, AttractorStability,
 };
-use crate::holographic_foundation::atomic_emergence::element_attractor::{
-    ChargeConfiguration, ElementAttractorField, ElementIdentity,
-};
+use crate::holographic_foundation::atomic_emergence::element_attractor::ElementAttractorField;
 use crate::holographic_foundation::atomic_emergence::particle_derivation::{
     DerivationFactors, ParticleArchetypePattern, ParticleProperties, ParticleType,
 };
 use crate::holographic_foundation::atomic_emergence::periodic_table_attractors::{
-    Block, ElementPosition, PeriodicTableAttractors, ShellConfiguration,
+    Block, PeriodicTableAttractors, ShellConfiguration,
 };
 use crate::holographic_foundation::quantum_consciousness::quantum_numbers::QuantumNumberSet;
-use crate::types::Float;
 
 /// Color palette for atomic visualizations
 pub struct AtomicColors;
@@ -171,7 +168,7 @@ impl OrbitalRenderer {
     }
 
     /// Generate orbital shape points based on quantum numbers
-    fn generate_orbital_shape(&self, n: u32, l: u32, center: Pos2, radius: f32) -> Vec<Pos2> {
+    fn generate_orbital_shape(&self, _n: u32, l: u32, center: Pos2, radius: f32) -> Vec<Pos2> {
         let mut points = Vec::new();
         let num_points = 60;
 
@@ -430,16 +427,14 @@ impl OrbitalRenderer {
         let max_radius = rect.width().min(rect.height()) * 0.4;
 
         // Draw electron configuration
-        let mut current_radius = max_radius * 0.2;
-
         for (i, (&n, &l)) in shell_config
             .principal
             .iter()
             .zip(shell_config.azimuthal.iter())
             .enumerate()
         {
-            let radius_step = max_radius / shell_config.shell_count().max(1) as f32;
-            current_radius = max_radius * (n as f32) / 7.0;
+            let _radius_step = max_radius / shell_config.shell_count().max(1) as f32;
+            let current_radius = max_radius * (n as f32) / 7.0;
 
             // Draw shell ring
             painter.circle_stroke(
@@ -608,9 +603,9 @@ impl AttractorFieldVisualizer {
             let alpha = (255 - i * 40) as u8;
 
             let color = Color32::from_rgba_premultiplied(
-                (depth_intensity / 2) as u8,
-                depth_intensity as u8,
-                (depth_intensity / 3) as u8,
+                depth_intensity / 2,
+                depth_intensity,
+                depth_intensity / 3,
                 alpha,
             );
 
@@ -762,7 +757,7 @@ impl AttractorFieldVisualizer {
         painter.text(
             Pos2::new(rect.min.x + 10.0, info_y + 32.0),
             egui::Align2::LEFT_TOP,
-            format!("{}", category),
+            category.to_string(),
             FontId::proportional(9.0),
             AtomicColors::element_category(&category.to_lowercase().replace(' ', "_")),
         );
@@ -1986,7 +1981,7 @@ impl PeriodicTableLandscape {
             ui.allocate_painter(Vec2::new(300.0, 350.0) * self.scale, egui::Sense::hover());
 
         let rect = response.rect;
-        let center = rect.center();
+        let _center = rect.center();
 
         // Element card
         let color = self.element_color(element);
@@ -2200,7 +2195,7 @@ impl AtomicVisualizationPanel {
 
         // Orbital visualization
         ui.collapsing("Electron Orbitals", |ui| {
-            if let Some(element) = periodic_table.get(6) {
+            if let Some(_element) = periodic_table.get(6) {
                 if let Some(shells) = periodic_table.shell_configuration(6) {
                     self.orbital_renderer.render_element_orbitals(ui, shells);
                 }

@@ -205,7 +205,7 @@ impl VeilChallenge {
     pub fn new(challenge_type: VeilChallengeType, difficulty: Float, presented_at: Float) -> Self {
         VeilChallenge {
             challenge_type,
-            difficulty: difficulty.max(0.0).min(1.0),
+            difficulty: difficulty.clamp(0.0, 1.0),
             overcome: false,
             progress: 0.0,
             presented_at,
@@ -386,7 +386,7 @@ impl VeilPlayground {
         let challenge = VeilChallenge::new(challenge_type, difficulty, current_time);
         self.active_challenges
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(challenge);
 
         // Return reference to the newly added challenge
@@ -410,7 +410,7 @@ impl VeilPlayground {
         let opportunity = VeilOpportunity::new(opportunity_type, current_time);
         self.active_opportunities
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(opportunity);
 
         // Return reference to the newly added opportunity
@@ -487,7 +487,7 @@ impl VeilPlayground {
             if !completed.is_empty() {
                 self.completed_challenges
                     .entry(entity_id)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .extend(completed);
             }
 
@@ -519,7 +519,7 @@ impl VeilPlayground {
             if !realized.is_empty() {
                 self.realized_opportunities
                     .entry(entity_id)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .extend(realized);
             }
 
@@ -585,11 +585,11 @@ impl VeilPlayground {
     /// Get playground statistics for an entity
     pub fn get_statistics(&self, entity_id: EntityId) -> Option<PlaygroundStatistics> {
         // Only return statistics if entity has any activity or experience
-        let has_challenges = self.active_challenges.get(&entity_id).is_some()
-            || self.completed_challenges.get(&entity_id).is_some();
-        let has_opportunities = self.active_opportunities.get(&entity_id).is_some()
-            || self.realized_opportunities.get(&entity_id).is_some();
-        let has_experience = self.experience_points.get(&entity_id).is_some();
+        let has_challenges = self.active_challenges.contains_key(&entity_id)
+            || self.completed_challenges.contains_key(&entity_id);
+        let has_opportunities = self.active_opportunities.contains_key(&entity_id)
+            || self.realized_opportunities.contains_key(&entity_id);
+        let has_experience = self.experience_points.contains_key(&entity_id);
 
         if !has_challenges && !has_opportunities && !has_experience {
             return None;

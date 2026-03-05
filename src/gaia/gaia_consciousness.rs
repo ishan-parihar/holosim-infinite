@@ -12,7 +12,7 @@
 //! planetary systems integrate into a self-regulating whole."
 
 use crate::gaia::{EcosystemId, Float, GaiaConfig, PlanetId};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 /// Ecosystem - Collection of interacting organisms and environment
 ///
@@ -365,7 +365,7 @@ impl GaiaMessage {
     ) -> Self {
         GaiaMessage {
             message_type,
-            priority: priority.max(0.0).min(1.0),
+            priority: priority.clamp(0.0, 1.0),
             content,
             target_ecosystem,
             timestamp,
@@ -428,7 +428,7 @@ impl BalancingAction {
     ) -> Self {
         BalancingAction {
             action_type,
-            intensity: intensity.max(0.0).min(1.0),
+            intensity: intensity.clamp(0.0, 1.0),
             target_ecosystem,
             duration,
             description,
@@ -646,7 +646,7 @@ impl PlanetaryHealthMonitor {
 /// From SIMULATION-AUDIT-AND-REFACTOR-PLAN.md Phase 4:
 /// "GaiaConsciousness: Ecosystem integration, planetary health monitoring,
 /// Gaia-entity communication, ecosystem balancing"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct GaiaConsciousness {
     /// Ecosystem integrator
     ecosystem_integrator: EcosystemIntegrator,
@@ -656,16 +656,6 @@ pub struct GaiaConsciousness {
 
     /// Configuration
     config: GaiaConfig,
-}
-
-impl Default for GaiaConsciousness {
-    fn default() -> Self {
-        GaiaConsciousness {
-            ecosystem_integrator: EcosystemIntegrator::default(),
-            health_monitor: PlanetaryHealthMonitor::default(),
-            config: GaiaConfig::default(),
-        }
-    }
 }
 
 impl GaiaConsciousness {
@@ -813,7 +803,7 @@ impl GaiaConsciousness {
             actions.push(action);
         }
 
-        let success = !actions.is_empty();
+        let _success = !actions.is_empty();
 
         let success = !actions.is_empty();
         let action_count = actions.len();
@@ -952,7 +942,7 @@ mod tests {
 
     #[test]
     fn test_planetary_consciousness_new() {
-        let mut consciousness = PlanetaryConsciousness::new(123);
+        let consciousness = PlanetaryConsciousness::new(123);
         assert_eq!(consciousness.planet_id, 123);
     }
 

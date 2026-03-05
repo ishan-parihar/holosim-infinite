@@ -88,22 +88,17 @@ impl SpectrumConfiguration {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Density {
     First(u8),
     Second(u8),
+    #[default]
     Third,
     Fourth,
     Fifth,
     Sixth,
     Seventh,
     Eighth,
-}
-
-impl Default for Density {
-    fn default() -> Self {
-        Density::Third
-    }
 }
 
 impl Density {
@@ -306,7 +301,7 @@ impl HolographicFieldReference {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Default)]
 pub struct TemplateConfig {
     pub spectrum: SpectrumConfiguration,
     pub archetype_activation: ArchetypeActivationProfile,
@@ -314,14 +309,10 @@ pub struct TemplateConfig {
     pub free_will_seed: u64,
 }
 
-impl Default for TemplateConfig {
-    fn default() -> Self {
-        Self {
-            spectrum: SpectrumConfiguration::default(),
-            archetype_activation: ArchetypeActivationProfile::default(),
-            density: Density::default(),
-            free_will_seed: 0,
-        }
+impl TemplateConfig {
+    /// Create an initial config (alias for default for backward compatibility)
+    pub fn initial() -> Self {
+        Self::default()
     }
 }
 
@@ -364,7 +355,7 @@ impl TemplateFactory {
         config: &TemplateConfig,
         component_data: T,
     ) -> UniversalTemplate<T> {
-        let key = TemplateKey::new(
+        let _key = TemplateKey::new(
             config.density,
             config.spectrum.veil_transparency,
             config.archetype_activation.coherence(),
@@ -454,7 +445,7 @@ mod tests {
             0.5,
             ScaleLevel::Biological,
         ));
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
         let template: UniversalTemplate<()> = UniversalTemplate::new(
             field,
             config.spectrum,
@@ -474,7 +465,7 @@ mod tests {
             0.5,
             ScaleLevel::Biological,
         ));
-        let mut profile = ArchetypeActivationProfile::default();
+        let mut profile = ArchetypeActivationProfile::initial();
         profile.set_activation(22, 1.0);
 
         let template: UniversalTemplate<()> = UniversalTemplate::new(
@@ -500,7 +491,7 @@ mod tests {
         let template: UniversalTemplate<()> = UniversalTemplate::new(
             field,
             SpectrumConfiguration::default(),
-            ArchetypeActivationProfile::default(),
+            ArchetypeActivationProfile::initial(),
             Density::Third,
             12345,
             (),
@@ -520,7 +511,7 @@ mod tests {
         ));
         let mut factory = TemplateFactory::new(field);
 
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
         let template: UniversalTemplate<f64> = factory.instantiate(&config, 42.0);
 
         assert_eq!(template.component_data, 42.0);

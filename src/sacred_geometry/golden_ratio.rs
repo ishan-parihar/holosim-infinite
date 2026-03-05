@@ -15,13 +15,13 @@
 use crate::types::Float;
 
 /// Golden Ratio Constant
-pub const GOLDEN_RATIO: Float = 1.6180339887498948482;
+pub const GOLDEN_RATIO: Float = 1.618_033_988_749_895;
 
 /// Golden Ratio Inverse: 1/φ
-pub const GOLDEN_RATIO_INVERSE: Float = 0.6180339887498948482;
+pub const GOLDEN_RATIO_INVERSE: Float = 0.618_033_988_749_894_9;
 
 /// Golden Angle in radians: 360°/φ²
-pub const GOLDEN_ANGLE: Float = 2.39996322972865332;
+pub const GOLDEN_ANGLE: Float = 2.399_963_229_728_653_5;
 
 /// Golden Proportion
 ///

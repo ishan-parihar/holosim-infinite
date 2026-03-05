@@ -43,12 +43,11 @@ pub use requirements::DensityTransitionRequirements;
 mod integration_tests {
     use super::*;
     use crate::entity_layer7::{
-        EntitySpectrumAccess, EntityState, PolarityState, SpectrumAccessLevel, VibrationalState,
+        EntityState, PolarityState, SpectrumAccessLevel, VibrationalState,
     };
     use crate::evolution_density_octave::density_octave::{
         Density, Density1SubLevel, DensityCharacteristics,
     };
-    use crate::veil::VeilState;
 
     fn create_test_entity_state(consciousness_level: f64) -> EntityState {
         EntityState {
@@ -114,7 +113,7 @@ mod integration_tests {
 
         // Simulate evolution to 2nd density access level
         entity_state.consciousness_level = 0.3;
-        let spectrum_access = mechanism.calculate_access(&entity_state);
+        let _spectrum_access = mechanism.calculate_access(&entity_state);
         octave.update_collective_emergence(&entity_state);
         // spectrum_access is calculated but update_collective_emergence only uses entity_state
 
@@ -167,7 +166,7 @@ mod integration_tests {
         // Simulate evolution through densities
         for consciousness in [0.1, 0.3, 0.5, 0.7, 0.9, 0.97] {
             let entity_state = create_test_entity_state(consciousness);
-            let spectrum_access = mechanism.calculate_access(&entity_state);
+            let _spectrum_access = mechanism.calculate_access(&entity_state);
             octave.update_collective_emergence(&entity_state);
             // spectrum_access is calculated but update_collective_emergence only uses entity_state
             let _ = mechanism.evolve_access(&entity_state);
@@ -355,14 +354,14 @@ mod integration_tests {
     #[test]
     fn test_evolutionary_progress_calculation() {
         let mut octave = DensityOctave::new();
-        let mut mechanism = SpectrumAccessMechanism::new();
+        let mechanism = SpectrumAccessMechanism::new();
 
         // Test progress at different consciousness levels
         let consciousness_levels = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99, 1.0];
 
         for consciousness in consciousness_levels {
             let entity_state = create_test_entity_state(consciousness);
-            let spectrum_access = mechanism.calculate_access(&entity_state);
+            let _spectrum_access = mechanism.calculate_access(&entity_state);
             octave.update_collective_emergence(&entity_state);
             // spectrum_access is calculated but update_collective_emergence only uses entity_state
 
@@ -373,7 +372,7 @@ mod integration_tests {
 
         // Final progress should be at maximum
         let entity_state = create_test_entity_state(1.0);
-        let spectrum_access = mechanism.calculate_access(&entity_state);
+        let _spectrum_access = mechanism.calculate_access(&entity_state);
         octave.update_collective_emergence(&entity_state);
         // spectrum_access is calculated but update_collective_emergence only uses entity_state
 
@@ -456,7 +455,7 @@ mod integration_tests {
         assert!((total_spectrum - 1.0).abs() < 0.001);
 
         // Evolve to higher density
-        let mut entity_state = create_test_entity_state(0.9);
+        let entity_state = create_test_entity_state(0.9);
         let spectrum_access_6th = mechanism.calculate_access(&entity_state);
 
         // The spectrum is still present - access has shifted

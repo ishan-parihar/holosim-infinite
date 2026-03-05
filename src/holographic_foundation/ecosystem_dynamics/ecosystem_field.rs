@@ -14,16 +14,10 @@
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::ecosystem_dynamics::coevolution::CoevolutionSystem;
-use crate::holographic_foundation::ecosystem_dynamics::population_dynamics::{
-    OscillationPattern, Population, PopulationId,
-};
-use crate::holographic_foundation::ecosystem_dynamics::spatial_ecosystem::{
-    EcologicalPatch, PatchId, SpatialEcosystem,
-};
+use crate::holographic_foundation::ecosystem_dynamics::population_dynamics::{Population, PopulationId};
+use crate::holographic_foundation::ecosystem_dynamics::spatial_ecosystem::SpatialEcosystem;
 use crate::holographic_foundation::ecosystem_dynamics::species_field::{Species, SpeciesId};
-use crate::holographic_foundation::ecosystem_dynamics::trophic_coupling::{
-    TrophicLevel, TrophicNetwork, TrophicNodeId,
-};
+use crate::holographic_foundation::ecosystem_dynamics::trophic_coupling::TrophicNetwork;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -110,7 +104,7 @@ impl EnergyBudget {
 
     pub fn energy_available_at_level(&self, level: usize) -> Float {
         let mut available = self.primary_production;
-        for l in 0..level {
+        for _l in 0..level {
             available *= 0.1;
         }
         available
@@ -245,9 +239,8 @@ impl EcosystemField {
         let pattern = species.field_pattern.archetype_pattern();
         let weight = species.trophic_level as Float + 1.0;
 
-        for i in 0..NUM_ARCHETYPES {
-            self.field_pattern[i] =
-                (self.field_pattern[i] * self.age + pattern[i] * weight) / (self.age + weight);
+        for (field_i, &pattern_i) in self.field_pattern.iter_mut().zip(pattern.iter()) {
+            *field_i = (*field_i * self.age + pattern_i * weight) / (self.age + weight);
         }
     }
 
@@ -292,10 +285,10 @@ impl EcosystemField {
             .values()
             .filter(|p| {
                 p.species_id != *species_id
-                    && self.species.get(&p.species_id).map_or(false, |s| {
+                    && self.species.get(&p.species_id).is_some_and(|s| {
                         self.species
                             .get(species_id)
-                            .map_or(false, |target| s.trophic_level == target.trophic_level)
+                            .is_some_and(|target| s.trophic_level == target.trophic_level)
                     })
             })
             .count()
@@ -313,7 +306,7 @@ impl EcosystemField {
             .filter(|p| {
                 self.species
                     .get(&p.species_id)
-                    .map_or(false, |s| s.trophic_level > target_level)
+                    .is_some_and(|s| s.trophic_level > target_level)
             })
             .count()
     }
@@ -535,7 +528,7 @@ mod tests {
     fn test_ecosystem_field_add_population() {
         let mut ecosystem = EcosystemField::new();
         let population = Population::new(SpeciesId::new(1), 100.0, 1000.0);
-        let id = ecosystem.add_population(population);
+        let _id = ecosystem.add_population(population);
 
         assert_eq!(ecosystem.population_count(), 1);
     }

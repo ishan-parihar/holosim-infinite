@@ -31,7 +31,7 @@ use crate::types::Float;
 use std::fmt;
 
 /// Golden ratio (φ) for frequency scaling
-const PHI: Float = 1.6180339887498948482;
+const PHI: Float = 1.618_033_988_749_895;
 
 /// Base frequency scale (Hz) - maps entity frequency 0.0-1.0 to this range
 const BASE_FREQUENCY_SCALE: Float = 432.0; // A=432Hz (sacred frequency)
@@ -592,13 +592,13 @@ impl FrequencyResonance {
         let harmonic_overtone = harmonic_series.check_alignment(freq_b);
 
         // Calculate resonance strength
-        let resonance_strength = if let Some(overtone) = harmonic_overtone {
+        let resonance_strength = if let Some(_overtone) = harmonic_overtone {
             // Perfect harmonic alignment: 1.0
             1.0
         } else {
             // Check reciprocal (freq_b harmonic of freq_a)
             let harmonic_series_b = HarmonicSeries::new(freq_b);
-            if let Some(overtone_b) = harmonic_series_b.check_alignment(freq_a) {
+            if let Some(_overtone_b) = harmonic_series_b.check_alignment(freq_a) {
                 // Reciprocal harmonic alignment
                 1.0
             } else {
@@ -829,9 +829,9 @@ mod tests {
         let amp_0_5 = wave.get_amplitude_at(0.5);
         let amp_1 = wave.get_amplitude_at(1.0);
 
-        assert!(amp_0 >= 0.0 && amp_0 <= 1.0);
-        assert!(amp_0_5 >= 0.0 && amp_0_5 <= 1.0);
-        assert!(amp_1 >= 0.0 && amp_1 <= 1.0);
+        assert!((0.0..=1.0).contains(&amp_0));
+        assert!((0.0..=1.0).contains(&amp_0_5));
+        assert!((0.0..=1.0).contains(&amp_1));
     }
 
     #[test]

@@ -520,7 +520,7 @@ mod tests {
     }
 
     fn create_test_archetype22() -> FoundationArchetype22 {
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
         FoundationArchetype22::new()
     }
 

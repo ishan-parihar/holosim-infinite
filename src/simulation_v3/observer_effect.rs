@@ -42,7 +42,7 @@ impl ObserverEffect {
     }
 
     pub fn with_strength(mut self, strength: Float) -> Self {
-        self.observation_strength = strength.max(0.0).min(1.0);
+        self.observation_strength = strength.clamp(0.0, 1.0);
         self
     }
 
@@ -353,6 +353,7 @@ impl Default for ObservationCache {
 #[derive(Debug, Clone)]
 pub struct ObservationEngine {
     cache: ObservationCache,
+    #[allow(dead_code)]
     collapse_threshold: Float,
 }
 
@@ -367,7 +368,7 @@ impl ObservationEngine {
     pub fn with_threshold(cache_size: usize, collapse_threshold: Float) -> Self {
         ObservationEngine {
             cache: ObservationCache::new(cache_size),
-            collapse_threshold: collapse_threshold.max(0.0).min(1.0),
+            collapse_threshold: collapse_threshold.clamp(0.0, 1.0),
         }
     }
 
@@ -454,8 +455,8 @@ impl ObservationEngine {
     fn apply_observer_influence(&self, state: &mut [Float], observer_effect: &ObserverEffect) {
         let influence = observer_effect.observation_strength();
 
-        for i in 0..state.len() {
-            state[i] = state[i] * (1.0 - influence) + state[i] * influence;
+        for val in state.iter_mut() {
+            *val = *val * (1.0 - influence) + *val * influence;
         }
 
         let max_val = state.iter().cloned().fold(0.0f64, f64::max);
@@ -776,7 +777,7 @@ mod tests {
     #[test]
     fn test_observation_engine_invalidate_target() {
         let mut engine = ObservationEngine::new(100);
-        let effect = ObserverEffect::new(1, 2);
+        let _effect = ObserverEffect::new(1, 2);
         let possibility = vec![0.3, 0.5, 0.2];
 
         engine
@@ -873,7 +874,7 @@ mod tests {
     #[test]
     fn test_observation_engine_clear_cache() {
         let mut engine = ObservationEngine::new(100);
-        let effect = ObserverEffect::new(1, 2);
+        let _effect = ObserverEffect::new(1, 2);
         let possibility = vec![0.3, 0.5, 0.2];
 
         engine

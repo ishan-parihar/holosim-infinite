@@ -12,7 +12,7 @@ use std::sync::Mutex;
 
 use sdl2::mixer::{
     Chunk, Music, AUDIO_F32, AUDIO_S16LSB, AUDIO_S16MSB, AUDIO_S8, AUDIO_U16LSB, AUDIO_U16MSB,
-    AUDIO_U8, DEFAULT_CHANNELS, DEFAULT_FORMAT, DEFAULT_FREQUENCY,
+    AUDIO_U8, DEFAULT_CHANNELS, DEFAULT_FREQUENCY,
 };
 
 /// Audio error types
@@ -188,8 +188,7 @@ impl AudioManager {
 
         // Allocate channels for sound effects (default: 8)
         let num_channels = 8;
-        sdl2::mixer::allocate_channels(num_channels)
-            .map_err(|e| AudioError::InitializationFailed(e.to_string()))?;
+        sdl2::mixer::allocate_channels(num_channels);
 
         Ok(AudioManager {
             sounds: HashMap::new(),
@@ -232,18 +231,18 @@ impl AudioManager {
     /// # Arguments
     ///
     /// * `sound_id` - ID of the sound to play
-    /// * `channel` - Channel to play on (-1 for first available)
+    /// * `_channel` - Channel to play on (-1 for first available, currently unused)
     /// * `loops` - Number of times to loop (-1 for infinite, 0 for once)
     pub fn play_sound(
         &self,
         sound_id: SoundId,
-        channel: i32,
+        _channel: i32,
         loops: i32,
     ) -> Result<(), AudioError> {
         let chunk = self
             .sounds
             .get(&sound_id)
-            .ok_or_else(|| AudioError::InvalidSoundId(sound_id))?;
+            .ok_or(AudioError::InvalidSoundId(sound_id))?;
 
         sdl2::mixer::Channel::all()
             .play(chunk, loops)
@@ -276,7 +275,7 @@ impl AudioManager {
         let chunk = self
             .sounds
             .get(&sound_id)
-            .ok_or_else(|| AudioError::InvalidSoundId(sound_id))?;
+            .ok_or(AudioError::InvalidSoundId(sound_id))?;
 
         sdl2::mixer::Channel(channel)
             .play(chunk, loops)
@@ -406,7 +405,7 @@ impl AudioManager {
     /// Get volume for a specific channel (0-128)
     pub fn channel_volume(&self, channel: i32) -> Option<u32> {
         if channel >= 0 && channel < self.num_channels {
-            Some(sdl2::mixer::Channel(channel).volume() as u32)
+            Some(sdl2::mixer::Channel(channel).get_volume() as u32)
         } else {
             None
         }
@@ -481,8 +480,8 @@ impl GlobalAudioManager {
         let guard = self.0.lock().unwrap();
         guard
             .as_ref()
-            .map(|manager| f(manager))
-            .ok_or_else(|| AudioError::NotInitialized)
+            .map(f)
+            .ok_or(AudioError::NotInitialized)
     }
 
     /// Execute a mutable function on the audio manager
@@ -493,8 +492,8 @@ impl GlobalAudioManager {
         let mut guard = self.0.lock().unwrap();
         guard
             .as_mut()
-            .map(|manager| f(manager))
-            .ok_or_else(|| AudioError::NotInitialized)
+            .map(f)
+            .ok_or(AudioError::NotInitialized)
     }
 
     /// Check if audio is initialized

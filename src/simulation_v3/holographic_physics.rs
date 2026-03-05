@@ -167,6 +167,7 @@ pub enum HolographicPhysicsError {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub struct PhysicsEngineStatistics {
     pub total_interactions_computed: u64,
     pub space_time_interactions: u64,
@@ -175,20 +176,10 @@ pub struct PhysicsEngineStatistics {
     pub average_computation_time_ns: u64,
 }
 
-impl Default for PhysicsEngineStatistics {
-    fn default() -> Self {
-        PhysicsEngineStatistics {
-            total_interactions_computed: 0,
-            space_time_interactions: 0,
-            time_space_interactions: 0,
-            quantum_interactions: 0,
-            average_computation_time_ns: 0,
-        }
-    }
-}
 
 pub struct HolographicPhysicsEngine {
     current_mode: HolographicPhysicsMode,
+    #[allow(dead_code)]
     spectrum_thresholds: SpectrumThresholds,
     statistics: PhysicsEngineStatistics,
 }
@@ -361,7 +352,7 @@ impl HolographicPhysicsEngine {
         let mut probability = archetype_resonance;
         probability *= temporal_proximity;
         probability *= (1.0 + observer_influence).min(2.0);
-        probability = probability.min(1.0).max(0.0);
+        probability = probability.clamp(0.0, 1.0);
 
         let direction = if distance > 0.0 {
             let inv_distance = 1.0 / distance;
@@ -417,7 +408,7 @@ impl HolographicPhysicsEngine {
 
         let base_probability = amplitude_factor * 0.5 + 0.5;
         let mut probability = base_probability * phase_factor.abs() * collapse_factor;
-        probability = probability.min(1.0).max(0.0);
+        probability = probability.clamp(0.0, 1.0);
 
         let direction = if distance > 1e-15 {
             let inv_distance = 1.0 / distance;

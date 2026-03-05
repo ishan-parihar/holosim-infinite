@@ -15,9 +15,6 @@
 // 4. No data loss during transition
 
 use crate::entity_state::EntityState;
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
 use crate::types::Float;
 use std::collections::HashMap;
 use std::fmt;
@@ -291,7 +288,7 @@ impl DensityTransitionEngine {
         // Add to transition history
         self.transition_history
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(event.clone());
 
         // Update statistics
@@ -350,7 +347,7 @@ impl DensityTransitionEngine {
         }
 
         // Check that target density is within valid range
-        if to_value < 1 || to_value > 7 {
+        if !(1..=7).contains(&to_value) {
             return Err(format!(
                 "Target density {} is out of valid range (D1-D7)",
                 to_density
@@ -523,7 +520,7 @@ mod tests {
 
     #[test]
     fn test_validate_transition_invalid_range() {
-        let engine = DensityTransitionEngine::new();
+        let _engine = DensityTransitionEngine::new();
 
         // Cannot transition from D1 to D0 (doesn't exist)
         // This test is handled by the validate_transition implementation
@@ -948,7 +945,7 @@ mod tests {
 
     #[test]
     fn test_transition_error_message() {
-        let mut engine = DensityTransitionEngine::new();
+        let engine = DensityTransitionEngine::new();
 
         // Attempt invalid transition
         let result = engine

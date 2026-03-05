@@ -102,18 +102,18 @@ impl QuantumEnergyPool {
     /// of consciousness, scaled by the information content.
     fn generate_holographic_pattern(information_content: Float) -> Vec<Float> {
         let _rng = rand::thread_rng();
-        let base_pattern = (1..=22)
+        
+
+        (1..=22)
             .map(|i| {
                 // Create periodic variation based on archetype position
                 let phase = 2.0 * std::f64::consts::PI * i as Float / 22.0;
                 let amplitude = (phase.sin() + 1.0) / 2.0; // Normalize to 0.0-1.0
 
                 // Scale by information content
-                amplitude * (information_content / 1000.0).min(1.0).max(0.1)
+                amplitude * (information_content / 1000.0).clamp(0.1, 1.0)
             })
-            .collect();
-
-        base_pattern
+            .collect()
     }
 
     /// Initialize coherent quantum state
@@ -415,7 +415,7 @@ impl ConsciousnessToMatterTransition {
         // Match based on holographic information pattern
         let pool_pattern = &self.quantum_pool.holographic_information;
 
-        for (_, attractor) in attractor_fields {
+        for attractor in attractor_fields.values() {
             let compatibility =
                 calculate_pattern_compatibility(pool_pattern, &attractor.quantum_states);
 
@@ -650,7 +650,7 @@ impl PeriodicTableAttractorFields {
         let mut best_match: Option<AttractorField> = None;
         let mut best_compatibility = 0.0;
 
-        for (_, attractor) in &self.attractor_fields {
+        for attractor in self.attractor_fields.values() {
             let compatibility =
                 calculate_pattern_compatibility(quantum_state, &attractor.quantum_states);
 

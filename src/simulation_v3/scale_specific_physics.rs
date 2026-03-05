@@ -1175,7 +1175,7 @@ mod tests {
 
         let ratio_quantum = SpectrumRatio::new(1.0, 1.0);
         let ratio_space_time = SpectrumRatio::new(2.0, 1.0);
-        let ratio_time_space = SpectrumRatio::new(1.0, 2.0);
+        let _ratio_time_space = SpectrumRatio::new(1.0, 2.0);
 
         let entity_a = HolographicEntity::new(1, ratio_quantum);
         let entity_b = HolographicEntity::new(2, ratio_space_time);

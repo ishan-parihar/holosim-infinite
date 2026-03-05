@@ -230,7 +230,7 @@ impl RedRealm {
             && self.solar_logoi.iter().any(|s| {
                 s.archetypical_mind
                     .get_choice()
-                    .map_or(false, |choice| choice.is_active())
+                    .is_some_and(|choice| choice.is_active())
             })
     }
 
@@ -309,7 +309,6 @@ impl Default for RedRealm {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::spectrum::larson_framework::SpectrumSide;
     use crate::spectrum::YellowRealm;
 
     /// Create a test Light/Love Field for testing

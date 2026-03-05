@@ -18,7 +18,7 @@
 
 use std::collections::HashMap;
 
-use super::{DensityAmplitude, FieldState, NUM_DENSITY_BANDS};
+use super::{FieldState, NUM_DENSITY_BANDS};
 
 #[derive(Debug, Clone)]
 pub struct LoveConfig {
@@ -168,7 +168,7 @@ impl LoveTerm {
         // Apply force as energy flow toward coherence
         // This is NEGATIVE ENTROPY - energy flows toward order!
         let energy_flow = attraction_magnitude * 0.01;
-        state.energy = state.energy * (1.0 + energy_flow);
+        state.energy *= 1.0 + energy_flow;
 
         // Love increases coherence locally
         let coherence_increase = attraction_magnitude * 0.01 * self.config.coherence_sensitivity;
@@ -367,15 +367,12 @@ impl LoveTerm {
         let green_idx = self.config.green_density_index;
 
         // Get current magnitudes
-        let mut mags: [f64; NUM_DENSITY_BANDS] = [0.0; NUM_DENSITY_BANDS];
-        for i in 0..NUM_DENSITY_BANDS {
-            mags[i] = state.density_amplitudes[i].magnitude();
-        }
+        let mags: [f64; NUM_DENSITY_BANDS] = state.density_amplitudes.map(|d| d.magnitude());
 
         // Transfer from other densities toward Green (Love unifies)
-        for i in 0..NUM_DENSITY_BANDS {
-            if i != green_idx && mags[i] > 0.001 {
-                let transfer = mags[i] * self.config.unification_strength;
+        for (i, &mag) in mags.iter().enumerate() {
+            if i != green_idx && mag > 0.001 {
+                let transfer = mag * self.config.unification_strength;
                 state.density_amplitudes[green_idx].re += transfer;
             }
         }
@@ -455,6 +452,7 @@ impl Clone for LoveTerm {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::DensityAmplitude;
 
     #[test]
     fn test_love_creation() {

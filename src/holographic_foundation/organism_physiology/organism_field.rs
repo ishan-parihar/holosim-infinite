@@ -13,21 +13,12 @@
 //! - Disease = field distortion that disrupts unity
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::field_state::Position3D;
-use crate::holographic_foundation::organism_physiology::disease_healing::{
-    DiseaseState, HealingSystem,
-};
-use crate::holographic_foundation::organism_physiology::organ_field::{
-    Organ, OrganFieldNode, OrganHealth, OrganId, OrganState, OrganType, OrganVitality,
-};
+use crate::holographic_foundation::organism_physiology::organ_field::{Organ, OrganId, OrganType};
 use crate::holographic_foundation::organism_physiology::organ_systems::{
-    OrganSystemCoordinator, OrganSystemId, OrganSystemType,
-};
-use crate::holographic_foundation::organism_physiology::physiology_engine::{
-    FieldWave, OrganCommunication, PhysiologyEngine, PhysiologySignal, SignalType,
+    OrganSystemCoordinator, OrganSystemType,
 };
 use crate::holographic_foundation::organism_physiology::tissue_coherence::{
-    Tissue, TissueCoherence, TissueId, TissueVitality,
+    Tissue, TissueId,
 };
 use crate::types::Float;
 use std::collections::HashMap;
@@ -225,7 +216,7 @@ impl OrganismField {
         }
     }
 
-    pub fn add_organ(&mut self, mut organ: Organ) {
+    pub fn add_organ(&mut self, organ: Organ) {
         self.consciousness
             .update_organ_awareness(organ.id(), organ.coherence());
         self.organs.insert(organ.id(), organ);
@@ -256,15 +247,15 @@ impl OrganismField {
 
         for organ in self.organs.values() {
             let weight = organ.mass() * organ.coherence();
-            for i in 0..NUM_ARCHETYPES {
-                pattern[i] += organ.node.archetype_pattern[i] * weight;
+            for (pattern_i, &organ_i) in pattern.iter_mut().zip(organ.node.archetype_pattern.iter()) {
+                *pattern_i += organ_i * weight;
             }
             total_weight += weight;
         }
 
         if total_weight > 0.0 {
-            for i in 0..NUM_ARCHETYPES {
-                pattern[i] /= total_weight;
+            for item in &mut pattern {
+                *item /= total_weight;
             }
         } else {
             pattern = [0.5; NUM_ARCHETYPES];
@@ -389,7 +380,7 @@ impl OrganismField {
             .map(|o| o.coherence())
             .unwrap_or(0.5);
 
-        (spleen * 0.4 + lymph * 0.4 + self.field_coherence * 0.2)
+        spleen * 0.4 + lymph * 0.4 + self.field_coherence * 0.2
     }
 
     fn calculate_nervous_integration(&self) -> Float {
@@ -529,6 +520,7 @@ impl Default for OrganismField {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::holographic_foundation::field_state::Position3D;
 
     #[test]
     fn test_organism_id_creation() {
@@ -572,8 +564,10 @@ mod tests {
 
     #[test]
     fn test_organism_vitality_weakest_system() {
-        let mut vit = OrganismVitality::default();
-        vit.immune_strength = 0.3;
+        let vit = OrganismVitality {
+            immune_strength: 0.3,
+            ..Default::default()
+        };
         assert_eq!(vit.weakest_system(), "immune");
     }
 
@@ -718,7 +712,7 @@ mod tests {
         ));
 
         let resonance = org1.resonance_with(&org2);
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 
     #[test]

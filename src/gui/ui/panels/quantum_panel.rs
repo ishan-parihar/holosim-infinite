@@ -14,7 +14,7 @@
 //! - Observer effect as cache invalidation
 //! - Entity integration for quantum number display
 
-use egui::{Color32, Context, Ui, Vec2};
+use egui::{Color32, Context, Ui};
 use std::collections::HashMap;
 
 use crate::gui::visualization::quantum_viz::{
@@ -29,8 +29,10 @@ use crate::entity_layer7::layer7::SubSubLogos;
 
 /// View mode for quantum panel tabs
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Default)]
 pub enum QuantumViewMode {
     /// Wavefunction probability cloud
+    #[default]
     Wavefunction,
     /// Quantum numbers derivation from archetypes
     QuantumNumbers,
@@ -42,11 +44,6 @@ pub enum QuantumViewMode {
     ObserverEffect,
 }
 
-impl Default for QuantumViewMode {
-    fn default() -> Self {
-        Self::Wavefunction
-    }
-}
 
 /// Quantum Panel for Phase C.1
 ///
@@ -155,7 +152,7 @@ impl QuantumPanel {
         // Extract archetype activations for quantum derivation
         for (i, activation) in entity.archetype_activations.iter().enumerate() {
             if i < 22 {
-                self.archetype_vector[i] = *activation as f64;
+                self.archetype_vector[i] = *activation;
             }
         }
 
@@ -327,7 +324,7 @@ impl QuantumPanel {
             &fallback_wavefunction
         };
 
-        self.wavefunction_renderer.render(ui, &wavefunction);
+        self.wavefunction_renderer.render(ui, wavefunction);
 
         // Show legend
         self.show_phase_legend(ui);
@@ -471,7 +468,7 @@ impl QuantumPanel {
             fallback_entanglement_field = self.create_demo_entanglement_field();
             &fallback_entanglement_field
         };
-        self.entanglement_viz.render(ui, &entanglement_field);
+        self.entanglement_viz.render(ui, entanglement_field);
 
         // Show explanation
         ui.add_space(10.0);
@@ -552,7 +549,7 @@ impl QuantumPanel {
     ) -> crate::holographic_foundation::quantum_consciousness::archetype_collapse::CollapseResult
     {
         use crate::holographic_foundation::quantum_consciousness::archetype_collapse::{
-            CollapseResult, CollapseType, EntanglementEffect,
+            CollapseResult, CollapseType,
         };
         use crate::holographic_foundation::quantum_consciousness::quantum_numbers::{
             QuantumNumberSet, Spin,
@@ -562,7 +559,7 @@ impl QuantumPanel {
         let qn = self
             .quantum_derivation
             .as_ref()
-            .map(|d| d.quantum_numbers.clone())
+            .map(|d| d.quantum_numbers)
             .unwrap_or_else(|| QuantumNumberSet::new(1, 0, 0, Spin::Up));
 
         let choice_strength = self

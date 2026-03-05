@@ -47,7 +47,7 @@ impl PhotonField {
 
     pub fn update(&mut self, dt: Float) {
         self.phase += self.frequency * dt * 0.01;
-        self.phase = self.phase % (2.0 * std::f64::consts::PI);
+        self.phase %= 2.0 * std::f64::consts::PI;
 
         let coherence_drift = 0.01 * dt * (0.5 - self.coherence).sin();
         self.coherence = (self.coherence + coherence_drift).clamp(0.1, 1.0);
@@ -462,7 +462,7 @@ mod tests {
     fn test_light_body_readiness() {
         let body = EnergyBodyField::new(1);
         let readiness = body.light_body_readiness();
-        assert!(readiness >= 0.0 && readiness <= 1.0);
+        assert!((0.0..=1.0).contains(&readiness));
     }
 
     #[test]

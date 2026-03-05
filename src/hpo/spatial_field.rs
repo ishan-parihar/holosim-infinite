@@ -14,14 +14,7 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-use super::field_state::{
-    Complex, DensityBand, FieldBounds, FieldNodeData, Float, HolographicFieldConfig,
-    HolographicFieldState, OctreeNode,
-};
-use super::spectrum_spatial::SpectrumSpatialDynamics;
-use super::unified_field::CoherencePeak;
-
-use crate::hpo::spectrum_dynamics::SpectrumDynamics;
+use super::field_state::{Complex, FieldBounds, FieldNodeData, Float, HolographicFieldConfig};
 
 /// Spatial position in 3D space
 #[derive(Debug, Clone, Copy, Default)]
@@ -955,6 +948,7 @@ impl SpatialField {
     ///
     /// From R&D-2 Roadmap: The Veil as coordinate transformation zone
     /// At spectrum = 1.0, transform from space/time to time/space basis
+    #[allow(dead_code)]
     fn apply_veil_transformation(
         &self,
         position: Position3D,
@@ -1061,7 +1055,7 @@ impl EntitySpatialBridge {
 
     /// Get all entity positions
     pub fn get_all_positions(&self) -> Vec<(usize, Position3D)> {
-        let field = self.field.read().unwrap();
+        let _field = self.field.read().unwrap();
         let mut positions = Vec::with_capacity(self.total_entities);
 
         for entity_id in 0..self.total_entities {

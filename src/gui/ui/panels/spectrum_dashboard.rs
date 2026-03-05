@@ -10,7 +10,7 @@
 //! - Interactive spectrum filtering controls
 
 use crate::gui::visualization::spectrum_viz::{
-    SpectrumPosition, SpectrumRegion, SpectrumVisualizer,
+    SpectrumRegion, SpectrumVisualizer,
 };
 use crate::types::Density;
 use egui::{Context, Ui};
@@ -86,7 +86,7 @@ impl SpectrumDashboard {
         let normalized_positions: Vec<(f32, f32)> = positions
             .iter()
             .enumerate()
-            .map(|(i, pos)| (*pos as f32, i as f32))
+            .map(|(i, pos)| ((*pos), i as f32))
             .collect();
 
         self.history.push((timestamp, normalized_positions));
@@ -188,9 +188,7 @@ impl SpectrumDashboard {
             egui::Color32::BLACK,
         );
 
-        ui.label(format!(
-            "Veil limits access to oneness. Higher transparency = more time/space access."
-        ));
+        ui.label("Veil limits access to oneness. Higher transparency = more time/space access.".to_string());
     }
 
     /// Show spectrum graph
@@ -239,7 +237,7 @@ impl SpectrumDashboard {
                 continue;
             }
 
-            let x = rect.min.x + entity.spectrum_position as f32 * rect.width();
+            let x = rect.min.x + entity.spectrum_position * rect.width();
             let y = rect.min.y + (1.0 - entity.consciousness) * rect.height();
 
             // Color based on density

@@ -14,8 +14,8 @@
 //! KEY PRINCIPLE: Matter does NOT exist by default. It EMERGES when field
 //! amplitude exceeds threshold, with properties derived from archetypes.
 
-use super::field_state::{Complex, DensityBand, FieldNodeData, Float};
-use super::spatial_field::{Position3D, SpatialField};
+use super::field_state::{FieldNodeData, Float};
+use super::spatial_field::Position3D;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::HashMap;
 
@@ -91,10 +91,11 @@ impl FieldInstability {
         let mut rng = StdRng::seed_from_u64(self.symmetry_pattern);
 
         // Sample 4 values for mass, charge, spin, lifetime
-        let mut values = [0.0; 4];
-        for i in 0..4 {
-            values[i] = rng.gen::<Float>() * self.magnitude;
-        }
+        let values: [Float; 4] = (0..4)
+            .map(|_| rng.gen::<Float>() * self.magnitude)
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 4]);
         values
     }
 }
@@ -437,7 +438,7 @@ impl ArchetypeParticleDerivation {
         let key_sum =
             archetypes[0] * 1.0 + archetypes[1] * 2.0 + archetypes[2] * 3.0 + archetypes[3] * 4.0;
 
-        ((key_sum * 10.0).round() as usize).min(118).max(1)
+        ((key_sum * 10.0).round() as usize).clamp(1, 118)
     }
 }
 
@@ -887,6 +888,7 @@ impl FieldMatterBridge {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::hpo::field_state::Complex;
 
     #[test]
     fn test_archetype_derivation() {

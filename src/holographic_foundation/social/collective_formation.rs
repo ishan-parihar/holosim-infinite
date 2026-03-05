@@ -5,13 +5,11 @@
 //!  Collective field configuration merging
 //!  Emergent collective consciousness"
 
-use super::resonance_calculation::PhaseAlignment;
 use super::{
-    ConnectionType, ResonanceConnection, ResonanceResult, DISSOLUTION_THRESHOLD,
-    MAX_COLLECTIVE_SIZE, MIN_RESONANCE_THRESHOLD, STABLE_COLLECTIVE_THRESHOLD,
+    ConnectionType, ResonanceConnection, DISSOLUTION_THRESHOLD, MAX_COLLECTIVE_SIZE,
+    MIN_RESONANCE_THRESHOLD, STABLE_COLLECTIVE_THRESHOLD,
 };
 use crate::holographic_foundation::distortions::FieldState;
-use crate::holographic_foundation::spectrum::DensityPosition;
 use crate::types::Float;
 use std::collections::{HashMap, HashSet};
 
@@ -162,9 +160,9 @@ impl Collective {
     }
 
     fn update_state(&mut self, config: &CollectiveConfig) {
-        self.state = if self.members.len() < config.min_members {
-            CollectiveState::Dissolving
-        } else if self.resonance_level < config.dissolution_threshold {
+        self.state = if self.members.len() < config.min_members
+            || self.resonance_level < config.dissolution_threshold
+        {
             CollectiveState::Dissolving
         } else if self.members.len() == config.min_members {
             CollectiveState::Forming

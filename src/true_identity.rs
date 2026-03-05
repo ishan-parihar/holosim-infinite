@@ -131,9 +131,9 @@ mod tests {
     fn test_true_identity_creation() {
         let identity = TrueIdentity::new(0.7, true, 0.6, 0.8);
 
-        assert_eq!(identity.is_creator_experiencing_itself, true);
+        assert!(identity.is_creator_experiencing_itself);
         assert_eq!(identity.unity_awareness, 0.7);
-        assert_eq!(identity.holographic_wholeness, true);
+        assert!(identity.holographic_wholeness);
         assert_eq!(identity.self_knowledge, 0.6);
         assert_eq!(identity.connection_to_infinity, 0.8);
     }
@@ -216,9 +216,9 @@ mod tests {
     fn test_true_identity_default() {
         let identity = TrueIdentity::default();
 
-        assert_eq!(identity.is_creator_experiencing_itself, true);
+        assert!(identity.is_creator_experiencing_itself);
         assert_eq!(identity.unity_awareness, 0.0);
-        assert_eq!(identity.holographic_wholeness, true);
+        assert!(identity.holographic_wholeness);
         assert_eq!(identity.self_knowledge, 0.0);
         assert_eq!(identity.connection_to_infinity, 0.0);
     }

@@ -16,8 +16,8 @@ use crate::types::Float;
 use std::collections::HashMap;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
-use super::super::field_state::{FieldAmplitude, HolographicFieldState, Position3D};
-use super::super::quantum_consciousness::quantum_numbers::{QuantumNumberSet, Spin};
+use super::super::field_state::{HolographicFieldState, Position3D};
+use super::super::quantum_consciousness::quantum_numbers::QuantumNumberSet;
 use super::super::scale_level::ScaleLevel;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

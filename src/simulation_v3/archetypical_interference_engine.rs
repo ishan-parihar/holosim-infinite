@@ -385,8 +385,8 @@ impl ArchetypicalInterferenceEngine {
         observer_id: Option<u64>,
         entity_id: Option<u64>,
     ) -> Result<EmergentBehavior, InterferenceEngineError> {
-        let mut stats = self.get_statistics();
-        stats.behaviors_evaluated += 1;
+        let mut _stats = self.get_statistics();
+        _stats.behaviors_evaluated += 1;
 
         let mut interference = self.create_interference_pattern(archetype_profile)?;
 
@@ -413,7 +413,7 @@ impl ArchetypicalInterferenceEngine {
 
         let action_vector = self.collapse_to_action(&interference, &choice, archetype_profile)?;
 
-        stats.collapse_attempts += 1;
+        _stats.collapse_attempts += 1;
 
         let behavior = EmergentBehavior::new(interference, action_vector);
 
@@ -496,26 +496,22 @@ impl ArchetypicalInterferenceEngine {
     ) {
         let observer_effect = ObserverEffect::new(observer_id, entity_id).with_strength(0.5);
 
-        match self
+        if let Ok(collapsed) = self
             .observation_engine
-            .observe(observer_effect, &interference.components_ref())
-        {
-            Ok(collapsed) => {
-                for (c, &state) in interference
-                    .components
-                    .iter_mut()
-                    .zip(collapsed.state_vector().iter())
-                {
-                    *c = *c * 0.7 + state * 0.3;
-                }
-                interference.coherence =
-                    InterferencePattern::compute_coherence(&interference.components);
-                interference.entropy =
-                    InterferencePattern::compute_entropy(&interference.components);
-                interference.resonance =
-                    InterferencePattern::compute_resonance(&interference.components);
+            .observe(observer_effect, interference.components_ref()) {
+            for (c, &state) in interference
+                .components
+                .iter_mut()
+                .zip(collapsed.state_vector().iter())
+            {
+                *c = *c * 0.7 + state * 0.3;
             }
-            Err(_) => {}
+            interference.coherence =
+                InterferencePattern::compute_coherence(&interference.components);
+            interference.entropy =
+                InterferencePattern::compute_entropy(&interference.components);
+            interference.resonance =
+                InterferencePattern::compute_resonance(&interference.components);
         }
     }
 
@@ -528,7 +524,7 @@ impl ArchetypicalInterferenceEngine {
         let mut possibility_space = PossibilitySpace::new();
 
         let components = interference.components_ref();
-        let dimension = components.len();
+        let _dimension = components.len();
 
         let top_indices: Vec<usize> = interference
             .dominant_archetypes
@@ -537,8 +533,7 @@ impl ArchetypicalInterferenceEngine {
             .map(|(i, _)| *i)
             .collect();
 
-        for i in 0..7.min(top_indices.len()) {
-            let archetype_idx = top_indices[i];
+        for &archetype_idx in top_indices.iter().take(7) {
             let weight = components.get(archetype_idx).copied().unwrap_or(0.0);
 
             if weight > 0.01 {
@@ -592,10 +587,10 @@ impl ArchetypicalInterferenceEngine {
         use crate::simulation_v3::free_will_seed::ActionType;
 
         match archetype_idx {
-            0 | 1 | 2 => ActionType::Move,
-            3 | 4 | 5 => ActionType::Interact,
+            0..=2 => ActionType::Move,
+            3..=5 => ActionType::Interact,
             6 | 7 => ActionType::Observe,
-            8 | 9 | 10 => ActionType::Create,
+            8..=10 => ActionType::Create,
             11 | 12 => ActionType::Transform,
             13 | 14 => ActionType::Communicate,
             15 | 16 => ActionType::Rest,

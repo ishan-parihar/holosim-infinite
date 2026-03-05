@@ -26,6 +26,8 @@ const PLATE_VELOCITY_SCALE: f64 = 5.0; // cm/year
 const SECONDS_PER_YEAR: f64 = 3.156e7;
 
 /// Mantle viscosity (Pa·s) - simplified
+/// Note: Used for mantle convection calculations
+#[allow(dead_code)]
 const MANTLE_VISCOSITY: f64 = 1.0e21;
 
 /// Heat flow constant
@@ -170,8 +172,8 @@ impl TectonicPlate {
 
         // Clamp velocity
         let max_vel = PLATE_VELOCITY_SCALE;
-        self.velocity.x = self.velocity.x.max(-max_vel).min(max_vel);
-        self.velocity.y = self.velocity.y.max(-max_vel).min(max_vel);
+        self.velocity.x = self.velocity.x.clamp(-max_vel, max_vel);
+        self.velocity.y = self.velocity.y.clamp(-max_vel, max_vel);
     }
 }
 
@@ -392,6 +394,7 @@ pub struct Lithosphere {
     /// Internal heat (W)
     pub internal_heat: f64,
     /// Next available plate ID
+    #[allow(dead_code)]
     next_plate_id: u64,
     /// Next available volcano ID
     next_volcano_id: u64,
@@ -457,7 +460,7 @@ impl Lithosphere {
 
         // Create crust grid (simplified - 36x72 cells = 5 degree resolution)
         let mut crust = Vec::new();
-        let resolution = 5.0;
+        let _resolution = 5.0;
         for lat in (-90..90).step_by(5) {
             for lon in (-180..180).step_by(5) {
                 let elevation = Self::generate_initial_elevation(lat as f64, lon as f64);
@@ -507,10 +510,10 @@ impl Lithosphere {
 
         // Add some continental masses
         let lat_abs = lat.abs();
-        let is_continent = (lat_abs >= 60.0 && lat_abs <= 80.0 && lon > -30.0 && lon < 60.0)
-            || (lat_abs >= 30.0 && lat_abs <= 55.0 && lon > -130.0 && lon < -60.0)
-            || (lat >= -40.0 && lat <= -10.0 && lon > -80.0 && lon < -30.0)
-            || (lat >= -35.0 && lat <= 35.0 && lon > 10.0 && lon < 150.0);
+        let is_continent = ((60.0..=80.0).contains(&lat_abs) && lon > -30.0 && lon < 60.0)
+            || ((30.0..=55.0).contains(&lat_abs) && lon > -130.0 && lon < -60.0)
+            || ((-40.0..=-10.0).contains(&lat) && lon > -80.0 && lon < -30.0)
+            || ((-35.0..=35.0).contains(&lat) && lon > 10.0 && lon < 150.0);
 
         if is_continent {
             base_elevation.max(0.0) + rand::thread_rng().gen::<f64>() * 2000.0
@@ -730,7 +733,7 @@ impl ConvectionCell {
     fn tick(&mut self, dt_years: f64) {
         // Update flow strength based on temperature anomaly
         self.flow_strength += self.temperature_anomaly * 0.001 * dt_years;
-        self.flow_strength = self.flow_strength.max(-2.0).min(2.0);
+        self.flow_strength = self.flow_strength.clamp(-2.0, 2.0);
 
         // Update velocity
         self.velocity.x = self.flow_strength * (rand::thread_rng().gen::<f64>() - 0.5);
@@ -743,9 +746,12 @@ impl ConvectionCell {
 
 /// Information about a boundary interaction
 struct BoundaryInteraction {
+    #[allow(dead_code)]
     plate_a_id: PlateId,
+    #[allow(dead_code)]
     plate_b_id: PlateId,
     boundary_type: BoundaryType,
+    #[allow(dead_code)]
     relative_velocity: Vector3,
     stress: f64,
 }

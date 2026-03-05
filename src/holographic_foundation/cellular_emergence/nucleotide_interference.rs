@@ -14,7 +14,6 @@
 use crate::holographic_foundation::archetype_profile::{
     ArchetypeActivationProfile, NUM_ARCHETYPES,
 };
-use crate::holographic_foundation::atomic_emergence::ElementAttractorField;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -136,7 +135,7 @@ impl NucleotideSequence {
     pub fn from_string(s: &str) -> Self {
         let nucleotides: Vec<Nucleotide> = s
             .chars()
-            .filter_map(|c| Nucleotide::from_symbol(c))
+            .filter_map(Nucleotide::from_symbol)
             .collect();
         Self::from_nucleotides(nucleotides)
     }
@@ -304,7 +303,7 @@ impl NucleotideEncoding {
         for (i, codon_str) in codons.iter().enumerate() {
             let nucs: Vec<Nucleotide> = codon_str
                 .chars()
-                .filter_map(|c| Nucleotide::from_symbol(c))
+                .filter_map(Nucleotide::from_symbol)
                 .collect();
 
             if nucs.len() == 3 {
@@ -347,6 +346,7 @@ impl NucleotideEncoding {
 pub struct DNAInterferencePattern {
     strand1: NucleotideSequence,
     strand2: NucleotideSequence,
+    #[allow(dead_code)]
     helix_phase: Float,
     coherence: Float,
 }
@@ -539,7 +539,7 @@ mod tests {
 
     #[test]
     fn test_nucleotide_sequence_from_profile() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         let seq = NucleotideSequence::from_archetype_profile(&profile, 100);
         assert_eq!(seq.len(), 100);
     }

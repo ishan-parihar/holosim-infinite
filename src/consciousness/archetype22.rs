@@ -610,7 +610,7 @@ mod tests {
         let mut archetype22 = create_test_archetype22();
         let entity_state = create_test_entity_state(0.5);
 
-        let initial_polarity_state = archetype22.polarity_creation.polarity_state;
+        let _initial_polarity_state = archetype22.polarity_creation.polarity_state;
 
         // Make several choices
         for _ in 0..10 {

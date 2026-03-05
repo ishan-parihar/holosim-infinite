@@ -275,7 +275,7 @@ impl PossibilitySpace {
                 p.probability *= constraints.karmic_constraint;
 
                 // Ensure probability stays in valid range
-                p.probability = p.probability.max(0.0).min(1.0);
+                p.probability = p.probability.clamp(0.0, 1.0);
 
                 p
             })
@@ -294,8 +294,8 @@ impl PossibilitySpace {
 
         possibilities
             .into_iter()
-            .enumerate()
-            .map(|(_i, mut p)| {
+            
+            .map(|mut p| {
                 // Apply polarity bias based on outcome type
                 match p.outcome.outcome_type {
                     OutcomeType::ServiceToOthers => {

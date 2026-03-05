@@ -6,19 +6,19 @@
 //! Phase F5: BiologicalEmergence for life from molecular field
 //! Phase F6: PlanetaryEmergence for environment from field patterns
 
-use super::archetype_matter::{ArchetypeMatterConfig, MatterEmergence, MatterScale, ParticleType};
-use super::attractor_fields::{AttractorFieldStatistics, AttractorFields};
-use super::biological_emergence::{BiologicalEmergence, BiologicalEmergenceConfig, BiologyBridge};
-use super::complexity_emergence::{ComplexMolecule, ComplexityEmergence, ComplexityPhase};
-use super::cosmic_sequence::{CosmicSequence, CosmologicalLayer};
-use super::density_sublevels::{DensitySubLevelStatistics, DensitySubLevels};
-use super::entity_emergence::{EntityEmergence, EntityEmergenceStatistics};
+use super::archetype_matter::{ArchetypeMatterConfig, MatterEmergence};
+use super::attractor_fields::AttractorFields;
+use super::biological_emergence::{BiologicalEmergenceConfig, BiologyBridge};
+use super::complexity_emergence::{ComplexMolecule, ComplexityEmergence};
+use super::cosmic_sequence::CosmicSequence;
+use super::density_sublevels::DensitySubLevels;
+use super::entity_emergence::EntityEmergence;
 use super::evolution_feedback::{DecisionType, EntityDecision, EvolutionFeedback};
 use super::field_state::{DensityBand, Float, HolographicFieldConfig, HolographicFieldState};
 use super::full_integration::{IntegrationBridge, IntegrationConfig};
 use super::holographic_encoder::EntityExtractor;
 use super::involution_flow::CosmicHierarchy;
-use super::larson_framework::{LarsonFramework, LarsonStatistics};
+use super::larson_framework::LarsonFramework;
 use super::planetary_emergence::{PlanetaryBridge, PlanetaryConfig};
 use super::social_memory::{SocialMemory, SocialMemoryConfig};
 use super::spatial_field::{Position3D, SpatialField, SpatialFieldConfig};
@@ -239,7 +239,7 @@ impl HolographicSimulation {
             .spatial_field
             .get_active_positions(self.config.archetype_matter.particle_threshold);
 
-        for (position, energy) in active_positions {
+        for (position, _energy) in active_positions {
             let field_data = self.spatial_field.sample_field(&position);
 
             // Phase F3: Create particles
@@ -249,7 +249,7 @@ impl HolographicSimulation {
             // Phase F4: Process complexity
             let particles: Vec<_> = self.matter_emergence.get_particles().values().collect();
             let particle_refs: Vec<&super::archetype_matter::Particle> =
-                particles.iter().map(|p| *p).collect();
+                particles.to_vec();
             self.complexity_emergence
                 .process_field(&field_data, position, &particle_refs);
         }
@@ -341,7 +341,7 @@ impl HolographicSimulation {
         self.spectrum.evolve(0.01, coherence, 0.1);
 
         // Evolution feedback
-        if self.step % 10 == 0 {
+        if self.step.is_multiple_of(10) {
             for i in 0..137 {
                 let decision_idx = (i * 7 + self.step) % 8;
                 let decision_type =
@@ -359,7 +359,7 @@ impl HolographicSimulation {
             self.social_memory.update_entity_phase(i, &self.field);
         }
 
-        if self.step % 50 == 0 {
+        if self.step.is_multiple_of(50) {
             self.social_memory.compute_all_resonances();
             self.social_memory.form_collectives();
         }
@@ -368,7 +368,7 @@ impl HolographicSimulation {
             .apply_collective_to_field(&mut self.field);
 
         // Extract entities
-        if self.step % self.config.visualization_interval == 0 {
+        if self.step.is_multiple_of(self.config.visualization_interval) {
             let result = self.extractor.extract_entities(&self.field);
             self.statistics.entity_count = result.entity_count;
         }
@@ -403,13 +403,13 @@ impl HolographicSimulation {
 
             let particles: Vec<_> = self.matter_emergence.get_particles().values().collect();
             let particle_refs: Vec<&super::archetype_matter::Particle> =
-                particles.iter().map(|p| *p).collect();
+                particles.to_vec();
 
             self.complexity_emergence
                 .process_field(&field_data, *position, &particle_refs);
         }
 
-        if self.step % 10 == 0 {
+        if self.step.is_multiple_of(10) {
             self.complexity_emergence.try_form_molecules();
         }
 
@@ -419,7 +419,7 @@ impl HolographicSimulation {
     /// Phase F5: Update biology (R&D-5: actual molecular input)
     fn update_biology(&mut self) {
         // Only check periodically for performance
-        if self.step % 5 != 0 {
+        if !self.step.is_multiple_of(5) {
             return;
         }
 
@@ -483,7 +483,7 @@ impl HolographicSimulation {
     /// Phase F6: Update planetary environments
     fn update_planetary(&mut self) {
         // Only check periodically for performance
-        if self.step % 20 != 0 {
+        if !self.step.is_multiple_of(20) {
             return;
         }
 
@@ -748,7 +748,8 @@ mod tests {
     fn test_simulation_initialize() {
         let mut sim = HolographicSimulation::with_defaults();
         sim.initialize();
-        assert!(sim.get_step() >= 0);
+        // get_step() returns u64 which is always >= 0
+        let _ = sim.get_step();
     }
 
     #[test]
@@ -769,7 +770,6 @@ mod tests {
         let _matter = sim.get_matter_emergence();
         let _complexity = sim.get_complexity_emergence();
         let _biology = sim.get_biological_emergence();
-
-        assert!(true);
+        // Test passes if all getters work without panic
     }
 }

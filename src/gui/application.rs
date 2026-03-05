@@ -154,12 +154,15 @@ pub struct GuiApplication {
     show_cosmos: bool,
 
     /// Planet Renderer (Phase 4: Planet surface visualization)
+    #[allow(dead_code)]
     planet_renderer: Option<PlanetRenderer>,
 
     /// Enable planet surface visualization
+    #[allow(dead_code)]
     show_planet_surface: bool,
 
     /// Selected planet ID for detail view
+    #[allow(dead_code)]
     selected_planet_id: u64,
 
     /// Dual-mode benchmark pass for scene clarity/performance A/B checks
@@ -228,6 +231,7 @@ pub struct GuiApplication {
 
     /// Visualization backends used by UI panels
     collective_visualizer: crate::gui::visualization::collective_viz::CollectiveVisualizer,
+    #[allow(dead_code)]
     emergence_visualizer: crate::gui::visualization::emergence_viz::EmergenceVisualizer,
 
     /// Camera system
@@ -352,6 +356,7 @@ pub struct GuiApplication {
     show_hierarchy_path: bool,
 
     /// Application state
+    #[allow(dead_code)]
     config: GuiConfig,
     running: bool,
     last_frame_time: Instant,
@@ -642,7 +647,7 @@ impl GuiApplication {
 
                     // Update FPS
                     self.frame_count += 1;
-                    if self.frame_count % 30 == 0 {
+                    if self.frame_count.is_multiple_of(30) {
                         self.fps = 1.0 / frame_time.as_secs_f32();
                     }
 
@@ -658,7 +663,7 @@ impl GuiApplication {
                 Event::WindowEvent { event, .. } => {
                     // Handle EGUI events first
                     if let Some(ref mut egui) = self.egui_integration {
-                        egui.handle_event(self.window.as_ref(), &event);
+                        let _ = egui.handle_event(self.window.as_ref(), &event);
                     }
 
                     match event {
@@ -1132,10 +1137,10 @@ impl GuiApplication {
                 (1.0, 1.0, 0.0)
             };
 
-        let camera_zoom = self.camera.zoom as f32;
-        let zoom_range = (self.camera.max_zoom - self.camera.min_zoom) as f32;
+        let camera_zoom = self.camera.zoom;
+        let zoom_range = self.camera.max_zoom - self.camera.min_zoom;
         let zoom_norm = if zoom_range.abs() > f32::EPSILON {
-            ((camera_zoom - self.camera.min_zoom as f32) / zoom_range).clamp(0.0, 1.0)
+            ((camera_zoom - self.camera.min_zoom) / zoom_range).clamp(0.0, 1.0)
         } else {
             0.0
         };
@@ -1811,7 +1816,7 @@ impl GuiApplication {
         self.render_stats.scene_render_ms = scene_render_start.elapsed().as_secs_f64() * 1000.0;
 
         // Debug output every 60 frames
-        if self.frame_count % 60 == 0 && self.render_stats.entity_count > 0 {
+        if self.frame_count.is_multiple_of(60) && self.render_stats.entity_count > 0 {
             println!(
                 "Rendering {} entities at {:.1} FPS",
                 self.render_stats.entity_count, self.fps
@@ -1947,7 +1952,7 @@ impl GuiApplication {
         let node_score = node.field_data.coherence + node.field_data.total_magnitude();
         if node_score > *best_score {
             *best_score = node_score;
-            *best_focus = position.clone();
+            *best_focus = position;
         }
 
         if let Some(children) = node.children.as_ref() {
@@ -2060,6 +2065,7 @@ impl GuiApplication {
     }
 
     /// Save current camera position to a quick bookmark slot
+    #[allow(dead_code)]
     fn save_current_bookmark(&mut self, slot: usize) {
         let bookmark_names = [
             "Quick Slot 1",
@@ -2077,6 +2083,7 @@ impl GuiApplication {
     }
 
     /// Render the keyboard shortcuts overlay
+    #[allow(dead_code)]
     fn render_shortcuts_overlay(&self, ctx: &egui::Context) {
         egui::Window::new("Keyboard Shortcuts")
             .collapsible(false)
@@ -2281,7 +2288,7 @@ impl GuiApplication {
     fn drill_down_into_selected(&mut self) {
         if let Some(ref selected_id) = self.entity_inspector.selected_entity_id.clone() {
             // Get entity info to check if it has children
-            let hierarchy_info = self.simulation.get_entity_hierarchy_info_by_id(&selected_id);
+            let hierarchy_info = self.simulation.get_entity_hierarchy_info_by_id(selected_id);
             
             if hierarchy_info.children_count > 0 || hierarchy_info.composition_count > 0 {
                 // Save current focus to stack for "back" navigation
@@ -2409,6 +2416,7 @@ impl GuiApplication {
     }
 
     /// Get entities visible at the current hierarchy level
+    #[allow(dead_code)]
     fn get_visible_entities(&self) -> Vec<crate::entity_layer7::layer7::SubSubLogos> {
         self.simulation.get_children_of_focus(self.hierarchy_focus_id.as_ref())
     }
@@ -2458,6 +2466,7 @@ impl GuiApplication {
     }
 
     /// Render dock controls toolbar
+    #[allow(dead_code)]
     fn render_dock_controls(&mut self, ctx: &egui::Context) {
         // Collect bookmark info first to avoid borrow conflicts
         let bookmark_info: Vec<(String, String)> = self
@@ -2642,7 +2651,7 @@ impl GuiApplication {
                 }
             }
 
-            let golden_angle = std::f32::consts::PI * 2.0 / 1.61803398875;
+            let golden_angle = std::f32::consts::PI * 2.0 / 1.618_034;
             let angle = index as f32 * golden_angle;
             let radius = 0.1 + (index as f32 * 0.02);
             return Some([radius * angle.cos(), radius * angle.sin(), 0.0]);
@@ -2793,7 +2802,7 @@ impl GuiApplication {
         let show_semantic_lod_hud = self.show_semantic_lod_hud;
         let show_lens_hud = self.show_lens_hud;
         let show_lens_profile_hud = self.show_lens_profile_hud;
-        let adaptive_lens_profile = self.adaptive_lens_profile;
+        let _adaptive_lens_profile = self.adaptive_lens_profile;
         let guided_auto_focus = self.guided_auto_focus;
         let show_auto_focus_hud = self.show_auto_focus_hud;
         let auto_focus_strength = self.auto_focus_strength;
@@ -3082,7 +3091,7 @@ impl GuiApplication {
                 if ui.button("⚖ Bench").clicked() {
                     self.scene_benchmark_mode = self.scene_benchmark_mode.next();
                 }
-                ui.label(format!("{}", self.scene_benchmark_mode.label()));
+                ui.label(self.scene_benchmark_mode.label().to_string());
                 if ui
                     .selectable_label(self.show_benchmark_hud, "🧪 Bench HUD")
                     .clicked()
@@ -4219,7 +4228,7 @@ impl GuiApplication {
                 .enumerate()
                 .map(|(i, e)| {
                     // Use index-based spiral positioning (matching EntityInstance::from_entity)
-                    let angle = i as f32 * 0.618033988749895; // Golden angle
+                    let angle = i as f32 * 0.618_034; // Golden angle
                     let radius = (i as f32).sqrt() * 0.5;
                     let x = radius * angle.cos();
                     let y = radius * angle.sin();
@@ -4561,7 +4570,7 @@ mod tests {
         assert_eq!(builder.config.window_height, 720);
         assert_eq!(builder.config.initial_zoom, 1.0);
         assert_eq!(builder.config.initial_time_rate, 2.0);
-        assert_eq!(builder.config.enable_focus_dilation, false);
+        assert!(!builder.config.enable_focus_dilation);
     }
 
     #[test]

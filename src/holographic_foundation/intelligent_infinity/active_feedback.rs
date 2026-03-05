@@ -437,7 +437,7 @@ impl ActiveFeedbackLoop {
         Some(transmission)
     }
 
-    pub fn update(&mut self, dt: Float, connection_quality: Float) {
+    pub fn update(&mut self, _dt: Float, connection_quality: Float) {
         self.connection_quality = connection_quality;
 
         if !self.experience_buffer.is_empty() {

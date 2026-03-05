@@ -9,15 +9,15 @@ use crate::simulation_v3::distributed_system::distributed_holographic_field::{
     Coordinate3D, ResonancePattern,
 };
 use crate::simulation_v3::distributed_system::{
-    FieldSignature, NetworkError, ObservationId, PeerId, Result as DistResult, Timestamp,
+    FieldSignature, ObservationId, PeerId, Timestamp,
 };
 use crate::spectrum::larson_framework::SpectrumRatio;
 use crate::types::Density;
 use crate::types::Float;
 
 use std::collections::hash_map::DefaultHasher;
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::fmt::{self, Display, Formatter};
+use std::collections::{HashMap, VecDeque};
+use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -376,7 +376,7 @@ impl SuperpositionState {
         CollapsedState {
             entity_id: self.entity_id,
             position: selected_position.unwrap_or_else(Coordinate3D::origin),
-            resonance_pattern: selected_resonance.unwrap_or_else(ResonancePattern::default),
+            resonance_pattern: selected_resonance.unwrap_or_default(),
             spectrum_ratio: selected_spectrum
                 .unwrap_or_else(|| SpectrumRatio::space_time(1.0, 1.0)),
             density,
@@ -636,7 +636,7 @@ impl Default for CollapsedState {
         Self {
             entity_id: 0,
             position: Coordinate3D::origin(),
-            resonance_pattern: ResonancePattern::default(),
+            resonance_pattern: ResonancePattern::initial(),
             spectrum_ratio: SpectrumRatio::space_time(1.0, 1.0),
             density: Density::First,
             archetype_activation: None,
@@ -745,6 +745,7 @@ impl Default for ObservationSummary {
 
 /// Result of an observation operation
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub struct ObservationResult {
     pub observation_record: ObservationRecord,
     pub success: bool,
@@ -769,15 +770,6 @@ impl ObservationResult {
     }
 }
 
-impl Default for ObservationResult {
-    fn default() -> Self {
-        Self {
-            observation_record: ObservationRecord::default(),
-            success: false,
-            error_message: None,
-        }
-    }
-}
 
 /// What a peer has observed
 #[derive(Debug, Clone, PartialEq)]
@@ -873,7 +865,7 @@ impl ObserverState {
         let mut conflicts_detected = 0;
 
         // Track which entities were already present in self
-        let self_entity_ids: std::collections::HashSet<u64> =
+        let _self_entity_ids: std::collections::HashSet<u64> =
             self.observed_entities.keys().copied().collect();
 
         for (entity_id, other_observation) in &other.observed_entities {
@@ -1463,7 +1455,7 @@ impl Default for PredictionOutput {
     fn default() -> Self {
         Self {
             predicted_position: Coordinate3D::origin(),
-            predicted_resonance: ResonancePattern::default(),
+            predicted_resonance: ResonancePattern::initial(),
             predicted_spectrum: SpectrumRatio::space_time(1.0, 1.0),
             confidence: 0.5,
             uncertainty: 0.5,
@@ -1576,7 +1568,7 @@ impl PredictionModel {
     }
 
     fn predict_neural(&self, input: &PredictionInput) -> PredictionOutput {
-        let activation = |x: Float| (1.0 / (1.0 + (-x).exp()));
+        let activation = |x: Float| 1.0 / (1.0 + (-x).exp());
 
         let predicted_position = Coordinate3D::new(
             activation(input.current_state.position.x * 0.5) * 10.0,
@@ -1870,7 +1862,7 @@ impl ConflictDetector {
         for obs in observations {
             entity_observations
                 .entry(obs.entity_id)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(obs);
         }
 
@@ -2218,7 +2210,7 @@ impl ObserverEffectSyncSystem {
                         .insert(chosen.entity_id, chosen.clone());
                 }
             } else if let Some(merged) = &resolution.merged_observation {
-                let mut dummy_prev_state = SuperpositionState::new(merged.entity_id);
+                let dummy_prev_state = SuperpositionState::new(merged.entity_id);
                 let dummy_record = ObservationRecord {
                     observation_id: generate_observation_id(),
                     entity_id: merged.entity_id,
@@ -2274,7 +2266,7 @@ impl ObserverEffectSyncSystem {
             0.0
         };
 
-        let system_health = (1.0 - conflict_ratio).max(0.0).min(1.0);
+        let system_health = (1.0 - conflict_ratio).clamp(0.0, 1.0);
 
         SystemStatus {
             observer_count,

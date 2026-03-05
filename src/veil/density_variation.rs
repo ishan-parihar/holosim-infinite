@@ -3,9 +3,7 @@
 // Knowledge Base Reference: COSMOLOGICAL-ARCHITECTURE.md Section 2.3
 // "The Veil separates these realms, creating the illusion that they are separate"
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 use crate::types::Polarity;
 
@@ -47,7 +45,7 @@ impl DensityTransparency {
 
     /// Create density transparency with custom base thickness values
     pub fn with_custom_thickness(thickness: [Float; 7]) -> Self {
-        let clamped: [Float; 7] = thickness.map(|t| t.max(0.0).min(1.0));
+        let clamped: [Float; 7] = thickness.map(|t| t.clamp(0.0, 1.0));
         DensityTransparency {
             base_thickness: clamped,
         }
@@ -88,7 +86,7 @@ impl DensityTransparency {
     /// * `thickness` - The new thickness (0.0 to 1.0)
     pub fn set_thickness(&mut self, density: Density, thickness: Float) {
         let idx = Self::density_to_index(&density);
-        self.base_thickness[idx] = thickness.max(0.0).min(1.0);
+        self.base_thickness[idx] = thickness.clamp(0.0, 1.0);
     }
 
     /// Get the veil thickness curve as an array
@@ -116,7 +114,7 @@ impl DensityTransparency {
     ) -> Float {
         let from_thickness = self.base_thickness(&from_density);
         let to_thickness = self.base_thickness(&to_density);
-        let clamped_progress = progress.max(0.0).min(1.0);
+        let clamped_progress = progress.clamp(0.0, 1.0);
 
         from_thickness + (to_thickness - from_thickness) * clamped_progress
     }
@@ -158,9 +156,9 @@ impl PolarizationAccess {
     /// Create polarization access with custom thinning factors
     pub fn with_custom_factors(sto: Float, sts: Float, neutral: Float) -> Self {
         PolarizationAccess {
-            sto_thinning_factor: sto.max(0.0).min(1.0),
-            sts_thinning_factor: sts.max(0.0).min(1.0),
-            neutral_thinning_factor: neutral.max(0.0).min(1.0),
+            sto_thinning_factor: sto.clamp(0.0, 1.0),
+            sts_thinning_factor: sts.clamp(0.0, 1.0),
+            neutral_thinning_factor: neutral.clamp(0.0, 1.0),
         }
     }
 
@@ -190,17 +188,17 @@ impl PolarizationAccess {
 
     /// Set STO thinning factor
     pub fn set_sto_factor(&mut self, factor: Float) {
-        self.sto_thinning_factor = factor.max(0.0).min(1.0);
+        self.sto_thinning_factor = factor.clamp(0.0, 1.0);
     }
 
     /// Set STS thinning factor
     pub fn set_sts_factor(&mut self, factor: Float) {
-        self.sts_thinning_factor = factor.max(0.0).min(1.0);
+        self.sts_thinning_factor = factor.clamp(0.0, 1.0);
     }
 
     /// Set neutral thinning factor
     pub fn set_neutral_factor(&mut self, factor: Float) {
-        self.neutral_thinning_factor = factor.max(0.0).min(1.0);
+        self.neutral_thinning_factor = factor.clamp(0.0, 1.0);
     }
 }
 
@@ -225,7 +223,7 @@ impl PolarizationState {
     pub fn new(polarization: Polarity, intensity: Float) -> Self {
         PolarizationState {
             polarization,
-            intensity: intensity.max(0.0).min(1.0),
+            intensity: intensity.clamp(0.0, 1.0),
         }
     }
 

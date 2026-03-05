@@ -1,4 +1,4 @@
-use crate::entity_layer7::layer7::{EntityId, EntityType, SubSubLogos};
+use crate::entity_layer7::layer7::{EntityId, SubSubLogos};
 use egui::Context;
 
 #[derive(Debug, Clone)]

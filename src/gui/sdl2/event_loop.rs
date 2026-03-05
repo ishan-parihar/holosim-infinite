@@ -62,7 +62,6 @@ impl GamepadButton {
             Button::Paddle3 => GamepadButton::Paddle3,
             Button::Paddle4 => GamepadButton::Paddle4,
             Button::Touchpad => GamepadButton::Touchpad,
-            _ => GamepadButton::Unknown(0),
         }
     }
 }
@@ -88,7 +87,6 @@ impl GamepadAxis {
             Axis::RightY => GamepadAxis::RightY,
             Axis::TriggerLeft => GamepadAxis::TriggerLeft,
             Axis::TriggerRight => GamepadAxis::TriggerRight,
-            _ => GamepadAxis::Unknown(0),
         }
     }
 }

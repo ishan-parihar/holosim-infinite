@@ -172,7 +172,7 @@ impl VeilTransform {
     /// > "Entities move along the spectrum based on their evolution"
     pub fn apply_to_entity(
         &mut self,
-        entity_id: u64,
+        _entity_id: u64,
         spectrum_position: f64,
     ) -> TransformedPosition {
         let distance_from_veil = (spectrum_position - self.config.veil_position).abs();
@@ -291,13 +291,13 @@ impl VeilTransform {
         // Each density corresponds to spectrum range
         let mut access = [0.0; 8];
 
-        for i in 0..8 {
+        for (i, access_i) in access.iter_mut().enumerate() {
             let density_center = i as f64 * 0.125 + 0.0625;
             let dist = (spectrum_position - density_center).abs();
 
             // Access decreases with distance from current spectrum position
             if dist < 0.25 {
-                access[i] = 1.0 - dist * 4.0;
+                *access_i = 1.0 - dist * 4.0;
             }
         }
 
@@ -397,7 +397,7 @@ mod tests {
 
     #[test]
     fn test_veil_transparency() {
-        let mut veil = VeilTransform::new();
+        let veil = VeilTransform::new();
 
         // Below veil - opaque
         assert_eq!(veil.get_veil_transparency(0.5), 0.0);

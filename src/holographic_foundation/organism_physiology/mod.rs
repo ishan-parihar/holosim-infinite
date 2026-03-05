@@ -62,6 +62,6 @@ mod tests {
     fn test_module_exports() {
         let _id = OrganId::new(1);
         let _tissue_id = TissueId::new(1);
-        assert!(true);
+        // Test passes if types can be created
     }
 }

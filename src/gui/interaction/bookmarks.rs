@@ -262,8 +262,8 @@ impl CameraTransition {
         let eased_progress = self.easing.apply(self.progress);
 
         // Interpolate position and zoom
-        let current_pos = Self::lerp_vec3(&self.from.position, &self.to.position, eased_progress);
-        let current_zoom = Self::lerp_f32(self.from.zoom, self.to.zoom, eased_progress);
+        let _current_pos = Self::lerp_vec3(&self.from.position, &self.to.position, eased_progress);
+        let _current_zoom = Self::lerp_f32(self.from.zoom, self.to.zoom, eased_progress);
 
         // Check if complete
         if self.progress >= 1.0 {
@@ -675,7 +675,7 @@ impl BookmarkManager {
 
     /// Set default transition duration
     pub fn set_transition_duration(&mut self, duration: f32) {
-        self.default_transition_duration = duration.max(0.1).min(5.0);
+        self.default_transition_duration = duration.clamp(0.1, 5.0);
     }
 
     /// Enable/disable smooth transitions

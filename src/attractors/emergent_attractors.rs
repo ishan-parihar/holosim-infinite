@@ -412,7 +412,7 @@ mod tests {
         attractors.spawn_attractor(&peak);
 
         // Calculate force at origin
-        let (force, strength) = attractors.get_force_at(Position3D::new(0.0, 0.0, 0.0));
+        let (_force, strength) = attractors.get_force_at(Position3D::new(0.0, 0.0, 0.0));
 
         // Should have some force pointing toward attractor
         assert!(strength > 0.0);

@@ -18,7 +18,7 @@ use crate::consciousness::free_will::{Choice, ChoiceContext, FreeWillKernel, Pol
 use crate::entity_layer7::layer7::EntityState;
 use crate::foundation::indigo_realm::PolarityChoice;
 use crate::holographic::universal_template::{
-    ArchetypeActivationProfile, Possibility, SpectrumConfiguration,
+    Possibility, SpectrumConfiguration,
 };
 use crate::types::Float;
 use num_complex::Complex;
@@ -196,7 +196,7 @@ impl PossibilitySpace {
             let phase = amplitude.arg();
 
             possibilities.push(QuantumPossibility {
-                signature: signature.clone(),
+                signature: *signature,
                 probability,
                 phase,
                 archetype_resonance: 0.5, // Will be calculated
@@ -302,7 +302,7 @@ impl QuantumPossibility {
     pub fn to_foundation_possibility(&self, index: usize) -> Possibility {
         // Map quantum state to polarity choice
         // This is a simplified mapping - in reality would be more complex
-        let polarity_choice = if self.signature.spin_up {
+        let _polarity_choice = if self.signature.spin_up {
             PolarityChoice::ServiceToOthers
         } else {
             PolarityChoice::ServiceToSelf
@@ -378,7 +378,7 @@ impl ChoiceBasedCollapse {
         self.apply_archetype_modulation(&mut possibility_space, context);
 
         // 3. Generate foundation possibility space for Free Will kernel
-        let foundation_possibilities: Vec<Possibility> = possibility_space
+        let _foundation_possibilities: Vec<Possibility> = possibility_space
             .possibilities
             .iter()
             .enumerate()
@@ -573,7 +573,6 @@ impl FreeWillQuantumCollapse for FreeWillKernel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::foundation::indigo_realm::Archetype22 as FoundationArchetype22;
     use num_complex::Complex;
 
     fn create_test_amplitudes() -> HashMap<QuantumStateSignature, Complex<Float>> {

@@ -14,10 +14,7 @@
 //! From COSMOLOGICAL-ARCHITECTURE.md:
 //! "The LOGOS divides into 7 + 3 aspects, each SubLogos creates a cosmic evol"
 
-use super::field_state::{
-    Complex, DensityBand, FieldNodeData, Float, HolographicFieldState, OctreeNode,
-};
-use super::spectrum_dynamics::SpectrumDynamics;
+use super::field_state::{Complex, Float, HolographicFieldState};
 
 /// The Seven Rays - fundamental vibrational frequencies
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -139,6 +136,12 @@ pub struct TheOne {
     pub config: CosmicHierarchyConfig,
 }
 
+impl Default for TheOne {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TheOne {
     pub fn new() -> Self {
         TheOne {
@@ -193,6 +196,12 @@ pub struct Logos {
 
     /// Parent (THE ONE)
     pub parent_unity: Float,
+}
+
+impl Default for Logos {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Logos {
@@ -267,12 +276,17 @@ impl Logos {
 
     /// Get the ray frequencies
     pub fn get_ray_frequencies(&self) -> [Float; 7] {
-        let mut freqs = [0.0; 7];
-        for i in 0..7 {
-            if let Some(ray) = Ray::from_index(i) {
-                freqs[i] = ray.frequency() * self.rays[i];
-            }
-        }
+        let freqs: [Float; 7] = (0..7)
+            .map(|i| {
+                if let Some(ray) = Ray::from_index(i) {
+                    ray.frequency() * self.rays[i]
+                } else {
+                    0.0
+                }
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 7]);
         freqs
     }
 }
@@ -457,6 +471,12 @@ pub struct HierarchyStatistics {
 
     /// Hierarchy depth reached
     pub max_depth: usize,
+}
+
+impl Default for CosmicHierarchy {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CosmicHierarchy {

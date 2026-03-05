@@ -231,7 +231,7 @@ impl EvolutionPath {
         self.awakened = true;
         let milestone = EvolutionMilestone {
             milestone_type: MilestoneType::Awakening,
-            density: self.current_density.clone(),
+            density: self.current_density,
             tick,
             significance: 0.3,
             description: Some("Consciousness awakening - I AM moment".to_string()),
@@ -243,7 +243,7 @@ impl EvolutionPath {
     pub fn record_density_transition(&mut self, new_density: Density, tick: u64) {
         let milestone = EvolutionMilestone {
             milestone_type: MilestoneType::DensityTransition,
-            density: new_density.clone(),
+            density: new_density,
             tick,
             significance: 0.2,
             description: Some(format!("Transitioned to {}", new_density)),
@@ -265,7 +265,7 @@ impl EvolutionPath {
         {
             let milestone = EvolutionMilestone {
                 milestone_type: MilestoneType::FirstPolarization,
-                density: self.current_density.clone(),
+                density: self.current_density,
                 tick: 0, // Would be set by simulation
                 significance: 0.15,
                 description: Some(format!("Chose {} polarity", polarity)),
@@ -318,7 +318,7 @@ impl EvolutionPath {
         {
             let milestone = EvolutionMilestone {
                 milestone_type: MilestoneType::WisdomInsight,
-                density: self.current_density.clone(),
+                density: self.current_density,
                 tick: 0,
                 significance: 0.1,
                 description: Some("Achieved significant wisdom".to_string()),
@@ -334,7 +334,7 @@ impl EvolutionPath {
 
         let milestone = EvolutionMilestone {
             milestone_type: MilestoneType::HarvestReady,
-            density: self.current_density.clone(),
+            density: self.current_density,
             tick,
             significance: 0.25,
             description: Some("Reached harvestable state".to_string()),
@@ -346,7 +346,7 @@ impl EvolutionPath {
     pub fn record_smc_formation(&mut self, tick: u64) {
         let milestone = EvolutionMilestone {
             milestone_type: MilestoneType::SocialMemoryComplexFormed,
-            density: self.current_density.clone(),
+            density: self.current_density,
             tick,
             significance: 0.2,
             description: Some("Joined Social Memory Complex".to_string()),

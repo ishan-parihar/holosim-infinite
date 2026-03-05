@@ -516,7 +516,7 @@ impl IndividualProgressionManager {
         if let Some(progression_state) = self.entity_progression.get_mut(&entity_id) {
             if let Some(polarization) = &mut progression_state.polarization {
                 // Record polarity choice
-                polarization.polarity_choices.push(choice.clone());
+                polarization.polarity_choices.push(choice);
 
                 // Update alignment based on choice
                 match choice {

@@ -10,21 +10,11 @@ use crate::holographic_foundation::spectrum::{DensityPosition, VelocityRatio};
 use crate::types::Float;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct PrimaryLogosConfig {
     pub universal_constants: UniversalConstants,
     pub base_distortion_config: UnifiedFieldConfig,
     pub octave_structure: OctaveStructure,
-}
-
-impl Default for PrimaryLogosConfig {
-    fn default() -> Self {
-        Self {
-            universal_constants: UniversalConstants::default(),
-            base_distortion_config: UnifiedFieldConfig::default(),
-            octave_structure: OctaveStructure::default(),
-        }
-    }
 }
 
 impl PrimaryLogosConfig {

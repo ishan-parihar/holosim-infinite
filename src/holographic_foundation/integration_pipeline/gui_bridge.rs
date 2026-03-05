@@ -217,7 +217,7 @@ impl FieldToGuiBridge {
 
         let update_start = std::time::Instant::now();
 
-        if self.frame % self.config.update_interval == 0 {
+        if self.frame.is_multiple_of(self.config.update_interval) {
             foundation.evolve(dt);
 
             let field_state = foundation.field_state();
@@ -257,7 +257,7 @@ impl FieldToGuiBridge {
 
     /// Update entity registry with new extraction
     fn update_entity_registry(&mut self, extraction: &ExtractionResult) {
-        let existing_ids: std::collections::HashSet<u64> =
+        let _existing_ids: std::collections::HashSet<u64> =
             extraction.entities.iter().map(|e| e.entity_id).collect();
 
         let current_ids: std::collections::HashSet<u64> = self
@@ -456,7 +456,6 @@ mod tests {
 
         bridge.initialize(&foundation);
 
-        assert!(bridge.gui_state.entity_count >= 0);
         assert!(bridge.gui_state.global_coherence > 0.0);
     }
 

@@ -196,7 +196,7 @@ impl PerformanceMetrics {
             for line in status.lines() {
                 if line.starts_with("VmRSS:") {
                     if let Some(kb_str) = line.split(':').nth(1) {
-                        if let Some(kb) = kb_str.trim().split_whitespace().next() {
+                        if let Some(kb) = kb_str.split_whitespace().next() {
                             if let Ok(bytes) = kb.parse::<usize>() {
                                 return bytes * 1024; // Convert KB to bytes
                             }

@@ -361,7 +361,7 @@ impl MatterEmergencePipeline {
 
                 // Create the atom
                 let atom = Atom::new(
-                    attractor.element.clone(),
+                    attractor.element,
                     atom_position,
                     attractor.energy_level,
                     element_attractor.electron_configuration.clone(),
@@ -411,7 +411,7 @@ impl MatterEmergencePipeline {
         let mut element_counts: HashMap<Element, usize> = HashMap::new();
 
         for atom in &self.atoms {
-            *element_counts.entry(atom.element.clone()).or_insert(0) += 1;
+            *element_counts.entry(atom.element).or_insert(0) += 1;
         }
 
         let avg_stability = if self.atoms.is_empty() {
@@ -792,7 +792,7 @@ mod tests {
         let physical_pos = SpectrumPosition::physical(Density::Third);
         let coherence = pipeline.sample_coherence(&physical_pos);
 
-        assert!(coherence >= 0.0 && coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&coherence));
     }
 
     #[test]
@@ -806,8 +806,8 @@ mod tests {
         let metaphysical_coherence = pipeline.sample_coherence(&metaphysical);
 
         // Physical positions should generally have higher coherence for matter
-        assert!(physical_coherence >= 0.0 && physical_coherence <= 1.0);
-        assert!(metaphysical_coherence >= 0.0 && metaphysical_coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&physical_coherence));
+        assert!((0.0..=1.0).contains(&metaphysical_coherence));
     }
 
     #[test]
@@ -851,7 +851,7 @@ mod tests {
 
         let stats = pipeline.statistics();
 
-        assert!(stats.total_atoms >= 0);
+        // total_atoms is usize, always >= 0
         assert!(stats.avg_stability >= 0.0 && stats.avg_stability <= 1.0);
         assert!(stats.avg_formation_coherence >= 0.0 && stats.avg_formation_coherence <= 1.0);
         assert_eq!(stats.step_count, 20);

@@ -350,7 +350,7 @@ impl SocialExperience {
     /// Set archetype influence
     pub fn set_archetype_influence(&mut self, archetype_idx: usize, influence: Float) {
         if archetype_idx < 22 {
-            self.archetype_influences[archetype_idx] = influence.min(1.0).max(0.0);
+            self.archetype_influences[archetype_idx] = influence.clamp(0.0, 1.0);
         }
     }
 }

@@ -16,10 +16,8 @@
 //! and archetype patterns. The periodic table is a RESULT of field dynamics,
 //! not a cause.
 
-use super::archetype_matter::{
-    ArchetypeParticleDerivation, Atom, MatterScale, Molecule, Particle, ParticleId, NUM_ARCHETYPES,
-};
-use super::field_state::{Complex, DensityBand, FieldNodeData, Float};
+use super::archetype_matter::{Particle, ParticleId, NUM_ARCHETYPES};
+use super::field_state::{FieldNodeData, Float};
 use super::spatial_field::Position3D;
 use std::collections::{HashMap, HashSet};
 
@@ -124,11 +122,11 @@ impl ArchetypeFrequencies {
     pub fn from_archetype_pattern(pattern: &[Float; NUM_ARCHETYPES]) -> Self {
         let mut freqs = ArchetypeFrequencies::new();
 
-        for i in 0..NUM_ARCHETYPES {
+        for (i, &pattern_i) in pattern.iter().enumerate() {
             // Map archetype activation to frequency
             // Higher activation = higher frequency
-            freqs.frequencies[i] = pattern[i] * 10.0; // Scale to 0-10 Hz range
-            freqs.phases[i] = pattern[i] * std::f64::consts::PI * 2.0; // 0-2π phase
+            freqs.frequencies[i] = pattern_i * 10.0; // Scale to 0-10 Hz range
+            freqs.phases[i] = pattern_i * std::f64::consts::PI * 2.0; // 0-2π phase
         }
 
         freqs
@@ -458,7 +456,7 @@ impl AtomicFormation {
         // Higher coherence → heavier elements
         // This is a simplified model - real implementation would be more sophisticated
         let base = (coherence * 118.0).round() as usize;
-        base.max(1).min(118)
+        base.clamp(1, 118)
     }
 
     /// Derive electron configuration from element number
@@ -614,12 +612,10 @@ impl MolecularBonding {
             let atom_i = &atoms[i];
 
             // Find a compatible bonding partner
-            for j in (i + 1)..atoms.len() {
+            for (j, atom_j) in atoms.iter().enumerate().skip(i + 1) {
                 if used.contains(&j) {
                     continue;
                 }
-
-                let atom_j = &atoms[j];
 
                 // Check resonance compatibility (R&D-4)
                 if self.can_bond(atom_i, atom_j) {
@@ -658,7 +654,7 @@ impl MolecularBonding {
         // Generate formula
         let formula = self.generate_formula(atoms);
 
-        let mut molecule = ComplexMolecule {
+        let molecule = ComplexMolecule {
             id: self.next_id(),
             position,
             atoms: atoms.iter().map(|a| a.id).collect(),
@@ -729,11 +725,11 @@ impl MolecularBonding {
 
     /// Get bond strength from resonance
     pub fn get_bond_strength(&self, atom1: &ComplexAtom, atom2: &ComplexAtom) -> Float {
-        let resonance = self.compute_resonance(atom1, atom2);
+        
 
         // Bond strength proportional to resonance
         // Strong resonance = strong bond
-        resonance
+        self.compute_resonance(atom1, atom2)
     }
 
     /// Generate molecular formula
@@ -852,13 +848,13 @@ impl ComplexityEmergence {
             ComplexityPhase::Atomic => {
                 // Create atoms from particles
                 if particles.len() >= 3 {
-                    self.atomic_formation.create_atom(position, &particles);
+                    self.atomic_formation.create_atom(position, particles);
                 }
             }
             ComplexityPhase::Molecular => {
                 // First ensure we have atoms, then form molecules
                 if particles.len() >= 3 {
-                    let atom = self.atomic_formation.create_atom(position, &particles);
+                    let atom = self.atomic_formation.create_atom(position, particles);
                     // In a full implementation, we'd collect nearby atoms and bond them
                     _ = atom; // Suppress unused warning
                 }
@@ -966,7 +962,7 @@ mod tests {
     #[test]
     fn test_valence_bonding_placeholder() {
         // TODO: Fix this test when MolecularBonding API is finalized
-        assert!(true);
+        // Test passes as placeholder
     }
 
     #[ignore]

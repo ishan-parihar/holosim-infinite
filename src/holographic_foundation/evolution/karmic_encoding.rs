@@ -269,6 +269,7 @@ pub struct KarmicEncoding {
     patterns: HashMap<u64, KarmicPattern>,
     entity_patterns: HashMap<u64, Vec<u64>>,
     next_pattern_id: u64,
+    #[allow(dead_code)]
     config: EvolutionFeedbackConfig,
     total_patterns_created: u64,
     total_patterns_resolved: u64,
@@ -308,7 +309,7 @@ impl KarmicEncoding {
         self.patterns.insert(pattern_id, pattern);
         self.entity_patterns
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(pattern_id);
         self.total_patterns_created += 1;
 

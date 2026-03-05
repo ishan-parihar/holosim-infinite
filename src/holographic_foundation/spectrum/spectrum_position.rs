@@ -9,7 +9,7 @@
 //! v = 1: At the Veil (transition zone)
 //! v > 1: Moving toward Space/Time (individual manifestation)
 
-use super::{DensityPosition, VelocityRatio, NUM_DENSITY_BANDS};
+use super::{DensityPosition, VelocityRatio};
 use crate::types::Float;
 
 #[derive(Debug, Clone)]
@@ -161,12 +161,12 @@ impl SpectrumPosition {
     }
 
     /// Evolution toward Time/Space (unity consciousness)
-    pub fn evolve_toward_unity(&mut self, dt: Float) {
+    pub fn evolve_toward_unity(&mut self, _dt: Float) {
         self.move_toward(0.5, self.config.evolution_rate * 2.0);
     }
 
     /// Evolution toward Space/Time (individual manifestation)
-    pub fn evolve_toward_manifestation(&mut self, dt: Float) {
+    pub fn evolve_toward_manifestation(&mut self, _dt: Float) {
         self.move_toward(2.0, self.config.evolution_rate * 2.0);
     }
 
@@ -455,7 +455,7 @@ mod tests {
             },
         );
 
-        let initial = pos.value();
+        let _initial = pos.value();
         pos.evolve(0.1, 0.0);
 
         // Near veil with high attraction should move toward it

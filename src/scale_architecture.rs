@@ -18,7 +18,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 
-use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 use crate::natural_laws::NaturalLaws;
 use crate::physical_dimension::PhysicalDimension;
 use crate::types::Density;
@@ -354,8 +353,8 @@ impl Scale {
     pub fn calculate_influence(&self, target_type: ScaleType) -> Float {
         // Influence based on scale difference and coherence
         let scale_diff = (self.scale_type.as_u8() as Float - target_type.as_u8() as Float).abs();
-        let base_influence = self.coherence / (1.0 + scale_diff);
-        base_influence
+        
+        self.coherence / (1.0 + scale_diff)
     }
 }
 
@@ -693,7 +692,7 @@ mod tests {
         assert_eq!(scale.scale_id, scale_id);
         assert_eq!(scale.scale_type, scale_type);
         assert_eq!(scale.scale_physics, ScalePhysics::Biology);
-        assert_eq!(scale.is_alive, true);
+        assert!(scale.is_alive);
         assert!(scale.coherence > 0.0);
     }
 

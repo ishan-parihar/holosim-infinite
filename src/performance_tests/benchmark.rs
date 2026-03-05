@@ -9,8 +9,7 @@
 //! - Generates performance reports
 
 use super::{
-    BenchmarkCategory, BenchmarkCategory as _, BenchmarkResult, PerformanceAssertion,
-    PerformanceTest,
+    BenchmarkCategory, BenchmarkResult, PerformanceAssertion, PerformanceTest,
 };
 use crate::types::Float;
 use std::time::{Duration, Instant};

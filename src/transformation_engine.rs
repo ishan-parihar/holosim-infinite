@@ -19,7 +19,6 @@
 
 use crate::complex::{Choice, ChoiceType};
 use crate::energy_fields::{ElectromagneticField, EnergyFields, GravitationalField, NuclearField};
-use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 use crate::free_will_capacity::ChoiceDirection;
 use crate::intelligent_infinity::IntelligentInfinity;
 use crate::matter::Matter;
@@ -331,11 +330,11 @@ impl IntelligentEnergy {
         archetype_activations[self.archetype as usize] = 1.0;
 
         // Spread activation to related archetypes
-        for i in 0..22 {
+        for (i, activation) in archetype_activations.iter_mut().enumerate() {
             if i != self.archetype as usize {
                 // Activation decreases with distance in archetype space
                 let distance = ((i as i32 - self.archetype as i32).abs() % 22) as Float;
-                archetype_activations[i] = (1.0 - distance / 22.0).powi(2);
+                *activation = (1.0 - distance / 22.0).powi(2);
             }
         }
 
@@ -1175,7 +1174,7 @@ mod tests {
         let energy_fields = light.regularize();
 
         // Check that energy fields were created (not empty)
-        assert!(energy_fields.gravitational_field.sources.len() > 0);
+        assert!(!energy_fields.gravitational_field.sources.is_empty());
     }
 
     #[test]

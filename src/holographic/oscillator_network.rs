@@ -89,7 +89,7 @@ impl ArchetypeOscillator {
     /// * `coupling` - The coupling term from other oscillators
     pub fn update_phase(&mut self, coupling: Float) {
         self.phase += self.frequency + coupling;
-        self.phase = self.phase % (2.0 * std::f64::consts::PI);
+        self.phase %= 2.0 * std::f64::consts::PI;
     }
 
     /// Returns the complex representation of the oscillator.
@@ -224,7 +224,7 @@ impl OscillatorNetwork {
                 }
             }
 
-            coupling = (self.coupling_strength / n) * coupling;
+            coupling *= self.coupling_strength / n;
 
             // Update phase
             self.oscillators[i].update_phase(coupling);

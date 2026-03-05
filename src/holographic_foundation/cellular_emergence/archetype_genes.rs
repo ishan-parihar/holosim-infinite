@@ -15,7 +15,6 @@
 use crate::holographic_foundation::archetype_profile::{
     ArchetypeActivationProfile, NUM_ARCHETYPES,
 };
-use crate::holographic_foundation::molecular_emergence::MolecularManifestation;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -32,7 +31,7 @@ impl GeneId {
     pub fn from_archetype_pattern(pattern: &[Float; NUM_ARCHETYPES]) -> Self {
         let mut hash: u64 = 0;
         for (i, val) in pattern.iter().enumerate() {
-            hash = hash.wrapping_add((*val).to_bits() as u64);
+            hash = hash.wrapping_add((*val).to_bits());
             hash = hash.wrapping_mul(31);
             hash ^= i as u64;
         }
@@ -96,7 +95,7 @@ impl ArchetypeGene {
         let encoding = Self::generate_encoding(archetype_index, activation);
 
         Self {
-            id: GeneId::new((archetype_index as u64) << 32 | (activation.to_bits() as u64)),
+            id: GeneId::new((archetype_index as u64) << 32 | activation.to_bits()),
             archetype_source: archetype_index,
             category,
             encoding,
@@ -114,11 +113,11 @@ impl ArchetypeGene {
     fn generate_encoding(archetype_index: usize, activation: Float) -> [Float; GENE_ENCODING_SIZE] {
         let mut encoding = [0.0; GENE_ENCODING_SIZE];
 
-        for i in 0..GENE_ENCODING_SIZE {
+        for (i, item) in encoding.iter_mut().enumerate() {
             let phase = (i as Float / GENE_ENCODING_SIZE as Float) * std::f64::consts::TAU;
             let archetype_wave = ((archetype_index + 1) as Float * phase).sin();
             let activation_mod = activation * archetype_wave.cos();
-            encoding[i] = 0.5 + 0.3 * archetype_wave + 0.2 * activation_mod;
+            *item = 0.5 + 0.3 * archetype_wave + 0.2 * activation_mod;
         }
 
         encoding
@@ -247,6 +246,12 @@ pub struct GeneRegulatoryNetwork {
     pub genes: HashMap<GeneId, ArchetypeGene>,
     connections: HashMap<GeneId, Vec<(GeneId, Float)>>,
     network_coherence: Float,
+}
+
+impl Default for GeneRegulatoryNetwork {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl GeneRegulatoryNetwork {

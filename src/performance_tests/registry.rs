@@ -9,7 +9,7 @@
 //! - Execution of benchmarks by name or category
 //! - Listing of available benchmarks
 
-use super::{BenchmarkCategory, BenchmarkResult, PerformanceTest, PerformanceTest as PerfTest};
+use super::{BenchmarkCategory, PerformanceTest as PerfTest};
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 

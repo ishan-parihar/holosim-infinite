@@ -16,11 +16,11 @@
 //! 6. Galactic scale simulation (spiral arms)
 //! 7. Cosmic scale simulation (dimensional structure)
 
-use super::multiscale_camera::{PhysicsMode, ScaleLevel};
+use super::multiscale_camera::ScaleLevel;
 use crate::types::Float;
 use rand::Rng;
 use std::collections::HashMap;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 /// Physical constants
 /// From COSMOLOGICAL-ARCHITECTURE.md: "Quantum mechanics transcends classical physics"
@@ -136,6 +136,12 @@ pub struct HolographicContinuity {
     /// Phase relationships between scales
     /// From MASTER_R&D_ROADMAP.md Phase 2 Week 5: "Phase coherence tracking"
     phase_relationships: HashMap<(ScaleLevel, ScaleLevel), PhaseRelationship>,
+}
+
+impl Default for HolographicContinuity {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl HolographicContinuity {
@@ -354,7 +360,7 @@ impl HolographicContinuity {
         let mut propagated_changes = HashMap::new();
 
         // Get source scale signature
-        let source_signature = self
+        let _source_signature = self
             .scale_state_signatures
             .get(&source_scale)
             .ok_or_else(|| {
@@ -455,7 +461,7 @@ impl HolographicContinuity {
                 // Store phase relationship
                 self.phase_relationships
                     .entry((scale1, scale2))
-                    .or_insert_with(PhaseRelationship::new)
+                    .or_default()
                     .coherence = coherence;
 
                 coherence_report
@@ -565,7 +571,7 @@ impl HolographicContinuity {
                 / densities.len() as Float;
             // Consistency = 1.0 - normalized variance
             consistency_report.information_density_consistency =
-                (1.0 - variance.sqrt()).max(0.0).min(1.0);
+                (1.0 - variance.sqrt()).clamp(0.0, 1.0);
         }
 
         Ok(consistency_report)
@@ -964,7 +970,7 @@ impl HolographicContinuity {
 
         for scale in 2..=5 {
             let mut nested_count = 0;
-            let mut found_pattern = true;
+            let _found_pattern = true;
 
             for i in 0..chars.len() - scale {
                 for j in (i + scale)..chars.len() - scale {
@@ -1130,15 +1136,13 @@ impl HolographicContinuity {
     ) -> Result<HashMap<(ScaleLevel, ScaleLevel), Float>, ScalePhysicsError> {
         let mut updated_coupling = HashMap::new();
 
-        let all_scales = vec![
-            ScaleLevel::Quantum,
+        let all_scales = [ScaleLevel::Quantum,
             ScaleLevel::Cellular,
             ScaleLevel::Biological,
             ScaleLevel::Planetary,
             ScaleLevel::Stellar,
             ScaleLevel::Galactic,
-            ScaleLevel::Cosmic,
-        ];
+            ScaleLevel::Cosmic];
 
         // Calculate adaptive coupling for all scale pairs
         for (i, scale_a) in all_scales.iter().enumerate() {
@@ -1359,7 +1363,7 @@ impl HolographicContinuity {
                 .sum::<Float>()
                 / fractal_dims.len() as Float;
             // Lower variance = higher self-similarity
-            (1.0 - variance.sqrt()).max(0.0).min(1.0)
+            (1.0 - variance.sqrt()).clamp(0.0, 1.0)
         } else {
             0.0
         };
@@ -1413,7 +1417,7 @@ impl HolographicContinuity {
             "Self-Similarity: {:.2}\n",
             fidelity.self_similarity
         ));
-        report.push_str("\n");
+        report.push('\n');
 
         // Information flow matrix
         report.push_str("--- Information Flow Matrix ---\n");
@@ -1453,7 +1457,7 @@ impl HolographicContinuity {
                 "  Total In: {:.4}, Total Out: {:.4}\n",
                 inflow, outflow
             ));
-            report.push_str("\n");
+            report.push('\n');
         }
 
         // Conservation violations
@@ -1462,7 +1466,7 @@ impl HolographicContinuity {
             for (scale, imbalance) in &flow_matrix.conservation_violations {
                 report.push_str(&format!("  {:?}: imbalance of {:.4}\n", scale, imbalance));
             }
-            report.push_str("\n");
+            report.push('\n');
         }
 
         // Holographic principle validation
@@ -1480,7 +1484,7 @@ impl HolographicContinuity {
             "Information Completeness: {:.2}\n",
             validation.information_completeness
         ));
-        report.push_str("\n");
+        report.push('\n');
 
         // Scale-specific scores
         report.push_str("Scale Scores:\n");
@@ -1492,7 +1496,7 @@ impl HolographicContinuity {
                 .unwrap_or(0.0);
             report.push_str(&format!("  {:?}: {:.2}\n", scale, score));
         }
-        report.push_str("\n");
+        report.push('\n');
 
         // Missing fragments
         if !validation.missing_fragments.is_empty() {
@@ -1500,7 +1504,7 @@ impl HolographicContinuity {
             for (scale, missing) in &validation.missing_fragments {
                 report.push_str(&format!("  {:?} missing info from: {:?}\n", scale, missing));
             }
-            report.push_str("\n");
+            report.push('\n');
         }
 
         // Violations
@@ -1509,7 +1513,7 @@ impl HolographicContinuity {
             for violation in &validation.violations {
                 report.push_str(&format!("  {}\n", violation));
             }
-            report.push_str("\n");
+            report.push('\n');
         }
 
         // Bidirectional coupling status
@@ -1540,7 +1544,7 @@ impl HolographicContinuity {
                 a, b, coupling_ab, coupling_ba, symmetric
             ));
         }
-        report.push_str("\n");
+        report.push('\n');
 
         report.push_str("=== End of Report ===\n");
 
@@ -1580,6 +1584,12 @@ pub struct PhaseRelationship {
 
     /// Whether relationship is stable
     pub stable: bool,
+}
+
+impl Default for PhaseRelationship {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PhaseRelationship {
@@ -1866,8 +1876,10 @@ pub struct PerformanceBenchmark {
 /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 1:
 /// "Implement optimization strategies"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum OptimizationStrategy {
     /// No optimization (baseline)
+    #[default]
     None,
 
     /// Lazy encoding - only encode when needed
@@ -1906,11 +1918,6 @@ impl OptimizationStrategy {
     }
 }
 
-impl Default for OptimizationStrategy {
-    fn default() -> Self {
-        OptimizationStrategy::None
-    }
-}
 
 impl Default for PerformanceBenchmark {
     fn default() -> Self {
@@ -2069,7 +2076,7 @@ impl PerformanceBenchmark {
 
     /// Check if validation should be performed
     pub fn should_validate(&self) -> bool {
-        self.transition_counter % self.validation_interval == 0
+        self.transition_counter.is_multiple_of(self.validation_interval)
     }
 }
 
@@ -2110,6 +2117,12 @@ impl Default for EncodingStats {
             average_information_density: 0.0,
             encoding_errors: 0,
         }
+    }
+}
+
+impl Default for HolographicEncoding {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -2190,7 +2203,7 @@ impl HolographicEncoding {
             for scale2 in &scales {
                 if scale1 != scale2 {
                     let coherence = self.continuity.get_coherence(*scale1, *scale2);
-                    if coherence < 0.0 || coherence > 1.0 {
+                    if !(0.0..=1.0).contains(&coherence) {
                         return false;
                     }
                 }
@@ -2332,6 +2345,12 @@ pub enum BasisState {
     Spin(SpinState),
 }
 
+impl Default for QuantumPhysics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl QuantumPhysics {
     pub fn new() -> Self {
         QuantumPhysics {
@@ -2387,7 +2406,7 @@ impl QuantumPhysics {
                         .wave_functions
                         .get(&entanglement.particle_a)
                         .cloned()
-                        .unwrap_or_else(|| WaveFunction {
+                        .unwrap_or(WaveFunction {
                             particle_id: entanglement.particle_a,
                             amplitude: (0.0, 0.0),
                             position_uncertainty: 0.1,
@@ -2409,7 +2428,7 @@ impl QuantumPhysics {
         }
 
         // Add field fluctuation events
-        for (field_index, fluctuation) in field_fluctuations {
+        for (_field_index, fluctuation) in field_fluctuations {
             if fluctuation.abs() > 1.0e-34 {
                 // Significant fluctuation
                 if let Some((_, wave_function)) = self.wave_functions.iter().next() {
@@ -2439,7 +2458,7 @@ impl QuantumPhysics {
     fn evolve_wave_functions(&mut self, time_step: Float) {
         for wave_function in self.wave_functions.values_mut() {
             let delta_x0 = wave_function.position_uncertainty;
-            let delta_p0 = wave_function.momentum_uncertainty;
+            let _delta_p0 = wave_function.momentum_uncertainty;
 
             // Time evolution factor for position uncertainty
             let time_factor_pos =
@@ -2529,8 +2548,8 @@ impl QuantumPhysics {
                     if let Some(wf_b) = self.wave_functions.get_mut(&entanglement.particle_b) {
                         match entanglement.correlation {
                             CorrelationType::Spin => {
-                                if snapshot_a.0 != snapshot_b.0 {
-                                    if rand::random::<f64>() < entanglement.strength * 0.1 {
+                                if snapshot_a.0 != snapshot_b.0
+                                    && rand::random::<f64>() < entanglement.strength * 0.1 {
                                         wf_b.spin = match snapshot_a.0 {
                                             SpinState::Up => SpinState::Down,
                                             SpinState::Down => SpinState::Up,
@@ -2543,7 +2562,6 @@ impl QuantumPhysics {
                                             }
                                         };
                                     }
-                                }
                             }
                             CorrelationType::Momentum => {
                                 let avg_momentum = (snapshot_a.1 + snapshot_b.1) / 2.0;
@@ -2750,9 +2768,11 @@ pub struct CellularSimulation {
 #[derive(Debug, Clone)]
 pub struct DnaSequence {
     /// Cell ID
+    #[allow(dead_code)]
     cell_id: u64,
 
     /// Base pairs (A, T, C, G)
+    #[allow(dead_code)]
     base_pairs: Vec<BasePair>,
 
     /// Unfolding state (0.0 = fully folded, 1.0 = fully unfolded)
@@ -2775,9 +2795,11 @@ pub enum BasePair {
 #[derive(Debug, Clone)]
 pub struct Protein {
     /// Protein ID
+    #[allow(dead_code)]
     protein_id: u64,
 
     /// Amino acid sequence
+    #[allow(dead_code)]
     amino_acids: Vec<AminoAcid>,
 
     /// Folding state (0.0 = unfolded, 1.0 = fully folded)
@@ -2816,6 +2838,7 @@ pub enum AminoAcid {
 #[derive(Debug, Clone)]
 pub struct GeneExpression {
     /// Gene ID
+    #[allow(dead_code)]
     gene_id: u64,
 
     /// Expression level (0.0 = off, 1.0 = fully expressed)
@@ -2888,6 +2911,7 @@ pub struct BiologicalSimulation {
 #[derive(Debug, Clone)]
 pub struct Needs {
     /// Organism ID
+    #[allow(dead_code)]
     organism_id: u64,
 
     /// Hunger level (0.0 = starving, 1.0 = full)
@@ -2927,6 +2951,7 @@ pub struct Instincts {
 
 /// Sensory input
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct SensoryInput {
     /// Visual input (light intensity, color)
     visual: Vec<Float>,
@@ -2957,6 +2982,7 @@ pub struct BehaviorState {
     emotional_state: (Float, Float),
 
     /// Attention focus
+    #[allow(dead_code)]
     attention_focus: Option<u64>,
 }
 
@@ -2971,6 +2997,12 @@ pub enum Action {
     Socializing,
     Reproducing,
     Exploring,
+}
+
+impl Default for CellularSimulation {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CellularSimulation {
@@ -3164,9 +3196,9 @@ impl CellularSimulation {
             // As folding progresses, structure becomes more compact
             let compactness = protein.folding_state;
             for coord in protein.structure.iter_mut() {
-                coord.0 *= (1.0 - compactness * 0.5); // Compact x
-                coord.1 *= (1.0 - compactness * 0.5); // Compact y
-                coord.2 *= (1.0 - compactness * 0.5); // Compact z
+                coord.0 *= 1.0 - compactness * 0.5; // Compact x
+                coord.1 *= 1.0 - compactness * 0.5; // Compact y
+                coord.2 *= 1.0 - compactness * 0.5; // Compact z
             }
         }
     }
@@ -3182,20 +3214,20 @@ impl CellularSimulation {
     /// E_final = E * Σ(factor * weight)
     fn update_gene_expression(&mut self, time_step: Float) {
         for gene_expression in self.gene_expression.values_mut() {
-            let E = gene_expression.level;
+            let e = gene_expression.level;
             let promoter_strength = gene_expression.promoter_strength;
 
             // Transcription rate: depends on promoter strength and current expression
-            let transcription_rate = TRANSCRIPTION_RATE * promoter_strength * (1.0 - E);
+            let transcription_rate = TRANSCRIPTION_RATE * promoter_strength * (1.0 - e);
 
             // Degradation rate: natural decay of mRNA/protein
-            let degradation_rate = GENE_DEGRADATION_RATE * E;
+            let degradation_rate = GENE_DEGRADATION_RATE * e;
 
             // Net change in expression level
-            let delta_E = (transcription_rate - degradation_rate) * time_step;
+            let delta_e = (transcription_rate - degradation_rate) * time_step;
 
             // Update expression level
-            gene_expression.level = (E + delta_E).clamp(0.0, 1.0);
+            gene_expression.level = (e + delta_e).clamp(0.0, 1.0);
 
             // Apply regulatory factors
             let regulatory_sum: Float = gene_expression.regulatory_factors.values().sum();
@@ -3366,7 +3398,7 @@ impl CellularSimulation {
 
         // Remove waste products (clearance)
         for waste_amount in self.metabolic_state.waste_products.values_mut() {
-            *waste_amount *= (1.0 - 0.01 * time_step); // 1% clearance per time unit
+            *waste_amount *= 1.0 - 0.01 * time_step; // 1% clearance per time unit
             *waste_amount = waste_amount.max(0.0);
         }
     }
@@ -3394,6 +3426,12 @@ impl CellularSimulation {
     /// Get metabolic state
     pub fn get_metabolic_state(&self) -> &MetabolicState {
         &self.metabolic_state
+    }
+}
+
+impl Default for BiologicalSimulation {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -3436,7 +3474,7 @@ impl BiologicalSimulation {
         self.update_behavior_state(time_step);
 
         // 5. Update population dynamics (birth, death, migration)
-        let (births, deaths, migrations) = self.update_population_dynamics(time_step);
+        let (births, deaths, _migrations) = self.update_population_dynamics(time_step);
 
         // Record changes
         for (organism_id, needs) in &self.needs {
@@ -3676,12 +3714,11 @@ impl BiologicalSimulation {
         for (organism_id, instincts) in &self.instincts {
             if let Some(needs) = self.needs.get(organism_id) {
                 // Survival instinct (highest priority)
-                if instincts.survival > 0.5 && (needs.hunger < 0.3 || needs.thirst < 0.3) {
-                    if instincts.survival > best_priority {
+                if instincts.survival > 0.5 && (needs.hunger < 0.3 || needs.thirst < 0.3)
+                    && instincts.survival > best_priority {
                         best_action = Action::Foraging;
                         best_priority = instincts.survival;
                     }
-                }
 
                 // Survival instinct (danger response)
                 if needs.safety < 0.3 && instincts.survival > best_priority {
@@ -3825,7 +3862,7 @@ impl BiologicalSimulation {
         let death_rate = d_base * (1.0 - average_needs);
 
         // Calculate expected deaths
-        let expected_deaths =
+        let _expected_deaths =
             (death_rate * self.population_dynamics.population_size as Float * time_step) as usize;
         for (organism_id, needs) in &self.needs {
             // Organisms with critical needs are more likely to die
@@ -3852,11 +3889,10 @@ impl BiologicalSimulation {
             * time_step) as usize;
         for (organism_id, needs) in &self.needs {
             // Organisms with low resources are more likely to migrate
-            if needs.hunger < 0.4 || needs.safety < 0.4 {
-                if rand::random::<f64>() < 0.05 && migrations.len() < expected_migrations {
+            if (needs.hunger < 0.4 || needs.safety < 0.4)
+                && rand::random::<f64>() < 0.05 && migrations.len() < expected_migrations {
                     migrations.push(*organism_id);
                 }
-            }
         }
 
         // Update population size
@@ -3899,6 +3935,12 @@ impl BiologicalSimulation {
     }
 }
 
+impl Default for PlanetarySimulation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PlanetarySimulation {
     pub fn new() -> Self {
         PlanetarySimulation {
@@ -3936,10 +3978,10 @@ impl PlanetarySimulation {
         self.update_trade_networks(time_step);
 
         // 4. Advance technology (research, innovation, diffusion)
-        let technological_breakthroughs = self.advance_technology(time_step);
+        let _technological_breakthroughs = self.advance_technology(time_step);
 
         // 5. Evolve culture (values, beliefs, traditions)
-        let cultural_shifts = self.evolve_culture(time_step);
+        let _cultural_shifts = self.evolve_culture(time_step);
 
         // Record changes
         for (civ_id, population_change) in population_changes {
@@ -3980,7 +4022,7 @@ impl PlanetarySimulation {
     /// - Government evolution: transitions based on population size and social cohesion
     fn update_civilizations(&mut self, time_step: Float) -> (Vec<(u64, i32)>, Vec<u64>, Vec<u64>) {
         let mut population_changes = Vec::new();
-        let mut new_civilizations = Vec::new();
+        let new_civilizations = Vec::new();
         let mut fallen_civilizations = Vec::new();
 
         // Calculate total planetary resources
@@ -4137,7 +4179,7 @@ impl PlanetarySimulation {
     fn manage_resources(&mut self, time_step: Float) {
         let total_population: usize = self.civilizations.values().map(|c| c.population).sum();
 
-        for (resource_name, resource) in &mut self.resources {
+        for resource in self.resources.values_mut() {
             // Calculate extraction rate
             let k_extraction = 0.001;
             let avg_technology: Float = self
@@ -4412,7 +4454,7 @@ impl PlanetarySimulation {
                                     k_diffusion * avg_efficiency * (*level_b - *level_a);
                                 diffusion_updates
                                     .entry(civ_a)
-                                    .or_insert_with(HashMap::new)
+                                    .or_default()
                                     .entry(*category)
                                     .and_modify(|v| *v += diffusion * time_step)
                                     .or_insert(diffusion * time_step);
@@ -4426,7 +4468,7 @@ impl PlanetarySimulation {
                                     k_diffusion * avg_efficiency * (*level_a - *level_b);
                                 diffusion_updates
                                     .entry(civ_b)
-                                    .or_insert_with(HashMap::new)
+                                    .or_default()
                                     .entry(*category)
                                     .and_modify(|v| *v += diffusion * time_step)
                                     .or_insert(diffusion * time_step);
@@ -4690,9 +4732,11 @@ pub struct PlanetarySimulation {
 #[derive(Debug, Clone)]
 pub struct Civilization {
     /// Civilization ID
+    #[allow(dead_code)]
     civilization_id: u64,
 
     /// Name
+    #[allow(dead_code)]
     name: String,
 
     /// Population
@@ -4745,6 +4789,7 @@ pub struct ResourceDeposit {
     resource_type: ResourceType,
 
     /// Location
+    #[allow(dead_code)]
     location: (Float, Float),
 
     /// Amount available
@@ -4754,6 +4799,7 @@ pub struct ResourceDeposit {
     extraction_rate: Float,
 
     /// Regeneration rate (if renewable)
+    #[allow(dead_code)]
     regeneration_rate: Float,
 }
 
@@ -4782,6 +4828,7 @@ pub struct TradeNetwork {
     routes: Vec<TradeRoute>,
 
     /// Trade balance
+    #[allow(dead_code)]
     trade_balance: HashMap<u64, Float>,
 }
 
@@ -4789,12 +4836,15 @@ pub struct TradeNetwork {
 #[derive(Debug, Clone)]
 pub struct TradeRoute {
     /// Source civilization
+    #[allow(dead_code)]
     source: u64,
 
     /// Destination civilization
+    #[allow(dead_code)]
     destination: u64,
 
     /// Goods traded
+    #[allow(dead_code)]
     goods: Vec<(ResourceType, Float)>,
 
     /// Route efficiency (0.0 = blocked, 1.0 = optimal)
@@ -4805,6 +4855,7 @@ pub struct TradeRoute {
 #[derive(Debug, Clone)]
 pub struct TechnologyLevel {
     /// Civilization ID
+    #[allow(dead_code)]
     civilization_id: u64,
 
     /// Technology categories
@@ -4833,28 +4884,34 @@ pub enum TechCategory {
 #[derive(Debug, Clone)]
 pub struct ResearchProject {
     /// Project name
+    #[allow(dead_code)]
     name: String,
 
     /// Category
+    #[allow(dead_code)]
     category: TechCategory,
 
     /// Progress (0.0 = not started, 1.0 = complete)
     progress: Float,
 
     /// Difficulty (0.0 = easy, 1.0 = impossible)
+    #[allow(dead_code)]
     difficulty: Float,
 }
 
 /// Cultural evolution
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct CulturalEvolution {
     /// Cultural traits
+    #[allow(dead_code)]
     traits: HashMap<String, CulturalTrait>,
 
     /// Memes (ideas spreading through population)
     memes: Vec<Meme>,
 
     /// Art and expression
+    #[allow(dead_code)]
     art_expression: Vec<ArtWork>,
 }
 
@@ -4862,15 +4919,19 @@ pub struct CulturalEvolution {
 #[derive(Debug, Clone)]
 pub struct CulturalTrait {
     /// Trait name
+    #[allow(dead_code)]
     name: String,
 
     /// Prevalence (0.0 = rare, 1.0 = universal)
+    #[allow(dead_code)]
     prevalence: Float,
 
     /// Strength (0.0 = weak, 1.0 = dominant)
+    #[allow(dead_code)]
     strength: Float,
 
     /// Mutation rate
+    #[allow(dead_code)]
     mutation_rate: Float,
 }
 
@@ -4878,6 +4939,7 @@ pub struct CulturalTrait {
 #[derive(Debug, Clone)]
 pub struct Meme {
     /// Content
+    #[allow(dead_code)]
     content: String,
 
     /// Spread rate (0.0 = not spreading, 1.0 = viral)
@@ -4894,18 +4956,23 @@ pub struct Meme {
 #[derive(Debug, Clone)]
 pub struct ArtWork {
     /// Title
+    #[allow(dead_code)]
     title: String,
 
     /// Type
+    #[allow(dead_code)]
     art_type: ArtType,
 
     /// Creator ID
+    #[allow(dead_code)]
     creator_id: u64,
 
     /// Aesthetic value (0.0 = poor, 1.0 = masterpiece)
+    #[allow(dead_code)]
     aesthetic_value: Float,
 
     /// Cultural impact
+    #[allow(dead_code)]
     cultural_impact: Float,
 }
 
@@ -4972,6 +5039,7 @@ pub struct Star {
     age: Float,
 
     /// Position
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 }
 
@@ -5000,6 +5068,7 @@ pub struct Planet {
     mass: Float,
 
     /// Radius (Earth radii)
+    #[allow(dead_code)]
     radius: Float,
 
     /// Orbital distance (AU)
@@ -5012,6 +5081,7 @@ pub struct Planet {
     eccentricity: Float,
 
     /// Type
+    #[allow(dead_code)]
     planet_type: PlanetType,
 
     /// Atmosphere
@@ -5032,6 +5102,7 @@ pub enum PlanetType {
 #[derive(Debug, Clone)]
 pub struct Atmosphere {
     /// Composition
+    #[allow(dead_code)]
     composition: HashMap<String, Float>,
 
     /// Pressure (atm)
@@ -5152,6 +5223,7 @@ pub struct GalacticSimulation {
 #[derive(Debug, Clone)]
 pub struct Galaxy {
     /// Galaxy ID
+    #[allow(dead_code)]
     galaxy_id: u64,
 
     /// Type
@@ -5187,12 +5259,15 @@ pub enum GalaxyType {
 #[derive(Debug, Clone)]
 pub struct SpiralArm {
     /// Arm ID
+    #[allow(dead_code)]
     arm_id: u64,
 
     /// Start position (galactic coordinates)
+    #[allow(dead_code)]
     start_position: (Float, Float, Float),
 
     /// End position
+    #[allow(dead_code)]
     end_position: (Float, Float, Float),
 
     /// Twist angle
@@ -5212,9 +5287,11 @@ pub struct StarFormationRegion {
     region_id: u64,
 
     /// Position
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Size
+    #[allow(dead_code)]
     size: Float,
 
     /// Gas density
@@ -5285,6 +5362,7 @@ pub struct DarkMatterHalo {
     radius: Float,
 
     /// Density profile
+    #[allow(dead_code)]
     density_profile: DensityProfile,
 }
 
@@ -5300,9 +5378,11 @@ pub enum DensityProfile {
 #[derive(Debug, Clone)]
 pub struct DarkMatterFilament {
     /// Start position
+    #[allow(dead_code)]
     start_position: (Float, Float, Float),
 
     /// End position
+    #[allow(dead_code)]
     end_position: (Float, Float, Float),
 
     /// Length
@@ -5346,6 +5426,7 @@ pub struct CosmicSimulation {
 #[derive(Debug, Clone)]
 pub struct Universe {
     /// Universe ID
+    #[allow(dead_code)]
     universe_id: u64,
 
     /// Age (billions of years)
@@ -5358,6 +5439,7 @@ pub struct Universe {
     expansion_rate: Float,
 
     /// Total mass
+    #[allow(dead_code)]
     total_mass: Float,
 
     /// Energy density
@@ -5408,6 +5490,7 @@ pub struct CosmicWeb {
 #[derive(Debug, Clone)]
 pub struct GalaxyCluster {
     /// Cluster ID
+    #[allow(dead_code)]
     cluster_id: u64,
 
     /// Number of galaxies
@@ -5417,6 +5500,7 @@ pub struct GalaxyCluster {
     mass: Float,
 
     /// Position
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Redshift
@@ -5427,9 +5511,11 @@ pub struct GalaxyCluster {
 #[derive(Debug, Clone)]
 pub struct CosmicVoid {
     /// Void ID
+    #[allow(dead_code)]
     void_id: u64,
 
     /// Position
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Radius
@@ -5443,6 +5529,7 @@ pub struct CosmicVoid {
 #[derive(Debug, Clone)]
 pub struct Supercluster {
     /// Supercluster ID
+    #[allow(dead_code)]
     supercluster_id: u64,
 
     /// Number of clusters
@@ -5452,6 +5539,7 @@ pub struct Supercluster {
     size: Float,
 
     /// Position
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 }
 
@@ -5475,9 +5563,11 @@ pub struct CosmicBackground {
 #[derive(Debug, Clone)]
 pub struct DimensionalStructure {
     /// Active dimensions
+    #[allow(dead_code)]
     active_dimensions: usize,
 
     /// Compactified dimensions
+    #[allow(dead_code)]
     compactified_dimensions: usize,
 
     /// Dimensional tension
@@ -5494,6 +5584,7 @@ pub struct DimensionalStructure {
 #[derive(Debug, Clone)]
 pub struct Brane {
     /// Dimension
+    #[allow(dead_code)]
     dimension: usize,
 
     /// Tension
@@ -5516,6 +5607,7 @@ pub struct StringVibration {
     amplitude: Float,
 
     /// Particle type produced
+    #[allow(dead_code)]
     particle_type: String,
 }
 
@@ -5835,7 +5927,7 @@ impl ScaleSpecificPhysics {
         self.apply_holographic_corrections();
 
         // 6. Periodic holographic consistency check (every 100 steps)
-        if self.step_counter % 100 == 0 {
+        if self.step_counter.is_multiple_of(100) {
             self.perform_periodic_consistency_check()?;
         }
 
@@ -5843,7 +5935,7 @@ impl ScaleSpecificPhysics {
         self.maintain_cross_scale_phase_coherence()?;
 
         // 8. Validate holographic principle
-        let validation = self.validate_holographic_principle();
+        let _validation = self.validate_holographic_principle();
 
         // Update holographic continuity
         self.update_holographic_continuity(scale, &changes);
@@ -5923,7 +6015,7 @@ impl ScaleSpecificPhysics {
     /// - ATP production affects entanglement coherence time
     fn apply_cellular_to_quantum_coupling(
         &mut self,
-        cellular_changes: &[Change],
+        _cellular_changes: &[Change],
         time_step: Float,
     ) {
         // Get metabolic state
@@ -5937,7 +6029,7 @@ impl ScaleSpecificPhysics {
         // Apply metabolic effects to quantum simulation
         for entanglement in self.quantum_physics.entanglements.iter_mut() {
             // Metabolic heat causes faster decoherence
-            entanglement.strength *= (1.0 - decoherence_factor * time_step);
+            entanglement.strength *= 1.0 - decoherence_factor * time_step;
             entanglement.strength = entanglement.strength.clamp(0.0, 1.0);
         }
 
@@ -5953,7 +6045,7 @@ impl ScaleSpecificPhysics {
                 for superposition in self.quantum_physics.superpositions.iter_mut() {
                     if superposition.particle_id == wave_function.particle_id {
                         // Reduce superposition stability
-                        let collapse_acceleration = (0.5 - metabolic_activity) * 0.1;
+                        let _collapse_acceleration = (0.5 - metabolic_activity) * 0.1;
                         // This will make collapse more likely in next simulate_step
                     }
                 }
@@ -6144,7 +6236,7 @@ impl ScaleSpecificPhysics {
     /// From MASTER_R&D_ROADMAP.md Phase 2 Week 5:
     /// "Track holographic fidelity over time"
     /// "Log holographic violations (when fidelity drops below 0.5)"
-    fn update_holographic_monitoring(&mut self, scale: ScaleLevel, changes: &[Change]) {
+    fn update_holographic_monitoring(&mut self, scale: ScaleLevel, _changes: &[Change]) {
         // Calculate fidelity metric
         let fidelity_metric = self.holographic_continuity.holographic_fidelity_metric();
 
@@ -6479,7 +6571,7 @@ impl ScaleSpecificPhysics {
                 region.temperature += supernova_count as Float * 100.0; // Heating
 
                 // Gas density decreases slightly (supernova blowout)
-                region.gas_density *= (1.0 - supernova_count as Float * 0.01);
+                region.gas_density *= 1.0 - supernova_count as Float * 0.01;
             }
         }
 
@@ -6565,7 +6657,7 @@ impl ScaleSpecificPhysics {
         if total_bh_mass > 1.0e9 {
             // Supermassive black hole - affects cosmic geometry
             self.cosmic_simulation.universe.expansion_rate *=
-                (1.0 + total_bh_mass * 1.0e-12 * time_step);
+                1.0 + total_bh_mass * 1.0e-12 * time_step;
         }
 
         // Update holographic continuity
@@ -6583,12 +6675,12 @@ impl ScaleSpecificPhysics {
     /// - Hubble flow affects galaxy distances
     /// - Cosmic microwave background affects gas temperature
     /// - Large-scale structure affects galaxy formation
-    fn apply_cosmic_to_galactic_coupling(&mut self, cosmic_changes: &[Change], _time_step: Float) {
+    fn apply_cosmic_to_galactic_coupling(&mut self, _cosmic_changes: &[Change], _time_step: Float) {
         // Cosmic expansion affects galaxy distance
         let expansion_factor = self.cosmic_simulation.universe.expansion_rate * 0.001;
 
         // Update galaxy size (cosmic expansion)
-        self.galactic_simulation.galaxy.diameter *= (1.0 + expansion_factor);
+        self.galactic_simulation.galaxy.diameter *= 1.0 + expansion_factor;
 
         // CMB temperature affects galactic gas temperature
         let cmb_temperature = self.cosmic_simulation.cosmic_background.cmb_temperature;
@@ -6640,6 +6732,7 @@ impl ScaleSpecificPhysics {
     }
 
     /// Influence stellar simulation
+    #[allow(dead_code)]
     fn influence_stellar(
         &self,
         _stellar: &mut StellarSimulation,
@@ -6727,7 +6820,7 @@ impl StellarSimulation {
             path.current_angle %= 2.0 * std::f64::consts::PI;
 
             // Calculate orbital period: T = 2π × √(a³ / (G × M))
-            let orbital_period = 2.0
+            let _orbital_period = 2.0
                 * std::f64::consts::PI
                 * (a.powi(3) / (GRAVITATIONAL_CONSTANT * central_mass)).sqrt();
 
@@ -6750,7 +6843,7 @@ impl StellarSimulation {
                 / (1.0 + eccentricity * path.current_angle.cos());
 
             // Gravitational acceleration: a_grav = -GM/r²
-            let gravitational_acceleration = -GRAVITATIONAL_CONSTANT * central_mass / (r * r);
+            let _gravitational_acceleration = -GRAVITATIONAL_CONSTANT * central_mass / (r * r);
 
             // Update planet position would go here (simplified)
             // Position is encoded in current_angle and semi-major/minor axes
@@ -6895,12 +6988,12 @@ impl StellarSimulation {
                     planet.orbital_distance =
                         (planet.orbital_distance - tidal_decay_rate * time_step).max(0.1);
 
-                    // Update orbital period: T = 2π × √(a³ / (G × M))
+                    // Update orbital period: T = 2π × √(a³ / (G × m))
                     let a = planet.orbital_distance * ASTRONOMICAL_UNIT;
-                    let M = star.mass * SOLAR_MASS;
+                    let m = star.mass * SOLAR_MASS;
                     planet.orbital_period = 2.0
                         * std::f64::consts::PI
-                        * (a.powi(3) / (GRAVITATIONAL_CONSTANT * M)).sqrt();
+                        * (a.powi(3) / (GRAVITATIONAL_CONSTANT * m)).sqrt();
 
                     // Atmospheric escape
                     if let Some(atmosphere) = &mut planet.atmosphere {
@@ -6979,7 +7072,7 @@ impl StellarSimulation {
                 EnergyType::Gravitational => {
                     // Tidal heating
                     if let Some(planet) = self.planets.get(&flow.source_id) {
-                        if let Some(star) = self.stars.get(&flow.destination_id) {
+                        if let Some(_star) = self.stars.get(&flow.destination_id) {
                             // Tidal heating depends on distance and eccentricity
                             let tidal_heating =
                                 1.0e15 * planet.mass / (planet.orbital_distance.powi(6));
@@ -6989,7 +7082,7 @@ impl StellarSimulation {
                 }
                 _ => {
                     // Other energy types (thermal, kinetic, nuclear)
-                    flow.flow_rate *= (1.0 + time_step * 0.0001);
+                    flow.flow_rate *= 1.0 + time_step * 0.0001;
                 }
             }
         }
@@ -7086,6 +7179,7 @@ impl StellarSimulation {
     }
 
     /// Influence galactic simulation
+    #[allow(dead_code)]
     fn influence_galactic(
         &self,
         _galactic: &mut GalacticSimulation,
@@ -7218,13 +7312,13 @@ impl GalacticSimulation {
 
             // Random fluctuations in star density
             if rand::random::<f64>() < 0.01 {
-                arm.star_density *= (0.9 + rand::random::<f64>() * 0.2);
+                arm.star_density *= 0.9 + rand::random::<f64>() * 0.2;
             }
         }
 
         // Create new spiral arms if needed (for spiral galaxies)
-        if self.galaxy.galaxy_type == GalaxyType::Spiral && self.spiral_arms.len() < 4 {
-            if rand::random::<f64>() < 0.001 * time_step {
+        if self.galaxy.galaxy_type == GalaxyType::Spiral && self.spiral_arms.len() < 4
+            && rand::random::<f64>() < 0.001 * time_step {
                 let new_arm = SpiralArm {
                     arm_id: rand::random(),
                     start_position: (0.0, 0.0, 0.0),
@@ -7239,7 +7333,6 @@ impl GalacticSimulation {
                 };
                 self.spiral_arms.push(new_arm);
             }
-        }
     }
 
     /// Update star formation (Schmidt-Kennicutt law)
@@ -7319,7 +7412,7 @@ impl GalacticSimulation {
     fn evolve_black_holes(&mut self, time_step: Float) {
         for black_hole in self.black_holes.values_mut() {
             // Eddington accretion rate
-            let m_sun = black_hole.mass * SOLAR_MASS;
+            let _m_sun = black_hole.mass * SOLAR_MASS;
             let edington_luminosity = 1.26e38 * black_hole.mass; // W per solar mass
             let edington_accretion_rate = edington_luminosity / (0.1 * SPEED_OF_LIGHT.powi(2)); // kg/s
 
@@ -7389,7 +7482,7 @@ impl GalacticSimulation {
         halo.mass += accretion_rate / SOLAR_MASS;
 
         // Halo radius slowly expands
-        halo.radius *= (1.0 + time_step * 0.00001);
+        halo.radius *= 1.0 + time_step * 0.00001;
 
         // Update density map based on NFW profile
         // NFW profile: ρ(r) = ρ₀ / [(r/r_s)(1 + r/r_s)²]
@@ -7411,10 +7504,10 @@ impl GalacticSimulation {
         // Update filaments
         for filament in &mut self.dark_matter.filaments {
             // Filaments slowly grow
-            filament.length *= (1.0 + time_step * 0.00001);
+            filament.length *= 1.0 + time_step * 0.00001;
 
             // Filament density fluctuates
-            filament.density *= (0.999 + rand::random::<f64>() * 0.002);
+            filament.density *= 0.999 + rand::random::<f64>() * 0.002;
         }
 
         // Create new filaments if needed
@@ -7615,7 +7708,7 @@ impl CosmicSimulation {
             (omega_lambda - omega_m * scale_factor.powi(-3)) * time_step * 0.0001;
 
         // Update universe size (comoving distance scales with a(t))
-        self.universe.size *= (1.0 + hubble_parameter * time_step * 0.001);
+        self.universe.size *= 1.0 + hubble_parameter * time_step * 0.001;
 
         // Update energy densities (scale with universe expansion)
         for (key, density) in self.universe.energy_density.iter_mut() {
@@ -7687,7 +7780,7 @@ impl CosmicSimulation {
         // Evolve voids
         for void in &mut self.large_scale_structure.voids {
             // Voids expand faster than the Hubble flow
-            void.radius *= (1.0 + time_step * 0.0002);
+            void.radius *= 1.0 + time_step * 0.0002;
 
             // Void density decreases as they expand
             void.density *= 0.999;
@@ -7744,7 +7837,7 @@ impl CosmicSimulation {
     /// CMB temperature: T(t) = T₀ / a(t)
     /// Cosmic neutrino background
     /// Gravitational wave background
-    fn evolve_cosmic_background(&mut self, time_step: Float) {
+    fn evolve_cosmic_background(&mut self, _time_step: Float) {
         // CMB temperature scales with universe expansion: T(t) = T₀ / a(t)
         let omega_m = self
             .universe
@@ -7777,12 +7870,12 @@ impl CosmicSimulation {
 
         // Update anisotropies (small fluctuations)
         for anisotropy in &mut self.cosmic_background.anisotropies {
-            *anisotropy *= (0.999 + rand::random::<f64>() * 0.002);
+            *anisotropy *= 0.999 + rand::random::<f64>() * 0.002;
         }
 
         // Update polarization
         for polarization in &mut self.cosmic_background.polarization {
-            *polarization *= (0.999 + rand::random::<f64>() * 0.002);
+            *polarization *= 0.999 + rand::random::<f64>() * 0.002;
         }
 
         // Update spectral distribution (blackbody spectrum)
@@ -7852,10 +7945,10 @@ impl CosmicSimulation {
             }
 
             // Frequency fluctuates
-            string.frequency *= (0.999 + rand::random::<f64>() * 0.002);
+            string.frequency *= 0.999 + rand::random::<f64>() * 0.002;
 
             // Amplitude evolves
-            string.amplitude *= (0.999 + rand::random::<f64>() * 0.002);
+            string.amplitude *= 0.999 + rand::random::<f64>() * 0.002;
         }
 
         // Create new strings (quantum fluctuations)
@@ -7930,7 +8023,7 @@ impl CosmicSimulation {
 
         // Holographic information content scales with universe size
         // Information content ~ universe size^3 (volume)
-        let information_content = self.universe.size.powi(3) * 1.0e60; // Bits
+        let _information_content = self.universe.size.powi(3) * 1.0e60; // Bits
                                                                        // This is implicit in the consciousness level
     }
 
@@ -8044,17 +8137,6 @@ impl Default for IntelligentInfinity {
     }
 }
 
-impl Default for SensoryInput {
-    fn default() -> Self {
-        SensoryInput {
-            visual: Vec::new(),
-            auditory: Vec::new(),
-            tactile: Vec::new(),
-            olfactory: Vec::new(),
-            proprioceptive: Vec::new(),
-        }
-    }
-}
 
 impl Default for BehaviorState {
     fn default() -> Self {
@@ -8079,15 +8161,6 @@ impl Default for PopulationDynamics {
     }
 }
 
-impl Default for CulturalEvolution {
-    fn default() -> Self {
-        CulturalEvolution {
-            traits: HashMap::new(),
-            memes: Vec::new(),
-            art_expression: Vec::new(),
-        }
-    }
-}
 
 impl Default for Atmosphere {
     fn default() -> Self {
@@ -8304,7 +8377,7 @@ impl ScaleSpecificPhysics {
 
         // Simulate multiple steps
         for _ in 0..steps {
-            let step_start = Instant::now();
+            let _step_start = Instant::now();
 
             // Run simulation step
             let result = self.simulate_step(scale, 0.01)?;
@@ -8540,8 +8613,7 @@ impl ScaleSpecificPhysics {
         let transition_target_rate = self.performance_benchmark.success_rate();
         let density_target_rate = 100.0
             * (1.0 - self.performance_benchmark.average_time_ms / 100.0)
-                .max(0.0)
-                .min(1.0);
+                .clamp(0.0, 1.0);
 
         // Generate bottleneck analysis
         let bottleneck_analysis = self.identify_bottlenecks(&scale_benchmarks);
@@ -8630,7 +8702,7 @@ impl ScaleSpecificPhysics {
     pub fn benchmark_cross_scale_coupling(
         &mut self,
         from: ScaleLevel,
-        to: ScaleLevel,
+        _to: ScaleLevel,
         iterations: usize,
     ) -> Result<ScaleBenchmark, ScalePhysicsError> {
         let mut benchmark = ScaleBenchmark::new(from, 100, iterations);
@@ -8738,7 +8810,7 @@ impl ScaleSpecificPhysics {
         }
 
         // ===== Component 1: Encoding =====
-        let encoding_start = Instant::now();
+        let _encoding_start = Instant::now();
 
         // Apply lazy encoding optimization if enabled
         if strategy == OptimizationStrategy::LazyEncoding
@@ -8751,7 +8823,7 @@ impl ScaleSpecificPhysics {
         }
 
         // ===== Component 2: Propagation =====
-        let propagation_start = Instant::now();
+        let _propagation_start = Instant::now();
 
         // Apply parallel propagation optimization if enabled
         if strategy == OptimizationStrategy::ParallelPropagation
@@ -8764,7 +8836,7 @@ impl ScaleSpecificPhysics {
         }
 
         // ===== Component 3: Coherence =====
-        let coherence_start = Instant::now();
+        let _coherence_start = Instant::now();
 
         // Apply simplified coherence optimization if enabled
         if strategy == OptimizationStrategy::SimplifiedCoherence
@@ -8776,7 +8848,7 @@ impl ScaleSpecificPhysics {
         }
 
         // ===== Component 4: Validation =====
-        let validation_start = Instant::now();
+        let _validation_start = Instant::now();
 
         // Apply optimized validation optimization if enabled
         if strategy == OptimizationStrategy::OptimizedValidation
@@ -8839,7 +8911,7 @@ impl ScaleSpecificPhysics {
             // Check if scale is dirty (state changed)
             if !self.performance_benchmark.is_dirty(*scale) {
                 // Use cached encoding if available
-                if let Some((cached_encoding, version)) =
+                if let Some((_cached_encoding, version)) =
                     self.performance_benchmark.get_cached_encoding(*scale)
                 {
                     if *version == current_version {
@@ -9227,7 +9299,7 @@ mod tests {
         let mut physics = ScaleSpecificPhysics::new();
 
         // Measure with baseline
-        let baseline = physics
+        let _baseline = physics
             .measure_scale_transition(
                 ScaleLevel::Quantum,
                 ScaleLevel::Cosmic,
@@ -9504,7 +9576,7 @@ mod tests {
 
         // Check success rate
         let success_rate = physics.performance_benchmark.success_rate();
-        assert!(success_rate >= 0.0 && success_rate <= 100.0);
+        assert!((0.0..=100.0).contains(&success_rate));
     }
 
     /// Test benchmark summary generation
@@ -10154,7 +10226,7 @@ mod tests {
 
         assert_eq!(galactic.star_formation_regions.len(), 1);
 
-        let initial_gas_density = galactic.star_formation_regions[0].gas_density;
+        let _initial_gas_density = galactic.star_formation_regions[0].gas_density;
 
         // Update star formation
         let changes = galactic.update_star_formation(1000.0);
@@ -10270,7 +10342,7 @@ mod tests {
         let initial_age = cosmic.universe.age;
         let initial_size = cosmic.universe.size;
 
-        let (age_increment, expansion_rate_change) = cosmic.evolve_universe(1000.0);
+        let (age_increment, _expansion_rate_change) = cosmic.evolve_universe(1000.0);
 
         // Universe should have aged
         assert!(cosmic.universe.age > initial_age);
@@ -10905,7 +10977,7 @@ mod tests {
         // If decoherence is detected, verify incoherent pairs are listed
         if report.decoherence_detected {
             assert!(!report.incoherent_pairs.is_empty());
-            for (scale1, scale2, coherence) in &report.incoherent_pairs {
+            for (_scale1, _scale2, coherence) in &report.incoherent_pairs {
                 assert!(*coherence < 0.5);
             }
         }
@@ -11004,7 +11076,7 @@ mod tests {
         assert!(signature.fractal_dimension >= 0.0);
         assert!(signature.self_similarity_exponent >= 0.0);
         assert!(!signature.fractal_encoding.is_empty());
-        assert!(signature.recursion_depth >= 0);
+        // recursion_depth is usize, always >= 0
 
         println!(
             "Fractal dimension: {}, Self-similarity exponent: {}, Recursion depth: {}",
@@ -11328,7 +11400,7 @@ mod tests {
         continuity.bidirectional_coupling().unwrap();
 
         // Store initial coupling values
-        let initial_coupling = continuity.cross_scale_coupling.clone();
+        let _initial_coupling = continuity.cross_scale_coupling.clone();
 
         // Apply adaptive coupling
         let result = continuity.adaptive_coupling();
@@ -11614,7 +11686,7 @@ mod tests {
 
         // Simulate quantum scale
         let time_step = 0.01;
-        let result = physics
+        let _result = physics
             .simulate_step(ScaleLevel::Quantum, time_step)
             .expect("Quantum simulation should succeed");
 
@@ -11663,7 +11735,7 @@ mod tests {
         // Simulate multiple steps
         let time_step = 0.01;
         let num_steps = 10;
-        let mut previous_fidelity = physics.holographic_fidelity;
+        let mut _previous_fidelity = physics.holographic_fidelity;
 
         for i in 0..num_steps {
             let _ = physics
@@ -11679,7 +11751,7 @@ mod tests {
 
             // Fidelity may change (decrease with large changes, increase with stability)
             // but should remain in valid range
-            previous_fidelity = physics.holographic_fidelity;
+            _previous_fidelity = physics.holographic_fidelity;
         }
 
         // Step counter should reflect number of simulations
@@ -11735,7 +11807,7 @@ mod tests {
 
         // Fidelity should be in valid range
         assert!(
-            fidelity >= 0.0 && fidelity <= 1.0,
+            (0.0..=1.0).contains(&fidelity),
             "Fidelity should be in valid range: {}",
             fidelity
         );
@@ -12041,7 +12113,7 @@ mod tests {
             .get_coherence(ScaleLevel::Quantum, ScaleLevel::Cellular);
 
         assert!(
-            coherence >= 0.0 && coherence <= 1.0,
+            (0.0..=1.0).contains(&coherence),
             "Coherence should be in valid range: {}",
             coherence
         );
@@ -12076,13 +12148,14 @@ mod tests {
         } else {
             panic!("Quantum scale should have signature");
         }
+    }
 
-        // ========== Week 6 Part 2: Benchmarking Tests ==========
-        //
-        // From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        // "Create comprehensive benchmarking system to measure performance of all scale simulations"
+    // ========== Week 6 Part 2: Benchmarking Tests ==========
+    //
+    // From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    // "Create comprehensive benchmarking system to measure performance of all scale simulations"
 
-        /// Test scale simulation benchmarking
+    /// Test scale simulation benchmarking
         ///
         /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
         /// "Benchmark all 7 scales individually"
@@ -12298,8 +12371,8 @@ mod tests {
 
             // Ratios should be close to 10 (linear scaling)
             // Allow up to 3x variance due to holographic overhead
-            assert!(ratio_10_to_100 >= 3.0 && ratio_10_to_100 <= 30.0);
-            assert!(ratio_100_to_1000 >= 3.0 && ratio_100_to_1000 <= 30.0);
+            assert!((3.0..=30.0).contains(&ratio_10_to_100));
+            assert!((3.0..=30.0).contains(&ratio_100_to_1000));
         }
 
         /// Test performance targets achievement
@@ -12385,5 +12458,4 @@ mod tests {
                 assert!(!recommendation.is_empty());
             }
         }
-    }
-} // End of tests module
+    } // End of tests module

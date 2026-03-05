@@ -219,7 +219,7 @@ impl GalacticLogos {
         self.spectrum_configuration.is_stable()
             && self
                 .galaxy_spiraling_energy()
-                .map_or(false, |e| e.is_active())
+                .is_some_and(|e| e.is_active())
     }
 }
 

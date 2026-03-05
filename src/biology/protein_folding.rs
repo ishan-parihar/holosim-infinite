@@ -16,7 +16,6 @@ use crate::holographic::holographic_field::HolographicField;
 use crate::holographic::Position;
 use crate::matter::particle::Coordinate3D;
 use crate::types::Float;
-use std::sync::Arc;
 
 // ============================================================================
 // AMINO ACID TYPES
@@ -434,7 +433,7 @@ impl Protein {
 
         let mut helix_propensity = 0.0;
         let mut sheet_propensity = 0.0;
-        let mut coil_propensity = 0.0;
+        let mut _coil_propensity = 0.0;
 
         for aa in &self.sequence {
             let sig = aa.archetype_signature();
@@ -446,13 +445,13 @@ impl Protein {
             sheet_propensity += sig[6] + sig[13] + sig[20];
 
             // Transformation and Choice promote coil (flexible)
-            coil_propensity += sig[5] + sig[12] + sig[19] + sig[21];
+            _coil_propensity += sig[5] + sig[12] + sig[19] + sig[21];
         }
 
         let len = self.sequence.len() as Float;
         helix_propensity /= len * 3.0;
         sheet_propensity /= len * 3.0;
-        coil_propensity /= len * 4.0;
+        _coil_propensity /= len * 4.0;
 
         // Determine dominant structure
         if helix_propensity > 0.6 && helix_propensity > sheet_propensity {
@@ -762,7 +761,7 @@ impl BlueprintProteinShape {
             0.5
         };
 
-        native_energy.max(0.1).min(1.0)
+        native_energy.clamp(0.1, 1.0)
     }
 
     /// Generate folding pathway with intermediate states
@@ -825,6 +824,7 @@ pub struct ProteinFoldingEngine {
     /// Convergence threshold
     convergence_threshold: Float,
     /// Temperature factor for folding kinetics
+    #[allow(dead_code)]
     temperature_factor: Float,
 }
 

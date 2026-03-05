@@ -387,7 +387,7 @@ impl ManifestationEngine {
     /// Get recent manifestations (last n records)
     pub fn recent_history(&self, n: usize) -> Vec<&ManifestationRecord> {
         let len = self.history.len();
-        let start = if len > n { len - n } else { 0 };
+        let start = len.saturating_sub(n);
         self.history[start..].iter().collect()
     }
 
@@ -463,7 +463,7 @@ impl ManifestationEngine {
         }
 
         // Calculate overall average threshold
-        if self.history.len() > 0 {
+        if !self.history.is_empty() {
             let total_threshold: Float = self.history.iter().map(|r| r.threshold_used).sum();
             self.stats.average_threshold = total_threshold / self.history.len() as Float;
         }
@@ -484,7 +484,6 @@ impl Default for ManifestationEngine {
 mod tests {
     use super::*;
     use crate::foundation::observer::FieldSignature;
-    use crate::foundation::SpectrumPosition;
     use crate::holographic::field_address::ScaleLevel;
 
     #[test]

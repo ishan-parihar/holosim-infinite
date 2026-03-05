@@ -52,6 +52,7 @@ pub struct TransformationSpiritArchetype {
     // Developmental fields
     pub developmental_position: DevelopmentalPosition,
     pub activated_rungs: Vec<Rung>,
+    #[allow(dead_code)]
     rung_activation: HashMap<Rung, Float>,
     pub activation_levels: HashMap<Rung, Float>,
 
@@ -83,9 +84,7 @@ impl TransformationSpiritArchetype {
     pub fn new() -> Self {
         let lambda = LambdaMeasurement::new(0.6, LambdaMeasurementType::TransformationVelocity);
 
-        let tarot = TarotCorrelation::new(format!(
-            "Judgment (XX): Resurrection, awakening, transformation, spiritual rebirth"
-        ));
+        let tarot = TarotCorrelation::new("Judgment (XX): Resurrection, awakening, transformation, spiritual rebirth".to_string());
 
         let developmental_position = DevelopmentalPosition::new_with_octant_rung(Octant::O1, 4);
 
@@ -272,49 +271,49 @@ activation_levels,
 
     /// Update material transmutation
     pub fn update_material_transmutation(&mut self, value: Float) {
-        self.material_transmutation = value.max(0.0).min(1.0);
+        self.material_transmutation = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update infinite realization
     pub fn update_infinite_realization(&mut self, value: Float) {
-        self.infinite_realization = value.max(0.0).min(1.0);
+        self.infinite_realization = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update intelligent infinity contact
     pub fn update_intelligent_infinity_contact(&mut self, value: Float) {
-        self.intelligent_infinity_contact = value.max(0.0).min(1.0);
+        self.intelligent_infinity_contact = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update adepthood progress
     pub fn update_adepthood_progress(&mut self, value: Float) {
-        self.adepthood_progress = value.max(0.0).min(1.0);
+        self.adepthood_progress = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update transformation velocity
     pub fn update_transformation_velocity(&mut self, value: Float) {
-        self.transformation_velocity = value.max(0.0).min(1.0);
+        self.transformation_velocity = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update consciousness discipline
     pub fn update_consciousness_discipline(&mut self, value: Float) {
-        self.consciousness_discipline = value.max(0.0).min(1.0);
+        self.consciousness_discipline = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update sarcophagus state
     pub fn update_sarcophagus_state(&mut self, value: Float) {
-        self.sarcophagus_state = value.max(0.0).min(1.0);
+        self.sarcophagus_state = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update spirit infinity depth
     pub fn update_spirit_infinity_depth(&mut self, value: Float) {
-        self.spirit_infinity_depth = value.max(0.0).min(1.0);
+        self.spirit_infinity_depth = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
@@ -706,7 +705,7 @@ impl ArchetypeTrait for TransformationSpiritArchetype {
         ArchetypeRole::Transformation
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, _catalyst: Float, _position: DevelopmentalPosition) {
         let new_transmutation = self.calculate_material_transmutation_score();
         let new_infinite = self.calculate_infinite_realization_score();
         let new_contact = self.calculate_intelligent_infinity_contact_score();

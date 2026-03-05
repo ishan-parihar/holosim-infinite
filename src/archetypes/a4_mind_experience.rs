@@ -10,7 +10,7 @@ use crate::archetypes::common::{
     FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
     LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 use std::collections::HashMap;
 
 // Forward declaration of CatalystVariety (defined in a3_mind_catalyst.rs)
@@ -212,9 +212,7 @@ impl ExperienceMindArchetype {
         lambda.healthy_min = 0.5;
         lambda.healthy_max = 0.8;
 
-        let tarot_correlation = TarotCorrelation::new(format!(
-            "The Emperor (IV): Processed output, integrated wisdom, firm authority"
-        ));
+        let tarot_correlation = TarotCorrelation::new("The Emperor (IV): Processed output, integrated wisdom, firm authority".to_string());
 
         let activation_levels = HashMap::new();
 
@@ -280,7 +278,7 @@ impl ExperienceMindArchetype {
         let depth = self.integration_quality * 0.4
             + self.processing_velocity * 0.3
             + (1.0 - self.imperfect_memory_factor) * 0.3;
-        depth.max(0.0).min(1.0)
+        depth.clamp(0.0, 1.0)
     }
 
     /// Calculate integration quality
@@ -295,7 +293,7 @@ impl ExperienceMindArchetype {
         let quality = self.experience_depth * 0.4
             + self.bias_flexibility * 0.3
             + self.authority_balance * 0.3;
-        quality.max(0.0).min(1.0)
+        quality.clamp(0.0, 1.0)
     }
 
     /// Calculate bias flexibility
@@ -308,7 +306,7 @@ impl ExperienceMindArchetype {
     pub fn calculate_bias_flexibility(&self) -> Float {
         let flexibility =
             self.integration_quality * 0.6 + (1.0 - self.continuing_bias_strength) * 0.4;
-        flexibility.max(0.0).min(1.0)
+        flexibility.clamp(0.0, 1.0)
     }
 
     /// Calculate authority balance
@@ -321,8 +319,7 @@ impl ExperienceMindArchetype {
     pub fn calculate_authority_balance(&self) -> Float {
         // Balance increases with both integration quality and bias flexibility
         (self.integration_quality * 0.5 + self.bias_flexibility * 0.5)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate continuing bias strength
@@ -334,7 +331,7 @@ impl ExperienceMindArchetype {
     /// Returns: Continuing bias strength (0.0 to 1.0)
     pub fn calculate_continuing_bias_strength(&self) -> Float {
         let strength = self.experience_depth * 0.6 + (1.0 - self.bias_flexibility) * 0.4;
-        strength.max(0.0).min(1.0)
+        strength.clamp(0.0, 1.0)
     }
 
     /// Calculate protection level (STO only)
@@ -363,8 +360,7 @@ impl ExperienceMindArchetype {
         }
 
         (self.experience_depth / self.catalyst_integration)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Process experience
@@ -592,7 +588,7 @@ impl ArchetypeTrait for ExperienceMindArchetype {
     }
 
     fn update_lambda(&mut self, value: Float) {
-        self.lambda.value = value.max(0.0).min(1.0);
+        self.lambda.value = value.clamp(0.0, 1.0);
         self.experience_depth = self.lambda.value;
     }
 
@@ -817,7 +813,7 @@ impl ExperienceArchetypeTrait for ExperienceMindArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {

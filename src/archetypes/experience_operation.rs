@@ -51,8 +51,8 @@ impl ExperienceOperation {
         }
     }
 
-    /// Create a new Experience operation with default values
-    pub fn default() -> Self {
+    /// Create a new Experience operation with initial values
+    pub fn initial() -> Self {
         Self::new(ExperienceMindArchetype::new())
     }
 
@@ -256,7 +256,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_creation() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         assert_eq!(operation.archetype_id(), 4);
         assert_eq!(operation.archetype_name(), "Experience Operation");
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_process() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let input = ConsciousnessInput {
             raw_experience: 0.8,
@@ -288,7 +288,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_signature() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
         let signature = operation.signature();
 
         assert_eq!(signature.archetype_id, 4);
@@ -302,7 +302,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_can_process() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         // Valid input
         let valid_input = ConsciousnessInput {
@@ -337,7 +337,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_integrate_experience() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let integrated = operation.integrate_experience(0.8);
 
@@ -347,7 +347,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_extract_wisdom() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let wisdom = operation.extract_wisdom(0.8);
 
@@ -357,7 +357,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_create_continuing_bias() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let bias = operation.create_continuing_bias(0.8);
 
@@ -367,7 +367,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_efficiency() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let efficiency = operation.processing_efficiency();
 
@@ -377,7 +377,7 @@ mod tests {
 
     #[test]
     fn test_experience_operation_display() {
-        let operation = ExperienceOperation::default();
+        let operation = ExperienceOperation::initial();
 
         let display = format!("{}", operation);
 

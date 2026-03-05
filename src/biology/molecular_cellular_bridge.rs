@@ -19,8 +19,7 @@
 //! 5. Components → Cell (organization)
 
 use crate::biology::dna_blueprint::{
-    AminoAcidCode, AssemblyInstruction, BlueprintDNA, Codon, FoldingPattern, FunctionalGene,
-    GeneId, Nucleotide, ProteinBlueprint, ProteinType, SecondaryStructurePrediction, RNA,
+    AssemblyInstruction, BlueprintDNA, FoldingPattern, Nucleotide, ProteinBlueprint, ProteinType, SecondaryStructurePrediction, RNA,
 };
 use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::holographic::holographic_field::HolographicField;
@@ -561,7 +560,7 @@ impl MolecularCellularBridge {
             };
 
             // Also consider matrix archetype (index 0) for energy
-            let matrix = if potential.archetype_activation.coefficients.len() > 0 {
+            let matrix = if !potential.archetype_activation.coefficients.is_empty() {
                 potential.archetype_activation.coefficients[0]
             } else {
                 0.5
@@ -1250,6 +1249,8 @@ mod tests {
     use super::*;
     use crate::holographic::complex_vectors::ComplexArchetype;
     use crate::holographic::holographic_field::InvolutionLayer;
+    use std::sync::Arc;
+    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
 
     fn create_test_field() -> Arc<HolographicField> {
         let archetypes: [ComplexArchetype; 22] = std::array::from_fn(|_| ComplexArchetype {
@@ -1579,6 +1580,9 @@ mod integration_tests {
     use super::*;
     use crate::holographic::complex_vectors::ComplexArchetype;
     use crate::holographic::holographic_field::InvolutionLayer;
+    use std::sync::Arc;
+    use crate::types::Float;
+    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
 
     /// Create a test field with specific coherence characteristics
     fn create_coherent_field(layer: InvolutionLayer) -> Arc<HolographicField> {
@@ -1616,7 +1620,7 @@ mod integration_tests {
         // Create field at Green layer (Bridge layer)
         let field = create_coherent_field(InvolutionLayer::Green);
         let blueprint = create_integration_blueprint();
-        let mut bridge = MolecularCellularBridge::new(field, blueprint);
+        let bridge = MolecularCellularBridge::new(field, blueprint);
 
         // Step 1: Extract nucleotides from field
         let nucleotides = bridge.extract_nucleotides_from_field(0.1);
@@ -1724,7 +1728,7 @@ mod integration_tests {
 
         let field = create_coherent_field(InvolutionLayer::Green);
         let blueprint = create_integration_blueprint();
-        let mut bridge = MolecularCellularBridge::new(field, blueprint);
+        let bridge = MolecularCellularBridge::new(field, blueprint);
 
         // Stage 1: Molecules (represented by nucleotide components)
         let molecules = NucleotideComponent::default_pool();
@@ -1788,7 +1792,7 @@ mod integration_tests {
             "Blueprint should have patterns for guidance"
         );
 
-        let mut bridge = MolecularCellularBridge::new(field, blueprint);
+        let bridge = MolecularCellularBridge::new(field, blueprint);
 
         // Extract nucleotides
         if let Ok(nucleotides) = bridge.extract_nucleotides_from_field(0.1) {

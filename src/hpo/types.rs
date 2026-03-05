@@ -73,7 +73,7 @@ impl SimulationConfig {
             num_archetypes: 22,
             density_transition_rates: vec![0.1; 8], // Default rates for 8 densities
             catalyst_generation_rate: 0.05,
-            seed: config_id as u64,
+            seed: config_id,
             metadata: HashMap::new(),
         }
     }

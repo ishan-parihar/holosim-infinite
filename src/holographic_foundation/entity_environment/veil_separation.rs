@@ -116,7 +116,7 @@ impl UnityPerception {
         }
     }
 
-    pub fn update(&mut self, dt: Float, catalyst: Float) {
+    pub fn update(&mut self, _dt: Float, catalyst: Float) {
         let transparency = self.veil_perception_level;
         let target_separation = transparency.separation_factor();
         let target_unity = transparency.unity_perception();
@@ -523,7 +523,7 @@ mod tests {
     fn test_veil_separation_mechanics_perceive() {
         let mechanics = VeilSeparationMechanics::new(1);
         let perception = mechanics.perceive_environment();
-        assert!(perception >= 0.0 && perception <= 1.0);
+        assert!((0.0..=1.0).contains(&perception));
     }
 
     #[test]

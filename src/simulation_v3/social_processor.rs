@@ -12,10 +12,8 @@
 use crate::entity_layer7::layer7::EntityId;
 use crate::simulation_v3::consciousness_processor::ConsciousnessProcessor;
 use crate::social::civilization::{GovernanceType, SocialGroup};
-use crate::social::communication::{
-    CommunicationSystem, CommunicationType, Message, MessageContent,
-};
-use crate::social::harvest::{HarvestEngine, HarvestResult, HarvestType};
+use crate::social::communication::{CommunicationSystem, CommunicationType, MessageContent};
+use crate::social::harvest::{HarvestEngine, HarvestType};
 use crate::social::relationship_web::{
     Interaction, InteractionType, Relationship, RelationshipType, RelationshipWeb,
 };
@@ -423,8 +421,7 @@ impl SocialProcessor {
             // Find entities with similar archetype patterns
             let mut cluster: Vec<EntityId> = vec![entity_i.clone()];
 
-            for j in (i + 1)..ungrouped_entities.len() {
-                let entity_j = &ungrouped_entities[j];
+            for entity_j in ungrouped_entities.iter().skip(i + 1) {
                 let key_j = entity_j.as_u64();
 
                 if processed.contains(&key_j) {
@@ -596,7 +593,7 @@ impl SocialProcessor {
     /// Number of entities harvested
     pub fn process_harvest(&mut self, entities: &[EntityId]) -> usize {
         // Check if harvest cycle is due
-        if self.current_tick % self.harvest_engine.harvest_cycle_ticks != 0 {
+        if !self.current_tick.is_multiple_of(self.harvest_engine.harvest_cycle_ticks) {
             return 0;
         }
 
@@ -1010,7 +1007,7 @@ mod tests {
 
         let proximity = processor.calculate_proximity(&entity_a, &entity_b);
 
-        assert!(proximity >= 0.0 && proximity <= 1.0);
+        assert!((0.0..=1.0).contains(&proximity));
     }
 
     #[test]

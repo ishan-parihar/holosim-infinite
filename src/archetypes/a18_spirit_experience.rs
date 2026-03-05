@@ -83,6 +83,12 @@ pub struct ExperienceSpiritArchetype {
     pub bias_strength_evolution: Vec<Float>,
 }
 
+impl Default for ExperienceSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ExperienceSpiritArchetype {
     pub fn new() -> Self {
         // Initialize spirit bias structure with neutral values
@@ -98,7 +104,7 @@ impl ExperienceSpiritArchetype {
         ExperienceSpiritArchetype {
             archetype_id: 18,
             lambda: LambdaMeasurement::new(0.65, LambdaMeasurementType::ExperienceDepth),
-            tarot_correlation: TarotCorrelation::new(format!("The Moon (XVIII): Illusion, fear, anxiety, subconscious, intuition, deception, hidden things, shadow work")),
+            tarot_correlation: TarotCorrelation::new("The Moon (XVIII): Illusion, fear, anxiety, subconscious, intuition, deception, hidden things, shadow work".to_string()),
             discernment: 0.65,                   // Healthy discernment level
             shadow_work_effectiveness: 0.60,     // Good shadow work effectiveness
             light_descending_effectiveness: 0.65, // Good light descending
@@ -150,7 +156,7 @@ impl ExperienceSpiritArchetype {
 
         let target_discernment = moonlight_factor + shadow_work_factor + catalyst_factor;
         self.discernment = self.discernment * 0.7 + target_discernment * 0.3;
-        self.discernment = self.discernment.max(0.0).min(1.0);
+        self.discernment = self.discernment.clamp(0.0, 1.0);
     }
 
     // Update shadow work effectiveness
@@ -163,7 +169,7 @@ impl ExperienceSpiritArchetype {
         let target_effectiveness = practice_factor + discrimination_factor + experience_factor;
         self.shadow_work_effectiveness =
             self.shadow_work_effectiveness * 0.65 + target_effectiveness * 0.35;
-        self.shadow_work_effectiveness = self.shadow_work_effectiveness.max(0.0).min(1.0);
+        self.shadow_work_effectiveness = self.shadow_work_effectiveness.clamp(0.0, 1.0);
     }
 
     // Update light descending effectiveness
@@ -176,7 +182,7 @@ impl ExperienceSpiritArchetype {
         let target_effectiveness = illumination_component + polarity_component + input_factor;
         self.light_descending_effectiveness =
             self.light_descending_effectiveness * 0.7 + target_effectiveness * 0.3;
-        self.light_descending_effectiveness = self.light_descending_effectiveness.max(0.0).min(1.0);
+        self.light_descending_effectiveness = self.light_descending_effectiveness.clamp(0.0, 1.0);
     }
 
     // Update polarity development
@@ -188,7 +194,7 @@ impl ExperienceSpiritArchetype {
 
         let target_development = shadow_work_component + light_component + catalyst_component;
         self.polarity_development = self.polarity_development * 0.68 + target_development * 0.32;
-        self.polarity_development = self.polarity_development.max(0.0).min(1.0);
+        self.polarity_development = self.polarity_development.clamp(0.0, 1.0);
     }
 
     // Update moonlight discernment
@@ -200,7 +206,7 @@ impl ExperienceSpiritArchetype {
 
         let target_discernment = base_discernment + deception_navigated + shadow_component;
         self.moonlight_discernment = self.moonlight_discernment * 0.65 + target_discernment * 0.35;
-        self.moonlight_discernment = self.moonlight_discernment.max(0.0).min(1.0);
+        self.moonlight_discernment = self.moonlight_discernment.clamp(0.0, 1.0);
     }
 
     // Update positive illumination
@@ -212,7 +218,7 @@ impl ExperienceSpiritArchetype {
 
         let target_illumination = light_component + polarity_component + shadow_component;
         self.positive_illumination = self.positive_illumination * 0.7 + target_illumination * 0.3;
-        self.positive_illumination = self.positive_illumination.max(0.0).min(1.0);
+        self.positive_illumination = self.positive_illumination.clamp(0.0, 1.0);
     }
 
     // Get diagnostic information
@@ -263,7 +269,7 @@ impl ExperienceSpiritArchetype {
         let shadow_nav = self.calculate_shadow_navigation_score() * 0.5;
         let polarity_dev = self.calculate_polarity_development_score() * 0.5;
         self.integration_capacity = shadow_nav + polarity_dev;
-        self.integration_capacity = self.integration_capacity.max(0.0).min(1.0);
+        self.integration_capacity = self.integration_capacity.clamp(0.0, 1.0);
     }
 
     // ============================================================================
@@ -577,7 +583,7 @@ impl ExperienceArchetypeTrait for ExperienceSpiritArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -697,7 +703,7 @@ impl ArchetypeTrait for ExperienceSpiritArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn update_lambda(&mut self, delta: Float) {
@@ -820,7 +826,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {

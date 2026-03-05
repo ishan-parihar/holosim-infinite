@@ -12,7 +12,7 @@ use super::archetype_processor::{
     EntityArchetypeProcessor, GrowthDirection,
 };
 use super::dual_experience_engine::{
-    DualExperienceEngine, ExperienceModality, GrowthPolarity as ExpGrowthPolarity,
+    DualExperienceEngine, GrowthPolarity as ExpGrowthPolarity,
     QualitativeExperience,
 };
 use super::veil_integration::{
@@ -239,7 +239,7 @@ impl ConsciousnessTickEngine {
         // Get state density
         let density = {
             let state = self.states.get(&eid)?;
-            state.density.clone()
+            state.density
         };
 
         // Generate catalyst
@@ -350,6 +350,7 @@ impl ConsciousnessTickEngine {
         CatalystEvent::new(CatalystSource::Environment, 0.3, CatalystType::Unknown)
     }
 
+    #[allow(dead_code)]
     fn create_raw_perception(
         &self,
         input: &ConsciousnessTickInput,
@@ -399,6 +400,7 @@ impl ConsciousnessTickEngine {
         }
     }
 
+    #[allow(dead_code)]
     fn update_state(
         &self,
         state: &mut ConsciousnessState,

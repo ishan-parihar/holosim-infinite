@@ -17,9 +17,9 @@ use super::super::archetype_profile::NUM_ARCHETYPES;
 use super::super::atomic_emergence::ElementAttractorField;
 use super::super::field_state::{HolographicFieldState, Position3D};
 use super::super::scale_level::ScaleLevel;
-use super::bond_formation::{ArchetypeBond, BondFormation, BondType};
+use super::bond_formation::{ArchetypeBond, BondFormation};
 use super::functional_groups::{FunctionalGroup, FunctionalGroupResonance};
-use super::molecular_geometry::{GeometryPrediction, MolecularShape};
+use super::molecular_geometry::GeometryPrediction;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct MolecularId(u64);
@@ -262,8 +262,8 @@ impl MolecularManifestation {
         let mut archetype_pattern = [0.0; NUM_ARCHETYPES];
         for elem in &elements {
             let config = elem.configuration();
-            for i in 0..NUM_ARCHETYPES {
-                archetype_pattern[i] += config.archetype_vector[i];
+            for (pattern_i, &arch_i) in archetype_pattern.iter_mut().zip(config.archetype_vector.iter()) {
+                *pattern_i += arch_i;
             }
         }
         for val in archetype_pattern.iter_mut() {
@@ -307,8 +307,8 @@ impl MolecularManifestation {
         let h2 = ElementAttractorField::hydrogen();
 
         let mut bond_formation = BondFormation::new().with_threshold(0.1);
-        let bond1 = bond_formation.form_bond(&o, &h1, position.clone());
-        let bond2 = bond_formation.form_bond(&o, &h2, position.clone());
+        let bond1 = bond_formation.form_bond(&o, &h1, position);
+        let bond2 = bond_formation.form_bond(&o, &h2, position);
 
         let bonds = vec![bond1.bonds, bond2.bonds]
             .into_iter()
@@ -331,7 +331,7 @@ impl MolecularManifestation {
         let mut bond_formation = BondFormation::new().with_threshold(0.1);
 
         for h in &hydrogens {
-            let result = bond_formation.form_bond(&c, h, position.clone());
+            let result = bond_formation.form_bond(&c, h, position);
             bonds.extend(result.bonds);
         }
 
@@ -453,10 +453,10 @@ impl MolecularPlanetarySystem {
     }
 
     pub fn process_field(&mut self, field: &HolographicFieldState, timestamp: Float) {
-        let root_position = field.root().position.clone();
+        let root_position = field.root().position;
 
         if let Some(planet) =
-            PlanetaryEmergence::from_field(field, root_position.clone(), timestamp)
+            PlanetaryEmergence::from_field(field, root_position, timestamp)
         {
             let water_pos =
                 Position3D::new(root_position.x + 0.1, root_position.y, root_position.z);
@@ -701,7 +701,7 @@ mod tests {
         system.add_pair(pair);
 
         let avg_res = system.average_resonance();
-        assert!(avg_res >= 0.0 && avg_res <= 1.0);
+        assert!((0.0..=1.0).contains(&avg_res));
     }
 
     #[test]

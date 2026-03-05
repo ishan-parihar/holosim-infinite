@@ -518,13 +518,13 @@ impl PhysicalStructureVisualizer {
         let mut output = String::new();
 
         output.push_str(&self.visualize_density_distribution());
-        output.push_str("\n");
+        output.push('\n');
 
         output.push_str(&self.visualize_emergence_timeline());
-        output.push_str("\n");
+        output.push('\n');
 
         output.push_str(&self.visualize_individual_collective_ratio());
-        output.push_str("\n");
+        output.push('\n');
 
         // Show structure trees for each density
         output.push_str("╔════════════════════════════════════════════════════════════════╗\n");

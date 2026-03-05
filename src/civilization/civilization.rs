@@ -21,6 +21,7 @@ use std::collections::HashMap;
 
 /// Unique identifier for a civilization
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct CivilizationId(pub u64);
 
 impl CivilizationId {
@@ -33,11 +34,6 @@ impl CivilizationId {
     }
 }
 
-impl Default for CivilizationId {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 // ============================================================================
 // Technology Level
@@ -45,8 +41,10 @@ impl Default for CivilizationId {
 
 /// Technology level on a modified Kardashev scale
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum TechnologyLevel {
     /// Pre-agricultural hunter-gatherer
+    #[default]
     PreAgricultural = 0,
 
     /// Agricultural society
@@ -80,11 +78,6 @@ pub enum TechnologyLevel {
     Infinite = 10,
 }
 
-impl Default for TechnologyLevel {
-    fn default() -> Self {
-        TechnologyLevel::PreAgricultural
-    }
-}
 
 impl TechnologyLevel {
     /// Convert to numeric value for comparison

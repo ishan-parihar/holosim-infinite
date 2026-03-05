@@ -273,8 +273,10 @@ pub struct ArchetypeRadarChart {
     /// Configuration
     config: ArchetypeRadarConfig,
     /// Cached vertex positions for 22 archetypes
+    #[allow(dead_code)]
     vertex_positions: [Pos2; NUM_ARCHETYPES],
     /// Cached complex vertex positions
+    #[allow(dead_code)]
     complex_positions: [[Pos2; 7]; 3],
 }
 
@@ -462,7 +464,7 @@ impl ArchetypeRadarChart {
 
     /// Draw archetype labels
     fn draw_labels(&self, painter: &egui::Painter, center: Pos2, radius: f32) {
-        for i in 0..21 {
+        for (i, name) in ARCHETYPE_SHORT_NAMES.iter().enumerate().take(21) {
             let angle = (i as f32 / 21.0) * TAU - TAU / 4.0;
             let label_radius = radius * 1.1;
             let pos = Pos2::new(
@@ -483,7 +485,7 @@ impl ArchetypeRadarChart {
             painter.text(
                 pos,
                 align,
-                ARCHETYPE_SHORT_NAMES[i],
+                *name,
                 FontId::proportional(10.0),
                 Color32::LIGHT_GRAY,
             );

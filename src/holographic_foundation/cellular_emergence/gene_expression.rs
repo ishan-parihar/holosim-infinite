@@ -12,7 +12,6 @@
 //! - Regulatory genes modulate field resonance at target loci
 
 use super::archetype_genes::{ArchetypeGene, GeneCategory, GeneId, GeneRegulatoryNetwork};
-use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::field_state::HolographicFieldState;
 use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
@@ -264,7 +263,7 @@ impl GeneExpressionEngine {
             }
         }
 
-        let mut new_signals = Vec::new();
+        let new_signals = Vec::new();
 
         for id in gene_ids {
             if let Some(expr) = self.expressions.get_mut(&id) {
@@ -372,7 +371,7 @@ mod tests {
         let gene = create_test_gene();
         let condition = ExpressionCondition::default();
         let prob = condition.calculate_expression_probability(&gene);
-        assert!(prob >= 0.0 && prob <= 1.0);
+        assert!((0.0..=1.0).contains(&prob));
     }
 
     #[test]

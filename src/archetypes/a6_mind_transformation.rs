@@ -4,11 +4,11 @@
 use crate::archetypes::archetype_traits::TransformationArchetypeTrait;
 use crate::archetypes::common::{
     ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, HealthStatus as CommonHealthStatus, Holonic, HolonicLevel,
+    FunctionalPair, HealthStatus, Holonic, HolonicLevel,
     LambdaMeasurable, LambdaMeasurement, LambdaMeasurementType, Paired, SigmaAxis,
     TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 use std::collections::HashMap;
 
 /// A6: The Transformation of Mind
@@ -89,9 +89,7 @@ impl TransformationMindArchetype {
         lambda.healthy_min = 0.5;
         lambda.healthy_max = 0.8;
 
-        let tarot_correlation = TarotCorrelation::new(format!(
-            "The Lovers (VI): Catalyst processed and transformed into new understanding"
-        ));
+        let tarot_correlation = TarotCorrelation::new("The Lovers (VI): Catalyst processed and transformed into new understanding".to_string());
 
         let mut activation_levels = HashMap::new();
         activation_levels.insert(Rung::R1, 0.0);
@@ -152,7 +150,7 @@ impl TransformationMindArchetype {
             return Err("Choice must be between STO (light) and STS (dark)".to_string());
         }
 
-        if intensity < 0.0 || intensity > 1.0 {
+        if !(0.0..=1.0).contains(&intensity) {
             return Err("Choice intensity must be between 0.0 and 1.0".to_string());
         }
 
@@ -175,7 +173,6 @@ impl TransformationMindArchetype {
             Polarity::Neutral | Polarity::SinkholeOfIndifference => {
                 // No path focus for neutral paths
             }
-            _ => {}
         }
 
         // Choice activates transformation velocity
@@ -191,7 +188,7 @@ impl TransformationMindArchetype {
     ///
     /// Required for transformation to occur
     pub fn abandon_principle(&mut self, completeness: Float) -> Result<(), String> {
-        if completeness < 0.0 || completeness > 1.0 {
+        if !(0.0..=1.0).contains(&completeness) {
             return Err("Abandonment completeness must be between 0.0 and 1.0".to_string());
         }
 
@@ -222,7 +219,7 @@ impl TransformationMindArchetype {
             }
             DeepMindAttitude::Prostituted => {
                 // Rough use yields rough transformation
-                self.transformation_velocity = self.transformation_velocity * 0.9;
+                self.transformation_velocity *= 0.9;
             }
             DeepMindAttitude::Undecided => {}
         }
@@ -275,7 +272,6 @@ impl TransformationMindArchetype {
             Polarity::Neutral | Polarity::SinkholeOfIndifference => {
                 // No polarization progress for neutral paths
             }
-            _ => {}
         }
     }
 
@@ -330,7 +326,6 @@ impl TransformationMindArchetype {
                 0.0 // No protection, find many mirrors for reflection
             }
             Polarity::Neutral | Polarity::SinkholeOfIndifference => 0.0,
-            _ => 0.0,
         }
     }
 
@@ -359,7 +354,6 @@ impl TransformationMindArchetype {
                     0.0, 0.0, 0.0,
                 )
             }
-            _ => (false, 0.5, 0.0, 0.0),
         }
     }
 
@@ -490,12 +484,8 @@ impl LambdaMeasurable for TransformationMindArchetype {
     fn calculate_lambda(&self) -> Float {
         // Lambda = transformation velocity * direction_factor
         let direction_factor = match self.transformation_direction {
-            Polarity::STO | Polarity::STS => 1.0,
-            _ => 0.5,
-            Polarity::ServiceToSelf => 1.0,
-            Polarity::Neutral => 0.0,
-            Polarity::SinkholeOfIndifference => 0.0,
-            Polarity::ServiceToOthers => 1.0,
+            Polarity::STO | Polarity::STS | Polarity::ServiceToOthers | Polarity::ServiceToSelf => 1.0,
+            Polarity::Neutral | Polarity::SinkholeOfIndifference => 0.0,
         };
 
         self.transformation_velocity * direction_factor
@@ -682,7 +672,7 @@ impl TransformationArchetypeTrait for TransformationMindArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -822,7 +812,7 @@ impl ArchetypeTrait for TransformationMindArchetype {
         self.role
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         self.process_transformation(catalyst);
     }
 
@@ -876,6 +866,7 @@ impl ArchetypeTrait for TransformationMindArchetype {
 mod tests {
     use super::*;
     use crate::archetypes::common::HealthStatus as CommonHealthStatus;
+    use crate::types::Octant;
 
     #[test]
     fn test_transformation_initialization() {

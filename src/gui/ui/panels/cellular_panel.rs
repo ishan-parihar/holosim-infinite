@@ -17,7 +17,7 @@ use std::collections::HashMap;
 
 use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gui::visualization::cellular_viz::{
-    BlueprintRenderer, CellManifestationView, CellularVisualizationPanel, GaiaResonanceView,
+    BlueprintRenderer, CellManifestationView, GaiaResonanceView,
     GeneExpressionView, ProteinFoldingView,
 };
 use crate::holographic_foundation::archetype_profile::ArchetypeActivationProfile;
@@ -33,8 +33,10 @@ use crate::holographic_foundation::field_state::{HolographicFieldState, Position
 
 /// View mode for cellular panel tabs
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Default)]
 pub enum CellularViewMode {
     /// Holographic blueprint for morphogenesis
+    #[default]
     Blueprint,
     /// Archetype-to-gene encoding
     GeneExpression,
@@ -46,11 +48,6 @@ pub enum CellularViewMode {
     GaiaResonance,
 }
 
-impl Default for CellularViewMode {
-    fn default() -> Self {
-        Self::Blueprint
-    }
-}
 
 /// Cellular Panel for Phase C.4
 ///
@@ -101,6 +98,7 @@ pub struct CellularPanel {
     selected_cell_type: String,
 
     /// Selected developmental stage
+    #[allow(dead_code)]
     selected_stage: String,
 
     /// Blueprint data cache
@@ -159,6 +157,7 @@ struct CellPanelData {
     pub cell_count: usize,
     pub avg_coherence: f32,
     pub cells_with_dna: usize,
+    #[allow(dead_code)]
     pub dividing_cells: usize,
     pub quiescent_ratio: f32,
     pub growing_ratio: f32,
@@ -327,7 +326,7 @@ impl CellularPanel {
         if let Some(field_state) = field_state {
             let focus = focus_position
                 .cloned()
-                .unwrap_or_else(|| field_state.root().position.clone());
+                .unwrap_or_else(|| field_state.root().position);
             self.generate_cached_data_from_field(field_state, &focus);
         }
 
@@ -394,7 +393,7 @@ impl CellularPanel {
         });
 
         let profile = ArchetypeActivationProfile::new(node.archetype_vector);
-        let mut seed_cell = CellManifestation::new(focus.clone(), 10.0).with_profile(&profile);
+        let mut seed_cell = CellManifestation::new(*focus, 10.0).with_profile(&profile);
         let protein_count = (4.0 + (blueprint.complexity_index() * 8.0)).round() as usize;
         for i in 0..protein_count.max(1) {
             let protein = blueprint.unfold_protein(&format!("field_protein_{}", i), 120);
@@ -1472,12 +1471,8 @@ mod tests {
     fn test_cached_data_generation() {
         let mut panel = CellularPanel::new();
 
-        // Create a mock entity
-        let entity = SubSubLogos::builder()
-            .with_entity_id(crate::entity_layer7::layer7::EntityId::new(1))
-            .with_entity_type(crate::entity_layer7::layer7::EntityType::Individual)
-            .build()
-            .unwrap();
+        // Create a mock entity using create_test_entity
+        let entity = SubSubLogos::create_test_entity();
 
         panel.update_from_entity(&entity);
 

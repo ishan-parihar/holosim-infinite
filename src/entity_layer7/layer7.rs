@@ -150,9 +150,8 @@ pub struct SpectrumAccess {
     pub mannyness_access: f64,
 }
 
-impl SpectrumAccess {
-    /// Create a default spectrum access
-    pub fn default() -> Self {
+impl Default for SpectrumAccess {
+    fn default() -> Self {
         SpectrumAccess {
             ratio: 1.0,
             veil_active: false,
@@ -161,7 +160,9 @@ impl SpectrumAccess {
             mannyness_access: 0.5,
         }
     }
+}
 
+impl SpectrumAccess {
     /// Create spectrum access for space/time dominant entities
     pub fn space_time_dominant() -> Self {
         SpectrumAccess {
@@ -558,7 +559,7 @@ impl SubSubLogos {
         let archetype_activations = archetypical_mind.get_activations();
 
         // Calculate backward compatibility fields
-        let current_density = current_state.vibrational_state.density.clone();
+        let current_density = current_state.vibrational_state.density;
         let consciousness_level = current_state.consciousness_level;
         let experience_accumulation = current_state.experience_accumulation;
         let learning_progress = current_state.learning_progress;
@@ -835,51 +836,62 @@ impl SubSubLogos {
     ///
     /// This is a RESULT of the "transcend and include" principle.
     pub fn verify_holographic_completeness(&self) -> HolographicCompletenessReport {
-        let mut report = HolographicCompletenessReport::default();
-
-        // Check if all layers are present
-        report.violet_present = true;
-        report.indigo_present = true;
-        report.blue_present = true;
-        report.green_present = true;
-        report.yellow_present = true;
-        report.orange_present = true;
-        report.red_present = true;
-
         // Check if holographic blueprint is complete
-        report.blueprint_complete = self.holographic_blueprint.is_complete();
-
-        // Check if archetypical mind is inherited
-        report.archetypical_mind_inherited = true;
+        let blueprint_complete = self.holographic_blueprint.is_complete();
 
         // Check if DNA/RNA patterns are present
-        report.dna_patterns_present = !self.dna_patterns.is_empty();
+        let dna_patterns_present = !self.dna_patterns.is_empty();
 
-        // Check if evolutionary attractor field is present
-        report.evolutionary_attractor_present = true;
+        // All layers are present by design
+        let violet_present = true;
+        let indigo_present = true;
+        let blue_present = true;
+        let green_present = true;
+        let yellow_present = true;
+        let orange_present = true;
+        let red_present = true;
+
+        // Archetypical mind is inherited by design
+        let archetypical_mind_inherited = true;
+
+        // Evolutionary attractor field is present by design
+        let evolutionary_attractor_present = true;
 
         // Calculate overall completeness
         let total_checks = 11; // Fixed: was 10, should be 11 (count of all checks below)
         let passed_checks = [
-            report.violet_present,
-            report.indigo_present,
-            report.blue_present,
-            report.green_present,
-            report.yellow_present,
-            report.orange_present,
-            report.red_present,
-            report.blueprint_complete,
-            report.archetypical_mind_inherited,
-            report.dna_patterns_present,
-            report.evolutionary_attractor_present,
+            violet_present,
+            indigo_present,
+            blue_present,
+            green_present,
+            yellow_present,
+            orange_present,
+            red_present,
+            blueprint_complete,
+            archetypical_mind_inherited,
+            dna_patterns_present,
+            evolutionary_attractor_present,
         ]
         .iter()
         .filter(|&&x| x)
         .count();
 
-        report.completeness_percentage = (passed_checks as f64 / total_checks as f64) * 100.0;
+        let completeness_percentage = (passed_checks as f64 / total_checks as f64) * 100.0;
 
-        report
+        HolographicCompletenessReport {
+            violet_present,
+            indigo_present,
+            blue_present,
+            green_present,
+            yellow_present,
+            orange_present,
+            red_present,
+            blueprint_complete,
+            archetypical_mind_inherited,
+            dna_patterns_present,
+            evolutionary_attractor_present,
+            completeness_percentage,
+        }
     }
 
     /// Access the spectrum based on evolutionary state
@@ -1179,9 +1191,9 @@ impl SubSubLogos {
 
         // Base activation pattern - all archetypes have some activation
         // Phase 2: Add entity-specific random variation to base activation
-        for i in 0..22 {
+        for item in &mut activation {
             let random_variation: f64 = rng.gen_range(-0.05..0.05); // ±5% variation
-            activation[i] = (0.1 + consciousness * 0.5 + random_variation).clamp(0.0_f64, 1.0_f64);
+            *item = (0.1 + consciousness * 0.5 + random_variation).clamp(0.0_f64, 1.0_f64);
         }
 
         // Phase 2: Calculate total karmic intensity for this entity
@@ -1239,9 +1251,9 @@ impl SubSubLogos {
             _ => {
                 // Higher density: Maximum activation for higher density
                 // Phase 2: Add entity-specific variation even at higher densities
-                for i in 0..22 {
+                for item in &mut activation {
                     let random_variation: f64 = rng.gen_range(-0.10..0.10);
-                    activation[i] = (1.0 + random_variation).clamp(0.0_f64, 1.0_f64);
+                    *item = (1.0 + random_variation).clamp(0.0_f64, 1.0_f64);
                 }
             }
         }
@@ -1264,8 +1276,8 @@ impl SubSubLogos {
         // Phase 2: Apply evolutionary rate to archetype activation
         // Entities with higher evolutionary rates have more balanced archetype activation
         let rate_modulation = (self.evolutionary_rate - 1.0) * 0.05; // ±5% modulation
-        for i in 0..22 {
-            activation[i] = (activation[i] + rate_modulation).clamp(0.0_f64, 1.0_f64);
+        for item in &mut activation {
+            *item = (*item + rate_modulation).clamp(0.0_f64, 1.0_f64);
         }
 
         activation
@@ -1416,7 +1428,7 @@ impl SubSubLogos {
         let indirect_complexity: usize = self
             .composition
             .iter()
-            .filter_map(|component_id| get_entity_fn(component_id))
+            .filter_map(get_entity_fn)
             .map(|component| component.calculate_complexity(get_entity_fn))
             .sum();
 
@@ -1474,7 +1486,7 @@ impl SubSubLogos {
         let max_child_depth: usize = self
             .composition
             .iter()
-            .filter_map(|component_id| get_entity_fn(component_id))
+            .filter_map(get_entity_fn)
             .map(|component| component.composition_depth(get_entity_fn))
             .max()
             .unwrap_or(0);
@@ -1584,7 +1596,7 @@ impl SubSubLogos {
         }
 
         // Get this entity's archetype activations
-        let archetype_activations = self.generate_archetype_activation_for_density();
+        let _archetype_activations = self.generate_archetype_activation_for_density();
 
         // Sync to each child
         for child_id in self.children.iter() {
@@ -1596,8 +1608,7 @@ impl SubSubLogos {
                 // This creates alignment between parent and child
                 child.evolutionary_rate = (self.evolutionary_rate * 0.9
                     + child.evolutionary_rate * 0.1)
-                    .max(0.3)
-                    .min(1.7);
+                    .clamp(0.3, 1.7);
 
                 // Subtle coherence alignment - child moves toward parent coherence
                 let parent_coherence = self.current_state.vibrational_state.coherence;
@@ -1749,7 +1760,7 @@ impl SubSubLogos {
         let base_strength: f64 = self
             .composition
             .iter()
-            .filter_map(|component_id| get_entity_fn(component_id))
+            .filter_map(get_entity_fn)
             .map(|component| component.collective_consciousness_strength(get_entity_fn))
             .sum();
 
@@ -1784,7 +1795,7 @@ impl SubSubLogos {
         let component_consciousness: Vec<f64> = self
             .composition
             .iter()
-            .filter_map(|component_id| get_entity_fn(component_id))
+            .filter_map(get_entity_fn)
             .map(|component| component.current_state.consciousness_level)
             .collect();
 
@@ -2892,8 +2903,8 @@ impl EvolutionaryAttractorField {
         let is_ready = self.evolutionary_progress >= progress_threshold;
 
         DensityTransitionReadiness {
-            current_density: self.current_density.clone(),
-            target_density: self.target_density.clone(),
+            current_density: self.current_density,
+            target_density: self.target_density,
             is_ready,
             progress_percentage: self.evolutionary_progress * 100.0,
             required_progress: progress_threshold * 100.0,
@@ -3156,15 +3167,15 @@ impl EntitySpectrumAccess {
     pub fn calculate_spectrum_position(&self) -> f64 {
         // Normalize ratios to ensure they sum to 1.0
         let total_ratio = self.space_time_ratio + self.time_space_ratio;
-        let normalized_space_time = if total_ratio > 0.0 {
-            self.space_time_ratio / total_ratio
-        } else {
-            0.5 // Default to middle if both are 0
-        };
+        
 
         // Spectrum position: 0.0 (pure space/time) to 1.0 (pure time/space)
         // The Veil is at position 0.5 (v = 1)
-        normalized_space_time
+        if total_ratio > 0.0 {
+            self.space_time_ratio / total_ratio
+        } else {
+            0.5 // Default to middle if both are 0
+        }
     }
 
     /// Check if entity is space/time dominant
@@ -3224,6 +3235,12 @@ pub struct HolographicCompletenessReport {
 pub struct EvolutionaryTrajectory {
     pub stages: Vec<EvolutionaryStage>,
     pub current_stage: usize,
+}
+
+impl Default for EvolutionaryTrajectory {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl EvolutionaryTrajectory {

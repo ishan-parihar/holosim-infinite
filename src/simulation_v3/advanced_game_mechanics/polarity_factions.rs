@@ -443,23 +443,22 @@ impl FactionResonance {
             total_weight += weight;
             stability_sum += contribution.resonance_pattern.stability * weight;
 
-            for i in 0..8 {
-                combined_pattern[i] += contribution.resonance_pattern.pattern[i] * weight;
+            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(contribution.resonance_pattern.pattern.iter()) {
+                *combined_i += pattern_i * weight;
             }
         }
 
         // Normalize the pattern
         if total_weight > 0.0 {
-            for i in 0..8 {
-                combined_pattern[i] /= total_weight;
+            for item in &mut combined_pattern {
+                *item /= total_weight;
             }
         }
 
         // Blend with base resonance (faction has its own identity)
         let blend_factor = 0.3; // 30% base, 70% member contributions
-        for i in 0..8 {
-            combined_pattern[i] = self.base_resonance.pattern[i] * blend_factor
-                + combined_pattern[i] * (1.0 - blend_factor);
+        for (combined_i, &base_i) in combined_pattern.iter_mut().zip(self.base_resonance.pattern.iter()) {
+            *combined_i = base_i * blend_factor + *combined_i * (1.0 - blend_factor);
         }
 
         self.collective_strength = total_weight.min(100.0); // Cap at 100
@@ -1254,8 +1253,7 @@ impl PolarityFactions {
             return Err(FactionError::InvalidOperation {
                 operation: "form_alliance".to_string(),
                 reason: "Cannot form alliance with self".to_string(),
-            }
-            .into());
+            });
         }
 
         // Check both factions exist
@@ -1304,8 +1302,7 @@ impl PolarityFactions {
             return Err(FactionError::InvalidOperation {
                 operation: "declare_enmity".to_string(),
                 reason: "Cannot declare enmity with self".to_string(),
-            }
-            .into());
+            });
         }
 
         // Check both factions exist
@@ -1399,8 +1396,7 @@ impl PolarityFactions {
             return Err(FactionError::InvalidOperation {
                 operation: "contest_territory".to_string(),
                 reason: "Cannot contest territory already controlled".to_string(),
-            }
-            .into());
+            });
         }
 
         // Add contestant
@@ -2793,22 +2789,4 @@ impl From<FactionError> for AdvancedGameMechanicsError {
     }
 }
 
-// Implement From for FactionError to include InvalidOperation variant
-impl FactionError {
-    fn into_advanced_error(self) -> AdvancedGameMechanicsError {
-        AdvancedGameMechanicsError::InvalidOperation(self.to_string())
-    }
-}
-
-// Add InvalidOperation variant helper
-impl FactionError {
-    fn invalid_operation(operation: &str, reason: &str) -> Self {
-        FactionError::InvalidOperation {
-            operation: operation.to_string(),
-            reason: reason.to_string(),
-        }
-    }
-}
-
-// Add InvalidOperation to FactionError enum
-// This is handled via the conversion trait above
+// Note: FactionError::InvalidOperation variant helper methods removed - use From trait instead

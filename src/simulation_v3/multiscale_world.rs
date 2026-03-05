@@ -181,6 +181,7 @@ pub struct CosmicMechanics {
     pub cosmic_background: bool,
     pub dimensional_structure: bool,
     pub universal_constants: bool,
+    #[allow(dead_code)]
     void_visualization: bool,
 }
 

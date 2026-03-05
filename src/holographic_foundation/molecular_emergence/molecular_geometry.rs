@@ -14,12 +14,10 @@
 //! - Molecular shape = equilibrium configuration of archetype fields
 
 use crate::types::Float;
-use std::collections::HashMap;
 use std::f64::consts::PI;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
 use super::super::atomic_emergence::ElementAttractorField;
-use super::bond_formation::{ArchetypeBond, BondType};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct GeometryId(u64);
@@ -68,7 +66,7 @@ impl BondAngle {
     }
 
     pub fn ideal_angle(central_atom_z: u32, bonding_pairs: u32, lone_pairs: u32) -> Self {
-        let base_angle = match (bonding_pairs + lone_pairs) {
+        let base_angle = match bonding_pairs + lone_pairs {
             2 => 180.0,
             3 => 120.0,
             4 => 109.5,
@@ -185,7 +183,7 @@ impl MolecularShape {
             (5, 1) => MolecularShape::Seesaw,
             (5, 2) => MolecularShape::TShaped,
             (6, 0) => MolecularShape::Octahedral,
-            (5, 1) => MolecularShape::SquarePyramidal,
+            (6, 1) => MolecularShape::SquarePyramidal,
             _ => MolecularShape::Unknown,
         }
     }
@@ -239,8 +237,8 @@ impl InterferenceMinima {
 
             for (idx, elem) in elements.iter().enumerate() {
                 let config = elem.configuration();
-                for j in 0..NUM_ARCHETYPES {
-                    archetype_contrib[j] += config.archetype_vector[j] / (1.0 + idx as Float);
+                for (contrib_j, &arch_j) in archetype_contrib.iter_mut().zip(config.archetype_vector.iter()) {
+                    *contrib_j += arch_j / (1.0 + idx as Float);
                 }
             }
 

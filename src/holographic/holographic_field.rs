@@ -261,7 +261,6 @@ impl InvolutionLayer {
 // ============================================================================
 // PHASE 1: MERA CONFIGURATION AND TYPES
 // ============================================================================
-
 /// MERA Configuration for holographic compression (Phase 1)
 ///
 /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
@@ -358,7 +357,7 @@ impl Default for ExtractedEntityPotential {
 
         Self {
             address: HolographicAddress::cosmic_origin(),
-            archetype_activation: ArchetypeActivationProfile::default(),
+            archetype_activation: ArchetypeActivationProfile::initial(),
             spectrum: SpectrumConfiguration::balanced(),
             density: Density::First(Density1SubLevel::Quantum),
             coherence: 0.5,
@@ -566,13 +565,12 @@ impl HolographicField {
     ///
     /// Phase 1: Entities emerge from the field with archetypical patterns
     pub fn derive_archetype_activation(&self, _position: &Position) -> ArchetypeActivationProfile {
-        let mut coefficients = [0.5; 22];
-
-        // Each archetype coefficient is influenced by the archetype vectors
-        for i in 0..22 {
-            let cv = &self.archetype_complex_vectors[i];
-            coefficients[i] = cv.amplitude().clamp(0.0, 1.0);
-        }
+        let coefficients: [Float; 22] = self.archetype_complex_vectors
+            .iter()
+            .map(|cv| cv.amplitude().clamp(0.0, 1.0))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.5; 22]);
 
         ArchetypeActivationProfile::new(coefficients)
     }
@@ -631,7 +629,6 @@ impl HolographicField {
 
     /// Convert a Position to a HolographicAddress
     fn position_to_address(&self, position: &Position) -> HolographicAddress {
-        use crate::holographic::field_address::ScaleLevel;
         use crate::holographic::field_address::Vector3;
 
         // Determine scale level based on spatial frequency
@@ -801,7 +798,7 @@ impl HolographicFieldGenerator {
     /// A holographic field, or None if no archetypes are set
     pub fn generate_field(&self, layer: InvolutionLayer) -> Option<HolographicField> {
         let archetypes = self.base_archetypes.as_ref()?;
-        Some(HolographicField::new(layer, archetypes.clone()))
+        Some(HolographicField::new(layer, *archetypes))
     }
 
     /// Generates holographic fields for all 7 involution layers.
@@ -813,12 +810,12 @@ impl HolographicFieldGenerator {
         let mut fields = Vec::new();
 
         let archetypes = match &self.base_archetypes {
-            Some(a) => a.clone(),
+            Some(a) => *a,
             None => return fields,
         };
 
         for layer in InvolutionLayer::all_layers() {
-            fields.push(HolographicField::new(layer, archetypes.clone()));
+            fields.push(HolographicField::new(layer, archetypes));
         }
 
         fields

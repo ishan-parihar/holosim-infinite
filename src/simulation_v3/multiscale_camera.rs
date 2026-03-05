@@ -15,7 +15,7 @@
 //! 4. Holographic continuity across scales
 
 use crate::types::Float;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 /// Scale levels for multi-scale simulation
 ///
@@ -450,9 +450,13 @@ pub struct MultiScaleCamera {
     transition: Option<ScaleTransition>,
 
     /// Minimum zoom level (log10)
+    /// Note: Reserved for zoom limit enforcement
+    #[allow(dead_code)]
     min_zoom_log: Float,
 
     /// Maximum zoom level (log10)
+    /// Note: Reserved for zoom limit enforcement
+    #[allow(dead_code)]
     max_zoom_log: Float,
 
     /// Aspect ratio
@@ -473,9 +477,13 @@ pub struct MultiScaleCamera {
 pub struct HolographicContinuity {
     /// The holographic field is the same at all scales
     /// Resolution changes, but completeness is maintained
+    /// Note: Reserved for future resolution scaling features
+    #[allow(dead_code)]
     field_resolution_scale: Float,
 
     /// Continuity strength (0.0 = no continuity, 1.0 = perfect continuity)
+    /// Note: Reserved for future continuity strength calculations
+    #[allow(dead_code)]
     continuity_strength: Float,
 }
 

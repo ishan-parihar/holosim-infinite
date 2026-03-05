@@ -7,10 +7,9 @@
 //! with tree views, statistics, and interactive controls.
 
 use crate::gui::visualization::structure_viz::{
-    StructureLevel, StructureMetrics, StructureNode, StructureType, StructureVisualizer,
+    StructureLevel, StructureMetrics, StructureNode, StructureVisualizer,
 };
-use egui::{Color32, RichText, Sense, Stroke, Ui, Vec2};
-use std::collections::HashMap;
+use egui::{Color32, Ui, Vec2};
 
 /// Structure dashboard configuration
 pub struct StructureDashboard {

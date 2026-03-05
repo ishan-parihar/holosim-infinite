@@ -12,9 +12,9 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use super::field_address::{AddressRange, HolographicAddress, ScaleLevel, Vector3};
-use super::observer_driven_field::{DecompressedRegion, Observer, ObserverId};
+use super::observer_driven_field::{DecompressedRegion, ObserverId};
 use crate::compression::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
-use crate::compression::tensor::{Tensor, TensorShape};
+use crate::compression::tensor::Tensor;
 
 /// Integration layer between MERA network and observer system
 ///
@@ -39,6 +39,7 @@ struct CachedRegion {
     /// The decompressed tensor data
     data: Tensor,
     /// The scale this was decompressed at
+    #[allow(dead_code)]
     scale: MeraScale,
     /// Access count for LRU eviction
     access_count: u64,
@@ -126,7 +127,7 @@ impl MeraIntegration {
         tensor: &Tensor,
     ) -> DecompressedRegion {
         // Convert tensor data to field values
-        let field_values = tensor.as_dense().to_vec();
+        let _field_values = tensor.as_dense().to_vec();
 
         DecompressedRegion::new(address_range, scale, 100)
     }
@@ -219,7 +220,7 @@ impl MeraIntegration {
         };
 
         // Decompress, modify, recompress
-        let mut tensor = network.decompress(&query);
+        let tensor = network.decompress(&query);
 
         // Apply feedback perturbation
         let mut data = tensor.as_dense().to_vec();
@@ -369,6 +370,7 @@ impl Default for MeraIntegrationBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::compression::TensorShape;
 
     fn create_test_network() -> Arc<Mutex<MeraNetwork>> {
         let mut network = MeraNetwork::new();

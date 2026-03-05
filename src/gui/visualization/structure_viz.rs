@@ -11,10 +11,8 @@
 //! - Structure tree representation
 
 use crate::entity_layer7::layer7::{EntityId, EntityType};
-use crate::gui::camera::Camera2D;
-use crate::gui::scene::LODLevel;
 use crate::types::{Density, Polarity};
-use nalgebra_glm::{Vec2, Vec3};
+use nalgebra_glm::Vec3;
 use std::collections::HashMap;
 
 /// Simple Entity structure for visualization (placeholder)
@@ -338,7 +336,7 @@ impl StructureVisualizer {
             let level = self.determine_structure_level(entity);
             level_groups
                 .entry(level)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(entity);
         }
 
@@ -397,7 +395,7 @@ impl StructureVisualizer {
                 entity_id: entity.entity_id.clone(),
                 level,
                 structure_type,
-                position: entity.position.clone(),
+                position: entity.position,
                 scale: entity.scale,
                 parent_id: self.find_parent(entity, level),
                 children: Vec::new(),
@@ -425,7 +423,7 @@ impl StructureVisualizer {
     }
 
     /// Determine structure type
-    fn determine_structure_type(&self, entity: &Entity, level: StructureLevel) -> StructureType {
+    fn determine_structure_type(&self, _entity: &Entity, level: StructureLevel) -> StructureType {
         match level {
             StructureLevel::Quantum => StructureType::SubatomicParticle,
             StructureLevel::Atomic => StructureType::Atom,
@@ -443,7 +441,7 @@ impl StructureVisualizer {
     fn find_parent(&self, entity: &Entity, level: StructureLevel) -> Option<usize> {
         // Simplified: find nearest larger-scale entity
         let scale_factor = 10.0; // Parent is ~10x larger
-        let target_scale = entity.scale * scale_factor;
+        let _target_scale = entity.scale * scale_factor;
 
         for (i, node) in self.nodes.iter().enumerate() {
             if node.level < level {

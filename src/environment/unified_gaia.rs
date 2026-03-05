@@ -256,9 +256,9 @@ impl UnifiedGaia {
         }; 22];
 
         // Initialize all archetypes with baseline values
-        for i in 0..22 {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
             let freq = (i + 1) as Float;
-            archetypes[i] = ComplexArchetype {
+            *archetype = ComplexArchetype {
                 amplitude: 0.5 + 0.2 * (freq / 22.0).sin(),
                 phase: freq * PI / 11.0,
             };

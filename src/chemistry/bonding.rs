@@ -136,8 +136,6 @@ impl ChemicalBond {
         let en_diff = (elem1.electronegativity - elem2.electronegativity).abs();
         let bond_type = if en_diff > 1.7 {
             BondType::Ionic
-        } else if en_diff > 0.4 {
-            BondType::Covalent
         } else {
             BondType::Covalent
         };

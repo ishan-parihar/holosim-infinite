@@ -120,7 +120,7 @@ impl EntityTrajectory {
 
     /// Update trajectory with new position
     pub fn update(&mut self, new_position: Position3D) {
-        let now = self.position_history.len();
+        let _now = self.position_history.len();
 
         // Calculate velocity if we have history
         if let Some(old_pos) = self.position_history.back() {
@@ -256,7 +256,7 @@ impl PredictiveCache {
     pub fn predict(&self) -> Vec<CacheKey> {
         let mut predictions = Vec::new();
 
-        for (entity_id, trajectory) in &self.trajectories {
+        for trajectory in self.trajectories.values() {
             if trajectory.confidence < self.config.min_confidence {
                 continue;
             }
@@ -338,7 +338,7 @@ impl PredictiveCache {
             .cached_regions
             .iter()
             .min_by_key(|(_, v)| v.last_accessed)
-            .map(|(k, _)| k.clone())
+            .map(|(k, _)| *k)
         {
             self.cached_regions.remove(&oldest_key);
         }
@@ -346,7 +346,7 @@ impl PredictiveCache {
 
     /// Update predictions (called each simulation step)
     pub fn update(&mut self, current_step: usize) {
-        if current_step % self.config.update_frequency != 0 {
+        if !current_step.is_multiple_of(self.config.update_frequency) {
             return;
         }
 
@@ -354,7 +354,7 @@ impl PredictiveCache {
         self.trajectories.retain(|_, t| t.confidence > 0.1);
 
         // Evict old cache entries periodically
-        if current_step % 100 == 0 {
+        if current_step.is_multiple_of(100) {
             self.cleanup_cache(current_step);
         }
     }

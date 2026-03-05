@@ -80,9 +80,9 @@ impl HolographicPrincipleValidator {
         for sub_density in &all_sub_densities {
             if entity
                 .holographic_blueprint
-                .contains_sub_density(&density, sub_density.clone())
+                .contains_sub_density(&density, *sub_density)
             {
-                contained_sub_densities.push(sub_density.clone());
+                contained_sub_densities.push(*sub_density);
             }
         }
 
@@ -92,7 +92,7 @@ impl HolographicPrincipleValidator {
 
         SubDensityContainmentResult {
             entity_id: entity.entity_id.as_u64(),
-            density: density.clone(),
+            density,
             total_sub_densities,
             contained_sub_densities: contained_count,
             contained_sub_densities_list: contained_sub_densities,
@@ -165,8 +165,8 @@ impl HolographicPrincipleValidator {
         for density in Density::all() {
             for sub_density in density.sub_densities() {
                 total_checks += 1;
-                let contains1 = blueprint1.contains_sub_density(&density, sub_density.clone());
-                let contains2 = blueprint2.contains_sub_density(&density, sub_density.clone());
+                let contains1 = blueprint1.contains_sub_density(&density, sub_density);
+                let contains2 = blueprint2.contains_sub_density(&density, sub_density);
                 if contains1 && contains2 {
                     matching_checks += 1;
                 }
@@ -204,7 +204,7 @@ impl HolographicPrincipleValidator {
         // Validate sub-density containment for each density
         let mut sub_density_results = Vec::new();
         for density in Density::all() {
-            let result = Self::validate_sub_density_containment(entity, density.clone());
+            let result = Self::validate_sub_density_containment(entity, density);
             sub_density_results.push(result);
         }
 
@@ -347,10 +347,6 @@ impl HolographicPrincipleValidationResult {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
-    use crate::entity_layer7::layer7::SubSubLogos;
-
     #[test]
     fn test_validate_octave_containment() {
         // This test requires a fully implemented entity with holographic blueprint

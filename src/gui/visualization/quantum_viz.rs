@@ -19,17 +19,17 @@
 //!
 //! Uses f32 for all visualization types (converts from Float/f64 where needed)
 
-use egui::{Color32, FontId, Pos2, Rect, Shape, Stroke, Vec2};
+use egui::{Color32, FontId, Pos2, Rect, Stroke, Vec2};
 use std::f32::consts::TAU;
 
 use crate::holographic_foundation::quantum_consciousness::archetype_collapse::{
-    Archetype22Collapse, CollapseResult, CollapseType,
+    CollapseResult, CollapseType,
 };
 use crate::holographic_foundation::quantum_consciousness::entanglement_field::{
-    EntanglementCorrelation, EntanglementField, EntanglementFieldStatistics, PhaseCorrelation,
+    EntanglementCorrelation, EntanglementField, EntanglementFieldStatistics,
 };
 use crate::holographic_foundation::quantum_consciousness::quantum_numbers::{
-    ArchetypeToQuantumMapping, QuantumNumberSet, Spin,
+    ArchetypeToQuantumMapping, QuantumNumberSet,
 };
 use crate::holographic_foundation::quantum_consciousness::wavefunction::{
     QuantumNode, QuantumNodeId, QuantumWavefunction, WavefunctionState,
@@ -396,7 +396,7 @@ impl QuantumNumberDerivationView {
             .map(|a| (a - mean).powi(2))
             .sum::<f64>()
             / 22.0;
-        let confidence = (1.0 - variance.sqrt()).max(0.0).min(1.0);
+        let confidence = (1.0 - variance.sqrt()).clamp(0.0, 1.0);
 
         QuantumNumberDerivationDisplay {
             quantum_numbers: qn,
@@ -686,7 +686,7 @@ impl CollapseVisualization {
         );
 
         alt_y += 12.0;
-        for (node_id, prob) in result.alternative_possibilities.iter().take(5) {
+        for (_node_id, prob) in result.alternative_possibilities.iter().take(5) {
             let label = format!("{:.1}%", prob * 100.0);
             painter.text(
                 Pos2::new(alt_x, alt_y),
@@ -823,7 +823,7 @@ impl EntanglementVisualization {
         count: usize,
     ) {
         // Draw nodes in a circle based on count
-        let display_count = count.min(12).max(1);
+        let display_count = count.clamp(1, 12);
         let mut positions: Vec<Pos2> = Vec::new();
 
         for i in 0..display_count {
@@ -855,6 +855,7 @@ impl EntanglementVisualization {
     }
 
     /// Draw entanglement connections from stored positions
+    #[allow(dead_code)]
     fn draw_entanglement_connections(
         &self,
         painter: &egui::Painter,
@@ -1160,13 +1161,13 @@ impl ObserverEffectVisualization {
         let label_y = rect.max.y - 45.0;
 
         let (text, color) = match self.cache_state {
-            (CacheState::Valid) => ("Observation: Cache Valid (State Unchanged)", Color32::GREEN),
-            (CacheState::Invalidating) => ("Observation: Cache Being Invalidated", Color32::YELLOW),
-            (CacheState::Invalid) => (
+            CacheState::Valid => ("Observation: Cache Valid (State Unchanged)", Color32::GREEN),
+            CacheState::Invalidating => ("Observation: Cache Being Invalidated", Color32::YELLOW),
+            CacheState::Invalid => (
                 "Observation: Cache Miss (Wavefunction Collapsed)",
                 Color32::RED,
             ),
-            (CacheState::Refreshing) => (
+            CacheState::Refreshing => (
                 "Observation: Cache Refreshing",
                 Color32::from_rgb(100, 150, 255),
             ),

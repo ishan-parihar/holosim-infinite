@@ -183,7 +183,7 @@ pub struct SpaceTimeCoord {
 /*     /// use holonic_realms::soul_stream::SoulStream; */
 /*     /// */
 /*     /// let seed = HolographicSeed::new_from_source(); */
-/*     /// let coord = SpaceTimeCoord::default(); */
+/*     /// let coord = SpaceTimeCoord::initial(); */
 /*     /// let soul_stream = SoulStream::new(); */
 /*     /// */
 /*     /// // Entity EMERGES from seed */
@@ -1107,7 +1107,7 @@ pub struct SpaceTimeCoord {
 /*     /// use holonic_realms::entity::{Entity, SpaceTimeCoord}; */
 /*     /// use holonic_realms::soul_stream::SoulStream; */
 /*     /// */
-/*     /// let coord = SpaceTimeCoord::default(); */
+/*     /// let coord = SpaceTimeCoord::initial(); */
 /*     /// let soul_stream = SoulStream::new(); */
 /*     /// */
 /*     /// // Entity created via Involution process */
@@ -1190,7 +1190,7 @@ pub struct SpaceTimeCoord {
 /*     /// use holonic_realms::soul_stream::SoulStream; */
 /*     /// use holonic_realms::entity_state::Catalyst; */
 /*     /// */
-/*     /// let mut entity = Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new()); */
+/*     /// let mut entity = Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new()); */
 /*     /// let catalyst = Catalyst::new(0.5, CatalystType::General); */
 /*     /// */
 /*     /// // Evolve the entity (activate pre-existing potential) */
@@ -1290,7 +1290,7 @@ pub struct SpaceTimeCoord {
 /*     /// use holonic_realms::soul_stream::SoulStream; */
 /*     /// use holonic_realms::entity_state::Catalyst; */
 /*     /// */
-/*     /// let mut entity = Entity::instantiate(1, SpaceTimeCoord::default(), SoulStream::new()); */
+/*     /// let mut entity = Entity::instantiate(1, SpaceTimeCoord::initial(), SoulStream::new()); */
 /*     /// let catalyst = Catalyst::new(0.7, CatalystType::General); */
 /*     /// */
 /*     /// // Process through complete evolution chain */
@@ -1437,8 +1437,8 @@ impl SpaceTimeCoord {
         }
     }
 
-    /// Create a default coordinate (origin in third density, Earth)
-    pub fn default() -> Self {
+    /// Create an initial coordinate (origin in third density, Earth)
+    pub fn initial() -> Self {
         Self {
             x: 0.0,
             y: 0.0,
@@ -1452,7 +1452,7 @@ impl SpaceTimeCoord {
 
 impl Default for SpaceTimeCoord {
     fn default() -> Self {
-        Self::default()
+        Self::initial()
     }
 }
 
@@ -1462,12 +1462,6 @@ impl Default for SpaceTimeCoord {
 
 #[cfg(test)]
 mod emergence_tests {
-    use super::*;
-    use crate::entity_layer7::Entity;
-    use crate::holographic_seed::HolographicSeed;
-    use crate::memory::soul_stream::SoulStream;
-    use std::sync::Arc;
-
     /// Test Entity emergence from HolographicSeed
     ///
     /// This test demonstrates that Entity EMERGES from seed, not constructed
@@ -1480,7 +1474,7 @@ mod emergence_tests {
     fn test_entity_emergence_from_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         // Entity EMERGES from seed
@@ -1538,7 +1532,7 @@ mod emergence_tests {
     fn test_emergence_vs_construction() {
         // TODO: Implement Entity::emerge_from() and Entity::instantiate() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         // CONSTRUCTION: Old pattern (Entity::instantiate)
@@ -1578,7 +1572,7 @@ mod emergence_tests {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
         let seed = Arc::new(HolographicSeed::new_from_source());
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from_seed(1, Arc::clone(&seed), coord, soul_stream);
@@ -1598,7 +1592,7 @@ mod emergence_tests {
     fn test_emergence_manifestation_localization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1620,7 +1614,7 @@ mod emergence_tests {
     fn test_emergence_manifestation_individualization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1644,7 +1638,7 @@ mod emergence_tests {
     fn test_backward_compatibility_instantiate() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::instantiate(1, coord, soul_stream);
@@ -1666,7 +1660,7 @@ mod emergence_tests {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
         let seed = Arc::new(HolographicSeed::new_from_source());
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from_seed(1, Arc::clone(&seed), coord, soul_stream);
@@ -1688,7 +1682,7 @@ mod emergence_tests {
     fn test_emergence_is_not_construction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1710,7 +1704,7 @@ mod emergence_tests {
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::create_via_involution(1, coord, soul_stream);
@@ -1731,7 +1725,7 @@ mod emergence_tests {
     fn test_entity_evolution_activates_potential() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1755,7 +1749,7 @@ mod emergence_tests {
     fn test_involution_vs_evolution_distinction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1778,7 +1772,7 @@ mod emergence_tests {
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1799,7 +1793,7 @@ mod emergence_tests {
     fn test_evolution_accumulates_activation() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1819,7 +1813,7 @@ mod emergence_tests {
     fn test_evolution_reads_rom_updates_ram() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1839,7 +1833,7 @@ mod emergence_tests {
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1860,7 +1854,7 @@ mod emergence_tests {
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1881,7 +1875,7 @@ mod emergence_tests {
     fn test_emergence_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1902,7 +1896,6 @@ mod emergence_tests {
 
 #[cfg(test)]
 mod involution_evolution_tests {
-    use super::*;
     ///
     /// Knowledge Base Reference: ARCHITECTURE_AUDIT_REPORT.md Section 2.3
     ///
@@ -1912,7 +1905,7 @@ mod involution_evolution_tests {
     fn test_involution_evolution_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -1934,10 +1927,10 @@ mod involution_evolution_tests {
     fn test_involution_evolution_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Entity has Arc<HolographicSeed>
         // This is tested in test_multiple_entities_emerge_from_same_seed
@@ -2016,7 +2009,7 @@ mod involution_evolution_tests {
     fn test_emergence_vs_construction() {
         // TODO: Implement Entity::emerge_from() and Entity::instantiate() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         // CONSTRUCTION: Old pattern (Entity::instantiate)
@@ -2057,7 +2050,7 @@ mod involution_evolution_tests {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
         let seed = Arc::new(HolographicSeed::new_from_source());
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from_seed(1, Arc::clone(&seed), coord, soul_stream);
@@ -2078,7 +2071,7 @@ mod involution_evolution_tests {
     fn test_emergence_manifestation_localization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2101,7 +2094,7 @@ mod involution_evolution_tests {
     fn test_emergence_manifestation_individualization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2126,7 +2119,7 @@ mod involution_evolution_tests {
     fn test_backward_compatibility_instantiate() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::instantiate(1, coord, soul_stream);
@@ -2149,7 +2142,7 @@ mod involution_evolution_tests {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
         let seed = Arc::new(HolographicSeed::new_from_source());
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from_seed(1, Arc::clone(&seed), coord, soul_stream);
@@ -2172,7 +2165,7 @@ mod involution_evolution_tests {
     fn test_emergence_is_not_construction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2195,7 +2188,7 @@ mod involution_evolution_tests {
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::create_via_involution(1, coord, soul_stream);
@@ -2217,7 +2210,7 @@ mod involution_evolution_tests {
     fn test_entity_evolution_activates_potential() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2242,7 +2235,7 @@ mod involution_evolution_tests {
     fn test_involution_vs_evolution_distinction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2266,7 +2259,7 @@ mod involution_evolution_tests {
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2288,7 +2281,7 @@ mod involution_evolution_tests {
     fn test_evolution_accumulates_activation() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2309,7 +2302,7 @@ mod involution_evolution_tests {
     fn test_evolution_reads_rom_updates_ram() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2330,7 +2323,7 @@ mod involution_evolution_tests {
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2352,7 +2345,7 @@ mod involution_evolution_tests {
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2374,7 +2367,7 @@ mod involution_evolution_tests {
     fn test_phase2_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         let entity = Entity::emerge_from(1, coord, soul_stream);
@@ -2397,10 +2390,10 @@ mod involution_evolution_tests {
     fn test_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Entity has Arc<HolographicSeed>
         // This is tested in test_multiple_entities_emerge_from_same_seed
@@ -2418,13 +2411,6 @@ mod involution_evolution_tests {
 
 #[cfg(test)]
 mod phase2_aspect_tests {
-    use super::*;
-    use crate::entity_layer7::Entity;
-    use crate::entity_state::{Catalyst, CatalystType};
-    use crate::holographic_seed::HolographicSeed;
-    use crate::memory::soul_stream::SoulStream;
-    use std::sync::Arc;
-
     /// Test Entity creation via Involution Process
     ///
     /// This test demonstrates that Involution creates potential (writes ROM)
@@ -2437,7 +2423,7 @@ mod phase2_aspect_tests {
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         // Entity created via Involution process
@@ -2463,7 +2449,7 @@ mod phase2_aspect_tests {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
         let mut entity =
-            Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+            Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
         let catalyst = Catalyst::new(0.5, CatalystType::General);
 
         // Before evolution: state has minimal activation
@@ -2502,7 +2488,7 @@ mod phase2_aspect_tests {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
         let mut entity =
-            Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+            Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Involution: Seed contains complete architecture (potential exists)
         let (involution_created, evolution_activated) =
@@ -2542,7 +2528,7 @@ mod phase2_aspect_tests {
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
-        let entity = Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // The seed contains complete architecture (potential exists)
         assert!(entity.seed.contains_complete_architecture());
@@ -2585,7 +2571,7 @@ mod phase2_aspect_tests {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
         let mut entity =
-            Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+            Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Evolve multiple times
         let mut total_activated = 0.0;
@@ -2616,7 +2602,7 @@ mod phase2_aspect_tests {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
         let mut entity =
-            Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+            Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // ROM: Seed is immutable
         let initial_seed_free_will = entity.seed.free_will.free_will_intensity;
@@ -2654,7 +2640,7 @@ mod phase2_aspect_tests {
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
-        let entity = Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // At Red-Ray (beginning), entity already has all potential
         assert!(entity.seed.contains_complete_architecture());
@@ -2695,7 +2681,7 @@ mod phase2_aspect_tests {
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
-        let coord = SpaceTimeCoord::default();
+        let coord = SpaceTimeCoord::initial();
         let soul_stream = SoulStream::new();
 
         // Old pattern should still work
@@ -2727,13 +2713,13 @@ mod phase2_aspect_tests {
         /*
         // Entity created via Involution
         let involution_entity =
-            Entity::create_via_involution(1, SpaceTimeCoord::default(), SoulStream::new());
+            Entity::create_via_involution(1, SpaceTimeCoord::initial(), SoulStream::new());
         assert!(involution_entity.is_created_via_involution());
 
         // Entity created via old instantiate method
         // Old method is construction-based, not involution-based
         // It doesn't have emergence_manifestation, so should return false
-        let old_entity = Entity::instantiate(1, SpaceTimeCoord::default(), SoulStream::new());
+        let old_entity = Entity::instantiate(1, SpaceTimeCoord::initial(), SoulStream::new());
         assert!(!old_entity.is_created_via_involution());
         */
     }
@@ -2749,13 +2735,6 @@ mod phase2_aspect_tests {
 /// "Cross-coupling as emergent from involutionary structure, not constructed as explicit connections"
 #[cfg(test)]
 mod phase4_cross_coupling_tests {
-    use super::*;
-    use crate::entity_layer7::Entity;
-    use crate::entity_state::{Catalyst, CatalystType};
-    use crate::holographic_seed::HolographicSeed;
-    use crate::memory::soul_stream::SoulStream;
-    use std::sync::Arc;
-
     /// Test that Entity has Arc<HolographicSeed> as foundation
     ///
     /// Phase 2 Validation Criterion: Entity has `seed: Arc<HolographicSeed>` as foundation
@@ -2766,7 +2745,7 @@ mod phase4_cross_coupling_tests {
     fn test_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // The seed should be Arc-wrapped
         // We can verify this by checking that we can clone the Arc
@@ -2788,7 +2767,7 @@ mod phase4_cross_coupling_tests {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
         let seed = Arc::new(HolographicSeed::new_from_source());
-        let coord1 = SpaceTimeCoord::default();
+        let coord1 = SpaceTimeCoord::initial();
         let coord2 = SpaceTimeCoord::new(1.0, 1.0, 1.0, 1.0, 3, 1);
         let soul_stream1 = SoulStream::new();
         let soul_stream2 = SoulStream::new();
@@ -2814,7 +2793,7 @@ mod phase4_cross_coupling_tests {
     fn test_mind_body_spirit_as_aspects() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Get aspects via methods
         let _mind = entity.mind();
@@ -2840,7 +2819,7 @@ mod phase4_cross_coupling_tests {
     fn test_no_separate_mind_body_spirit_fields() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Access mind/body/spirit via aspect methods (not via fields)
         let _mind = entity.mind();
@@ -2863,7 +2842,7 @@ mod phase4_cross_coupling_tests {
     fn test_archetype_states_mutable_per_entity() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let coord1 = SpaceTimeCoord::default();
+        let coord1 = SpaceTimeCoord::initial();
         let coord2 = SpaceTimeCoord::new(1.0, 1.0, 1.0, 1.0, 3, 1);
         let soul_stream1 = SoulStream::new();
         let soul_stream2 = SoulStream::new();
@@ -2902,7 +2881,7 @@ mod phase4_cross_coupling_tests {
     fn test_archetypes_are_read_only() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // The archetypes in the seed should be immutable
         // We can verify this by checking that we can't mutate them
@@ -2929,7 +2908,7 @@ mod phase4_cross_coupling_tests {
     fn test_entity_state_has_unprocessed_catalyst() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // EntityState should have unprocessed_catalyst field
         // Initially it should be empty
@@ -2954,7 +2933,7 @@ mod phase4_cross_coupling_tests {
     fn test_entity_emerges_from_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Entity should have a seed
         assert!(entity.seed.contains_complete_architecture());
@@ -2993,7 +2972,7 @@ mod phase4_cross_coupling_tests {
         let entity1 = Entity::emerge_from_seed(
             1,
             Arc::clone(&seed),
-            SpaceTimeCoord::default(),
+            SpaceTimeCoord::initial(),
             SoulStream::new(),
         );
         let entity2 = Entity::emerge_from_seed(
@@ -3056,7 +3035,7 @@ mod phase4_cross_coupling_tests {
     fn test_body_aspect_generates_up_pouring() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Body should generate up-pouring
         let up_pouring = entity.body().generate_up_pouring();
@@ -3079,7 +3058,7 @@ mod phase4_cross_coupling_tests {
     fn test_spirit_aspect_generates_in_pouring() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Spirit should generate in-pouring
         let in_pouring = entity.spirit().generate_in_pouring();
@@ -3102,7 +3081,7 @@ mod phase4_cross_coupling_tests {
     fn test_mind_aspect_has_valve_state() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Mind should have a valve state
         let valve_state = entity.mind().valve_state();
@@ -3126,7 +3105,7 @@ mod phase4_cross_coupling_tests {
     fn test_mind_aspect_is_balanced() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-        let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+        let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
         // Mind should be able to check if it's balanced
         let is_balanced = entity.mind().is_balanced();
@@ -3149,7 +3128,7 @@ mod phase4_cross_coupling_tests {
     fn test_coupling_dynamics_has_required_fields() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
-                let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // CouplingDynamics should have up_pouring
                 assert!(entity.state.coupling_dynamics.up_pouring >= 0.0);
@@ -3189,7 +3168,7 @@ mod phase4_cross_coupling_tests {
             fn test_entity_processes_cross_coupling() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Process cross-coupling
                 entity.process_cross_coupling();
@@ -3222,7 +3201,7 @@ mod phase4_cross_coupling_tests {
             fn test_blockage_set_tracks_blockages() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Add a Spirit-Mind blockage
                 let spirit_mind_blockage = Blockage::spirit_mind("Test blockage", 0.5);
@@ -3270,7 +3249,7 @@ mod phase4_cross_coupling_tests {
             fn test_blockage_set_calculates_severity() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Add multiple blockages
                 let blockage1 = Blockage::spirit_mind("Blockage 1", 0.3);
@@ -3316,7 +3295,7 @@ mod phase4_cross_coupling_tests {
             fn test_mind_valve_state_depends_on_balance() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Initially, Mind may or may not be balanced
                 let is_balanced = entity.mind().is_balanced();
@@ -3344,7 +3323,7 @@ mod phase4_cross_coupling_tests {
             fn test_spirit_depends_on_mind() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Spirit in-pouring depends on Mind balance
                 let is_balanced = entity.mind().is_balanced();
@@ -3372,7 +3351,7 @@ mod phase4_cross_coupling_tests {
             fn test_green_ray_activation_integrates_flows() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Add blockages to test integration
                 entity
@@ -3414,7 +3393,7 @@ mod phase4_cross_coupling_tests {
             /// Phase 4 Validation Criterion: Blockages can occur at different levels
             #[test]
             fn test_blockage_set_tracks_blockages() {
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Add a Spirit-Mind blockage
                 let spirit_mind_blockage = Blockage::spirit_mind("Test blockage", 0.5);
@@ -3456,7 +3435,7 @@ mod phase4_cross_coupling_tests {
             /// Phase 4 Validation Criterion: Blockages have severity levels
             #[test]
             fn test_blockage_set_calculates_severity() {
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Add multiple blockages
                 entity
@@ -3484,7 +3463,7 @@ mod phase4_cross_coupling_tests {
             /// Phase 4 Validation Criterion: Mind valve is open when balanced, closed when not
             #[test]
             fn test_mind_valve_state_depends_on_balance() {
-                let entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Get initial valve state
                 let initial_valve_state = entity.mind().valve_state();
@@ -3512,7 +3491,7 @@ mod phase4_cross_coupling_tests {
             /// Phase 4 Validation Criterion: Spirit depends on Mind (cannot access without balanced Mind)
             #[test]
             fn test_spirit_depends_on_mind() {
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Spirit generates in-pouring
                 let in_pouring = entity.spirit().generate_in_pouring();
@@ -3543,7 +3522,7 @@ mod phase4_cross_coupling_tests {
             /// Phase 4 Validation Criterion: Green Ray activation integrates up-pouring and in-pouring
             #[test]
             fn test_green_ray_activation_integrates_flows() {
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Create an entity with balanced Mind (Open valve)
                 // Set Mind archetypes to Active (no distortions)
@@ -3576,7 +3555,7 @@ mod phase4_cross_coupling_tests {
             /// - Green Ray activation integrates flows
             #[test]
             fn test_phase4_complete_validation() {
-                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::default(), SoulStream::new());
+                let mut entity = Entity::emerge_from(1, SpaceTimeCoord::initial(), SoulStream::new());
 
                 // Validation 1: Cross-coupling emerges from involutionary structure
                 // Body generates up-pouring from Red/Orange rays (survival/self-awareness)

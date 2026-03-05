@@ -286,7 +286,7 @@ mod tests {
             // 7th: 1.0 + 0.0 = 1.0
             // 8th: 1.0 + 0.0 = 1.0
             assert!(
-                sum >= 0.899 && sum <= 1.001,
+                (0.899..=1.001).contains(&sum),
                 "Density {:?}: transparency + thickness = {}, expected ~1.0",
                 density,
                 sum
@@ -408,8 +408,6 @@ impl std::fmt::Display for Polarity {
         }
     }
 }
-
-/// Holonic level - scale of holonic organization
 
 /// Holonic level - scale of holonic organization
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

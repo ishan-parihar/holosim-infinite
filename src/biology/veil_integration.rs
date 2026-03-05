@@ -6,11 +6,9 @@
 //! From V4 Roadmap Phase 5: "Archetype-Driven Consciousness Engine"
 //! Integrates with existing src/veil/ module
 
-use crate::biology::entity_body_coupling::VeilMechanics as VeilMechanism;
 use crate::types::Float;
-use crate::veil::density_variation::{DensityTransparency, PolarizationState};
 use crate::veil::mechanism::{ThinSpot, VeilState};
-use crate::veil::piercing::{PiercingEvent, PiercingLocation};
+use crate::veil::piercing::PiercingLocation;
 use std::collections::VecDeque;
 
 // ============================================================================
@@ -19,6 +17,7 @@ use std::collections::VecDeque;
 
 /// What the veil allows through to conscious awareness
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct FilteredPerception {
     /// What the entity consciously perceives
     pub conscious_perception: ConsciousPercept,
@@ -30,16 +29,6 @@ pub struct FilteredPerception {
     pub active_thin_spots: Vec<ThinSpotInsight>,
 }
 
-impl Default for FilteredPerception {
-    fn default() -> Self {
-        Self {
-            conscious_perception: ConsciousPercept::default(),
-            subconscious_content: SubconsciousContent::default(),
-            filtered_out: FilteredContent::default(),
-            active_thin_spots: Vec::new(),
-        }
-    }
-}
 
 /// What reaches conscious awareness through the veil
 #[derive(Debug, Clone, Default)]
@@ -144,12 +133,14 @@ pub struct VeilIntegration {
     /// Density level affects veil
     density: u8,
     /// Polarity affects veil transparency
+    #[allow(dead_code)]
     polarity: Float,
     /// Total experience accumulated
     experience_accumulated: Float,
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct MemoryItem {
     content: String,
     emotional_charge: Float,
@@ -162,6 +153,7 @@ struct ThinSpotState {
     location: PiercingLocation,
     strength: Float,
     insight: String,
+    #[allow(dead_code)]
     last_accessed: Float,
 }
 
@@ -221,11 +213,9 @@ impl VeilIntegration {
     /// Create a new thin spot in the veil
     fn create_thin_spot(&mut self) {
         // Thin spots form at significant moments
-        let locations = vec![
-            PiercingLocation::All,
+        let locations = [PiercingLocation::All,
             PiercingLocation::Mind,
-            PiercingLocation::Spirit,
-        ];
+            PiercingLocation::Spirit];
 
         if let Some(loc) = locations.get(self.thin_spots.len() % locations.len()) {
             let thin_spot = ThinSpot::new(*loc, 0.3, 0.0);

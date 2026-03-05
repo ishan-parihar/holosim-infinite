@@ -90,7 +90,7 @@ pub fn init_sdl2(config: &Sdl2Config) -> Result<(Sdl2Window, EventLoop), Sdl2Win
     let window = Sdl2Window::new(&config.title, config.width, config.height)?;
 
     let event_loop = EventLoop::new(window.sdl_context())
-        .map_err(|e| Sdl2WindowError::InitializationFailed(e))?;
+        .map_err(Sdl2WindowError::InitializationFailed)?;
 
     Ok((window, event_loop))
 }

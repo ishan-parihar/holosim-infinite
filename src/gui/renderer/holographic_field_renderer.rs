@@ -9,7 +9,6 @@
 //! - Phase coherence network visualization
 //! - Interference pattern rendering
 
-use crate::types::Float;
 use wgpu::util::DeviceExt;
 use wgpu::*;
 

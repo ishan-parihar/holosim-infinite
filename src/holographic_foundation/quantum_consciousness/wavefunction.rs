@@ -74,7 +74,7 @@ impl QuantumNode {
         if quantum_amp.magnitude() > 1e-10 {
             Some(Self::new(
                 node.position,
-                quantum_amp.clone(),
+                *quantum_amp,
                 node.archetype_vector,
             ))
         } else {
@@ -101,18 +101,13 @@ impl QuantumNode {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum WavefunctionState {
+    #[default]
     Pure,
     Superposition { num_components: usize },
     Mixed { purity: Float },
     Collapsed { basis_state: QuantumNumberSet },
-}
-
-impl Default for WavefunctionState {
-    fn default() -> Self {
-        Self::Pure
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -176,9 +171,7 @@ impl QuantumWavefunction {
     fn recalculate_state(&mut self) {
         let num_components = self.nodes.len();
 
-        self.state = if num_components == 0 {
-            WavefunctionState::Pure
-        } else if num_components == 1 {
+        self.state = if num_components <= 1 {
             WavefunctionState::Pure
         } else {
             let total_prob: Float = self.nodes.values().map(|n| n.probability_density()).sum();
@@ -370,7 +363,7 @@ impl QuantumWavefunction {
 
     pub fn mark_collapsed(&mut self, collapsed_node_id: &QuantumNodeId) {
         if let Some(collapsed_node) = self.nodes.get(collapsed_node_id).cloned() {
-            let quantum_numbers = collapsed_node.quantum_numbers.clone();
+            let quantum_numbers = collapsed_node.quantum_numbers;
             self.nodes.clear();
             let mut new_node = collapsed_node;
             new_node.amplitude = FieldAmplitude::one();
@@ -384,12 +377,14 @@ impl QuantumWavefunction {
     }
 
     pub fn statistics(&self) -> WavefunctionStatistics {
-        let mut stats = WavefunctionStatistics::default();
-        stats.node_count = self.nodes.len();
-        stats.total_probability = self.total_probability;
-        stats.coherence = self.coherence_measure();
-        stats.source_field_coherence = self.source_field_coherence;
-        stats.is_normalized = self.normalization_applied;
+        let mut stats = WavefunctionStatistics {
+            node_count: self.nodes.len(),
+            total_probability: self.total_probability,
+            coherence: self.coherence_measure(),
+            source_field_coherence: self.source_field_coherence,
+            is_normalized: self.normalization_applied,
+            ..Default::default()
+        };
 
         if let Some(pos) = self.expectation_position() {
             stats.expectation_position = Some(pos);

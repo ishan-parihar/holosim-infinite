@@ -1137,7 +1137,7 @@ mod tests {
             .expect("Failed to create project");
 
         let project = manager.get_project(project_id).unwrap();
-        let initial_stability = project.structure.stability;
+        let _initial_stability = project.structure.stability;
 
         // Contribute resonance (should update stability)
         manager

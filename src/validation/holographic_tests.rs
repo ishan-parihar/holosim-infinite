@@ -105,8 +105,8 @@ impl HolographicReconstructionValidator {
         let archetypes = self.generate_test_archetypes();
 
         // Generate fields at all layers
-        let violet_field = HolographicField::new(InvolutionLayer::Violet, archetypes.clone());
-        let red_field = HolographicField::new(InvolutionLayer::Red, archetypes.clone());
+        let violet_field = HolographicField::new(InvolutionLayer::Violet, archetypes);
+        let red_field = HolographicField::new(InvolutionLayer::Red, archetypes);
 
         // Both fields should contain the same archetype encoding
         assert_eq!(
@@ -151,9 +151,9 @@ impl HolographicReconstructionValidator {
         let archetypes = self.generate_test_archetypes();
 
         // Generate fields at different layers
-        let violet_field = HolographicField::new(InvolutionLayer::Violet, archetypes.clone());
-        let green_field = HolographicField::new(InvolutionLayer::Green, archetypes.clone());
-        let red_field = HolographicField::new(InvolutionLayer::Red, archetypes.clone());
+        let violet_field = HolographicField::new(InvolutionLayer::Violet, archetypes);
+        let green_field = HolographicField::new(InvolutionLayer::Green, archetypes);
+        let red_field = HolographicField::new(InvolutionLayer::Red, archetypes);
 
         // All fields should have the same phase coherence
         let violet_coherence = violet_field.phase_coherence();
@@ -316,8 +316,8 @@ impl HolographicReconstructionValidator {
             amplitude: 0.0,
             phase: 0.0,
         }; 22];
-        for i in 0..22 {
-            archetypes[i] = ComplexArchetype {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
+            *archetype = ComplexArchetype {
                 amplitude: (i as Float + 1.0) / 22.0, // 0.045 to 1.0
                 phase: (i as Float) * PI / 11.0,      // 0 to 2π
             };
@@ -380,7 +380,7 @@ mod tests {
         let result = validator.validate_all();
 
         assert_eq!(result.total_tests, 5);
-        assert!(result.tests_passed >= 0);
+        // tests_passed is usize, always >= 0
         assert!(result.tests_passed <= 5);
     }
 

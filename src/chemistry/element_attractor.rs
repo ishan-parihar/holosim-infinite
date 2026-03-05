@@ -191,8 +191,7 @@ impl ElementAttractor {
         // Combined formula maps to atomic number
         // Scale: typical activation sum ~10-15, map to Z 1-118
         let z = ((magnitude / 15.0) * 118.0 * mind_factor)
-            .min(118.0)
-            .max(1.0);
+            .clamp(1.0, 118.0);
 
         z as u32
     }
@@ -226,8 +225,7 @@ impl ElementAttractor {
 
         // Modulate by body factor and matrix stability
         (base_en * body_factor * (0.5 + matrix * 0.5))
-            .min(4.0)
-            .max(0.7)
+            .clamp(0.7, 4.0)
     }
 
     /// Calculate stability from archetype coherence
@@ -779,9 +777,9 @@ impl PeriodicTable {
 
         // Scale activation magnitude with atomic number
         // Higher Z = more complex structure
-        let scale = (z as Float / 60.0).min(1.5).max(0.5);
+        let scale = (z as Float / 60.0).clamp(0.5, 1.5);
         for coeff in activation.iter_mut() {
-            *coeff = (*coeff * scale).min(1.0).max(0.1);
+            *coeff = (*coeff * scale).clamp(0.1, 1.0);
         }
 
         activation

@@ -165,7 +165,7 @@ fn display_involution_results(result: &InvolutionResult) {
     println!("Entity Types Created:");
     let mut counts = std::collections::HashMap::new();
     for entity in &result.entities {
-        *counts.entry(entity.entity_type.clone()).or_insert(0) += 1;
+        *counts.entry(entity.entity_type).or_insert(0) += 1;
     }
     for (entity_type, count) in counts {
         println!("  - {:?}: {}", entity_type, count);

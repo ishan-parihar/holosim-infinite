@@ -757,8 +757,8 @@ mod tests {
         manager.initialize_environment(&entities);
 
         // Should have energy fields and vibrational fields
-        assert!(manager.environment.energy_fields.len() > 0);
-        assert!(manager.environment.vibrational_fields.len() > 0);
+        assert!(!manager.environment.energy_fields.is_empty());
+        assert!(!manager.environment.vibrational_fields.is_empty());
     }
 
     #[test]

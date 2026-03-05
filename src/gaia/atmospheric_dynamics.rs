@@ -12,7 +12,6 @@
 //! gas exchange, temperature regulation, and weather patterns."
 
 use crate::gaia::{AtmosphereId, Float, GaiaConfig};
-use std::collections::HashMap;
 
 /// Atmosphere - Gaseous envelope surrounding a planet
 ///
@@ -125,12 +124,12 @@ impl ChemicalComposition {
         other: Float,
     ) -> Self {
         ChemicalComposition {
-            nitrogen: nitrogen.max(0.0).min(1.0),
-            oxygen: oxygen.max(0.0).min(1.0),
-            carbon_dioxide: carbon_dioxide.max(0.0).min(1.0),
-            argon: argon.max(0.0).min(1.0),
-            water_vapor: water_vapor.max(0.0).min(1.0),
-            other: other.max(0.0).min(1.0),
+            nitrogen: nitrogen.clamp(0.0, 1.0),
+            oxygen: oxygen.clamp(0.0, 1.0),
+            carbon_dioxide: carbon_dioxide.clamp(0.0, 1.0),
+            argon: argon.clamp(0.0, 1.0),
+            water_vapor: water_vapor.clamp(0.0, 1.0),
+            other: other.clamp(0.0, 1.0),
         }
     }
 
@@ -383,11 +382,11 @@ impl CoupledSystem {
         coupling_strength: Float,
     ) -> Self {
         CoupledSystem {
-            oxygen_production: oxygen_production.max(0.0).min(1.0),
-            co2_consumption: co2_consumption.max(0.0).min(1.0),
-            water_vapor_release: water_vapor_release.max(0.0).min(1.0),
-            temperature_regulation: temperature_regulation.max(0.0).min(1.0),
-            coupling_strength: coupling_strength.max(0.0).min(1.0),
+            oxygen_production: oxygen_production.clamp(0.0, 1.0),
+            co2_consumption: co2_consumption.clamp(0.0, 1.0),
+            water_vapor_release: water_vapor_release.clamp(0.0, 1.0),
+            temperature_regulation: temperature_regulation.clamp(0.0, 1.0),
+            coupling_strength: coupling_strength.clamp(0.0, 1.0),
         }
     }
 
@@ -428,7 +427,7 @@ impl ClimateSimulator {
     /// Create a new climate simulator
     pub fn new(resolution: Float, time_step: Float) -> Self {
         ClimateSimulator {
-            resolution: resolution.max(0.0).min(1.0),
+            resolution: resolution.clamp(0.0, 1.0),
             time_step,
         }
     }
@@ -490,8 +489,8 @@ impl ChemistryModeler {
     /// Create a new chemistry modeler
     pub fn new(reaction_rate: Float, diffusion_rate: Float) -> Self {
         ChemistryModeler {
-            reaction_rate: reaction_rate.max(0.0).min(1.0),
-            diffusion_rate: diffusion_rate.max(0.0).min(1.0),
+            reaction_rate: reaction_rate.clamp(0.0, 1.0),
+            diffusion_rate: diffusion_rate.clamp(0.0, 1.0),
         }
     }
 
@@ -508,7 +507,7 @@ impl ChemistryModeler {
         // Simulate photosynthesis (CO2 -> O2) based on humidity and temperature
         let photosynthesis_rate = self.reaction_rate
             * atmosphere.humidity
-            * ((atmosphere.temperature - 273.0) / 30.0).max(0.0).min(1.0);
+            * ((atmosphere.temperature - 273.0) / 30.0).clamp(0.0, 1.0);
 
         let co2_reduction = composition.carbon_dioxide * photosynthesis_rate * time_delta * 0.01;
         let oxygen_increase = co2_reduction;
@@ -532,7 +531,7 @@ impl ChemistryModeler {
 /// From SIMULATION-AUDIT-AND-REFACTOR-PLAN.md Phase 4:
 /// "AtmosphericDynamics: Climate simulation, atmospheric chemistry,
 /// weather patterns, climate-biology coupling"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct AtmosphericDynamics {
     /// Climate simulator
     climate_simulator: ClimateSimulator,
@@ -542,16 +541,6 @@ pub struct AtmosphericDynamics {
 
     /// Configuration
     config: GaiaConfig,
-}
-
-impl Default for AtmosphericDynamics {
-    fn default() -> Self {
-        AtmosphericDynamics {
-            climate_simulator: ClimateSimulator::default(),
-            chemistry_modeler: ChemistryModeler::default(),
-            config: GaiaConfig::default(),
-        }
-    }
 }
 
 impl AtmosphericDynamics {
@@ -588,7 +577,7 @@ impl AtmosphericDynamics {
     /// Generates short-term weather patterns from climate and atmosphere.
     pub fn predict_weather(
         &self,
-        climate: &Climate,
+        _climate: &Climate,
         atmosphere: &Atmosphere,
     ) -> WeatherPredictionResult {
         // Determine weather type based on conditions
@@ -777,8 +766,10 @@ mod tests {
         let composition = ChemicalComposition::default();
         assert!(composition.supports_aerobic_life());
 
-        let mut low_oxygen = ChemicalComposition::default();
-        low_oxygen.oxygen = 0.1;
+        let low_oxygen = ChemicalComposition {
+            oxygen: 0.1,
+            ..Default::default()
+        };
         assert!(!low_oxygen.supports_aerobic_life());
     }
 

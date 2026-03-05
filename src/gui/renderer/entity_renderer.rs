@@ -309,7 +309,7 @@ impl EntityRenderer {
         let archetype_data: Vec<ArchetypeData> = entities
             .iter()
             .take(self.max_instances)
-            .map(|entity| ArchetypeData::from_entity(entity))
+            .map(ArchetypeData::from_entity)
             .collect();
 
         if !archetype_data.is_empty() {

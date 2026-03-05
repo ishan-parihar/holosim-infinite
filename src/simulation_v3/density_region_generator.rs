@@ -595,7 +595,7 @@ impl DensityRegionGenerator {
 
         self.regions
             .entry(density)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(config.clone());
 
         self.statistics.regions_generated += 1;
@@ -618,20 +618,20 @@ impl DensityRegionGenerator {
         let regions_a = self
             .regions
             .get(&density_a)
-            .ok_or_else(|| DensityRegionError::DensityRegionsNotFound { density: density_a })?;
+            .ok_or(DensityRegionError::DensityRegionsNotFound { density: density_a })?;
 
         let regions_b = self
             .regions
             .get(&density_b)
-            .ok_or_else(|| DensityRegionError::DensityRegionsNotFound { density: density_b })?;
+            .ok_or(DensityRegionError::DensityRegionsNotFound { density: density_b })?;
 
         let region_a = regions_a
             .first()
-            .ok_or_else(|| DensityRegionError::DensityRegionsNotFound { density: density_a })?;
+            .ok_or(DensityRegionError::DensityRegionsNotFound { density: density_a })?;
 
         let region_b = regions_b
             .first()
-            .ok_or_else(|| DensityRegionError::DensityRegionsNotFound { density: density_b })?;
+            .ok_or(DensityRegionError::DensityRegionsNotFound { density: density_b })?;
 
         let bounds_a = region_a.bounds;
         let bounds_b = region_b.bounds;
@@ -718,7 +718,7 @@ impl DensityRegionGenerator {
 
     /// Get density transition at a specific point
     pub fn get_transition_at_point(&self, point: [Float; 3]) -> Option<(TransitionZone, Float)> {
-        for (_, regions) in &self.regions {
+        for regions in self.regions.values() {
             for region in regions {
                 for transition in &region.transition_zones {
                     if transition.bounds[0] <= point[0]
@@ -764,6 +764,12 @@ pub struct DensityRegionStatistics {
     pub transition_zones_generated: usize,
     pub total_area: Float,
     pub average_region_size: Float,
+}
+
+impl Default for DensityRegionStatistics {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DensityRegionStatistics {

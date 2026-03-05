@@ -12,10 +12,8 @@
 //! - Organ function = field dynamics at that resolution
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::cellular_emergence::CellManifestation;
 use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct OrganId(pub u64);
@@ -78,9 +76,9 @@ impl OrganType {
 
         pattern[dominant] = 0.9;
 
-        for i in 0..7 {
+        for (i, item) in pattern[0..7].iter_mut().enumerate() {
             if i != dominant % 7 {
-                pattern[i] = 0.6 + (dominant as Float * 0.02);
+                *item = 0.6 + (dominant as Float * 0.02);
             }
         }
         for i in 7..14 {
@@ -184,7 +182,7 @@ impl OrganVitality {
             + self.nutrient_level)
             / 5.0;
         let negative = self.waste_accumulation;
-        (positive - negative * 0.5).max(0.0).min(1.0)
+        (positive - negative * 0.5).clamp(0.0, 1.0)
     }
 
     pub fn is_critical(&self) -> bool {
@@ -471,7 +469,7 @@ mod tests {
         let node1 = OrganFieldNode::new(OrganType::Heart, Position3D::new(0.0, 0.0, 0.0));
         let node2 = OrganFieldNode::new(OrganType::Brain, Position3D::new(0.0, 0.0, 0.0));
         let resonance = node1.resonance_with(&node2);
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 
     #[test]

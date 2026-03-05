@@ -74,7 +74,7 @@ mod integration_tests {
     #[test]
     fn test_free_will_kernel_basic_functionality() {
         // Create Archetype 22 from IntelligentInfinity
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
         let foundation_archetype22 = crate::foundation::indigo_realm::Archetype22::new();
 
         // Create Free Will kernel with Archetype 22
@@ -156,7 +156,7 @@ mod integration_tests {
     #[test]
     fn test_complete_consciousness_flow() {
         // 1. Create IntelligentInfinity (Layer 1)
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
 
         // 2. Create Archetype 22 from IntelligentInfinity
         let foundation_archetype22 = crate::foundation::indigo_realm::Archetype22::new();
@@ -216,7 +216,7 @@ mod integration_tests {
         let entity_state = create_test_entity_state(0.5);
 
         // Test Free Will kernel non-determinism
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
         let foundation_archetype22 = crate::foundation::indigo_realm::Archetype22::new();
         let mut free_will_kernel = FreeWillKernel::new(foundation_archetype22);
 
@@ -283,7 +283,7 @@ mod integration_tests {
     #[test]
     fn test_consciousness_growth_through_free_will() {
         // Create Free Will kernel
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
         let foundation_archetype22 = crate::foundation::indigo_realm::Archetype22::new();
         let mut free_will_kernel = FreeWillKernel::new(foundation_archetype22);
 

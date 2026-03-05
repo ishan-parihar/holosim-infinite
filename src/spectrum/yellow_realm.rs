@@ -71,9 +71,9 @@ impl FullAwareness {
     /// Create full awareness with specific values
     pub fn with_values(timespace: Float, holographic: Float, memory: Float) -> Self {
         FullAwareness {
-            timespace_awareness: timespace.max(0.0).min(1.0),
-            holographic_awareness: holographic.max(0.0).min(1.0),
-            memory: memory.max(0.0).min(1.0),
+            timespace_awareness: timespace.clamp(0.0, 1.0),
+            holographic_awareness: holographic.clamp(0.0, 1.0),
+            memory: memory.clamp(0.0, 1.0),
         }
     }
 }
@@ -102,9 +102,9 @@ impl LimitedAwareness {
     /// Create limited awareness with specific values
     pub fn with_values(timespace: Float, holographic: Float, memory: Float) -> Self {
         LimitedAwareness {
-            timespace_awareness: timespace.max(0.0).min(1.0),
-            holographic_awareness: holographic.max(0.0).min(1.0),
-            memory: memory.max(0.0).min(1.0),
+            timespace_awareness: timespace.clamp(0.0, 1.0),
+            holographic_awareness: holographic.clamp(0.0, 1.0),
+            memory: memory.clamp(0.0, 1.0),
         }
     }
 
@@ -147,10 +147,10 @@ impl SeparationIllusion {
     /// Create separation illusion with specific values
     pub fn with_values(entity: Float, infinity: Float, unity: Float, death: Float) -> Self {
         SeparationIllusion {
-            entity_separation: entity.max(0.0).min(1.0),
-            infinity_separation: infinity.max(0.0).min(1.0),
-            unity_separation: unity.max(0.0).min(1.0),
-            death_illusion: death.max(0.0).min(1.0),
+            entity_separation: entity.clamp(0.0, 1.0),
+            infinity_separation: infinity.clamp(0.0, 1.0),
+            unity_separation: unity.clamp(0.0, 1.0),
+            death_illusion: death.clamp(0.0, 1.0),
         }
     }
 
@@ -168,7 +168,7 @@ impl SeparationIllusion {
         // Separation illusion must be strong enough (at least 0.3)
         // but not too strong (max 0.9)
         let strength = self.total_illusion_strength();
-        strength >= 0.3 && strength <= 0.9
+        (0.3..=0.9).contains(&strength)
     }
 }
 
@@ -369,7 +369,7 @@ impl EnhancedVeil {
 
     /// Create veil with specific thickness
     pub fn with_thickness(thickness: Float) -> Self {
-        let thickness = thickness.max(0.0).min(1.0);
+        let thickness = thickness.clamp(0.0, 1.0);
 
         EnhancedVeil {
             base_thickness: thickness,
@@ -670,7 +670,7 @@ mod tests {
     use crate::foundation::violet_realm::VioletRealm;
     use crate::spectrum::archetypical_mind::{Archetype, ArchetypeRole, ComplexType};
     use crate::spectrum::larson_framework::{
-        DimensionalStructure, ResonantStandingWave, ScalarMotionUnit, SpectrumRatio,
+        DimensionalStructure, ResonantStandingWave, SpectrumRatio,
     };
 
     // Test helper functions

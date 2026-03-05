@@ -88,6 +88,12 @@ impl PartialEq for ArchetypicalItemSignature {
     }
 }
 
+impl Default for ArchetypicalItemSignature {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ArchetypicalItemSignature {
     pub fn new() -> Self {
         Self {
@@ -141,6 +147,12 @@ pub struct ResonancePattern {
     pub phase: Float,
 }
 
+impl Default for ResonancePattern {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ResonancePattern {
     pub fn new() -> Self {
         Self {
@@ -153,10 +165,11 @@ impl ResonancePattern {
     pub fn from_spectrum(spectrum: &SpectrumRatio) -> Self {
         let base_ratio =
             spectrum.space_time_ratio / (spectrum.space_time_ratio + spectrum.time_space_ratio);
-        let mut pattern = [0.0; 8];
-        for i in 0..8 {
-            pattern[i] = base_ratio * (1.0 + (i as Float / 8.0) * 0.5).min(1.0);
-        }
+        let pattern: [Float; 8] = (0..8)
+            .map(|i| base_ratio * (1.0 + (i as Float / 8.0) * 0.5).min(1.0))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
         Self {
             pattern,
             stability: 0.8 + base_ratio * 0.2,
@@ -588,7 +601,7 @@ mod tests {
         pattern2.pattern[0] = 0.5;
 
         let interference = pattern1.compute_interference(&pattern2);
-        assert!(interference >= 0.0 && interference <= 1.0);
+        assert!((0.0..=1.0).contains(&interference));
     }
 
     #[test]

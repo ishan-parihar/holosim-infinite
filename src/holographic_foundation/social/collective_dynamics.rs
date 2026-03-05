@@ -5,7 +5,6 @@
 //!  Collective structures can grow to cosmic scales"
 
 use super::collective_formation::Collective;
-use super::resonance_calculation::ResonanceResult;
 use crate::holographic_foundation::evolution::{DecisionType, EntityDecision, FieldPerturbation};
 use crate::types::Float;
 use std::collections::HashMap;

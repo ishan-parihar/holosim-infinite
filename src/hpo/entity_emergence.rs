@@ -4,7 +4,7 @@
 //! It creates field structure that enables entity extraction and scales to 10,000+ entities.
 
 use super::cosmic_sequence::CosmologicalLayer;
-use super::field_state::{Complex, DensityBand, Float, HolographicFieldState, OctreeNode};
+use super::field_state::{Complex, DensityBand, Float, HolographicFieldState};
 use std::collections::HashMap;
 
 /// Entity emergence configuration
@@ -200,11 +200,10 @@ impl EntityEmergence {
             entity.update_position(dt);
         }
 
-        if self.entities.len() < self.config.target_entity_count {
-            if rand::random::<Float>() < self.config.birth_rate {
+        if self.entities.len() < self.config.target_entity_count
+            && rand::random::<Float>() < self.config.birth_rate {
                 self.spawn_entity();
             }
-        }
 
         self.handle_deaths();
         self.update_statistics();

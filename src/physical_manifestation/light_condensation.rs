@@ -1066,7 +1066,7 @@ mod tests {
         unstable_activation[13] = 0.5; // A14: Body Great Way
         unstable_activation[20] = 0.5; // A21: Spirit Great Way
 
-        let unstable =
+        let _unstable =
             Particle::from_archetype_activation(3, unstable_activation, Coordinate3D::origin());
         // May be unstable depending on derived properties
         // assert!(!unstable.is_stable());

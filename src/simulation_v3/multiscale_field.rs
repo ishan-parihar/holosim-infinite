@@ -17,7 +17,7 @@
 //! 5. Field statistics and performance tracking
 
 use super::mera_network::{
-    Float, MeraDecompressionResult, MeraError, MeraNetwork, MeraQuery, Tensor,
+    Float, MeraDecompressionResult, MeraError, MeraNetwork, MeraQuery,
 };
 use super::multiscale_camera::{PhysicsMode, ScaleLevel};
 use std::collections::HashMap;
@@ -303,7 +303,7 @@ impl MultiScaleField {
         self.stats.cache_misses += 1;
 
         // Decompress from MERA network
-        let mera_query = MeraQuery {
+        let _mera_query = MeraQuery {
             scale_level: scale_index,
             region: None,
             precision: 1.0,
@@ -409,6 +409,7 @@ impl MultiScaleField {
     /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md Section 4.2:
     /// "Navigate up the MERA hierarchy to find relevant data and refine.
     ///  Refine using higher-resolution levels if available"
+    #[allow(dead_code)]
     fn decompress_level(
         &self,
         level: usize,
@@ -640,10 +641,10 @@ mod tests {
             .get_view(ScaleLevel::Quantum, -25.0, (5.0, 5.0, 5.0))
             .unwrap();
 
-        assert!(field.view_cache.len() > 0);
+        assert!(!field.view_cache.is_empty());
 
         field.clear_cache();
-        assert_eq!(field.view_cache.len(), 0);
+        assert!(field.view_cache.is_empty());
     }
 
     #[test]

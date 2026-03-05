@@ -11,7 +11,7 @@
 //! - Below v = 1: Many-ness (separation consciousness)
 //! - Above v = 1: Oneness (unity consciousness)
 
-use super::field_state::{Complex, Float, OctreeNode};
+use super::field_state::{Float, OctreeNode};
 use std::collections::HashMap;
 
 /// The Larson velocity ratio - determines Space/Time vs Time/Space dominance
@@ -112,6 +112,12 @@ pub struct VeilRelationship {
     pub time_below_veil: Float,
     pub time_at_veil: Float,
     pub time_above_veil: Float,
+}
+
+impl Default for VeilRelationship {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl VeilRelationship {
@@ -238,17 +244,16 @@ impl LarsonFramework {
         let relationship = self
             .entity_relationships
             .entry(entity_id)
-            .or_insert_with(VeilRelationship::new);
+            .or_default();
 
         let old_mode = relationship.mode;
         relationship.update_from_spectrum(spectrum_position);
 
         // Track veil crossings
-        if old_mode != relationship.mode {
-            if old_mode == LarsonMode::AtVeil || relationship.mode == LarsonMode::AtVeil {
+        if old_mode != relationship.mode
+            && (old_mode == LarsonMode::AtVeil || relationship.mode == LarsonMode::AtVeil) {
                 relationship.veil_crossings += 1;
             }
-        }
     }
 
     /// Update veil transparency based on field coherence
@@ -350,7 +355,7 @@ impl LarsonFramework {
                     relationship.velocity_ratio
                 ),
                 LarsonMode::AtVeil => {
-                    format!("At the Veil (v≈1) - Transformation zone - Crossing threshold")
+                    "At the Veil (v≈1) - Transformation zone - Crossing threshold".to_string()
                 }
                 LarsonMode::TimeSpace => format!(
                     "Time/Space dominant (v={:.2}) - Time as dimensions, fixed locus",

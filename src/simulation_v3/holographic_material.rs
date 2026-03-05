@@ -50,6 +50,7 @@ pub const BIOCOMPATIBILITY_MIN: Float = 0.0;
 pub const BIOCOMPATIBILITY_MAX: Float = 1.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct MaterialId(pub u64);
 
 impl MaterialId {
@@ -62,11 +63,6 @@ impl MaterialId {
     }
 }
 
-impl Default for MaterialId {
-    fn default() -> Self {
-        MaterialId(0)
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MaterialProperties {
@@ -121,7 +117,9 @@ pub struct HolographicMaterial {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum MaterialPhase {
+    #[default]
     Solid,
     Liquid,
     Gas,
@@ -134,11 +132,6 @@ pub enum MaterialPhase {
     Quantum,
 }
 
-impl Default for MaterialPhase {
-    fn default() -> Self {
-        MaterialPhase::Solid
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct ResonanceCache {
@@ -163,6 +156,7 @@ pub enum HolographicMaterialError {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub struct MaterialSystemStatistics {
     pub total_materials: usize,
     pub cache_hits: u64,
@@ -172,18 +166,6 @@ pub struct MaterialSystemStatistics {
     pub materials_by_phase: HashMap<MaterialPhase, usize>,
 }
 
-impl Default for MaterialSystemStatistics {
-    fn default() -> Self {
-        MaterialSystemStatistics {
-            total_materials: 0,
-            cache_hits: 0,
-            cache_misses: 0,
-            total_resonance_computations: 0,
-            average_computation_time_ns: 0,
-            materials_by_phase: HashMap::new(),
-        }
-    }
-}
 
 pub struct HolographicMaterialSystem {
     materials: HashMap<MaterialId, HolographicMaterial>,
@@ -264,20 +246,20 @@ impl HolographicMaterialSystem {
         let old_phase = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .phase_state;
 
         let base_properties = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .base_properties
             .clone();
 
         let pressure = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .pressure;
 
         let new_phase = self.determine_phase(&base_properties, new_temperature, pressure);
@@ -285,7 +267,7 @@ impl HolographicMaterialSystem {
         let material = self
             .materials
             .get_mut(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?;
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?;
 
         material.temperature = new_temperature;
         material.phase_state = new_phase;
@@ -314,20 +296,20 @@ impl HolographicMaterialSystem {
         let old_phase = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .phase_state;
 
         let base_properties = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .base_properties
             .clone();
 
         let temperature = self
             .materials
             .get(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?
             .temperature;
 
         let new_phase = self.determine_phase(&base_properties, temperature, new_pressure);
@@ -335,7 +317,7 @@ impl HolographicMaterialSystem {
         let material = self
             .materials
             .get_mut(&material_id)
-            .ok_or_else(|| HolographicMaterialError::MaterialNotFound(material_id))?;
+            .ok_or(HolographicMaterialError::MaterialNotFound(material_id))?;
 
         material.pressure = new_pressure;
         material.phase_state = new_phase;
@@ -394,7 +376,7 @@ impl HolographicMaterialSystem {
         let interference_pattern = signature
             .iter()
             .enumerate()
-            .map(|(i, &v)| v * ((i as Float * 3.14159) / 11.0).sin())
+            .map(|(i, &v)| v * ((i as Float * std::f64::consts::PI) / 11.0).sin())
             .sum::<Float>()
             / 22.0;
 
@@ -668,7 +650,7 @@ impl HolographicMaterialSystem {
         let mut hash: u64 = 0;
         for (i, &value) in signature.iter().enumerate() {
             let bits =
-                (value.to_bits() as u64).wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15));
+                value.to_bits().wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15));
             hash = hash.wrapping_add(bits);
             hash = hash.wrapping_mul(0x100000001b3);
             hash ^= hash >> 31;
@@ -810,8 +792,10 @@ mod tests {
     #[test]
     fn test_determine_phase_pressure() {
         let system = HolographicMaterialSystem::new();
-        let mut properties = MaterialProperties::default();
-        properties.hardness = 5.0;
+        let properties = MaterialProperties {
+            hardness: 5.0,
+            ..Default::default()
+        };
 
         let high_pressure_phase = system.determine_phase(&properties, 600.0, 1e7);
         assert_eq!(high_pressure_phase, MaterialPhase::Solid);
@@ -823,9 +807,11 @@ mod tests {
     #[test]
     fn test_neutronium_phase() {
         let system = HolographicMaterialSystem::new();
-        let mut properties = MaterialProperties::default();
-        properties.mass_density = 2e5;
-        properties.hardness = 10.0;
+        let properties = MaterialProperties {
+            mass_density: 2e5,
+            hardness: 10.0,
+            ..Default::default()
+        };
 
         let phase = system.determine_phase(&properties, 100.0, 101325.0);
         assert_eq!(phase, MaterialPhase::Neutronium);
@@ -834,9 +820,11 @@ mod tests {
     #[test]
     fn test_plasma_phase() {
         let system = HolographicMaterialSystem::new();
-        let mut properties = MaterialProperties::default();
-        properties.hardness = 2.0;
-        properties.conductivity = 1e7;
+        let properties = MaterialProperties {
+            hardness: 2.0,
+            conductivity: 1e7,
+            ..Default::default()
+        };
 
         let phase = system.determine_phase(&properties, 10000.0, 101325.0);
         assert_eq!(phase, MaterialPhase::Plasma);
@@ -845,9 +833,11 @@ mod tests {
     #[test]
     fn test_holographic_phase() {
         let system = HolographicMaterialSystem::new();
-        let mut properties = MaterialProperties::default();
-        properties.refractive_index = 3.0;
-        properties.hardness = 2.0; // Lower hardness to lower melting/boiling points
+        let properties = MaterialProperties {
+            refractive_index: 3.0,
+            hardness: 2.0, // Lower hardness to lower melting/boiling points
+            ..Default::default()
+        };
 
         let phase = system.determine_phase(&properties, 10000.0, 101325.0);
         assert_eq!(phase, MaterialPhase::Holographic);

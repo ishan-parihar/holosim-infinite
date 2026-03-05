@@ -34,6 +34,7 @@ use crate::holographic::complex_vectors::ComplexArchetype;
 use crate::holographic::holographic_field::{
     HolographicField, HolographicFieldGenerator, InvolutionLayer,
 };
+#[cfg(test)]
 use crate::types::Float;
 
 /// Result of the light condensation process.
@@ -239,7 +240,7 @@ impl LightCondensationEngine {
             .expect("Green field not found");
 
         // Preserve archetype encoding but reduce spatial frequency
-        green_field.archetype_complex_vectors = blue_field.archetype_complex_vectors.clone();
+        green_field.archetype_complex_vectors = blue_field.archetype_complex_vectors;
 
         green_field
     }
@@ -264,7 +265,7 @@ impl LightCondensationEngine {
             .expect("Yellow field not found");
 
         // Preserve archetype encoding but reduce spatial frequency
-        yellow_field.archetype_complex_vectors = field.archetype_complex_vectors.clone();
+        yellow_field.archetype_complex_vectors = field.archetype_complex_vectors;
 
         yellow_field
     }
@@ -289,7 +290,7 @@ impl LightCondensationEngine {
             .expect("Orange field not found");
 
         // Preserve archetype encoding but reduce spatial frequency
-        orange_field.archetype_complex_vectors = field.archetype_complex_vectors.clone();
+        orange_field.archetype_complex_vectors = field.archetype_complex_vectors;
 
         orange_field
     }
@@ -314,7 +315,7 @@ impl LightCondensationEngine {
             .expect("Red field not found");
 
         // Preserve archetype encoding but reduce spatial frequency
-        red_field.archetype_complex_vectors = field.archetype_complex_vectors.clone();
+        red_field.archetype_complex_vectors = field.archetype_complex_vectors;
 
         red_field
     }

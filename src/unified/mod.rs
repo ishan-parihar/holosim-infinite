@@ -38,7 +38,7 @@ mod tests {
         let mut emergence = UnifiedEmergence::new(field);
 
         let result = emergence.process();
-        assert!(result.physics.particles.len() > 0);
+        assert!(!result.physics.particles.is_empty());
     }
 
     #[test]

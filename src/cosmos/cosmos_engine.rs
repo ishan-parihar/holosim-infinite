@@ -11,7 +11,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::holographic::field_address::{HolographicAddress, ScaleLevel, Vector3};
+use crate::holographic::field_address::{HolographicAddress, Vector3};
 use crate::holographic::observer_driven_field::ObserverDrivenField;
 
 use super::cosmic_web::CosmicWeb;
@@ -24,6 +24,7 @@ use super::stellar_physics::Star;
 
 /// Unique identifier for a stellar system
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct StellarId(pub u64);
 
 impl StellarId {
@@ -36,11 +37,6 @@ impl StellarId {
     }
 }
 
-impl Default for StellarId {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 /// A proto-stellar region approaching gravitational collapse
 ///
@@ -348,8 +344,8 @@ impl CosmosEngine {
         let mut system = StellarSystem::new(id, region.address.clone());
 
         // Get star data before moving system
-        let star_luminosity = star.luminosity;
-        let star_temp = star.temperature;
+        let _star_luminosity = star.luminosity;
+        let _star_temp = star.temperature;
 
         system.star = Some(star);
 
@@ -379,7 +375,7 @@ impl CosmosEngine {
             let orbital_radius = self.titius_bode_radius(n);
 
             // Skip if too close to star or too far
-            if orbital_radius < 0.1 || orbital_radius > 50.0 {
+            if !(0.1..=50.0).contains(&orbital_radius) {
                 continue;
             }
 

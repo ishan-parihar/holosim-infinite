@@ -15,6 +15,7 @@ use crate::types::{Density, Float};
 #[derive(Debug, Clone)]
 pub struct Veil {
     /// Position on spectrum (always at v = 1)
+    #[allow(dead_code)]
     position: Float,
 
     /// Thickness varies by density
@@ -127,15 +128,13 @@ impl Veil {
     pub fn get_thin_spot(&self, situation: &Situation) -> Option<&ThinSpot> {
         self.thin_spots
             .iter()
-            .find(|spot| match (&spot.trigger, situation) {
-                (CatalystTrigger::IntenseEmotion, Situation::Emotional) => true,
-                (CatalystTrigger::NearDeath, Situation::LifeThreatening) => true,
-                (CatalystTrigger::DeepMeditation, Situation::Meditative) => true,
-                (CatalystTrigger::Trauma, Situation::Traumatic) => true,
-                (CatalystTrigger::LoveOverflow, Situation::Loving) => true,
-                (CatalystTrigger::WisdomThreshold, Situation::WisdomSeeking) => true,
-                _ => false,
-            })
+            .find(|spot| matches!((&spot.trigger, situation),
+                (CatalystTrigger::IntenseEmotion, Situation::Emotional) |
+                (CatalystTrigger::NearDeath, Situation::LifeThreatening) |
+                (CatalystTrigger::DeepMeditation, Situation::Meditative) |
+                (CatalystTrigger::Trauma, Situation::Traumatic) |
+                (CatalystTrigger::LoveOverflow, Situation::Loving) |
+                (CatalystTrigger::WisdomThreshold, Situation::WisdomSeeking)))
     }
 
     /// Get veil thickness

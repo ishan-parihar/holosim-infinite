@@ -79,21 +79,12 @@ impl TransformationBodyArchetype {
                 healthy_lambda,
                 LambdaMeasurementType::TransformationVelocity,
             ),
-            tarot_correlation: TarotCorrelation::new(format!(
-                "Death (XIII): Transformation, death and rebirth, change, transition"
-            )),
+            tarot_correlation: TarotCorrelation::new("Death (XIII): Transformation, death and rebirth, change, transition".to_string()),
             transformation_velocity: healthy_lambda,
             death_rebirth_cycle: 0.65,
             higher_vibration_access: 0.65,
             catalyst_use_effectiveness: 0.65,
-            activated_rungs: {
-                let mut levels = Vec::new();
-                levels.push(Rung::R1);
-                levels.push(Rung::R2);
-                levels.push(Rung::R3);
-                levels.push(Rung::R4);
-                levels
-            },
+            activated_rungs: vec![Rung::R1, Rung::R2, Rung::R3, Rung::R4],
             activation_levels: {
                 let mut levels = HashMap::new();
                 levels.insert(Rung::R1, 0.7);
@@ -525,7 +516,7 @@ impl TransformationArchetypeTrait for TransformationBodyArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -679,7 +670,7 @@ impl ArchetypeTrait for TransformationBodyArchetype {
         ArchetypeRole::Transformation
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         // Transformation processing
         let processing = catalyst * self.transformation_velocity;
         self.integration_capacity += processing * 0.01;
@@ -727,8 +718,8 @@ impl ArchetypeTrait for TransformationBodyArchetype {
 mod tests {
     use super::*;
     use crate::archetypes::common::{
-        ArchetypeComplex, ArchetypeRole, FunctionalPair, HealthStatus,
-        HealthStatus as CommonHealthStatus, HolonicLevel, LambdaMeasurementType, SigmaAxis,
+        ArchetypeComplex, ArchetypeRole, FunctionalPair, HealthStatus, LambdaMeasurementType,
+        SigmaAxis,
     };
 
     // Mock archetype for testing paired relationships

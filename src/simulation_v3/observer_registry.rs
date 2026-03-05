@@ -48,7 +48,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
-use crate::compression::mera_network::MeraNetwork;
 use crate::holographic::field_address::{AddressRange, HolographicAddress, ScaleLevel, Vector3};
 use crate::holographic::mera_integration::MeraIntegration;
 use crate::holographic::observer_driven_field::{DecompressedRegion, Observer, ObserverId};
@@ -202,6 +201,7 @@ struct CachedRegion {
     /// The decompressed region data.
     region: DecompressedRegion,
     /// Cache key for this region.
+    #[allow(dead_code)]
     key: String,
     /// Tick when this region was last accessed.
     last_access_tick: u64,
@@ -602,6 +602,8 @@ fn scale_to_string(scale: &ScaleLevel) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
+    use crate::compression::mera_network::MeraNetwork;
 
     fn create_test_registry() -> ObserverRegistry {
         let network = Arc::new(Mutex::new(MeraNetwork::new()));

@@ -220,7 +220,7 @@ pub enum PatternState {
 impl PatternState {
     /// Determine state from balance value
     pub fn from_balance(balance: Float) -> Self {
-        if balance >= 0.9 && balance <= 1.1 {
+        if (0.9..=1.1).contains(&balance) {
             PatternState::Stable
         } else if balance > 1.5 {
             PatternState::Collapsing
@@ -398,8 +398,8 @@ impl AttractorPattern {
     pub fn calculate_resonance_match(&self, pattern_frequency: Float) -> Float {
         let frequency_difference = (self.resonance_frequency - pattern_frequency).abs();
         // Resonance = 1.0 / (1.0 + frequency_difference)
-        let resonance = 1.0 / (1.0 + frequency_difference);
-        resonance
+        
+        1.0 / (1.0 + frequency_difference)
     }
 }
 
@@ -703,8 +703,8 @@ impl SelfOrganize {
         }
     }
 
-    /// Create with default constants
-    pub fn default() -> Self {
+    /// Create with initial constants
+    pub fn initial() -> Self {
         Self::new(1.0, 1.0)
     }
 
@@ -824,7 +824,7 @@ impl SelfOrganize {
 
 impl Default for SelfOrganize {
     fn default() -> Self {
-        Self::default()
+        Self::initial()
     }
 }
 
@@ -870,9 +870,9 @@ pub fn calculate_resonance_match(pattern_frequency: Float, attractor_frequency: 
     let frequency_difference = (pattern_frequency - attractor_frequency).abs();
 
     // Resonance = 1.0 / (1.0 + frequency_difference)
-    let resonance = 1.0 / (1.0 + frequency_difference);
+    
 
-    resonance
+    1.0 / (1.0 + frequency_difference)
 }
 
 #[cfg(test)]
@@ -1245,7 +1245,7 @@ mod tests {
 
     #[test]
     fn test_self_organize_calculate_stability() {
-        let self_organize = SelfOrganize::default();
+        let self_organize = SelfOrganize::initial();
 
         // Perfect balance = perfect stability
         let stability = self_organize.calculate_stability(1.0);
@@ -1262,7 +1262,7 @@ mod tests {
 
     #[test]
     fn test_self_organize_pattern_evolution() {
-        let self_organize = SelfOrganize::default();
+        let self_organize = SelfOrganize::initial();
 
         // Balanced (stable)
         let state = self_organize.pattern_evolution(1.0, 1.0);

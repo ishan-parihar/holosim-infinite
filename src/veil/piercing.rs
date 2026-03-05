@@ -128,7 +128,7 @@ impl PiercingEvent {
             event_type: PiercingEventType::SpiritualWork,
             location,
             duration: 0.0,
-            intensity: intensity.max(0.0).min(1.0),
+            intensity: intensity.clamp(0.0, 1.0),
             depth: 0.0,
             purity: 0.0,
             density,
@@ -149,7 +149,7 @@ impl PiercingEvent {
             location,
             duration: 0.0,
             intensity: 0.0,
-            depth: depth.max(0.0).min(1.0),
+            depth: depth.clamp(0.0, 1.0),
             purity: 0.0,
             density,
             polarization,
@@ -170,7 +170,7 @@ impl PiercingEvent {
             duration: 0.0,
             intensity: 0.0,
             depth: 0.0,
-            purity: purity.max(0.0).min(1.0),
+            purity: purity.clamp(0.0, 1.0),
             density,
             polarization,
             timestamp: 0.0,
@@ -213,7 +213,7 @@ impl PiercingResult {
     /// Create new piercing result
     pub fn new(new_thickness: Float, thin_spot_created: bool, piercing_strength: Float) -> Self {
         PiercingResult {
-            new_thickness: new_thickness.max(0.0).min(1.0),
+            new_thickness: new_thickness.clamp(0.0, 1.0),
             thin_spot_created,
             piercing_strength,
         }
@@ -492,7 +492,7 @@ mod tests {
         let result = PiercingResult::new(0.7, true, 0.1);
 
         assert_eq!(result.new_thickness, 0.7);
-        assert_eq!(result.thin_spot_created, true);
+        assert!(result.thin_spot_created);
         assert_eq!(result.piercing_strength, 0.1);
     }
 

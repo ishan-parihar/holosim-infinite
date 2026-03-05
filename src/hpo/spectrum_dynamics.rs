@@ -14,7 +14,7 @@
 //! "Space/Time ↔ Time/Space Spectrum: Continuum with Veil at v=1"
 //! "Density Octave: 8 densities (1st → 8th) representing consciousness stages"
 
-use super::field_state::{Complex, DensityBand, FieldNodeData, Float, OctreeNode};
+use super::field_state::{Complex, Float, OctreeNode};
 
 /// Configuration for spectrum dynamics
 #[derive(Debug, Clone)]
@@ -138,20 +138,20 @@ impl DensityCoupling {
 
         // Each density couples to adjacent densities
         // Higher densities include lower densities (transcend and include)
-        for i in 0..8 {
-            for j in 0..8 {
+        for (i, row) in coupling_matrix.iter_mut().enumerate() {
+            for (j, cell) in row.iter_mut().enumerate() {
                 if i == j {
                     // Self-coupling
-                    coupling_matrix[i][j] = 1.0;
+                    *cell = 1.0;
                 } else if (i as i32 - j as i32).abs() == 1 {
                     // Adjacent densities have strong coupling
-                    coupling_matrix[i][j] = strength;
+                    *cell = strength;
                 } else if j < i {
                     // Lower densities are "included" in higher
-                    coupling_matrix[i][j] = strength * 0.5 / (i - j) as Float;
+                    *cell = strength * 0.5 / (i - j) as Float;
                 } else {
                     // Higher densities can influence lower (top-down)
-                    coupling_matrix[i][j] = strength * 0.2 / (j - i) as Float;
+                    *cell = strength * 0.2 / (j - i) as Float;
                 }
             }
         }
@@ -167,12 +167,13 @@ impl DensityCoupling {
     pub fn calculate_coupling(&self, amplitudes: &[Float; 8]) -> [Float; 8] {
         let mut result = [0.0; 8];
 
-        for i in 0..8 {
-            let mut coupling_effect = 0.0;
-            for j in 0..8 {
-                coupling_effect += self.coupling_matrix[i][j] * amplitudes[j];
-            }
-            result[i] = coupling_effect;
+        for (i, result_i) in result.iter_mut().enumerate() {
+            let coupling_effect: Float = self.coupling_matrix[i]
+                .iter()
+                .zip(amplitudes.iter())
+                .map(|(&c, &a)| c * a)
+                .sum();
+            *result_i = coupling_effect;
         }
 
         result
@@ -313,18 +314,16 @@ impl SpectrumPosition {
     /// Get the density distribution based on spectrum position
     /// Returns amplitudes for each of the 8 density bands
     pub fn get_density_amplitudes(&self) -> [Float; 8] {
-        let mut result = [0.0; 8];
-
-        // Map continuous position to density bands
-        // Each density has a Gaussian distribution centered at its position
-        for i in 0..8 {
-            let density_center = i as Float / 8.0;
-            let distance = (self.position - density_center).abs();
-
-            // Gaussian falloff
-            let amplitude = (-distance * distance * 50.0).exp();
-            result[i] = amplitude;
-        }
+        let mut result: [Float; 8] = (0..8)
+            .map(|i| {
+                let density_center = i as Float / 8.0;
+                let distance = (self.position - density_center).abs();
+                // Gaussian falloff
+                (-distance * distance * 50.0).exp()
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         // Normalize
         let sum: Float = result.iter().sum();

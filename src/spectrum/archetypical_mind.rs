@@ -288,10 +288,10 @@ impl BiasVector {
         let mut biases = [0.0; 22];
 
         // Use deterministic pseudo-random based on seed
-        for i in 0..22 {
+        for (i, bias) in biases.iter_mut().enumerate() {
             let combined = (seed as f64) * ((i + 1) as f64);
             let value = (combined.sin() * 2.0).fract() - 0.5;
-            biases[i] = value.clamp(-1.0, 1.0);
+            *bias = value.clamp(-1.0, 1.0);
         }
 
         Self { biases }
@@ -304,14 +304,14 @@ impl BiasVector {
 
     /// Set bias for a specific archetype
     pub fn set_bias(&mut self, archetype_id: u8, bias: f64) {
-        if archetype_id >= 1 && archetype_id <= 22 {
+        if (1..=22).contains(&archetype_id) {
             self.biases[(archetype_id - 1) as usize] = bias.clamp(-1.0, 1.0);
         }
     }
 
     /// Get bias for a specific archetype
     pub fn get_bias(&self, archetype_id: u8) -> f64 {
-        if archetype_id >= 1 && archetype_id <= 22 {
+        if (1..=22).contains(&archetype_id) {
             self.biases[(archetype_id - 1) as usize]
         } else {
             0.0
@@ -328,8 +328,8 @@ impl BiasVector {
     ) -> [ArchetypeInstance; 22] {
         let mut refined = core::array::from_fn(|i| ArchetypeInstance::from_template(&templates[i]));
 
-        for i in 0..22 {
-            refined[i].apply_bias(self.biases[i]);
+        for (refined_i, &bias_i) in refined.iter_mut().zip(self.biases.iter()) {
+            refined_i.apply_bias(bias_i);
         }
 
         refined
@@ -345,8 +345,8 @@ impl BiasVector {
     ) -> [ArchetypeInstance; 22] {
         let mut refined = archetypes.clone();
 
-        for i in 0..22 {
-            refined[i].apply_bias(self.biases[i]);
+        for (refined_i, &bias_i) in refined.iter_mut().zip(self.biases.iter()) {
+            refined_i.apply_bias(bias_i);
         }
 
         refined
@@ -587,7 +587,7 @@ impl CosmicMind {
 
     /// Get archetype template by ID
     pub fn get_archetype(&self, id: u8) -> Option<&ArchetypeTemplate> {
-        if id >= 1 && id <= 22 {
+        if (1..=22).contains(&id) {
             Some(&self.archetypes[(id - 1) as usize])
         } else {
             None
@@ -644,7 +644,7 @@ impl LogosMind {
 
     /// Get refined archetype by ID
     pub fn get_archetype(&self, id: u8) -> Option<&ArchetypeInstance> {
-        if id >= 1 && id <= 22 {
+        if (1..=22).contains(&id) {
             Some(&self.refined_archetypes[(id - 1) as usize])
         } else {
             None
@@ -691,7 +691,7 @@ impl SubLogosMind {
 
     /// Get refined archetype by ID
     pub fn get_archetype(&self, id: u8) -> Option<&ArchetypeInstance> {
-        if id >= 1 && id <= 22 {
+        if (1..=22).contains(&id) {
             Some(&self.refined_archetypes[(id - 1) as usize])
         } else {
             None
@@ -761,7 +761,7 @@ impl EntityArchetypicalMind {
 
     /// Get refined archetype by ID
     pub fn get_archetype(&self, id: u8) -> Option<&ArchetypeInstance> {
-        if id >= 1 && id <= 22 {
+        if (1..=22).contains(&id) {
             Some(&self.refined_archetypes[(id - 1) as usize])
         } else {
             None
@@ -870,7 +870,7 @@ impl EntityArchetypicalMind {
                 // Track significant changes
                 if (archetype.activation - old_activation).abs() > 0.001 {
                     holographic_changes.push(HolographicChange::new(
-                        (i + 1) as usize,
+                        i + 1,
                         ChangeType::ActivationChange,
                         (archetype.activation - old_activation).abs(),
                     ));
@@ -900,7 +900,7 @@ impl EntityArchetypicalMind {
             // Track significant changes
             if (archetype.activation - old_activation).abs() > 0.001 {
                 holographic_changes.push(HolographicChange::new(
-                    (i + 1) as usize,
+                    i + 1,
                     ChangeType::ActivationChange,
                     (archetype.activation - old_activation).abs(),
                 ));
@@ -1212,14 +1212,10 @@ impl TrainingAid {
 
     /// Provides guidance for veiled experience
     pub fn provide_guidance(&self, archetype_number: usize) -> Option<String> {
-        if let Some(archetype) = self.archetypical_mind.get_archetype(archetype_number) {
-            Some(format!(
+        self.archetypical_mind.get_archetype(archetype_number).map(|archetype| format!(
                 "{}: {} - Activation: {:.2}",
                 archetype.name, archetype.description, archetype.activation
             ))
-        } else {
-            None
-        }
     }
 
     /// Assists with polarity choice

@@ -10,13 +10,12 @@
 //! into actuality."
 
 use std::collections::HashMap;
-use std::sync::Arc;
 
 use super::field_address::{AddressRange, HolographicAddress, ScaleLevel, Vector3};
 use crate::compression::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
 
 /// Unique identifier for an observer in the field
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ObserverId(pub u64);
 
 impl ObserverId {
@@ -28,12 +27,6 @@ impl ObserverId {
     /// Get the raw ID value
     pub fn as_u64(&self) -> u64 {
         self.0
-    }
-}
-
-impl Default for ObserverId {
-    fn default() -> Self {
-        Self(0)
     }
 }
 
@@ -770,7 +763,7 @@ mod tests {
         let region = DecompressedRegion::new(range, ScaleLevel::Biological, 100);
 
         assert_eq!(region.scale, ScaleLevel::Biological);
-        assert!(region.field_values.len() > 0);
+        assert!(!region.field_values.is_empty());
         assert_eq!(region.idle_ticks, 0);
     }
 
@@ -895,7 +888,7 @@ mod tests {
 
     #[test]
     fn test_scale_to_mera() {
-        let field = ObserverDrivenField::new();
+        let _field = ObserverDrivenField::new();
 
         assert_eq!(
             ObserverDrivenField::scale_to_mera(&ScaleLevel::Quantum),

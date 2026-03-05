@@ -9,8 +9,10 @@ use std::collections::HashMap;
 
 /// Available color themes
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum Theme {
     /// Dark theme (default)
+    #[default]
     Dark,
     /// Light theme
     Light,
@@ -22,11 +24,6 @@ pub enum Theme {
     Custom,
 }
 
-impl Default for Theme {
-    fn default() -> Self {
-        Theme::Dark
-    }
-}
 
 impl Theme {
     /// Get display name for the theme

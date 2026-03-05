@@ -348,20 +348,8 @@ impl EvolutionChain {
                     EvolutionStep::OrangeRay // Small leap to Orange Ray
                 }
             }
-            EvolutionStep::OrangeRay => {
-                if greater_result.transformation > 0.8 {
-                    EvolutionStep::YellowRay
-                } else {
-                    EvolutionStep::YellowRay
-                }
-            }
-            EvolutionStep::YellowRay => {
-                if greater_result.transformation > 0.8 {
-                    EvolutionStep::GreenRay
-                } else {
-                    EvolutionStep::GreenRay
-                }
-            }
+            EvolutionStep::OrangeRay => EvolutionStep::YellowRay,
+            EvolutionStep::YellowRay => EvolutionStep::GreenRay,
             EvolutionStep::GreenRay => {
                 if greater_result.transformation > 0.9 {
                     EvolutionStep::IndigoRay // Big leap to Indigo Ray
@@ -369,13 +357,7 @@ impl EvolutionChain {
                     EvolutionStep::BlueRay
                 }
             }
-            EvolutionStep::BlueRay => {
-                if greater_result.transformation > 0.9 {
-                    EvolutionStep::IndigoRay
-                } else {
-                    EvolutionStep::IndigoRay
-                }
-            }
+            EvolutionStep::BlueRay => EvolutionStep::IndigoRay,
             EvolutionStep::IndigoRay => EvolutionStep::VioletRay,
             EvolutionStep::VioletRay => {
                 EvolutionStep::VioletRay // Already at highest step
@@ -781,6 +763,5 @@ mod tests {
 
         // Should have progressed
         assert!(chain.total_consciousness_expansion() > 0.0);
-        assert!(chain.spiral_pattern.leap_count >= 0);
     }
 }

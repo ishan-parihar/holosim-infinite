@@ -191,7 +191,7 @@ impl AtomFormationEvent {
             ManifestationType::CompleteAtom,
             13.6,
             coherence,
-            config.quantum_numbers.clone(),
+            config.quantum_numbers,
             config.archetype_vector,
             timestamp,
         )
@@ -337,7 +337,7 @@ pub struct AtomicManifestation {
 impl AtomicManifestation {
     pub fn new(element: ElementAttractorField, position: Position3D) -> Self {
         let id = ManifestationId::new(rand_u64());
-        let formation_energy = element.formation_energy();
+        let _formation_energy = element.formation_energy();
         let decay_rate = if element.is_noble_gas() {
             0.0
         } else {
@@ -409,7 +409,7 @@ impl AtomicManifestation {
 
         let event = AtomFormationEvent::new(
             *self.element.identity(),
-            self.position.clone(),
+            self.position,
             ManifestationType::CompleteAtom,
             self.current_energy,
             self.element.configuration().coherence,
@@ -435,7 +435,7 @@ impl AtomicManifestation {
         for _ in 0..z {
             self.subatomic_components
                 .push(SubatomicManifestation::proton(
-                    nucleus_offset.clone(),
+                    nucleus_offset,
                     archetype,
                 ));
         }
@@ -444,7 +444,7 @@ impl AtomicManifestation {
         for _ in 0..neutron_count {
             self.subatomic_components
                 .push(SubatomicManifestation::neutron(
-                    nucleus_offset.clone(),
+                    nucleus_offset,
                     archetype,
                 ));
         }
@@ -605,7 +605,7 @@ impl AtomicManifestation {
         }
 
         let new_element = ElementAttractorField::from_atomic_number(new_z);
-        let mut new_manifestation = AtomicManifestation::new(new_element, self.position.clone());
+        let mut new_manifestation = AtomicManifestation::new(new_element, self.position);
         new_manifestation.current_energy = self.current_energy + other.current_energy;
         new_manifestation.lifetime = self.lifetime;
 

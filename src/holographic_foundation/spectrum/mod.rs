@@ -287,7 +287,7 @@ impl SpectrumState {
     }
 
     fn update_amplitudes_for_density(&mut self) {
-        let primary = self.density_position.primary_density();
+        let _primary = self.density_position.primary_density();
         let phase = self.density_position.sub_density_phase();
 
         for (i, amp) in self.density_amplitudes.iter_mut().enumerate() {

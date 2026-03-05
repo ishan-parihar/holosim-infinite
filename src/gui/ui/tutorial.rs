@@ -88,20 +88,15 @@ impl TutorialStep {
 }
 
 /// Position for tutorial tooltips
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TooltipPosition {
     Top,
+    #[default]
     Bottom,
     Left,
     Right,
     Center,
     Auto,
-}
-
-impl Default for TooltipPosition {
-    fn default() -> Self {
-        TooltipPosition::Bottom
-    }
 }
 
 impl TooltipPosition {
@@ -766,6 +761,7 @@ pub struct TutorialOverlay {
     /// Overlay opacity (0.0 to 1.0)
     opacity: f32,
     /// Highlight target element
+    #[allow(dead_code)]
     highlight_target: Option<String>,
 }
 

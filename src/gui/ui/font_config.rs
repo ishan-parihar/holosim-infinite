@@ -6,9 +6,10 @@
 //! From GUI_IMPLEMENTATION_ROADMAP.md: "Font selection and sizing"
 
 /// Font family options
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FontFamily {
     /// System default font
+    #[default]
     System,
     /// Sans-serif font
     SansSerif,
@@ -20,12 +21,6 @@ pub enum FontFamily {
     Custom1,
     /// Custom font 2
     Custom2,
-}
-
-impl Default for FontFamily {
-    fn default() -> Self {
-        FontFamily::System
-    }
 }
 
 impl FontFamily {
@@ -56,12 +51,14 @@ impl FontFamily {
 
 /// Font size preset
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum FontSize {
     /// Extra small
     XSmall,
     /// Small
     Small,
     /// Normal (default)
+    #[default]
     Normal,
     /// Large
     Large,
@@ -71,11 +68,6 @@ pub enum FontSize {
     XXLarge,
 }
 
-impl Default for FontSize {
-    fn default() -> Self {
-        FontSize::Normal
-    }
-}
 
 impl FontSize {
     /// Get size in points
@@ -116,22 +108,17 @@ impl FontSize {
 }
 
 /// Font weight options
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum FontWeight {
     /// Light weight
     Light,
     /// Normal weight (default)
+    #[default]
     Normal,
     /// Medium weight
     Medium,
     /// Bold
     Bold,
-}
-
-impl Default for FontWeight {
-    fn default() -> Self {
-        FontWeight::Normal
-    }
 }
 
 impl FontWeight {

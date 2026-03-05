@@ -46,14 +46,12 @@ impl BodyResourceStructure {
 
     /// Calculate resource diversity (lower standard deviation = more balanced)
     pub fn resource_diversity(&self) -> Float {
-        let resources = vec![
-            self.physical_resources,
+        let resources = [self.physical_resources,
             self.sensory_resources,
             self.motor_resources,
             self.health_resources,
             self.energy_resources,
-            self.instinctual_resources,
-        ];
+            self.instinctual_resources];
 
         // Calculate mean
         let mean = resources.iter().sum::<Float>() / resources.len() as Float;
@@ -265,7 +263,7 @@ impl PotentiatorBodyArchetype {
     pub fn is_healthy(&self) -> bool {
         let lambda = self.calculate_lambda();
         let (healthy_min, healthy_max) = self.healthy_range();
-        lambda >= healthy_min && lambda <= healthy_max
+        (healthy_min..=healthy_max).contains(&lambda)
     }
 
     /// Get health status
@@ -695,7 +693,7 @@ impl ArchetypeTrait for PotentiatorBodyArchetype {
         ArchetypeRole::Potentiator
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, _catalyst: Float, _position: DevelopmentalPosition) {
         let wisdom_score = self.calculate_wisdom_score();
         self.resource_depth = (self.resource_depth + wisdom_score * 0.05).min(1.0);
     }
@@ -761,7 +759,7 @@ mod tests {
         let potentiator = PotentiatorBodyArchetype::new();
 
         let wisdom_score = potentiator.calculate_wisdom_score();
-        assert!(wisdom_score >= 0.0 && wisdom_score <= 1.0);
+        assert!((0.0..=1.0).contains(&wisdom_score));
 
         // Wisdom should be based on judgment, regulation, and wisdom
         assert!(wisdom_score > 0.5); // Should be healthy
@@ -784,7 +782,7 @@ mod tests {
         let potentiator = PotentiatorBodyArchetype::new();
 
         let questing = potentiator.calculate_questing();
-        assert!(questing >= 0.0 && questing <= 1.0);
+        assert!((0.0..=1.0).contains(&questing));
 
         // Questing should be based on involvement and wisdom
         assert!(questing > 0.3);
@@ -801,7 +799,7 @@ mod tests {
 
         // All activities should be regulated
         for activity in &processed {
-            assert!(*activity >= 0.0 && *activity <= 1.0);
+            assert!((0.0..=1.0).contains(activity));
         }
     }
 
@@ -839,7 +837,7 @@ mod tests {
         let high_activity = 0.9;
         let effectiveness = potentiator.calculate_regulatory_effectiveness(high_activity);
 
-        assert!(effectiveness >= 0.0 && effectiveness <= 1.0);
+        assert!((0.0..=1.0).contains(&effectiveness));
         assert!(effectiveness > 0.3); // Should provide some regulation
     }
 
@@ -859,14 +857,14 @@ mod tests {
         let potentiator = PotentiatorBodyArchetype::new();
 
         let lambda = potentiator.calculate_lambda();
-        assert!(lambda >= 0.0 && lambda <= 1.0);
+        assert!((0.0..=1.0).contains(&lambda));
 
         let (healthy_min, healthy_max) = potentiator.healthy_range();
         assert_eq!(healthy_min, 0.5);
         assert_eq!(healthy_max, 0.8);
 
         // Initial lambda should be in healthy range
-        assert!(lambda >= healthy_min && lambda <= healthy_max);
+        assert!((healthy_min..=healthy_max).contains(&lambda));
     }
 
     #[test]
@@ -993,7 +991,7 @@ mod tests {
             }
 
             fn tarot_correlation(&self) -> TarotCorrelation {
-                self.tarot_correlation().clone()
+                self.tarot.clone()
             }
 
             fn update_lambda(&mut self, value: Float) {

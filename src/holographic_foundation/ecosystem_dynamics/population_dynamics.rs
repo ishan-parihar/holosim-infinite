@@ -12,10 +12,8 @@
 //! - Carrying capacity = field amplitude saturation
 //! - Oscillations = resonance between coupled population fields
 
-use crate::holographic_foundation::ecosystem_dynamics::species_field::{Species, SpeciesId};
-use crate::holographic_foundation::ecosystem_dynamics::trophic_coupling::TrophicLevel;
+use crate::holographic_foundation::ecosystem_dynamics::species_field::SpeciesId;
 use crate::types::Float;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct PopulationId(pub u64);
@@ -98,7 +96,7 @@ impl CarryingCapacity {
     }
 
     pub fn update(&mut self, resources: Float, competitors: Float, predators: Float) {
-        self.resource_availability = (resources / (self.base_capacity * 0.1)).min(1.0).max(0.1);
+        self.resource_availability = (resources / (self.base_capacity * 0.1)).clamp(0.1, 1.0);
         self.competition_modifier = (1.0 - competitors * 0.01).max(0.1);
         self.predator_pressure = (predators * 0.02).min(0.8);
     }
@@ -416,7 +414,7 @@ mod tests {
         let pop1 = Population::new(SpeciesId::new(1), 100.0, 1000.0);
         let pop2 = Population::new(SpeciesId::new(2), 100.0, 1000.0);
         let resonance = pop1.resonance_with(&pop2);
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 
     #[test]

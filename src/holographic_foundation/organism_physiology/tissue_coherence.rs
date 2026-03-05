@@ -12,12 +12,9 @@
 //! - Tissue function = field dynamics at tissue resolution
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::cellular_emergence::{
-    CellId, CellManifestation, CellOrganelle, CellState,
-};
+use crate::holographic_foundation::cellular_emergence::{CellId, CellManifestation};
 use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TissueId(pub u64);
@@ -198,7 +195,7 @@ impl TissueCoherence {
             return Self::new();
         }
 
-        let mut archetype_pattern = tissue_type.archetype_pattern();
+        let archetype_pattern = tissue_type.archetype_pattern();
 
         let mut total_alignment = 0.0;
         for cell in cells {

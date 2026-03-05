@@ -9,7 +9,6 @@
 //! entity metabolism and consciousness. Different terrains provide
 //! different field energy signatures.
 
-use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -356,7 +355,7 @@ mod tests {
     fn test_terrain_resonance_entity_coupling() {
         let resonance = TerrainResonance::new(TerrainType::Forest);
         let coupling = resonance.entity_coupling(0.0);
-        assert!(coupling >= 0.0 && coupling <= 1.0);
+        assert!((0.0..=1.0).contains(&coupling));
     }
 
     #[test]

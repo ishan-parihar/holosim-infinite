@@ -42,7 +42,7 @@ use crate::simulation_v3::advanced_game_mechanics::{
 };
 use crate::simulation_v3::collective_manifestation::StructureType;
 use crate::simulation_v3::holographic_inventory::{
-    ArchetypicalItemSignature, ItemId, ResonancePattern,
+    ArchetypicalItemSignature, ResonancePattern,
 };
 use crate::types::Float;
 use std::collections::HashMap;
@@ -231,9 +231,10 @@ impl Default for QuestObjective {
 // ============================================================================
 
 /// Criteria for completing a quest stage
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum CompletionCriteria {
     /// Complete all objectives in the stage
+    #[default]
     AllObjectives,
     /// Complete any one objective in the stage
     AnyObjective,
@@ -286,12 +287,6 @@ impl CompletionCriteria {
                 "Reach resonance threshold".to_string()
             }
         }
-    }
-}
-
-impl Default for CompletionCriteria {
-    fn default() -> Self {
-        CompletionCriteria::AllObjectives
     }
 }
 
@@ -1437,7 +1432,7 @@ impl ArchetypicalQuests {
 
         for i in 0..num_stages {
             let stage_id = (i + 1) as StageId;
-            let density = Density::new((i + 1) as u8);
+            let density = Density::new(i + 1);
 
             let stage_name = format!("Stage {}: {}", stage_id, density.display_name());
             let description = format!(
@@ -1536,7 +1531,7 @@ impl ArchetypicalQuests {
         quest_id: QuestId,
         stage_id: StageId,
         objective_id: ObjectiveId,
-        progress: Float,
+        _progress: Float,
     ) -> Result<(), QuestError> {
         let quest = self
             .available_quests

@@ -15,7 +15,6 @@
 
 use crate::holographic::field_address::HolographicAddress;
 // DNA system - simplified for now
-use rand::Rng;
 use std::collections::{HashMap, VecDeque};
 
 // ============================================================================
@@ -269,7 +268,7 @@ impl LiveCell {
             self.damage -= 0.005 * dt;
         }
 
-        self.damage = self.damage.max(0.0).min(1.0);
+        self.damage = self.damage.clamp(0.0, 1.0);
     }
 
     /// Update health based on internal state
@@ -280,8 +279,7 @@ impl LiveCell {
         let damage_factor = 1.0 - self.damage;
 
         self.health = (energy_factor * waste_factor * age_factor * damage_factor)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Check if cell should divide

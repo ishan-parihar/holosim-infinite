@@ -330,7 +330,7 @@ impl EntityVisualizer {
     /// Convert entity to visualization data
     pub fn entity_to_visualization_data(
         &self,
-        entity_id: &EntityId,
+        _entity_id: &EntityId,
         entity_type: EntityType,
         density: Density,
         polarity: Polarity,
@@ -380,11 +380,11 @@ impl EntityVisualizer {
 
         EntityVisualizationData {
             position: [
-                position.x.log10().max(-35.0_f32).min(26.0_f32),
-                position.y.log10().max(-35.0_f32).min(26.0_f32),
-                position.z.log10().max(-35.0_f32).min(26.0_f32),
+                position.x.log10().clamp(-35.0_f32, 26.0_f32),
+                position.y.log10().clamp(-35.0_f32, 26.0_f32),
+                position.z.log10().clamp(-35.0_f32, 26.0_f32),
             ],
-            scale: scale.log10().max(-35.0_f32).min(26.0_f32),
+            scale: scale.log10().clamp(-35.0_f32, 26.0_f32),
             color: final_color,
             polarity_color,
             archetype_glow,

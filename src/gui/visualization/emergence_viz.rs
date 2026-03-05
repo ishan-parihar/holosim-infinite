@@ -11,10 +11,8 @@
 //! - Emergence event markers and animations
 //! - Particle systems for emergence effects
 
-use crate::entity_layer7::layer7::{EntityId, EntityType};
-use crate::types::Density;
+use crate::entity_layer7::layer7::EntityId;
 use nalgebra_glm::Vec3;
-use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 /// Emergence level type
@@ -311,7 +309,7 @@ impl EmergenceVisualizer {
         // Update biological metrics
         self.biological_metrics = BiologicalMetrics {
             genetic_diversity: 0.5 + 0.3_f64 * (time / 1000.0).sin(),
-            species_count: (100 + (time as usize / 10) % 500) as usize,
+            species_count: (100 + (time as usize / 10) % 500),
             emergence_events: self
                 .events
                 .iter()
@@ -323,9 +321,9 @@ impl EmergenceVisualizer {
 
         // Update noospheric metrics
         self.noospheric_metrics = NoosphericMetrics {
-            social_complexes: (50 + (time as usize / 15) % 200) as usize,
+            social_complexes: (50 + (time as usize / 15) % 200),
             collective_intelligence: 0.4 + 0.3_f64 * (time / 800.0).sin(),
-            thought_bubbles: (200 + (time as usize / 5) % 800) as usize,
+            thought_bubbles: (200 + (time as usize / 5) % 800),
             average_complexity: 0.4 + 0.3_f64 * (time / 600.0).cos(),
             emergence_rate: 0.15 + 0.1_f64 * (time / 300.0).sin(),
         };
@@ -402,7 +400,7 @@ impl EmergenceVisualizer {
 
     /// Spawn particles for an event
     fn spawn_event_particles(&mut self, event: &EmergenceEvent) {
-        let particle_count = (10_usize + (event.magnitude * 40.0) as usize) as usize;
+        let particle_count = 10_usize + (event.magnitude * 40.0) as usize;
 
         for _ in 0..particle_count {
             let level = event.level;

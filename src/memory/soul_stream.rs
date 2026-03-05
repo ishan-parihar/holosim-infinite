@@ -168,8 +168,8 @@ impl SoulStream {
         components: Vec<Float>,
         metadata: ExperienceMetadata,
     ) -> u64 {
-        let experience_id = self.memory.store_experience(components, metadata);
-        experience_id
+        
+        self.memory.store_experience(components, metadata)
     }
 
     /// Retrieve experience by ID
@@ -226,8 +226,7 @@ impl SoulStream {
 
             // Update karmic debt based on resolution
             pattern.karmic_debt = (pattern.karmic_debt - resolution_amount * 0.5)
-                .max(-1.0)
-                .min(1.0);
+                .clamp(-1.0, 1.0);
         }
     }
 

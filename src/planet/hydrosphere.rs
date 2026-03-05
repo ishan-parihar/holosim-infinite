@@ -9,7 +9,6 @@
 //! - Biosphere: water needed for life
 
 use rand::Rng;
-use std::collections::HashMap;
 
 // ============================================================================
 // Constants
@@ -19,6 +18,8 @@ use std::collections::HashMap;
 const SECONDS_PER_DAY: f64 = 86400.0;
 
 /// Earth's ocean volume (m³)
+/// Note: Used for global water budget calculations
+#[allow(dead_code)]
 const OCEAN_VOLUME: f64 = 1.332e18;
 
 /// Average ocean depth (m)
@@ -31,6 +32,8 @@ const SEA_LEVEL: f64 = 0.0;
 const BASE_EVAPORATION: f64 = 0.001;
 
 /// Snow line altitude (m)
+/// Note: Used for glacial formation calculations
+#[allow(dead_code)]
 const SNOW_LINE: f64 = 3000.0;
 
 // ============================================================================
@@ -301,7 +304,7 @@ impl OceanCurrent {
         // Temperature affects velocity
         let temp_factor = 1.0 + (temperature - 288.0) / 50.0;
         self.velocity *= temp_factor;
-        self.velocity = self.velocity.max(0.01).min(2.0);
+        self.velocity = self.velocity.clamp(0.01, 2.0);
     }
 }
 
@@ -377,11 +380,14 @@ pub struct Hydrosphere {
     pub depth_map: Vec<DepthCell>,
     /// Sea level relative to reference (m)
     pub sea_level: f64,
-    /// Next river ID
+    /// Next river ID (for dynamic river creation)
+    #[allow(dead_code)]
     next_river_id: u64,
-    /// Next lake ID
+    /// Next lake ID (for dynamic lake creation)
+    #[allow(dead_code)]
     next_lake_id: u64,
-    /// Next glacier ID
+    /// Next glacier ID (for dynamic glacier creation)
+    #[allow(dead_code)]
     next_glacier_id: u64,
 }
 
@@ -404,67 +410,71 @@ impl Hydrosphere {
         ];
 
         // Create some major rivers
-        let mut rivers = Vec::new();
-        rivers.push(River::new(0, "Nile", (0.0, 32.0), (31.0, 30.0)));
-        rivers.push(River::new(1, "Amazon", (-4.0, -73.0), (0.0, -50.0)));
-        rivers.push(River::new(2, "Mississippi", (47.0, -95.0), (29.0, -90.0)));
-        rivers.push(River::new(3, "Yangtze", (33.0, 91.0), (31.0, 121.0)));
-        rivers.push(River::new(4, "Ganges", (28.0, 77.0), (22.0, 90.0)));
+        let rivers = vec![
+            River::new(0, "Nile", (0.0, 32.0), (31.0, 30.0)),
+            River::new(1, "Amazon", (-4.0, -73.0), (0.0, -50.0)),
+            River::new(2, "Mississippi", (47.0, -95.0), (29.0, -90.0)),
+            River::new(3, "Yangtze", (33.0, 91.0), (31.0, 121.0)),
+            River::new(4, "Ganges", (28.0, 77.0), (22.0, 90.0)),
+        ];
 
         // Create some major lakes
-        let mut lakes = Vec::new();
-        lakes.push(Lake::new(0, "Caspian Sea", (42.0, 51.0), 371000.0));
-        lakes.push(Lake::new(1, "Lake Superior", (47.0, -87.0), 82100.0));
-        lakes.push(Lake::new(2, "Lake Victoria", (-1.0, 33.0), 68870.0));
-        lakes.push(Lake::new(3, "Aral Sea", (45.0, 60.0), 68000.0));
+        let lakes = vec![
+            Lake::new(0, "Caspian Sea", (42.0, 51.0), 371000.0),
+            Lake::new(1, "Lake Superior", (47.0, -87.0), 82100.0),
+            Lake::new(2, "Lake Victoria", (-1.0, 33.0), 68870.0),
+            Lake::new(3, "Aral Sea", (45.0, 60.0), 68000.0),
+        ];
 
         // Create glaciers
-        let mut glaciers = Vec::new();
-        glaciers.push(Glacier::new(
-            0,
-            "Greenland Ice Sheet",
-            (72.0, -40.0),
-            1.7e6,
-            (0.0, 3200.0),
-        ));
-        glaciers.push(Glacier::new(
-            1,
-            "Antarctic Ice Sheet",
-            (-80.0, 0.0),
-            1.4e7,
-            (0.0, 4500.0),
-        ));
-        glaciers.push(Glacier::new(
-            2,
-            "Himalayan Glaciers",
-            (28.0, 86.0),
-            33000.0,
-            (4000.0, 8000.0),
-        ));
+        let glaciers = vec![
+            Glacier::new(
+                0,
+                "Greenland Ice Sheet",
+                (72.0, -40.0),
+                1.7e6,
+                (0.0, 3200.0),
+            ),
+            Glacier::new(
+                1,
+                "Antarctic Ice Sheet",
+                (-80.0, 0.0),
+                1.4e7,
+                (0.0, 4500.0),
+            ),
+            Glacier::new(
+                2,
+                "Himalayan Glaciers",
+                (28.0, 86.0),
+                33000.0,
+                (4000.0, 8000.0),
+            ),
+        ];
 
         // Create ocean currents
-        let mut ocean_currents = Vec::new();
-        ocean_currents.push(OceanCurrent::new_major(
-            "Gulf Stream",
-            vec![(25.0, -80.0), (30.0, -70.0), (40.0, -50.0), (50.0, -20.0)],
-            CurrentType::Surface,
-        ));
-        ocean_currents.push(OceanCurrent::new_major(
-            "Kuroshio Current",
-            vec![(25.0, 125.0), (30.0, 135.0), (35.0, 145.0), (40.0, 155.0)],
-            CurrentType::Surface,
-        ));
-        ocean_currents.push(OceanCurrent::new_major(
-            "Antarctic Circumpolar",
-            vec![
-                (-60.0, -180.0),
-                (-60.0, -90.0),
-                (-60.0, 0.0),
-                (-60.0, 90.0),
-                (-60.0, 180.0),
-            ],
-            CurrentType::Surface,
-        ));
+        let ocean_currents = vec![
+            OceanCurrent::new_major(
+                "Gulf Stream",
+                vec![(25.0, -80.0), (30.0, -70.0), (40.0, -50.0), (50.0, -20.0)],
+                CurrentType::Surface,
+            ),
+            OceanCurrent::new_major(
+                "Kuroshio Current",
+                vec![(25.0, 125.0), (30.0, 135.0), (35.0, 145.0), (40.0, 155.0)],
+                CurrentType::Surface,
+            ),
+            OceanCurrent::new_major(
+                "Antarctic Circumpolar",
+                vec![
+                    (-60.0, -180.0),
+                    (-60.0, -90.0),
+                    (-60.0, 0.0),
+                    (-60.0, 90.0),
+                    (-60.0, 180.0),
+                ],
+                CurrentType::Surface,
+            ),
+        ];
 
         // Create depth map (simplified 5-degree grid)
         let mut depth_map = Vec::new();
@@ -552,7 +562,7 @@ impl Hydrosphere {
             if cell.depth < 0.0 {
                 // Ocean
                 cell.temperature = temperature - 50.0; // Simplified
-                cell.temperature = cell.temperature.max(-2.0).min(30.0);
+                cell.temperature = cell.temperature.clamp(-2.0, 30.0);
             }
         }
     }
@@ -591,7 +601,7 @@ impl Hydrosphere {
         self.sea_level += expansion + glacial_melt;
 
         // Clamp
-        self.sea_level = self.sea_level.max(-100.0).min(100.0);
+        self.sea_level = self.sea_level.clamp(-100.0, 100.0);
     }
 
     /// Get water depth at a location

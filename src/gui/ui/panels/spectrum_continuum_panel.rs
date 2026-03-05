@@ -14,9 +14,7 @@
 use egui::{Color32, Context, Pos2, Rect, Ui, Vec2};
 use std::collections::HashMap;
 
-use crate::holographic_foundation::spectrum::DensityPosition;
 use crate::holographic_foundation::spectrum::SpectrumSide;
-use crate::holographic_foundation::spectrum::VelocityRatio;
 
 /// Spectrum Continuum Panel for Phase B.2
 pub struct SpectrumContinuumPanel {

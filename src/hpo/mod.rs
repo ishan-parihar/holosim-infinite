@@ -227,8 +227,7 @@ mod tests {
         };
         let _fitness = FitnessScore::new(0.8);
         let _space = ParameterSpace::new();
-
-        assert!(true);
+        // Test passes if types can be created
     }
 
     #[test]
@@ -247,6 +246,6 @@ mod tests {
     #[test]
     fn test_holographic_codec_placeholder() {
         // TODO: Fix when EntityData API is finalized
-        assert!(true);
+        // Test passes as placeholder
     }
 }

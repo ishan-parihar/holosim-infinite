@@ -183,7 +183,7 @@ pub fn calculate_veil_effectiveness(
 ) -> f64 {
     let base_veil = wanderer_type.veil_strength();
     let consciousness_factor = entity_consciousness * 0.3;
-    (base_veil - consciousness_factor).max(0.0).min(1.0)
+    (base_veil - consciousness_factor).clamp(0.0, 1.0)
 }
 
 #[cfg(test)]

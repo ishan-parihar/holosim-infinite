@@ -9,7 +9,7 @@
 //! - Gaia emergence: Ecosystem stability index >= 0.8
 
 use crate::integrated_system::{
-    BiologicalEmergence, EmergenceState, GaiaEmergence, NoosphericEmergence, SimulationState,
+    BiologicalEmergence, GaiaEmergence, NoosphericEmergence, SimulationState,
 };
 use crate::types::Float;
 use std::collections::HashMap;
@@ -506,11 +506,9 @@ impl EmergenceValidator {
         result.gaia = self.validate_gaia(&state.emergence.gaia);
 
         // Calculate overall confidence
-        let scores = vec![
-            result.biological.overall_score,
+        let scores = [result.biological.overall_score,
             result.noospheric.overall_score,
-            result.gaia.overall_score,
-        ];
+            result.gaia.overall_score];
         result.confidence = scores.iter().sum::<Float>() / scores.len() as Float;
 
         // Overall validation passes if all systems pass

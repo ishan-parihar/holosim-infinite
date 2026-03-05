@@ -185,7 +185,7 @@ impl EntityVisualizer {
     /// Convert entity to render data
     pub fn entity_to_render_data(
         &self,
-        entity_id: &EntityId,
+        _entity_id: &EntityId,
         entity_type: EntityType,
         density: Density,
         position: Vec3,
@@ -199,11 +199,11 @@ impl EntityVisualizer {
 
         EntityRenderData {
             position: [
-                position.x.log10().max(-35.0).min(26.0),
-                position.y.log10().max(-35.0).min(26.0),
-                position.z.log10().max(-35.0).min(26.0),
+                position.x.log10().clamp(-35.0, 26.0),
+                position.y.log10().clamp(-35.0, 26.0),
+                position.z.log10().clamp(-35.0, 26.0),
             ],
-            scale: scale.log10().max(-35.0).min(26.0),
+            scale: scale.log10().clamp(-35.0, 26.0),
             color,
             density: density as u32 as f32,
             style: style as u32,
@@ -261,7 +261,7 @@ impl EntityVisualizer {
         let (min_scale, max_scale) = self.current_scale.range();
         let log_entity_scale = entity_scale.log10();
 
-        log_entity_scale >= min_scale && log_entity_scale <= max_scale
+        (min_scale..=max_scale).contains(&log_entity_scale)
     }
 
     /// Get LOD level for entity based on distance from camera
@@ -269,7 +269,7 @@ impl EntityVisualizer {
         &self,
         entity_position: Vec3,
         camera_position: Vec3,
-        camera_zoom: f32,
+        _camera_zoom: f32,
     ) -> LODLevel {
         let distance = (entity_position - camera_position).magnitude();
         let log_distance = distance.log10().abs();

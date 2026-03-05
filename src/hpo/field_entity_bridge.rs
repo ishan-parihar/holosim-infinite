@@ -10,12 +10,10 @@
 //! "Wire into existing GUI. Render field interference patterns as entity positions."
 
 use super::field_state::{
-    DensityBand, EntityExtractionResult, ExtractedEntity, FieldBounds, Float,
-    HolographicFieldConfig, HolographicFieldState,
+    DensityBand, EntityExtractionResult, ExtractedEntity, Float, HolographicFieldState,
 };
 use super::holographic_encoder::{EncodingConfig, EntityData, HolographicCodec};
-use crate::entity_layer7::layer7::{EntityId, EntityType, SubSubLogos};
-use crate::evolution_density_octave::density_octave::Density;
+use crate::entity_layer7::layer7::{EntityId, SubSubLogos};
 use std::collections::HashMap;
 
 /// Bridge configuration
@@ -57,6 +55,7 @@ pub struct FieldEntityBridge {
     config: FieldEntityBridgeConfig,
 
     /// Mapping from extracted entity ID to position
+    #[allow(dead_code)]
     entity_positions: HashMap<EntityId, [Float; 3]>,
 
     /// Current simulation step
@@ -95,8 +94,10 @@ impl FieldEntityBridge {
     }
 
     pub fn with_config(config: FieldEntityBridgeConfig) -> Self {
-        let mut encoding_config = EncodingConfig::default();
-        encoding_config.max_entities = config.max_entities;
+        let _encoding_config = EncodingConfig {
+            max_entities: config.max_entities,
+            ..Default::default()
+        };
 
         FieldEntityBridge {
             field: HolographicFieldState::with_defaults(),
@@ -176,21 +177,21 @@ impl FieldEntityBridge {
     }
 
     /// Extract consciousness level from entity
-    fn extract_consciousness(&self, entity: &SubSubLogos) -> Float {
+    fn extract_consciousness(&self, _entity: &SubSubLogos) -> Float {
         // Extract consciousness from entity's spectrum access
         // Default to 0.5 if not available
         0.5
     }
 
     /// Extract density from entity
-    fn extract_density(&self, entity: &SubSubLogos) -> usize {
+    fn extract_density(&self, _entity: &SubSubLogos) -> usize {
         // Map entity density to density band index
         // Default to 3 (Green/4th density)
         3
     }
 
     /// Extract energy from entity
-    fn extract_energy(&self, entity: &SubSubLogos) -> Float {
+    fn extract_energy(&self, _entity: &SubSubLogos) -> Float {
         // Default energy based on entity type
         1.0
     }
@@ -221,8 +222,8 @@ impl ExtractedEntity {
         screen_height: f64,
         zoom: Float,
     ) -> (f64, f64) {
-        let x = (self.position[0] * zoom + screen_width / 2.0) as f64;
-        let y = (self.position[1] * zoom + screen_height / 2.0) as f64;
+        let x = self.position[0] * zoom + screen_width / 2.0;
+        let y = self.position[1] * zoom + screen_height / 2.0;
         (x, y)
     }
 

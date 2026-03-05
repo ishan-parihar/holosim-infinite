@@ -717,8 +717,8 @@ mod tests {
         let holo_field = create_test_holographic_field();
         let quantum_field = QuantumField::new(holo_field);
 
-        // Should have derived some amplitudes
-        assert!(quantum_field.amplitudes.len() >= 0);
+        // Should have derived some amplitudes (len() >= 0 is always true, just check it works)
+        let _ = quantum_field.amplitudes.len();
     }
 
     #[test]
@@ -733,7 +733,7 @@ mod tests {
 
     #[test]
     fn test_quantum_state_signature_from_activation() {
-        let activation = ArchetypeActivationProfile::default();
+        let activation = ArchetypeActivationProfile::initial();
         let sig = QuantumStateSignature::from_archetype_activation(&activation);
 
         // Default profile has all 0.5 values

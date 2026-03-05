@@ -212,7 +212,7 @@ impl DensitySubLevels {
         let mut total_progress = 0.0;
 
         for density_with_sub in self.entity_densities.values_mut() {
-            let old_sub = density_with_sub.sub_level;
+            let _old_sub = density_with_sub.sub_level;
 
             // Update progress within current sub-level
             // Higher coherence = faster progression
@@ -313,7 +313,7 @@ pub fn apply_sublevel_to_field(
     let sub_idx = sub_level.index();
 
     // Get base amplitude for this density
-    let base_amplitude = node.field_data.density_amplitudes[density_idx].magnitude();
+    let _base_amplitude = node.field_data.density_amplitudes[density_idx].magnitude();
 
     // Sub-level modifies the amplitude
     // Higher sub-levels = more manifested = higher amplitude
@@ -359,7 +359,6 @@ mod tests {
             system.update(0.8);
         }
 
-        // Should have some transitions
-        assert!(system.statistics.sub_level_transitions >= 0);
+        // sub_level_transitions is usize, always >= 0
     }
 }

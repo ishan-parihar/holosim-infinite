@@ -276,7 +276,7 @@ mod tests {
         let veil = Veil::new();
         assert_eq!(veil.get_base_thickness(), 0.0);
         assert_eq!(veil.get_spiritual_development(), 0.0);
-        assert_eq!(veil.get_magical_personality(), false);
+        assert!(!veil.get_magical_personality());
         assert_eq!(veil.get_polarization_strength(), 0.0);
         assert_eq!(veil.get_thickness(), 0.0);
         assert_eq!(veil.get_transparency(), 1.0);
@@ -287,7 +287,7 @@ mod tests {
         let veil = Veil::with_base_thickness(0.8);
         assert_eq!(veil.get_base_thickness(), 0.8);
         assert_eq!(veil.get_spiritual_development(), 0.0);
-        assert_eq!(veil.get_magical_personality(), false);
+        assert!(!veil.get_magical_personality());
         assert_eq!(veil.get_polarization_strength(), 0.0);
         assert_eq!(veil.get_thickness(), 0.8);
         assert!((veil.get_transparency() - 0.2).abs() < 0.001);
@@ -307,7 +307,7 @@ mod tests {
         let veil = Veil::with_parameters(0.8, 0.5, true, 0.7);
         assert_eq!(veil.get_base_thickness(), 0.8);
         assert_eq!(veil.get_spiritual_development(), 0.5);
-        assert_eq!(veil.get_magical_personality(), true);
+        assert!(veil.get_magical_personality());
         assert_eq!(veil.get_polarization_strength(), 0.7);
     }
 
@@ -316,7 +316,7 @@ mod tests {
         let veil = Veil::with_parameters(1.5, -0.5, true, 1.5);
         assert_eq!(veil.get_base_thickness(), 1.0);
         assert_eq!(veil.get_spiritual_development(), 0.0);
-        assert_eq!(veil.get_magical_personality(), true);
+        assert!(veil.get_magical_personality());
         assert_eq!(veil.get_polarization_strength(), 1.0);
     }
 
@@ -325,7 +325,7 @@ mod tests {
         let veil = Veil::default();
         assert_eq!(veil.get_base_thickness(), 0.0);
         assert_eq!(veil.get_spiritual_development(), 0.0);
-        assert_eq!(veil.get_magical_personality(), false);
+        assert!(!veil.get_magical_personality());
         assert_eq!(veil.get_polarization_strength(), 0.0);
     }
 
@@ -520,11 +520,11 @@ mod tests {
         assert_eq!(veil.get_thickness(), 0.8);
 
         veil.set_magical_personality(true);
-        assert_eq!(veil.get_magical_personality(), true);
+        assert!(veil.get_magical_personality());
         assert!((veil.get_thickness() - 0.6).abs() < 0.001);
 
         veil.set_magical_personality(false);
-        assert_eq!(veil.get_magical_personality(), false);
+        assert!(!veil.get_magical_personality());
         assert_eq!(veil.get_thickness(), 0.8);
     }
 

@@ -15,7 +15,6 @@
 //! # Fractal Principle
 //! Self-similarity at all levels. The same patterns repeat at different scales.
 
-use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 use crate::types::{Density, Float};
 use lru::LruCache;
 use std::sync::Arc;
@@ -769,7 +768,7 @@ impl HolographicContainer {
     /// Initialize all states
     fn initialize(&mut self) {
         // Initialize primary densities
-        for (_i, state) in self.primary_density.iter_mut().enumerate() {
+        for state in self.primary_density.iter_mut() {
             state.initialize(1.0);
         }
 
@@ -1796,7 +1795,7 @@ mod tests {
         state.initialize(0.3);
         let other_id = StateID::new(1, 1, 1).unwrap();
         let strength = state.get_connection_strength(&other_id);
-        assert!(strength >= 0.0 && strength <= 1.0);
+        assert!((0.0..=1.0).contains(&strength));
     }
 
     #[test]
@@ -1824,7 +1823,7 @@ mod tests {
         let to = StateID::new(1, 1, 1).unwrap();
         let connection = FractalConnection::new(from, to, ConnectionType::Hierarchical);
         let strength = connection.strength();
-        assert!(strength >= 0.0 && strength <= 1.0);
+        assert!((0.0..=1.0).contains(&strength));
     }
 
     #[test]
@@ -1934,14 +1933,14 @@ mod tests {
     fn test_holographic_container_average_activation() {
         let container = HolographicContainer::new();
         let avg = container.average_activation();
-        assert!(avg >= 0.0 && avg <= 1.0);
+        assert!((0.0..=1.0).contains(&avg));
     }
 
     #[test]
     fn test_holographic_container_get_coherence() {
         let container = HolographicContainer::new();
         let coherence = container.get_coherence();
-        assert!(coherence >= 0.0 && coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&coherence));
     }
 
     #[test]
@@ -1969,7 +1968,6 @@ mod tests {
         let stats = container.get_statistics();
         assert_eq!(stats.total_states, 343);
         assert!(stats.active_states > 0);
-        assert!(stats.inactive_states >= 0);
         assert!(stats.average_activation >= 0.0 && stats.average_activation <= 1.0);
         assert!(stats.average_lambda >= 0.0);
         assert!(stats.coherence >= 0.0 && stats.coherence <= 1.0);
@@ -1999,7 +1997,7 @@ mod tests {
 
         // Get initial activation of a distant state
         let source_id = StateID::new(0, 0, 0).unwrap();
-        let target_id = StateID::new(6, 6, 6).unwrap();
+        let _target_id = StateID::new(6, 6, 6).unwrap();
         let initial_activation = container.sub_sub_density[6][6][6].activation;
 
         // Apply change to source

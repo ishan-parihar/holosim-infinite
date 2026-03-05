@@ -17,7 +17,6 @@
 //! 4. **Coherence Thresholds**: Evaporation/precipitation based on coherence levels
 
 use crate::holographic::holographic_field::HolographicField;
-use crate::holographic::universal_template::ArchetypeActivationProfile;
 use crate::holographic::Position;
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -358,8 +357,8 @@ impl FieldHydrology {
     pub fn calculate_archetype_match(&self, pattern: &[Float; 22]) -> Float {
         let mut match_score = 0.0;
 
-        for i in 0..22 {
-            let diff = (pattern[i] - self.water_signature[i]).abs();
+        for (&p, &s) in pattern.iter().zip(self.water_signature.iter()) {
+            let diff = (p - s).abs();
             match_score += 1.0 - diff;
         }
 
@@ -828,8 +827,10 @@ mod tests {
 
     #[test]
     fn test_evaporation_thresholds() {
-        let mut hydrology = FieldHydrology::default();
-        hydrology.evaporation_threshold = 0.5;
+        let mut hydrology = FieldHydrology {
+            evaporation_threshold: 0.5,
+            ..Default::default()
+        };
 
         // Add a water body with low coherence
         hydrology.water_bodies.push(WaterBody {

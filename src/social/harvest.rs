@@ -154,18 +154,15 @@ pub struct HarvestEvent {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub enum HarvestType {
     ServiceToOthers,
     ServiceToSelf,
+    #[default]
     NotReady,
     Remain,
 }
 
-impl Default for HarvestType {
-    fn default() -> Self {
-        HarvestType::NotReady
-    }
-}
 
 #[derive(Debug, Clone, Default)]
 pub struct HarvestStats {

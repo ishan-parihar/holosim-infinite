@@ -13,7 +13,7 @@
 //! - Mutualism = field pattern alignment
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::ecosystem_dynamics::species_field::{Species, SpeciesId};
+use crate::holographic_foundation::ecosystem_dynamics::species_field::SpeciesId;
 use crate::types::Float;
 use std::collections::HashMap;
 

@@ -2,7 +2,7 @@
 // From GUI_IMPLEMENTATION_ROADMAP.md: "Scale transitions take 0.5-1.0 seconds"
 
 use crate::gui::camera::Camera2D;
-use nalgebra_glm::{vec3, Vec3};
+use nalgebra_glm::Vec3;
 use std::time::{Duration, Instant};
 
 /// Transition state for camera movements

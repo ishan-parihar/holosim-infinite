@@ -12,7 +12,7 @@
 //! - Polarity orientation
 //! - Consciousness level
 
-use crate::entity_layer7::layer7::{EntityId, EntityType, SubSubLogos};
+use crate::entity_layer7::layer7::SubSubLogos;
 use crate::evolution_density_octave::density_octave::Density;
 use egui::{Color32, Context, RichText};
 
@@ -167,7 +167,7 @@ impl EntityTooltip {
                             // Density
                             ui.label(format!(
                                 "Density: {}",
-                                format_density(entity.current_density.clone())
+                                format_density(entity.current_density)
                             ));
                             ui.add_space(5.0);
 

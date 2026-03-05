@@ -14,9 +14,8 @@
 //! "Store once, reconstruct as needed"
 //! "O(1) cache hit for previously instantiated patterns"
 
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 use std::sync::Arc;
 
 use crate::evolution_density_octave::density_octave::Density;
@@ -232,16 +231,17 @@ impl TemplateRegistry {
         use crate::holographic::complex_vectors::ComplexArchetype;
 
         let archetypes = {
-            let mut a = [ComplexArchetype {
-                amplitude: 0.0,
-                phase: 0.0,
-            }; 22];
-            for i in 0..22 {
-                a[i] = ComplexArchetype {
+            let a: [ComplexArchetype; 22] = (0..22)
+                .map(|i| ComplexArchetype {
                     amplitude: (i as f64 + 1.0) / 22.0,
                     phase: (i as f64) * std::f64::consts::PI / 11.0,
-                };
-            }
+                })
+                .collect::<Vec<_>>()
+                .try_into()
+                .unwrap_or([ComplexArchetype {
+                    amplitude: 0.0,
+                    phase: 0.0,
+                }; 22]);
             a
         };
 
@@ -444,8 +444,8 @@ impl TemplateConfigBuilder {
             self.spectrum
                 .unwrap_or_else(SpectrumConfiguration::balanced),
             self.archetype_activation
-                .unwrap_or_else(ArchetypeActivationProfile::default),
-            self.density.unwrap_or_else(|| {
+                .unwrap_or_else(ArchetypeActivationProfile::initial),
+            self.density.unwrap_or({
                 Density::First(
                     crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
                 )
@@ -512,8 +512,8 @@ mod tests {
         let mut factory: TemplateFactory<crate::template::component_data::ParticleData> =
             TemplateFactory::new(field, ComponentTypeId::Particle);
 
-        let config = TemplateConfig::default();
-        let particle = factory.instantiate(&config);
+        let config = TemplateConfig::initial();
+        let _particle = factory.instantiate(&config);
 
         assert_eq!(factory.stats().total_requests, 1);
         assert_eq!(factory.stats().cache_misses, 1);
@@ -526,7 +526,7 @@ mod tests {
         let mut factory: TemplateFactory<crate::template::component_data::ParticleData> =
             TemplateFactory::new(field, ComponentTypeId::Particle);
 
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         // First instantiation
         let _p1 = factory.instantiate(&config);
@@ -557,12 +557,12 @@ mod tests {
         let mut factory: TemplateFactory<crate::template::component_data::ParticleData> =
             TemplateFactory::new(field, ComponentTypeId::Particle);
 
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         // First call - cache miss
         let start = std::time::Instant::now();
         let _p1 = factory.instantiate(&config);
-        let first_call_time = start.elapsed();
+        let _first_call_time = start.elapsed();
 
         // Subsequent calls - cache hits (should be O(1))
         let start = std::time::Instant::now();
@@ -585,7 +585,7 @@ mod tests {
     #[test]
     fn test_registry_all_component_types() {
         let mut registry = TemplateRegistry::with_default_field();
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         // Test all component types can be instantiated
         let _particle = registry.instantiate_particle(&config);
@@ -603,7 +603,7 @@ mod tests {
     #[test]
     fn test_registry_cache_clear() {
         let mut registry = TemplateRegistry::with_default_field();
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         // Instantiate components
         let _ = registry.instantiate_particle(&config);
@@ -647,7 +647,7 @@ mod tests {
 
         // Create config with specific archetype pattern
         let mut activation =
-            crate::holographic::universal_template::ArchetypeActivationProfile::default();
+            crate::holographic::universal_template::ArchetypeActivationProfile::initial();
         activation.coefficients = [0.1; 22]; // Low catalyst -> electron
 
         let config = TemplateConfigBuilder::new()

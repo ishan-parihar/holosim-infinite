@@ -12,7 +12,6 @@ use crate::sacred_geometry::{
     FibonacciSequence, FlowerOfLife, FrequencyResonance, HarmonicSeries, PlatonicStructure,
     SpiralPattern, StandingWave, VesicaPiscis, GOLDEN_RATIO,
 };
-use crate::types::Float;
 
 // ============================================================================
 // Sacred Geometry Colors
@@ -91,7 +90,7 @@ impl FibonacciRenderData {
         let mut points = Vec::with_capacity(max_generation as usize);
         let mut connections = Vec::with_capacity((max_generation as usize).saturating_sub(1));
 
-        let golden_angle = 2.39996322972865332;
+        let golden_angle = 2.399_963_1;
 
         for i in 0..max_generation {
             let gen = i as u64;
@@ -435,7 +434,7 @@ pub struct FlowerOfLifeRenderData {
 impl FlowerOfLifeRenderData {
     pub fn from_flower_of_life(
         flower: &FlowerOfLife,
-        colors: &SacredGeometryColors,
+        _colors: &SacredGeometryColors,
         scale: f32,
     ) -> Self {
         let center = [
@@ -505,7 +504,7 @@ impl HarmonicResonanceRenderData {
 
             let x = (i + 1) as f32 * scale * 0.8;
             let color = if let Some(overtone_num) = resonance.harmonic_overtone {
-                if (overtone_num as usize) == i + 1 {
+                if overtone_num == i + 1 {
                     colors.standing_wave_constructive
                 } else {
                     colors.harmonic_resonance
@@ -676,9 +675,10 @@ impl SacredGeometryVisualization {
     }
 
     pub fn with_scale(scale: f32) -> Self {
-        let mut viz = Self::default();
-        viz.global_scale = scale;
-        viz
+        Self {
+            global_scale: scale,
+            ..Default::default()
+        }
     }
 
     pub fn add_fibonacci(&mut self, sequence: &FibonacciSequence) {

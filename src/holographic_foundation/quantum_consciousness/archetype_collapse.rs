@@ -49,19 +49,14 @@ impl ChoiceId {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum CollapseType {
     Spontaneous,
     MeasurementInduced,
+    #[default]
     ChoiceGuided,
     EntanglementTriggered,
     DecoherenceDriven,
-}
-
-impl Default for CollapseType {
-    fn default() -> Self {
-        Self::ChoiceGuided
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -177,6 +172,7 @@ pub struct EntanglementEffect {
 pub struct ChoiceOperator {
     context: CollapseContext,
     choice_state: Float,
+    #[allow(dead_code)]
     entropy_accumulator: Float,
     total_choices: usize,
     choice_history: Vec<ChoiceRecord>,
@@ -258,6 +254,8 @@ impl ChoiceOperator {
     }
 
     /// Legacy method - now calls generate_free_will_value
+    /// TODO: Kept for backward compatibility; prefer generate_free_will_value
+    #[allow(dead_code)]
     fn generate_random(&mut self) -> Float {
         self.generate_free_will_value()
     }
@@ -526,7 +524,7 @@ impl Archetype22Collapse {
         let collapsed_node = wavefunction.get_node(&collapsed_id).cloned();
         let collapsed_qn = collapsed_node
             .as_ref()
-            .map(|n| n.quantum_numbers.clone())
+            .map(|n| n.quantum_numbers)
             .unwrap_or_default();
 
         let choice_strength = self.choice_operator.choice_state;
@@ -780,7 +778,7 @@ mod tests {
         let wf = create_test_wavefunction();
 
         let prob = collapse.collapse_probability(&wf, 1.0);
-        assert!(prob >= 0.0 && prob <= 1.0);
+        assert!((0.0..=1.0).contains(&prob));
     }
 
     #[test]
@@ -868,10 +866,10 @@ mod tests {
         let mut op = ChoiceOperator::new(CollapseContext::for_entity(99999, 0.7));
 
         // Initial coherence
-        let initial_coherence = op.choice_coherence();
+        let _initial_coherence = op.choice_coherence();
 
         // After making choices, coherence should evolve
-        let mut wf = create_test_wavefunction();
+        let wf = create_test_wavefunction();
         for _ in 0..5 {
             let _ = op.calculate_choice_scores(&wf);
         }
@@ -903,8 +901,8 @@ mod tests {
         let val_high = op_high.generate_free_will_value();
 
         // Both should be valid floats
-        assert!(val_low >= 0.0 && val_low <= 1.0);
-        assert!(val_high >= 0.0 && val_high <= 1.0);
+        assert!((0.0..=1.0).contains(&val_low));
+        assert!((0.0..=1.0).contains(&val_high));
     }
 
     #[test]
@@ -938,7 +936,7 @@ mod tests {
 
         // Choice coherence should be trackable
         let coherence = collapse.choice_operator().choice_coherence();
-        assert!(coherence >= 0.0 && coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&coherence));
     }
 
     #[test]

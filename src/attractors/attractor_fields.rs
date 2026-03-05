@@ -10,9 +10,7 @@
 //! toward higher densities.
 
 use crate::entity_layer7::layer7::SubSubLogos;
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 
 /// Maximum experience required for density transition
@@ -38,7 +36,7 @@ impl AttractorField {
     /// Create a new attractor-field for a specific target density
     pub fn new(target_density: Density) -> Self {
         Self {
-            target_density: target_density.clone(),
+            target_density,
             strength: 0.0,
             pull_direction: PullDirection::TowardDensity(target_density),
             influence_factors: InfluenceFactors::default(),
@@ -63,7 +61,7 @@ impl AttractorField {
 
         // Calculate distance to target (closer = stronger pull)
         let distance_factor =
-            calculate_distance_factor(current_density.clone(), target_density.clone());
+            calculate_distance_factor(*current_density, target_density);
 
         // Get entity's polarization intensity
         let polarization_factor = entity.polarization.intensity;
@@ -120,7 +118,7 @@ impl AttractorField {
 
     /// Update this attractor-field based on entity state
     pub fn update(&mut self, entity: &SubSubLogos) {
-        self.strength = Self::calculate_strength(entity, self.target_density.clone());
+        self.strength = Self::calculate_strength(entity, self.target_density);
         self.influence_factors = InfluenceFactors::from_entity(entity);
     }
 }
@@ -317,8 +315,6 @@ impl Default for DensityAttractorFields {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::{EntityId, EntityType};
-    use crate::types::{Octant, Rung};
     // NOTE: Position doesn't exist in crate::types
 
     #[test]

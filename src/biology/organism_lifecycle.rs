@@ -10,7 +10,7 @@
 //! From V4 Roadmap Phase 4: "Biological Simulation Engine"
 //! Organisms are actual collections of cells with coherent behavior.
 
-use crate::biology::cell_engine::{CellCategory, CellEngine, CellEnvironment, CellId};
+use crate::biology::cell_engine::CellId;
 use crate::holographic::field_address::HolographicAddress;
 use rand::Rng;
 use std::collections::HashMap;
@@ -391,7 +391,7 @@ impl Organism {
 
         // Clamp energy
         let max_energy = self.body_plan.mass * ENERGY_RESERVE_MULTIPLIER;
-        self.energy = self.energy.max(0.0).min(max_energy);
+        self.energy = self.energy.clamp(0.0, max_energy);
     }
 
     /// Decide behavior based on needs
@@ -429,12 +429,11 @@ impl Organism {
         }
 
         // Ready to reproduce?
-        if self.is_mature && hunger < 0.2 && self.age > MATURITY_AGE * 1.5 {
-            if rand::thread_rng().gen::<f64>() < 0.01 {
+        if self.is_mature && hunger < 0.2 && self.age > MATURITY_AGE * 1.5
+            && rand::thread_rng().gen::<f64>() < 0.01 {
                 self.behavior = BehaviorState::SeekingMate;
                 return;
             }
-        }
 
         // Default: rest
         self.behavior = BehaviorState::Resting;
@@ -457,8 +456,8 @@ impl Organism {
 
             // Clamp velocity
             let max_speed = 10.0;
-            self.velocity.0 = self.velocity.0.max(-max_speed).min(max_speed);
-            self.velocity.1 = self.velocity.1.max(-max_speed).min(max_speed);
+            self.velocity.0 = self.velocity.0.clamp(-max_speed, max_speed);
+            self.velocity.1 = self.velocity.1.clamp(-max_speed, max_speed);
         }
     }
 
@@ -478,7 +477,7 @@ impl Organism {
             (self.energy / (self.body_plan.mass * ENERGY_RESERVE_MULTIPLIER)).min(1.0);
         let age_factor = 1.0 - (self.age / MAX_LIFESPAN).min(1.0);
 
-        self.health = (energy_factor * age_factor).max(0.0).min(1.0);
+        self.health = (energy_factor * age_factor).clamp(0.0, 1.0);
     }
 
     /// Check if should die

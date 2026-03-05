@@ -12,19 +12,14 @@
 //! - GUI System (Phase 5): Multi-scale visualization with time/space control
 
 use crate::biology::BiologicalConfig;
-use crate::entity_layer7::layer7::{EntityType, SubSubLogos};
-use crate::entity_layer7::EntityId;
+use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gaia::GaiaConfig;
 use crate::gui::GuiConfig;
-use crate::hpo::{
-    FieldVisualizationData, HolographicSimulation, HpoSystem, RenderableEntity, SimulationConfig,
-    SimulationResult,
-};
+use crate::hpo::{FieldVisualizationData, HolographicSimulation, HpoSystem, RenderableEntity};
 use crate::noosphere::NoosphereConfig;
 use crate::simulation_v3::involution_sequence::InvolutionSequenceRunner;
 use crate::types::Float;
 use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
 
 /// Integrated System - Combines all subsystems into a unified whole
 ///
@@ -45,6 +40,7 @@ pub struct IntegratedSystem {
     gaia_config: GaiaConfig,
 
     /// GUI system configuration
+    #[allow(dead_code)]
     gui_config: GuiConfig,
 
     /// Current simulation state
@@ -717,8 +713,6 @@ impl IntegratedSystem {
         self.entities.clone()
     }
 
-    /// Get entities converted to GuiEntity format for GUI rendering
-
     /// Get holographic simulation entities (field-derived)
     /// Returns entities from the field-first holographic simulation
     pub fn holo_entities(&self) -> Vec<RenderableEntity> {
@@ -731,20 +725,12 @@ impl IntegratedSystem {
 
     /// Get field visualization data (coherence, veil, etc.)
     pub fn get_field_visualization(&self) -> Option<FieldVisualizationData> {
-        if let Some(ref holo_sim) = self.holo_sim {
-            Some(holo_sim.get_field_visualization())
-        } else {
-            None
-        }
+        self.holo_sim.as_ref().map(|holo_sim| holo_sim.get_field_visualization())
     }
 
     /// Get holographic simulation statistics
     pub fn get_holo_statistics(&self) -> Option<crate::hpo::SimulationStatistics> {
-        if let Some(ref holo_sim) = self.holo_sim {
-            Some(holo_sim.get_statistics().clone())
-        } else {
-            None
-        }
+        self.holo_sim.as_ref().map(|holo_sim| holo_sim.get_statistics().clone())
     }
 
     /// Get the holographic field state for real-time visualization
@@ -821,7 +807,7 @@ impl IntegratedSystem {
 
         GuiEntity {
             id: entity.entity_id.clone(),
-            entity_type: entity.entity_type.clone(),
+            entity_type: entity.entity_type,
             position: crate::gui::Coordinate3D {
                 x: 0.0, // Position not directly stored, would need physical entity
                 y: 0.0,

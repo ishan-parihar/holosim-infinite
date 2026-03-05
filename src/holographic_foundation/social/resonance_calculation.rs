@@ -127,6 +127,7 @@ pub struct ResonanceCalculation {
     density_weight: Float,
     archetype_weight: Float,
     spectrum_weight: Float,
+    #[allow(dead_code)]
     polarity_weight: Float,
 }
 
@@ -224,13 +225,9 @@ impl ResonanceCalculation {
 
     fn compute_archetype_resonance(&self, phases_a: &[Float; 22], phases_b: &[Float; 22]) -> Float {
         let mut dot_product = 0.0;
-        let mut mag_a = 0.0;
-        let mut mag_b = 0.0;
 
         for i in 0..22 {
             dot_product += (phases_a[i] - phases_b[i]).cos();
-            mag_a += 1.0;
-            mag_b += 1.0;
         }
 
         (dot_product / 22.0).clamp(0.0, 1.0)

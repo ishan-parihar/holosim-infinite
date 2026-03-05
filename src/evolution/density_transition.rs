@@ -32,10 +32,6 @@ use crate::entity_layer7::layer7::EntityId;
 use crate::evolution_density_octave::density_octave::{
     Density, Density1SubLevel, Density2SubLevel,
 };
-use crate::polarization::PolarityDirection;
-use crate::template::transcend_include::{
-    AttractorField, Feature, Orientation, TargetDensity, TranscendInclude,
-};
 use crate::types::{Float, Polarity};
 
 /// STO harvest threshold - minimum polarization for harvest
@@ -157,7 +153,7 @@ impl TransitionRequirements {
                 polarity: Polarity::Neutral,
                 intensity: STO_HARVEST_THRESHOLD,
             }),
-            description: format!("51% STO or 95% STS polarization required for harvest"),
+            description: "51% STO or 95% STS polarization required for harvest".to_string(),
         }
     }
 
@@ -544,7 +540,7 @@ impl DensityTransitionSystem {
         }
 
         // Check polarization if required
-        if let Some(min_pol) = requirements.min_polarization {
+        if let Some(_min_pol) = requirements.min_polarization {
             match self.entity_state.polarity {
                 Some(Polarity::STO) | Some(Polarity::ServiceToOthers) => {
                     if self.entity_state.polarization_intensity < STO_HARVEST_THRESHOLD {
@@ -564,11 +560,10 @@ impl DensityTransitionSystem {
         if matches!(
             requirements.required_catalyst,
             Some(TransitionCatalyst::AwakeningMoment)
-        ) {
-            if !self.entity_state.awakened {
+        )
+            && !self.entity_state.awakened {
                 return false;
             }
-        }
 
         true
     }
@@ -589,7 +584,7 @@ impl DensityTransitionSystem {
             return DensityTransitionResult {
                 entity_id: self.entity_state.entity_id.clone(),
                 success: false,
-                from_density: self.entity_state.current_density.clone(),
+                from_density: self.entity_state.current_density,
                 to_density: None,
                 reason: "Already transitioning".to_string(),
                 catalyst: TransitionCatalyst::NotApplicable,
@@ -604,7 +599,7 @@ impl DensityTransitionSystem {
                 return DensityTransitionResult {
                     entity_id: self.entity_state.entity_id.clone(),
                     success: false,
-                    from_density: self.entity_state.current_density.clone(),
+                    from_density: self.entity_state.current_density,
                     to_density: None,
                     reason: "Already at maximum density".to_string(),
                     catalyst: TransitionCatalyst::NotApplicable,
@@ -624,7 +619,7 @@ impl DensityTransitionSystem {
             return DensityTransitionResult {
                 entity_id: self.entity_state.entity_id.clone(),
                 success: false,
-                from_density: self.entity_state.current_density.clone(),
+                from_density: self.entity_state.current_density,
                 to_density: None,
                 reason: format!("Not ready: {}", reqs_desc),
                 catalyst: TransitionCatalyst::NotApplicable,
@@ -639,8 +634,8 @@ impl DensityTransitionSystem {
         let transcend_data = self.apply_transcend_include(&next_density);
 
         // Execute the transition
-        let old_density = self.entity_state.current_density.clone();
-        self.entity_state.current_density = next_density.clone();
+        let old_density = self.entity_state.current_density;
+        self.entity_state.current_density = next_density;
         self.entity_state.time_in_density = 0;
 
         // Record the result
@@ -837,7 +832,7 @@ impl DensityTransitionSystem {
 ///
 /// This is a convenience function for quick transition checks.
 pub fn check_transition_readiness(
-    entity_id: &EntityId,
+    _entity_id: &EntityId,
     current_density: &Density,
     consciousness_level: Float,
     polarization: Option<(Polarity, Float)>,

@@ -150,8 +150,7 @@ impl EmergenceTemplate {
         }
 
         (dot_product / (entity_norm * template_norm))
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     pub fn apply(&mut self) -> Vec<Float> {
@@ -357,7 +356,7 @@ impl PatternLibrary {
 
         self.templates_by_category
             .entry(category)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(id);
     }
 
@@ -578,7 +577,7 @@ mod tests {
 
     #[test]
     fn test_pattern_library_search() {
-        let mut library = PatternLibrary::new().with_default_templates();
+        let library = PatternLibrary::new().with_default_templates();
         let search = TemplateSearch::new()
             .with_requirements(0.5, 0.5)
             .with_min_resonance(0.1)

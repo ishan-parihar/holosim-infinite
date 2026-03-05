@@ -520,17 +520,15 @@ impl SMCFormationSystem {
 
     /// Check if two polarities are compatible
     fn polarities_compatible(a: Option<Polarity>, b: Option<Polarity>) -> bool {
-        match (a, b) {
-            (Some(Polarity::STO), Some(Polarity::STO)) => true,
-            (Some(Polarity::ServiceToOthers), Some(Polarity::ServiceToOthers)) => true,
-            (Some(Polarity::STO), Some(Polarity::ServiceToOthers)) => true,
-            (Some(Polarity::ServiceToOthers), Some(Polarity::STO)) => true,
-            (Some(Polarity::STS), Some(Polarity::STS)) => true,
-            (Some(Polarity::ServiceToSelf), Some(Polarity::ServiceToSelf)) => true,
-            (Some(Polarity::STS), Some(Polarity::ServiceToSelf)) => true,
-            (Some(Polarity::ServiceToSelf), Some(Polarity::STS)) => true,
-            _ => false,
-        }
+        matches!((a, b),
+            (Some(Polarity::STO), Some(Polarity::STO)) |
+            (Some(Polarity::ServiceToOthers), Some(Polarity::ServiceToOthers)) |
+            (Some(Polarity::STO), Some(Polarity::ServiceToOthers)) |
+            (Some(Polarity::ServiceToOthers), Some(Polarity::STO)) |
+            (Some(Polarity::STS), Some(Polarity::STS)) |
+            (Some(Polarity::ServiceToSelf), Some(Polarity::ServiceToSelf)) |
+            (Some(Polarity::STS), Some(Polarity::ServiceToSelf)) |
+            (Some(Polarity::ServiceToSelf), Some(Polarity::STS)))
     }
 
     /// Calculate group resonance

@@ -241,7 +241,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("SPECTRUM CONTINUUM MAP\n");
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str(
             "  v = ∞ (Time/Space)                                    v = ∞ (Space/Time)\n",
         );
@@ -252,7 +252,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str(
             "  │ Inner Experience                                     │ Outer Experience\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         // Create spectrum bar
         let bar_width = 60;
@@ -283,14 +283,14 @@ impl SpectrumDistributionVisualizer {
         output.push('\n');
 
         output.push_str("  ");
-        output.push_str("│");
+        output.push('│');
         output.push_str(&" ".repeat(veil_position - 2));
         output.push_str("Veil");
         output.push_str(&" ".repeat(veil_position - 2));
         output.push_str("│\n");
 
         output.push_str("  ");
-        output.push_str("│");
+        output.push('│');
         output.push_str(&" ".repeat(veil_position - 5));
         output.push_str("(v = 1)");
         output.push_str(&" ".repeat(veil_position - 5));
@@ -337,7 +337,7 @@ impl SpectrumDistributionVisualizer {
         output.push('\n');
 
         output.push_str("  ");
-        output.push_str("├");
+        output.push('├');
         for i in 1..bar_width - 1 {
             if i == veil_position {
                 output.push('┤');
@@ -349,7 +349,7 @@ impl SpectrumDistributionVisualizer {
         output.push('\n');
 
         output.push_str("  ");
-        output.push_str("│");
+        output.push('│');
         output.push_str(&" ".repeat(veil_position - 10));
         output.push_str("Time/Space");
         output.push_str(&" ".repeat(veil_position - 8));
@@ -375,7 +375,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("VEIL EFFECT ANALYSIS\n");
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
-        output.push_str("\n");
+        output.push('\n');
 
         // Count entities on each side of Veil
         let time_space_count = positions
@@ -443,7 +443,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("ENTITY ACTIVITIES\n");
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
-        output.push_str("\n");
+        output.push('\n');
 
         // Count activities
         let mut activity_counts: HashMap<&str, usize> = HashMap::new();
@@ -524,7 +524,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("DENSITY DISTRIBUTION\n");
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
-        output.push_str("\n");
+        output.push('\n');
 
         // Count entities by density
         let mut density_counts: HashMap<String, usize> = HashMap::new();
@@ -586,7 +586,7 @@ impl SpectrumDistributionVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("SPECTRUM STATISTICS\n");
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
-        output.push_str("\n");
+        output.push('\n');
 
         if positions.is_empty() {
             output.push_str("No entities to analyze.\n\n");

@@ -127,7 +127,7 @@ impl fmt::Display for Vector3 {
 /// From COSMOLOGICAL-ARCHITECTURE.md: The holographic principle states that
 /// each scale contains all information about all other scales. These 8 levels
 /// align with the density octave (1st through 8th density).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 #[repr(u8)]
 pub enum ScaleLevel {
     /// Quantum scale - Planck length (~10^-35 m)
@@ -148,6 +148,7 @@ pub enum ScaleLevel {
 
     /// Biological scale - Meter (~10^0 m)
     /// Corresponds to 5th density - wisdom/light
+    #[default]
     Biological = 4,
 
     /// Planetary scale - Earth radius (~10^7 m)
@@ -279,12 +280,6 @@ impl fmt::Display for ScaleLevel {
             ScaleLevel::Stellar => write!(f, "Stellar (10^11 m)"),
             ScaleLevel::Cosmic => write!(f, "Cosmic (10^22 m)"),
         }
-    }
-}
-
-impl Default for ScaleLevel {
-    fn default() -> Self {
-        ScaleLevel::Biological
     }
 }
 
@@ -1154,7 +1149,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     #[ignore]
     fn test_holographic_address_contains_different_branch() {
         let parent = HolographicAddress::cosmic_origin();

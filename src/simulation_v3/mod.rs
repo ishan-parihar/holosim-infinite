@@ -267,12 +267,10 @@ pub use interactive_interface::{
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_simulation_v3_module_exists() {
         // Test that the module compiles and exports exist
-        assert!(true);
+        // Test passes if module exists
     }
 }
 

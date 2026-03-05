@@ -12,17 +12,13 @@
 //! - Cytoplasm as the cellular field medium
 //! - Nucleus as the genetic field center
 
-use crate::holographic_foundation::archetype_profile::{
-    ArchetypeActivationProfile, NUM_ARCHETYPES,
-};
+use crate::holographic_foundation::archetype_profile::{ArchetypeActivationProfile, NUM_ARCHETYPES};
 use crate::holographic_foundation::cellular_emergence::archetype_genes::GeneExpressionProfile;
-use crate::holographic_foundation::cellular_emergence::gene_expression::GeneExpressionEngine;
 use crate::holographic_foundation::cellular_emergence::nucleotide_interference::DNAHelix;
 use crate::holographic_foundation::cellular_emergence::protein_field::{
-    AminoAcid, ProteinFoldingField, ProteinManifestation,
+    ProteinFoldingField, ProteinManifestation,
 };
 use crate::holographic_foundation::field_state::Position3D;
-use crate::holographic_foundation::molecular_emergence::MolecularManifestation;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -152,6 +148,7 @@ pub struct CellMembrane {
     permeability: Float,
     potential: Float,
     receptor_density: Float,
+    #[allow(dead_code)]
     archetype_pattern: [Float; NUM_ARCHETYPES],
 }
 
@@ -490,7 +487,7 @@ mod tests {
     fn test_cell_membrane_transport() {
         let membrane = CellMembrane::new();
         let transport = membrane.transport_efficiency();
-        assert!(transport >= 0.0 && transport <= 1.0);
+        assert!((0.0..=1.0).contains(&transport));
     }
 
     #[test]
@@ -524,7 +521,7 @@ mod tests {
 
     #[test]
     fn test_cell_manifestation_with_profile() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         let cell =
             CellManifestation::new(Position3D::new(0.0, 0.0, 0.0), 10.0).with_profile(&profile);
         assert!(cell.coherence() > 0.0);
@@ -532,7 +529,7 @@ mod tests {
 
     #[test]
     fn test_cell_cannot_divide_without_dna() {
-        let mut cell = CellManifestation::new(Position3D::new(0.0, 0.0, 0.0), 10.0);
+        let cell = CellManifestation::new(Position3D::new(0.0, 0.0, 0.0), 10.0);
         assert!(!cell.can_divide());
     }
 

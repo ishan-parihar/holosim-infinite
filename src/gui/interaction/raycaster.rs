@@ -139,7 +139,7 @@ impl Raycaster3D {
 
     /// Set selection radius multiplier
     pub fn set_selection_radius_multiplier(&mut self, multiplier: f32) {
-        self.selection_radius_multiplier = multiplier.max(0.5).min(5.0);
+        self.selection_radius_multiplier = multiplier.clamp(0.5, 5.0);
     }
 
     /// Enable/disable debug mode
@@ -159,7 +159,7 @@ impl Raycaster3D {
         }
 
         // Get camera position
-        let camera_pos = match &self.camera {
+        let _camera_pos = match &self.camera {
             Some(cam) => cam.position,
             None => return None,
         };
@@ -170,10 +170,7 @@ impl Raycaster3D {
         let ndc_y = 1.0 - (2.0 * screen_pos.y / self.screen_height as f32); // Flip Y
 
         // Unproject two points on the ray: near and far planes
-        let inv_view_proj = match self.inv_view_proj {
-            Some(m) => m,
-            None => return None,
-        };
+        let inv_view_proj = self.inv_view_proj?;
 
         // Near plane point (z = -1 in NDC)
         let near_ndc = Vec3::new(ndc_x, ndc_y, -1.0);
@@ -316,7 +313,7 @@ impl Raycaster3D {
         let ndc_z = clip.z / clip.w;
 
         // Check if behind camera
-        if ndc_z < -1.0 || ndc_z > 1.0 {
+        if !(-1.0..=1.0).contains(&ndc_z) {
             return None;
         }
 

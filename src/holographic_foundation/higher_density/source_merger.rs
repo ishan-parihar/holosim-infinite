@@ -296,7 +296,7 @@ impl IntelligentInfinityMerger {
         self
     }
 
-    pub fn update(&mut self, dt: Float, current_time: Float) {
+    pub fn update(&mut self, dt: Float, _current_time: Float) {
         self.connection.update(dt);
         self.preservation.update(dt);
         self.progress.update(dt);
@@ -310,11 +310,9 @@ impl IntelligentInfinityMerger {
         }
 
         if self.progress.state == SourceMergerState::Preserving && !self.progress.pattern_preserved
-        {
-            if self.preservation.is_preserved() {
+            && self.preservation.is_preserved() {
                 self.progress.pattern_preserved = true;
             }
-        }
     }
 
     pub fn approach_source(&mut self) -> Float {

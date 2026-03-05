@@ -60,6 +60,7 @@ pub struct EmergentMolecule {
 
 /// Physics emergence from field
 pub struct PhysicsEmergence {
+    #[allow(dead_code)]
     field: Arc<UnifiedField>,
     config: PhysicsEmergenceConfig,
     particles: Vec<EmergentParticle>,

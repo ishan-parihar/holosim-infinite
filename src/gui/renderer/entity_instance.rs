@@ -145,14 +145,14 @@ impl ArchetypeData {
         let mut activations = [0.0f32; 22];
 
         // Create varying activation patterns for testing
-        for i in 0..22 {
+        for (i, activation) in activations.iter_mut().enumerate() {
             // Some archetypes highly activated, others less so
-            if (i + index) % 3 == 0 {
-                activations[i] = 0.8 + ((index % 10) as f32 * 0.02);
-            } else if (i + index) % 5 == 0 {
-                activations[i] = 0.5 + ((index % 10) as f32 * 0.03);
+            if (i + index).is_multiple_of(3) {
+                *activation = 0.8 + ((index % 10) as f32 * 0.02);
+            } else if (i + index).is_multiple_of(5) {
+                *activation = 0.5 + ((index % 10) as f32 * 0.03);
             } else {
-                activations[i] = 0.1 + ((index % 10) as f32 * 0.01);
+                *activation = 0.1 + ((index % 10) as f32 * 0.01);
             }
         }
 
@@ -440,7 +440,7 @@ impl EntityInstance {
 
     /// Create test instance for debugging
     pub fn test_instance(index: usize) -> Self {
-        let golden_angle = std::f32::consts::PI * 2.0 / 1.61803398875;
+        let golden_angle = std::f32::consts::PI * 2.0 / 1.618_034;
         let angle = index as f32 * golden_angle;
         let radius = 0.1 + (index as f32 * 0.03);
 
@@ -457,7 +457,7 @@ impl EntityInstance {
             red_intensity: 0.2 + ((index % 6) as f32 * 0.12),
             // Alternating polarization for test
             consciousness_level: 0.3 + ((index % 10) as f32 * 0.07),
-            polarization: if index % 2 == 0 { 0.6 } else { -0.6 },
+            polarization: if index.is_multiple_of(2) { 0.6 } else { -0.6 },
             // Spectrum data
             space_time_ratio: 1.0 + ((index % 10) as f32 * 0.5),
             time_space_ratio: 1.0 / (1.0 + ((index % 10) as f32 * 0.5)),
@@ -468,7 +468,7 @@ impl EntityInstance {
             _padding1: [0, 0, 0],
             // Hierarchy data for testing
             parent_id: if index > 0 { (index - 1) as u32 } else { 0 },
-            environment_id: if index % 3 == 0 { 100 } else { 0 },
+            environment_id: if index.is_multiple_of(3) { 100 } else { 0 },
             // Archetype summary
             archetype_activated: ((index % 22) + 1) as u32,
             archetype_intensity: 0.5 + ((index % 10) as f32 * 0.05),
@@ -668,7 +668,7 @@ impl EntityInstance {
 
         // Case 2: Check if this entity is a direct child of the focus
         if let Some(focus_id) = focus_entity_id {
-            let focus_id_str = focus_id.uuid.as_str();
+            let _focus_id_str = focus_id.uuid.as_str();
             
             // Check parent_id
             if let Some(ref parent_id) = entity.parent_id {
@@ -787,6 +787,7 @@ impl EntityInstance {
     }
 
     /// Check if an entity is a descendant of another entity
+    #[allow(dead_code)]
     fn is_descendant_of(
         entity: &SubSubLogos,
         ancestor_id: &str,
@@ -841,6 +842,7 @@ impl EntityInstance {
     }
 
     /// Position an entity as an ancestor (background context) - kept for compatibility
+    #[allow(dead_code)]
     fn position_as_ancestor_compat(_entity: &SubSubLogos) -> [f32; 3] {
         // Ancestors are positioned at the edges, faded
         [10.0, 10.0, 0.0]  // Far corner, will be rendered faded

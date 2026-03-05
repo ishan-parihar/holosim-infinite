@@ -332,7 +332,7 @@ impl ArchetypePatterns {
     /// True if all activation values are valid
     pub fn activation_values_valid(&self) -> bool {
         fn is_valid_array(arr: &[Float]) -> bool {
-            arr.iter().all(|&v| v >= 0.0 && v <= 1.0)
+            arr.iter().all(|&v| (0.0..=1.0).contains(&v))
         }
 
         is_valid_array(&self.electron)

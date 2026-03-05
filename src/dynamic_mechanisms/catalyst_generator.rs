@@ -15,7 +15,6 @@ use crate::simulation_v3::catalyst_system::{
     Catalyst, CatalystManager, CatalystType, CatalystVariety, ChallengeLevel,
 };
 use crate::types::Float;
-use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
 
@@ -168,7 +167,7 @@ impl CatalystGenerator {
         let num_catalysts = self.calculate_num_catalysts(context);
 
         // Generate catalysts for entities
-        for i in 0..num_catalysts {
+        for _i in 0..num_catalysts {
             // Select target entity based on developmental needs
             let target_entity = self.select_target_entity(context, &mut rng);
 
@@ -517,7 +516,7 @@ impl CatalystGenerator {
         let stress_factor = (context.environmental_factors.global_stress * 5.0) as usize;
         let entropy_factor = (context.environmental_factors.entropy_level * 3.0) as usize;
 
-        (base_num + stress_factor + entropy_factor).max(1).min(10)
+        (base_num + stress_factor + entropy_factor).clamp(1, 10)
     }
 
     /// Record catalyst generation for learning

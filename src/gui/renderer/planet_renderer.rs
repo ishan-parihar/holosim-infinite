@@ -13,7 +13,6 @@
 //! - DynamicAtmosphere (src/planet/atmosphere.rs)
 //! - EnergyFlowSystem (src/planet/energy_flow.rs)
 
-use wgpu::util::DeviceExt;
 
 // ============================================================================
 // Vertex Data Structures
@@ -166,8 +165,10 @@ pub struct PlanetRenderer {
 
     // Textures
     terrain_texture: wgpu::Texture,
+    #[allow(dead_code)]
     terrain_texture_view: wgpu::TextureView,
     cloud_texture: wgpu::Texture,
+    #[allow(dead_code)]
     cloud_texture_view: wgpu::TextureView,
 
     // Texture bind groups

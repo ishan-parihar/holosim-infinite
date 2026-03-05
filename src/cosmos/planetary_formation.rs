@@ -7,7 +7,7 @@
 //! "Planets form from accretion disks. They orbit stars following Keplerian mechanics.
 //! Axial tilt creates seasons. Rotation creates day/night cycles."
 
-use crate::holographic::field_address::{HolographicAddress, Vector3};
+use crate::holographic::field_address::HolographicAddress;
 use crate::planet::{DynamicAtmosphere, EnergyFlowSystem, Hydrosphere, Lithosphere};
 
 // ============================================================================
@@ -15,6 +15,7 @@ use crate::planet::{DynamicAtmosphere, EnergyFlowSystem, Hydrosphere, Lithospher
 // ============================================================================
 
 const EARTH_MASS: f64 = 5.972e24; // kg
+#[allow(dead_code)]
 const EARTH_RADIUS: f64 = 6.371e6; // m
 const GRAVITATIONAL_CONSTANT: f64 = 6.674e-11; // m³/(kg·s²)
 
@@ -228,12 +229,10 @@ impl Planet {
             } else {
                 PlanetType::IceGiant
             }
+        } else if mass_earth_masses < 0.1 {
+            PlanetType::Dwarf
         } else {
-            if mass_earth_masses < 0.1 {
-                PlanetType::Dwarf
-            } else {
-                PlanetType::Terrestrial
-            }
+            PlanetType::Terrestrial
         };
 
         // Calculate radius from mass
@@ -352,10 +351,10 @@ impl Planet {
     /// Calculate day/night phase at a given longitude (0.0 = midnight, 0.5 = noon)
     pub fn day_phase_at_longitude(&self, longitude_degrees: f64) -> f64 {
         let longitude_rad = longitude_degrees * std::f64::consts::PI / 180.0;
-        let day_phase = (self.rotation_phase + longitude_rad)
+        
+        (self.rotation_phase + longitude_rad)
             .rem_euclid(2.0 * std::f64::consts::PI)
-            / (2.0 * std::f64::consts::PI);
-        day_phase
+            / (2.0 * std::f64::consts::PI)
     }
 
     /// Check if it's daytime at a given longitude
@@ -586,12 +585,7 @@ impl Planet {
         let solar_angle = (self.rotation_phase.sin() * self.axial_tilt.cos()).asin();
 
         // Calculate season
-        let season = match self.current_season {
-            Season::Spring => Season::Spring,
-            Season::Summer => Season::Summer,
-            Season::Autumn => Season::Autumn,
-            Season::Winter => Season::Winter,
-        };
+        let season = self.current_season;
 
         // Tick atmosphere
         if let Some(ref mut atm) = self.atmosphere {
@@ -609,8 +603,7 @@ impl Planet {
             .atmosphere
             .as_ref()
             .map(|a| {
-                a.temperature_field
-                    .get(0)
+                a.temperature_field.first()
                     .map(|c| c.temperature)
                     .unwrap_or(288.0)
             })

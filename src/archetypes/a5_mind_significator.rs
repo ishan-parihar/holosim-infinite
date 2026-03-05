@@ -98,9 +98,7 @@ impl SignificatorMindArchetype {
         lambda.healthy_min = 0.5;
         lambda.healthy_max = 0.8;
 
-        let tarot_correlation = TarotCorrelation::new(format!(
-            "The Hierophant (V): The choosing entity at the heart of the mind complex"
-        ));
+        let tarot_correlation = TarotCorrelation::new("The Hierophant (V): The choosing entity at the heart of the mind complex".to_string());
 
         let mut activation_levels = HashMap::new();
         activation_levels.insert(Rung::R1, 0.5);
@@ -281,8 +279,8 @@ impl SignificatorMindArchetype {
     /// Alignment Score = (Significator Choice × Great Way Perception) / ||Great Way||
     pub fn calculate_alignment_score(&self, great_way_perception: Float) -> Float {
         let choice = self.calculate_choice_capacity();
-        let alignment = (choice * great_way_perception) / (great_way_perception + 0.001);
-        alignment
+        
+        (choice * great_way_perception) / (great_way_perception + 0.001)
     }
 
     /// Update lambda value
@@ -396,7 +394,7 @@ impl ArchetypeTrait for SignificatorMindArchetype {
     }
 
     fn update_lambda(&mut self, value: Float) {
-        self.lambda.value = value.max(0.0).min(1.0);
+        self.lambda.value = value.clamp(0.0, 1.0);
         self.identity_coherence = self.lambda.value;
     }
 
@@ -637,7 +635,7 @@ impl SignificatorArchetypeTrait for SignificatorMindArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -850,13 +848,13 @@ mod tests {
         let mock_great_way = MockGreatWay::new();
         let tension = significator.calculate_pair_tension(&mock_great_way);
         let balance = significator.calculate_pair_balance(&mock_great_way);
-        assert!(tension >= 0.0 && tension <= 1.0);
-        assert!(balance >= 0.0 && balance <= 1.0);
+        assert!((0.0..=1.0).contains(&tension));
+        assert!((0.0..=1.0).contains(&balance));
     }
 
     #[test]
     fn test_developmental_progression() {
-        let mut significator = SignificatorMindArchetype::new();
+        let significator = SignificatorMindArchetype::new();
 
         // Test initial rung
         assert_eq!(
@@ -884,7 +882,7 @@ mod tests {
 
         // Test integration capacity
         let capacity = significator.integration_capacity();
-        assert!(capacity >= 0.0 && capacity <= 1.0);
+        assert!((0.0..=1.0).contains(&capacity));
     }
 
     #[test]
@@ -892,7 +890,7 @@ mod tests {
         let significator = SignificatorMindArchetype::new();
 
         let will_to_know = significator.calculate_will_to_know();
-        assert!(will_to_know >= 0.0 && will_to_know <= 1.0);
+        assert!((0.0..=1.0).contains(&will_to_know));
 
         // Test that will to know increases with coherence
         let mut higher_significator = significator.clone();

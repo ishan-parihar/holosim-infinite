@@ -30,13 +30,14 @@ use crate::types::Float;
 
 pub const NUM_SCALE_LEVELS: usize = 8;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 #[repr(u8)]
 pub enum ScaleLevel {
     Quantum = 0,
     Atomic = 1,
     Molecular = 2,
     Cellular = 3,
+    #[default]
     Biological = 4,
     Planetary = 5,
     Stellar = 6,
@@ -237,12 +238,6 @@ impl fmt::Display for ScaleLevel {
             self.individual_manifestation(),
             self.collective_counterpart()
         )
-    }
-}
-
-impl Default for ScaleLevel {
-    fn default() -> Self {
-        ScaleLevel::Biological
     }
 }
 

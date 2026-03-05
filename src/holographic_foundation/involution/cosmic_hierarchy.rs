@@ -7,8 +7,7 @@
 use super::logos_config::{
     GalacticLogosConfig, PlanetaryLogosConfig, PrimaryLogosConfig, SolarLogosConfig,
 };
-use super::{HierarchyLevel, NUM_HIERARCHY_LEVELS};
-use crate::types::Float;
+use super::HierarchyLevel;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]

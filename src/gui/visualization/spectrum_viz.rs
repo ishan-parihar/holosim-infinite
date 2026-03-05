@@ -11,7 +11,6 @@
 //! - Interactive spectrum filtering
 
 use crate::types::Density;
-use nalgebra_glm::Vec3;
 
 /// Position on the space/time spectrum
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -48,8 +47,8 @@ impl SpectrumPosition {
 
         SpectrumPosition {
             ratio,
-            space_time: space_time.max(0.0).min(1.0),
-            time_space: time_space.max(0.0).min(1.0),
+            space_time: space_time.clamp(0.0, 1.0),
+            time_space: time_space.clamp(0.0, 1.0),
             is_space_time,
         }
     }
@@ -233,7 +232,7 @@ impl SpectrumVisualizer {
 
     /// Set veil transparency
     pub fn set_veil_transparency(&mut self, transparency: f32) {
-        self.veil_transparency = transparency.max(0.0).min(1.0);
+        self.veil_transparency = transparency.clamp(0.0, 1.0);
     }
 
     /// Get veil transparency

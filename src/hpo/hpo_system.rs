@@ -122,7 +122,7 @@ impl HpoSystem {
 
             // Run simulations
             let progress_callback = Arc::new(Mutex::new(|completed: usize, total: usize| {
-                if completed % 10 == 0 || completed == total {
+                if completed.is_multiple_of(10) || completed == total {
                     println!("  Progress: {}/{} simulations completed", completed, total);
                 }
             }));

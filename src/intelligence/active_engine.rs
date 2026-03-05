@@ -663,7 +663,7 @@ impl AttractorOptimizer {
         let mut converged = false;
 
         // Iterative optimization
-        for iteration in 0..self.max_iterations {
+        for _iteration in 0..self.max_iterations {
             let score = self.evaluate_pattern(&best_pattern, target);
 
             // Check convergence
@@ -930,7 +930,7 @@ mod tests {
         assert!(!pattern
             .archetype_coefficients
             .iter()
-            .any(|&c| c < 0.0 || c > 1.0));
+            .any(|&c| !(0.0..=1.0).contains(&c)));
     }
 
     #[test]

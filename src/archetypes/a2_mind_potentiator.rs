@@ -10,7 +10,7 @@ use crate::archetypes::common::{
     FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
     LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 
 /// Potentiator of Mind Archetype - Catalyst for mind activation
 #[derive(Debug, Clone)]
@@ -31,6 +31,12 @@ pub struct PotentiatorMindArchetype {
     pub resource_accessibility: Float,
     pub resource_quality: Float,
     pub resource_depth: Float,
+}
+
+impl Default for PotentiatorMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PotentiatorMindArchetype {
@@ -140,7 +146,7 @@ impl PotentiatorArchetypeTrait for PotentiatorMindArchetype {
         }
     }
 
-    fn set_activation_level(&mut self, rung: Rung, level: Float) {
+    fn set_activation_level(&mut self, _rung: Rung, level: Float) {
         self.lambda_measurement.value = level;
     }
 
@@ -178,7 +184,7 @@ impl ArchetypeTrait for PotentiatorMindArchetype {
         self.role
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         // Process catalyst based on developmental position
         self.lambda_measurement.value += catalyst * 0.1;
         if self.lambda_measurement.value > 1.0 {

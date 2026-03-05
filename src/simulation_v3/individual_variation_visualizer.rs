@@ -36,7 +36,7 @@ impl IndividualVariationVisualizer {
             .push_str("║     INDIVIDUAL VARIATION VISUALIZATION (Phase 5)                    ║\n");
         output
             .push_str("╚══════════════════════════════════════════════════════════════════════╝\n");
-        output.push_str("\n");
+        output.push('\n');
 
         // Evolutionary Rate Distribution
         output.push_str(&self.visualize_evolutionary_rate_distribution());
@@ -53,7 +53,7 @@ impl IndividualVariationVisualizer {
         // Polarity Diversity
         output.push_str(&self.visualize_polarization_diversity());
 
-        output.push_str("\n");
+        output.push('\n');
         output
             .push_str("╔══════════════════════════════════════════════════════════════════════╗\n");
         output
@@ -98,7 +98,7 @@ impl IndividualVariationVisualizer {
         output.push_str(
             "└────────────────────────────────────────────────────────────────────────┘\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -134,7 +134,7 @@ impl IndividualVariationVisualizer {
         output.push_str(
             "└────────────────────────────────────────────────────────────────────────┘\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -212,7 +212,7 @@ impl IndividualVariationVisualizer {
         output.push_str(
             "└────────────────────────────────────────────────────────────────────────┘\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -287,7 +287,7 @@ impl IndividualVariationVisualizer {
         output.push_str(
             "└────────────────────────────────────────────────────────────────────────┘\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -323,9 +323,9 @@ impl IndividualVariationVisualizer {
         output.push_str("│ Diversity: [");
         for i in 0..50 {
             if i < bar_length {
-                output.push_str("█");
+                output.push('█');
             } else {
-                output.push_str("░");
+                output.push('░');
             }
         }
         output.push_str("]\n");
@@ -334,7 +334,7 @@ impl IndividualVariationVisualizer {
         output.push_str(
             "└────────────────────────────────────────────────────────────────────────┘\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }

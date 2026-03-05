@@ -1,13 +1,12 @@
 // A12: Significator of Body - Identity Agent for Body Complex
 // The harvest of biases of all previous incarnational experiences, offering biases to meet new experience
 
-use crate::archetypes::archetype_traits::SignificatorArchetypeTrait;
 use crate::archetypes::common::{
-    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, DevelopmentalPosition,
+    FunctionalPair, HealthStatus, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
+    LambdaMeasurementType, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Octant, Rung};
 use std::collections::HashMap;
 
 /// Significator of Body Archetype (A12)
@@ -70,7 +69,7 @@ impl SignificatorBodyArchetype {
             archetype_id: 12,
             active: true,
             lambda,
-            tarot_correlation: TarotCorrelation::new(format!("The Hanged Man (XII): Suspension, letting go, surrender to the process")),
+            tarot_correlation: TarotCorrelation::new("The Hanged Man (XII): Suspension, letting go, surrender to the process".to_string()),
             embodied_self: 0.65,
             choice_clarity: 0.65,
             identity_coherence: 0.65,
@@ -114,7 +113,7 @@ impl SignificatorBodyArchetype {
 
     /// Update bias harvest from new experience
     pub fn update_bias_harvest(&mut self, new_biases: Float) {
-        self.bias_harvest = (self.bias_harvest + new_biases).min(1.0).max(0.0);
+        self.bias_harvest = (self.bias_harvest + new_biases).clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda();
     }
 
@@ -326,7 +325,7 @@ impl ArchetypeTrait for SignificatorBodyArchetype {
         ArchetypeRole::Significator
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         // Significator processing
         let processing = catalyst * self.choice_clarity;
         self.identity_coherence += processing * 0.01;
@@ -374,6 +373,7 @@ impl ArchetypeTrait for SignificatorBodyArchetype {
 mod tests {
     use super::*;
     use crate::types::Polarity;
+    use crate::archetypes::common::{Paired, Holonic, HolonicLevel};
 
     // Mock archetype for testing paired relationships
     struct MockGreatWayArchetype {
@@ -487,7 +487,7 @@ mod tests {
 
         fn calculate_pair_balance(&self, paired_archetype: &dyn Paired) -> Float {
             let tension = self.calculate_pair_tension(paired_archetype);
-            (1.0 - tension).max(0.0).min(1.0)
+            (1.0 - tension).clamp(0.0, 1.0)
         }
     }
 
@@ -554,7 +554,7 @@ mod tests {
         archetype.choice_making_capacity = 0.75;
 
         let lambda = archetype.calculate_lambda();
-        assert!(lambda >= 0.5 && lambda <= 0.8);
+        assert!((0.5..=0.8).contains(&lambda));
     }
 
     #[test]

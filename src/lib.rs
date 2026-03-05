@@ -280,4 +280,3 @@ pub use attractors::{
     CoherencePeak, EmergentAttractor, EmergentAttractorStatistics, EmergentAttractorType,
     EmergentAttractors, EmergentAttractorsConfig,
 };
-pub mod test_wgpu;

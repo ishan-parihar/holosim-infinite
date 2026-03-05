@@ -203,8 +203,7 @@ pub struct HolographicContinuity {
 impl HolographicContinuity {
     /// Create new holographic continuity
     pub fn new(density: Density, archetype_activation: ArchetypeActivationProfile) -> Self {
-        let mut density_memories = Vec::new();
-        density_memories.push(DensityMemoryEntry::new(density, 0.0));
+        let density_memories = vec![DensityMemoryEntry::new(density, 0.0)];
 
         HolographicContinuity {
             archetype_activation,
@@ -777,7 +776,7 @@ mod tests {
     use crate::simulation_v3::archetype_basis::{ArchetypeBasis, NUM_ARCHETYPES};
 
     fn create_test_profile() -> ArchetypeActivationProfile {
-        let basis = ArchetypeBasis::new(NUM_ARCHETYPES);
+        let _basis = ArchetypeBasis::new(NUM_ARCHETYPES);
         let mut coefficients = [0.0; NUM_ARCHETYPES];
         coefficients[0] = 0.8;
         coefficients[1] = 0.6;
@@ -839,7 +838,7 @@ mod tests {
 
         let update = system.update_transition(2.5);
         assert!(
-            matches!(update, TransitionUpdateResult::InProgress { progress, .. } if progress >= 0.49 && progress <= 0.51)
+            matches!(update, TransitionUpdateResult::InProgress { progress, .. } if (0.49..=0.51).contains(&progress))
         );
     }
 

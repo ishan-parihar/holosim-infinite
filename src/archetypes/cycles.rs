@@ -544,8 +544,8 @@ mod tests {
         let cycle = LesserCycle::new(ComplexType::Mind);
         let (tension, efficiency) = cycle.calculate_efficiency();
 
-        assert!(tension >= 0.0 && tension <= 1.0);
-        assert!(efficiency >= 0.0 && efficiency <= 1.0);
+        assert!((0.0..=1.0).contains(&tension));
+        assert!((0.0..=1.0).contains(&efficiency));
     }
 
     #[test]

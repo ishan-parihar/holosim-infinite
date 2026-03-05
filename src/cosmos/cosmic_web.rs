@@ -6,7 +6,7 @@
 //! From HOLOSIM_INFINITE_COMPLETION_ROADMAP_V4.md Phase 2:
 //! "Cosmic web emerges - filaments and voids form from stellar distribution."
 
-use crate::holographic::field_address::{HolographicAddress, Vector3};
+use crate::holographic::field_address::HolographicAddress;
 
 // ============================================================================
 // Cosmic Structure Types
@@ -323,7 +323,7 @@ mod tests {
         let mut web = CosmicWeb::new();
         web.initialize(&[]);
 
-        let initial_filaments = web.filament_count();
+        let _initial_filaments = web.filament_count();
         web.evolve(1e15); // Large time step
 
         // Web should still have filaments

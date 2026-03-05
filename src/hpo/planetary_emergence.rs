@@ -505,11 +505,7 @@ impl WeatherSystem {
 
         // Weather pattern from combination
         let pattern = if cloud_cover < 0.3 {
-            if temperature > 0.8 {
-                WeatherPattern::Clear
-            } else {
-                WeatherPattern::Clear
-            }
+            WeatherPattern::Clear
         } else if cloud_cover < 0.6 {
             WeatherPattern::PartlyCloudy
         } else if cloud_cover < 0.8 {
@@ -518,14 +514,12 @@ impl WeatherSystem {
             } else {
                 WeatherPattern::Cloudy
             }
+        } else if temperature < 0.3 {
+            WeatherPattern::Snow
+        } else if humidity > 0.7 {
+            WeatherPattern::Storm
         } else {
-            if temperature < 0.3 {
-                WeatherPattern::Snow
-            } else if humidity > 0.7 {
-                WeatherPattern::Storm
-            } else {
-                WeatherPattern::Cloudy
-            }
+            WeatherPattern::Cloudy
         };
 
         WeatherSystem {
@@ -541,7 +535,7 @@ impl WeatherSystem {
     pub fn from_atmospheric_physics(
         latitude: Float,
         atmosphere: &Atmosphere,
-        surface_temp: Float,
+        _surface_temp: Float,
     ) -> Self {
         // Temperature from latitude + solar input
         let equatorial_temp = atmosphere.solar_input;
@@ -834,6 +828,7 @@ impl Planet {
     }
 
     /// Generate terrain from field patterns
+    #[allow(dead_code)]
     fn generate_terrain(
         center: Position3D,
         radius: Float,

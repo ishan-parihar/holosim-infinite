@@ -12,7 +12,6 @@
 
 use crate::entity_layer7::layer7::EntityId;
 use crate::types::Float;
-use std::collections::HashMap;
 
 // ============================================================================
 // Observer Mode
@@ -23,22 +22,19 @@ use std::collections::HashMap;
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 8:
 /// "View from entity's perspective, collective view, or cosmic overview"
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub enum ObserverMode {
     /// View from entity's perspective
     EntityView { entity_id: EntityId },
     /// View a group/SMC collectively
     CollectiveView { group_id: u64 },
     /// Cosmic overview
+    #[default]
     CosmicView,
     /// Free camera navigation
     FreeCamera { position: [Float; 3] },
 }
 
-impl Default for ObserverMode {
-    fn default() -> Self {
-        ObserverMode::CosmicView
-    }
-}
 
 // ============================================================================
 // Scale Level
@@ -49,6 +45,7 @@ impl Default for ObserverMode {
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 8:
 /// "Multi-scale navigation from quantum to cosmic"
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default)]
 pub enum ScaleLevel {
     /// Quantum scale (10^-35 m) - Planck scale
     Quantum,
@@ -57,6 +54,7 @@ pub enum ScaleLevel {
     /// Cellular scale (10^-6 m) - Biological cells
     Cellular,
     /// Organism scale (10^0 m) - Life forms
+    #[default]
     Organism,
     /// Planetary scale (10^7 m) - Planets
     Planetary,
@@ -126,11 +124,6 @@ impl ScaleLevel {
     }
 }
 
-impl Default for ScaleLevel {
-    fn default() -> Self {
-        ScaleLevel::Organism
-    }
-}
 
 // ============================================================================
 // Scale Controller
@@ -460,8 +453,10 @@ impl EventNarrator {
 
 /// Inspector tab
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum InspectorTab {
     /// Physical body status
+    #[default]
     Body,
     /// Consciousness state
     Consciousness,
@@ -475,11 +470,6 @@ pub enum InspectorTab {
     EvolutionaryTrajectory,
 }
 
-impl Default for InspectorTab {
-    fn default() -> Self {
-        InspectorTab::Body
-    }
-}
 
 impl InspectorTab {
     /// Get tab display name

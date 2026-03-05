@@ -191,6 +191,7 @@ pub struct CivilizationRenderer {
     boundary_buffer: Option<wgpu::Buffer>,
 
     // Quad vertex buffer for billboards
+    #[allow(dead_code)]
     quad_vertex_buffer: wgpu::Buffer,
 
     // Instance counts

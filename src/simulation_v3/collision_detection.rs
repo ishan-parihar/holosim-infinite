@@ -109,23 +109,12 @@ pub enum CollisionExceptionType {
     Entangle,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct HolographicCollisionSystem {
     pub spectrum_rules: SpectrumCollisionRules,
     pub density_exceptions: Vec<DensityCollisionExceptions>,
     pub physics: ScaleSpecificPhysics,
     pub collision_cache: Vec<CollisionEvent>,
-}
-
-impl Default for HolographicCollisionSystem {
-    fn default() -> Self {
-        HolographicCollisionSystem {
-            spectrum_rules: SpectrumCollisionRules::default(),
-            density_exceptions: Vec::new(),
-            physics: ScaleSpecificPhysics::default(),
-            collision_cache: Vec::new(),
-        }
-    }
 }
 
 impl HolographicCollisionSystem {
@@ -403,7 +392,7 @@ impl HolographicCollisionSystem {
     pub fn compute_collision_normal(
         &self,
         entity_a: &HolographicEntity,
-        entity_b: &HolographicEntity,
+        _entity_b: &HolographicEntity,
         collision_point: &[Float; 3],
     ) -> [Float; 3] {
         let direction_a = [

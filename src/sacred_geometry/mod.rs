@@ -70,22 +70,22 @@ pub mod constants {
     use crate::types::Float;
 
     /// Golden Ratio: φ = (1+√5)/2 ≈ 1.6180339887498948482
-    pub const GOLDEN_RATIO: Float = 1.6180339887498948482;
+    pub const GOLDEN_RATIO: Float = 1.618_033_988_749_895;
 
     /// Golden Ratio Inverse: 1/φ = φ - 1 ≈ 0.6180339887498948482
-    pub const GOLDEN_RATIO_INVERSE: Float = 0.6180339887498948482;
+    pub const GOLDEN_RATIO_INVERSE: Float = 0.618_033_988_749_894_9;
 
     /// Golden Angle: 360°/φ² ≈ 137.5077640500378546463° (in radians: ≈ 2.399963)
-    pub const GOLDEN_ANGLE: Float = 2.39996322972865332;
+    pub const GOLDEN_ANGLE: Float = 2.399_963_229_728_653_5;
 
     /// Phi squared: φ² = φ + 1 ≈ 2.6180339887498948482
-    pub const GOLDEN_RATIO_SQUARED: Float = 2.6180339887498948482;
+    pub const GOLDEN_RATIO_SQUARED: Float = 2.618_033_988_749_895;
 
     /// Phi cubed: φ³ = 2φ + 1 ≈ 4.2360679774997896964
-    pub const GOLDEN_RATIO_CUBED: Float = 4.2360679774997896964;
+    pub const GOLDEN_RATIO_CUBED: Float = 4.236_067_977_499_79;
 
     /// √5 used in golden ratio calculations
-    pub const SQRT_5: Float = 2.2360679774997896964;
+    pub const SQRT_5: Float = 2.236_067_977_499_79;
 
     /// π for geometric calculations
     pub const PI: Float = std::f64::consts::PI;
@@ -100,6 +100,7 @@ pub struct SacredGeometrySystem {
     fibonacci: FibonacciSequence,
 
     /// Golden ratio calculations
+    #[allow(dead_code)]
     golden_ratio: GoldenProportion,
 
     /// Platonic solid structures
@@ -118,11 +119,17 @@ pub struct SacredGeometrySystem {
 /// overtone patterns, and standing wave formations.
 #[derive(Debug, Clone)]
 pub struct HarmonicResonance {
-    /// Base frequency scale (Hz)
+    /// Base frequency scale (Hz) - A=432Hz (sacred frequency)
+    /// Note: Used for future frequency-based resonance calculations
+    #[allow(dead_code)]
     base_frequency_scale: Float,
     /// Maximum overtones to consider
+    /// Note: Reserved for future overtone analysis features
+    #[allow(dead_code)]
     max_overtones: usize,
     /// Harmonic tolerance for matching
+    /// Note: Reserved for future harmonic matching algorithms
+    #[allow(dead_code)]
     harmonic_tolerance: Float,
 }
 
@@ -436,8 +443,7 @@ impl SacredGeometrySystem {
                 // Icosahedron vertices involve the golden ratio
                 let phi = constants::GOLDEN_RATIO;
 
-                vec![
-                    (0.0, 1.0, phi),
+                [(0.0, 1.0, phi),
                     (0.0, 1.0, -phi),
                     (0.0, -1.0, phi),
                     (0.0, -1.0, -phi),
@@ -448,8 +454,7 @@ impl SacredGeometrySystem {
                     (phi, 0.0, 1.0),
                     (phi, 0.0, -1.0),
                     (-phi, 0.0, 1.0),
-                    (-phi, 0.0, -1.0),
-                ]
+                    (-phi, 0.0, -1.0)]
                 .iter()
                 .map(|&(x, y, z)| (x * scale, y * scale, z * scale))
                 .collect()
@@ -489,10 +494,11 @@ impl SacredGeometrySystem {
     ///
     /// Returns pre-computed φ^0 through φ^19
     pub fn phi_powers(&self) -> [Float; 20] {
-        let mut powers = [0.0; 20];
-        for i in 0..20 {
-            powers[i] = constants::GOLDEN_RATIO.powi(i as i32);
-        }
+        let powers: [Float; 20] = (0..20)
+            .map(|i| constants::GOLDEN_RATIO.powi(i))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 20]);
         powers
     }
 }

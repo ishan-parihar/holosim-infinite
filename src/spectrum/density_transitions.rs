@@ -170,8 +170,8 @@ impl DensityTransitionSystem {
         coherence: f64,
         experience: i64,
         polarity: f64,
-        lessons: i32,
-        spectrum_position: f64,
+        _lessons: i32,
+        _spectrum_position: f64,
     ) -> TransitionReadiness {
         let mut requirements_met = Vec::new();
         let mut requirements_pending = Vec::new();
@@ -207,7 +207,7 @@ impl DensityTransitionSystem {
         TransitionReadiness {
             entity_id,
             current_density,
-            target_density: target_density.clone(),
+            target_density,
             readiness_score,
             requirements_met,
             requirements_pending,
@@ -249,7 +249,7 @@ impl DensityTransitionSystem {
         // Start transition
         state.is_transitioning = true;
         state.transition_start = Some(current_step);
-        state.target_density = Some(target_density.clone());
+        state.target_density = Some(target_density);
         state.progress = 0.0;
 
         true
@@ -268,7 +268,7 @@ impl DensityTransitionSystem {
         }
 
         let start_step = state.transition_start?;
-        let target_density = state.target_density.clone()?;
+        let target_density = state.target_density?;
 
         // Calculate progress
         let elapsed = current_step - start_step;
@@ -286,7 +286,7 @@ impl DensityTransitionSystem {
 
             // Now compute transcend_and_include (after mutable borrow released)
             let transcend_and_include =
-                self.compute_transcend_include(previous, target_density.clone());
+                self.compute_transcend_include(previous, target_density);
 
             let result = DensityTransitionResult {
                 entity_id,
@@ -313,7 +313,7 @@ impl DensityTransitionSystem {
     /// From COSMOLOGICAL-ARCHITECTURE.md:
     /// > "Transcend and Include: retain previous densities, add new"
     fn compute_transcend_include(&self, previous: Density, new: Density) -> TranscendAndInclude {
-        let mut retained = vec![previous];
+        let retained = vec![previous];
         let mut new_capabilities = Vec::new();
 
         // Include previous capabilities

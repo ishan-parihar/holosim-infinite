@@ -10,10 +10,10 @@
 //! - Respects space/time spectrum constraints
 
 use crate::entity_layer7::dna_encoding::DNAPattern;
-use crate::entity_layer7::holographic_blueprint::{HolographicBlueprint, StageBlueprint};
-use crate::entity_layer7::layer7::{EntityId, EntityState, EvolutionaryStage};
+use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
+use crate::entity_layer7::layer7::{EntityId, EvolutionaryStage};
 use crate::spectrum::SpectrumRatio;
-use crate::types::{EnvironmentID, Float};
+use crate::types::Float;
 use std::collections::HashMap;
 
 /// Holographic Unfolding
@@ -397,8 +397,7 @@ impl HolographicUnfolding {
         let entropy_penalty = env_factors.entropy_level * 0.2;
 
         (base_rate + energy_factor + coherence_factor - entropy_penalty)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
             * 0.1
     }
 
@@ -648,8 +647,7 @@ impl Default for HolographicUnfolding {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::{IndividualSpectrumConfiguration, VibrationalState};
-    use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
+    use crate::entity_layer7::layer7::IndividualSpectrumConfiguration;
 
     fn create_test_blueprint() -> HolographicBlueprint {
         // Create a simple test blueprint

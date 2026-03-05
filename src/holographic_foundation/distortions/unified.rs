@@ -17,7 +17,7 @@ use std::collections::HashMap;
 
 use super::free_will::{FreeWillConfig, FreeWillTerm};
 use super::light::{InterferencePattern, LightConfig, LightTerm};
-use super::love::{CoherenceGradient, LoveConfig, LoveTerm};
+use super::love::{LoveConfig, LoveTerm};
 use super::{DensityAmplitude, DistortionType, FieldState, NUM_DENSITY_BANDS};
 
 #[derive(Debug, Clone)]
@@ -335,7 +335,7 @@ impl UnifiedFieldEquation {
         let min_distance = self.config.coherence_peak_min_distance;
 
         // Find states above threshold
-        let mut candidates: Vec<CoherencePeak> = states
+        let candidates: Vec<CoherencePeak> = states
             .iter()
             .filter(|(state, _)| state.coherence >= threshold)
             .map(|(state, pos)| {
@@ -568,7 +568,7 @@ mod tests {
         let mut state = FieldState::uniform(0.5);
         let pos = [0.0, 0.0, 0.0];
 
-        let initial_coherence = state.coherence;
+        let _initial_coherence = state.coherence;
 
         field.evolve(&mut state, &pos);
 

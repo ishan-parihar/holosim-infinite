@@ -8,9 +8,7 @@
 // "Subconscious memory retained (accessible through catalyst)"
 // "Superconscious memory always retained (archetypical patterns)"
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -98,7 +96,7 @@ impl MemoryEntry {
             access_level: MemoryAccessLevel::Full,
             content,
             origin_density,
-            strength: strength.max(0.0).min(1.0),
+            strength: strength.clamp(0.0, 1.0),
             created_at,
         }
     }
@@ -199,7 +197,7 @@ impl MemoryEntry {
     /// # Arguments
     /// * `recovery_amount` - Amount of recovery (0.0 to 1.0)
     pub fn recover(&mut self, recovery_amount: Float) {
-        let clamped_recovery = recovery_amount.max(0.0).min(1.0);
+        let clamped_recovery = recovery_amount.clamp(0.0, 1.0);
 
         match self.category {
             MemoryCategory::Conscious => {
@@ -411,7 +409,7 @@ impl MemoryFadingSystem {
     pub fn add_memory(&mut self, entity_id: EntityId, memory: MemoryEntry) {
         self.entity_memories
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(memory);
     }
 
@@ -478,7 +476,7 @@ impl MemoryFadingSystem {
         meditation_duration: Float,
     ) -> usize {
         if let Some(memories) = self.entity_memories.get_mut(&entity_id) {
-            let recovery_amount = meditation_duration.max(0.0).min(1.0) * 0.2;
+            let recovery_amount = meditation_duration.clamp(0.0, 1.0) * 0.2;
 
             let mut recovered_count = 0;
             for memory in memories.iter_mut() {
@@ -514,7 +512,7 @@ impl MemoryFadingSystem {
         catalyst_intensity: Float,
     ) -> usize {
         if let Some(memories) = self.entity_memories.get_mut(&entity_id) {
-            let recovery_amount = catalyst_intensity.max(0.0).min(1.0) * 0.3;
+            let recovery_amount = catalyst_intensity.clamp(0.0, 1.0) * 0.3;
 
             let mut recovered_count = 0;
             for memory in memories.iter_mut() {
@@ -633,6 +631,7 @@ pub struct MemoryStatistics {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 
     // ===== MemoryEntry Tests =====
 
@@ -924,8 +923,8 @@ mod tests {
         system.fade_memory(1, 0.9);
 
         // Recover through meditation
-        let recovered = system.recover_memory_through_meditation(1, 0.8);
-        assert!(recovered >= 0); // Should recover some memories
+        let _recovered = system.recover_memory_through_meditation(1, 0.8);
+        // recovered is usize, always >= 0
 
         let memories = system.get_memories(1).unwrap();
         assert!(memories[0].strength > 0.0); // Should have some strength back
@@ -943,8 +942,8 @@ mod tests {
         system.fade_memory(1, 0.9);
 
         // Recover through catalyst processing
-        let recovered = system.recover_memory_through_catalyst(1, 0.8);
-        assert!(recovered >= 0); // Should recover some memories
+        let _recovered = system.recover_memory_through_catalyst(1, 0.8);
+        // recovered is usize, always >= 0
 
         let memories = system.get_memories(1).unwrap();
         assert!(memories[0].strength > 0.0); // Should have some strength back

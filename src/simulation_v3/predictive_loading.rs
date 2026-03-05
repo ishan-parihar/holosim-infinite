@@ -18,14 +18,13 @@
 //! 6. Performance statistics and monitoring
 
 use super::fractal_cache::{
-    EvictionPolicy, FractalCache, FractalCacheError, FractalCacheKey, FractalCacheStatistics,
-    FractalData,
+    EvictionPolicy, FractalCache, FractalCacheKey, FractalCacheStatistics, FractalData,
 };
 use super::multiscale_camera::{MultiScaleCamera, ScaleLevel};
-use super::multiscale_field::{HolographicView, MultiScaleField, MultiScaleFieldError};
+use super::multiscale_field::{HolographicView, MultiScaleField};
 use crate::types::Float;
 use std::collections::{HashMap, VecDeque};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 /// Predictive Loader
 ///
@@ -97,18 +96,22 @@ pub struct PredictiveLoader {
 #[derive(Debug, Clone)]
 struct MovementSample {
     /// Timestamp of this sample
+    #[allow(dead_code)]
     timestamp: Instant,
 
     /// Position (log10 of meters)
+    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Velocity (log10 of meters per second)
     velocity: (Float, Float, Float),
 
     /// Scale level
+    #[allow(dead_code)]
     scale: ScaleLevel,
 
     /// Scale transition progress (0.0 to 1.0)
+    #[allow(dead_code)]
     scale_progress: Float,
 }
 
@@ -133,12 +136,15 @@ struct LoadTask {
     priority: LoadPriority,
 
     /// Prediction confidence (0.0 to 1.0)
+    #[allow(dead_code)]
     confidence: Float,
 
     /// Expected frame when this data will be needed
+    #[allow(dead_code)]
     expected_frame: usize,
 
     /// Data type to load
+    #[allow(dead_code)]
     data_type: u32,
 }
 
@@ -174,18 +180,23 @@ pub enum LoadPriority {
 #[derive(Debug, Clone)]
 struct LoadProgress {
     /// Load task
+    #[allow(dead_code)]
     task: LoadTask,
 
     /// Start time
+    #[allow(dead_code)]
     start_time: Instant,
 
     /// Bytes loaded
+    #[allow(dead_code)]
     bytes_loaded: usize,
 
     /// Total bytes
+    #[allow(dead_code)]
     total_bytes: usize,
 
     /// Completion percentage (0.0 to 1.0)
+    #[allow(dead_code)]
     progress: Float,
 }
 
@@ -374,8 +385,8 @@ impl PredictiveLoader {
     fn predict_future_positions(&mut self) -> Result<(), PredictiveLoaderError> {
         self.stats.total_predictions += 1;
 
-        let current_scale = self.camera.current_scale();
-        let scale_progress = self.camera.transition_progress();
+        let _current_scale = self.camera.current_scale();
+        let _scale_progress = self.camera.transition_progress();
 
         let predictions = if self.movement_history.len() >= 3 {
             self.predict_from_history()?
@@ -444,7 +455,7 @@ impl PredictiveLoader {
         );
 
         let current_position = self.player_position;
-        let current_scale = self.camera.current_scale();
+        let _current_scale = self.camera.current_scale();
 
         for frame in 1..=self.lookahead_frames {
             let dt = frame as Float / 60.0;
@@ -522,7 +533,7 @@ impl PredictiveLoader {
         &self,
         frame_offset: usize,
         confidence: Float,
-        scale: ScaleLevel,
+        _scale: ScaleLevel,
     ) -> LoadPriority {
         if frame_offset == 0 {
             return LoadPriority::Critical;
@@ -702,6 +713,7 @@ impl PredictiveLoader {
 struct Prediction {
     position: (Float, Float, Float),
     scale: ScaleLevel,
+    #[allow(dead_code)]
     frame_offset: usize,
 }
 
@@ -838,7 +850,7 @@ mod tests {
 
         assert_eq!(loader.scale_prediction_weights.len(), 7);
         for &weight in &loader.scale_prediction_weights {
-            assert!(weight >= 0.0 && weight <= 1.0);
+            assert!((0.0..=1.0).contains(&weight));
         }
     }
 

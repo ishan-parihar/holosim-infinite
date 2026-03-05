@@ -138,15 +138,13 @@ pub struct ArchitectureValidationResult {
 impl ArchitectureValidationResult {
     /// Calculates the overall architecture alignment score.
     pub fn calculate_score(&self) -> Float {
-        let all_results = vec![
-            &self.three_primal_distortions,
+        let all_results = [&self.three_primal_distortions,
             &self.transcend_include,
             &self.space_time_spectrum,
             &self.veil_position,
             &self.logos_hierarchy,
             &self.density_octave,
-            &self.holographic_principle,
-        ];
+            &self.holographic_principle];
 
         let total_tests: usize = all_results.iter().map(|r| r.len()).sum();
         let total_score: Float = all_results
@@ -266,13 +264,11 @@ pub struct IntegrationValidationResult {
 impl IntegrationValidationResult {
     /// Calculates the overall integration score.
     pub fn calculate_score(&self) -> Float {
-        let all_results = vec![
-            &self.involution_sequence,
+        let all_results = [&self.involution_sequence,
             &self.entity_lifecycle,
             &self.holographic_field,
             &self.physical_adapter,
-            &self.simulation_runner,
-        ];
+            &self.simulation_runner];
 
         let total_tests: usize = all_results.iter().map(|r| r.len()).sum();
         let total_score: Float = all_results
@@ -675,15 +671,13 @@ impl SimulationV3Validator {
 
         // Calculate overall score
         let overall_score = {
-            let all_results = vec![
-                &three_primal_distortions,
+            let all_results = [&three_primal_distortions,
                 &transcend_include,
                 &space_time_spectrum,
                 &veil_position,
                 &logos_hierarchy,
                 &density_octave,
-                &holographic_principle,
-            ];
+                &holographic_principle];
 
             let total_tests: usize = all_results.iter().map(|r| r.len()).sum();
             let total_score: Float = all_results
@@ -736,13 +730,11 @@ impl SimulationV3Validator {
 
         // Calculate overall score
         let overall_score = {
-            let all_results = vec![
-                &involution_sequence,
+            let all_results = [&involution_sequence,
                 &entity_lifecycle,
                 &holographic_field,
                 &physical_adapter,
-                &simulation_runner,
-            ];
+                &simulation_runner];
 
             let total_tests: usize = all_results.iter().map(|r| r.len()).sum();
             let total_score: Float = all_results
@@ -1204,7 +1196,7 @@ impl SimulationV3Validator {
                 (1.0 / denom, unique_ratio / denom)
             };
 
-            let spectrum_configuration = crate::entity_layer7::layer7::EntitySpectrumAccess {
+            let _spectrum_configuration = crate::entity_layer7::layer7::EntitySpectrumAccess {
                 space_time_access,
                 oneness_access: time_space_access, // time_space_access maps to oneness_access
                 veil_transparency: if entity.spectrum_access.veil_active {
@@ -1323,7 +1315,7 @@ impl SimulationV3Validator {
 
         // Add entities
         for entity in entities.clone() {
-            field_manager.add_entity(entity);
+            let _ = field_manager.add_entity(entity);
         }
 
         // Create connections

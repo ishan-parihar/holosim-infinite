@@ -13,6 +13,7 @@ use std::collections::HashMap;
 
 /// Unique identifier for a dockable panel
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct PanelId(pub u64);
 
 impl PanelId {
@@ -22,18 +23,15 @@ impl PanelId {
     }
 }
 
-impl Default for PanelId {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 /// Docking areas where panels can be placed
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum DockArea {
     /// Left side panel
     Left,
     /// Right side panel
+    #[default]
     Right,
     /// Top panel
     Top,
@@ -45,11 +43,6 @@ pub enum DockArea {
     Floating,
 }
 
-impl Default for DockArea {
-    fn default() -> Self {
-        DockArea::Right
-    }
-}
 
 impl DockArea {
     /// Get all available dock areas
@@ -86,9 +79,10 @@ impl DockArea {
 }
 
 /// State of a dockable panel
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum PanelState {
     /// Panel is fully visible and expanded
+    #[default]
     Expanded,
     /// Panel is collapsed to a tab/edge
     Collapsed,
@@ -96,12 +90,6 @@ pub enum PanelState {
     Hidden,
     /// Panel is minimized to system tray/taskbar
     Minimized,
-}
-
-impl Default for PanelState {
-    fn default() -> Self {
-        PanelState::Expanded
-    }
 }
 
 /// Information about a dockable panel
@@ -615,7 +603,7 @@ impl DockingManager {
     }
 
     /// Calculate drop target based on screen position
-    fn calculate_drop_target(&self, x: f32, y: f32) -> Option<DockArea> {
+    fn calculate_drop_target(&self, _x: f32, _y: f32) -> Option<DockArea> {
         // This is a simplified calculation
         // In the actual EGUI implementation, we'd use the window dimensions
         // For now, return None (no drop target)
@@ -668,6 +656,7 @@ pub struct AnimationState {
     /// Animation progress for each panel (0.0 = collapsed, 1.0 = expanded)
     panel_animations: HashMap<PanelId, f32>,
     /// Animation speed (units per second)
+    #[allow(dead_code)]
     animation_speed: f32,
 }
 

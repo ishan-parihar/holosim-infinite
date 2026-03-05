@@ -12,7 +12,6 @@
 //! - Entity inherits properties from all nesting levels
 
 use crate::holographic_foundation::field_state::Position3D;
-use crate::holographic_foundation::spectrum::SpectrumPosition;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -291,7 +290,7 @@ impl PlanetaryFieldNesting {
 
         self.planets
             .entry(planet_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(entity_id);
         self.entity_bindings.insert(entity_id, binding);
 

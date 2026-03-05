@@ -259,10 +259,10 @@ impl ConsciousnessOutput {
 /// This is the core of Phase 2.1 - archetypes as computational operations.
 ///
 /// Knowledge Base Reference:
-/// - ARCHITECTURE_AUDIT_REPORT.md Section 2.5
-/// "The 7 archetypes represent the complete processing cycle of consciousness.
-/// They are not metaphorical symbols but actual computational operations.
-/// They form the logic gates through which consciousness processes experience."
+/// - ARCHITECTURE_AUDIT_REPORT.md Section 2.5:
+///   "The 7 archetypes represent the complete processing cycle of consciousness.
+///   They are not metaphorical symbols but actual computational operations.
+///   They form the logic gates through which consciousness processes experience."
 pub trait ArchetypeOperation: fmt::Debug + Send + Sync {
     /// Process consciousness through this archetype
     ///

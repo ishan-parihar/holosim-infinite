@@ -631,7 +631,7 @@ mod tests {
 
     #[test]
     fn test_veil_evolution() {
-        let mut evolution = VeilEvolution::new(1.0, 0.0, 0.1);
+        let evolution = VeilEvolution::new(1.0, 0.0, 0.1);
 
         assert_eq!(evolution.current_strength, 1.0);
         assert_eq!(evolution.target_strength, 0.0);

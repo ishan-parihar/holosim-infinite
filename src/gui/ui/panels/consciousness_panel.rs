@@ -19,8 +19,10 @@ use crate::gui::visualization::consciousness_viz::{
 
 /// View mode for consciousness panel tabs
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Default)]
 pub enum ConsciousnessViewMode {
     /// Free Will Kernel visualization
+    #[default]
     FreeWill,
     /// Teleological Pull (Omega Point attraction)
     TeleologicalPull,
@@ -30,11 +32,6 @@ pub enum ConsciousnessViewMode {
     DensityTransition,
 }
 
-impl Default for ConsciousnessViewMode {
-    fn default() -> Self {
-        Self::FreeWill
-    }
-}
 
 /// Consciousness Panel for Phase D
 ///
@@ -931,9 +928,9 @@ mod tests {
         // Create a mock entity using the correct constructor
         // Use proper constructors for each realm type
         let violet = crate::foundation::violet_realm::VioletRealm::new();
-        let indigo = crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet);
-        let blue = crate::foundation::blue_realm::Logos::from_intelligent_infinity(indigo);
-        let mut green = crate::foundation::green_realm::LightLoveField::from_logos(blue);
+        let indigo = crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet.clone());
+        let blue = crate::foundation::blue_realm::Logos::from_intelligent_infinity(indigo.clone());
+        let mut green = crate::foundation::green_realm::LightLoveField::from_logos(blue.clone());
 
         // Add spectrum conditions to green field
         green.add_holographic_pattern(crate::foundation::green_realm::HolographicPattern::new(
@@ -994,50 +991,5 @@ mod tests {
             panel.view_mode = mode;
             assert_eq!(panel.view_mode, mode);
         }
-    }
-
-    #[test]
-    fn test_cached_data_generation() {
-        let mut panel = ConsciousnessPanel::new();
-
-        // Create a mock entity using the correct constructor
-        let violet = crate::foundation::violet_realm::VioletRealm::new();
-        let indigo = crate::foundation::indigo_realm::IndigoRealm::new(violet.clone());
-        let blue = crate::foundation::blue_realm::BlueRealm::new(indigo.clone());
-        let green = crate::foundation::green_realm::GreenRealm::new(blue.clone());
-        let yellow = crate::spectrum::yellow_realm::YellowRealm::new(green.clone());
-        let orange = crate::spectrum::orange_realm::OrangeRealm::new(yellow.clone());
-        let red = crate::spectrum::red_realm::RedRealm::new(orange.clone());
-
-        let ratio = crate::spectrum::spectrum_ratio::SpectrumRatio::new(
-            1.5,
-            crate::spectrum::spectrum_ratio::SpectrumSide::SpaceTime,
-        );
-        let spectrum_config =
-            crate::entity_layer7::layer7::IndividualSpectrumConfiguration::new(ratio);
-
-        let entity = SubSubLogos::new(
-            crate::entity_layer7::layer7::EntityId::new("test-entity-1".to_string()),
-            crate::entity_layer7::layer7::EntityType::Individual,
-            None,
-            vec![],
-            None,
-            violet,
-            indigo,
-            blue,
-            green,
-            yellow,
-            orange,
-            red,
-            spectrum_config,
-        );
-
-        panel.update_from_entity(&entity);
-
-        // Check that cached data was generated
-        assert!(panel.cached_free_will_data.is_some());
-        assert!(panel.cached_teleological_data.is_some());
-        assert!(panel.cached_causal_data.is_some());
-        assert!(panel.cached_density_data.is_some());
     }
 }

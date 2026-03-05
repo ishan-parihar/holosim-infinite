@@ -421,8 +421,8 @@ impl HolographicStructure {
         signature[21] = pattern[7];
 
         // Normalize all signature values to [0.0, 1.0]
-        for i in 0..22 {
-            signature[i] = signature[i].max(0.0).min(1.0);
+        for item in &mut signature {
+            *item = item.clamp(0.0, 1.0);
         }
 
         signature
@@ -490,11 +490,11 @@ impl HolographicStructure {
         // Calculate average for each octant (7 octants, 3 archetypes each)
         let mut density_strengths = [0.0; 7];
 
-        for i in 0..7 {
+        for (i, strength) in density_strengths.iter_mut().enumerate() {
             let start = i * 3;
             let end = start + 3;
             let sum: Float = signature[start..end.min(22)].iter().sum();
-            density_strengths[i] = sum / 3.0;
+            *strength = sum / 3.0;
         }
 
         // Add archetype 22 to the last density
@@ -521,7 +521,7 @@ impl HolographicStructure {
 
         // Normalize complexity to [0.3, 1.0]
         // Increased minimum to 0.3 to ensure structures have meaningful complexity
-        (0.3 + std_dev * 2.0).max(0.3).min(1.0)
+        (0.3 + std_dev * 2.0).clamp(0.3, 1.0)
     }
 
     /// Calculate size based on structure type and signature
@@ -635,7 +635,7 @@ impl HolographicStructure {
         ];
 
         // Create patterns for archetypes with strong signatures
-        for (_i, &pattern_type) in pattern_types.iter().enumerate() {
+        for &pattern_type in pattern_types.iter() {
             let archetype_index = pattern_type.archetype_index();
             if archetype_index < 22 && signature[archetype_index] > 0.5 {
                 let scale = 1.0 + signature[archetype_index];
@@ -1269,11 +1269,9 @@ mod tests {
         // Different structure types should have different base hues
         assert!(temple_palette != library_palette);
 
-        // All colors should be valid RGB
+        // All colors should be valid RGB (u8 values are always <= 255)
         for color in temple_palette.iter() {
-            assert!(color.0 <= 255);
-            assert!(color.1 <= 255);
-            assert!(color.2 <= 255);
+            let _ = color;
         }
     }
 

@@ -153,7 +153,7 @@ impl HigherDensityField {
 
     fn default_light_dominance(density: u8) -> Float {
         match density {
-            1 | 2 | 3 => 0.0,
+            1..=3 => 0.0,
             4 => 0.3,
             5 => 0.8,
             6 => 0.9,
@@ -165,7 +165,7 @@ impl HigherDensityField {
 
     fn default_unity_factor(density: u8) -> Float {
         match density {
-            1 | 2 | 3 => 0.0,
+            1..=3 => 0.0,
             4 => 0.2,
             5 => 0.5,
             6 => 0.9,
@@ -177,7 +177,7 @@ impl HigherDensityField {
 
     fn default_source_proximity(density: u8) -> Float {
         match density {
-            1 | 2 | 3 => 0.0,
+            1..=3 => 0.0,
             4 => 0.1,
             5 => 0.3,
             6 => 0.5,

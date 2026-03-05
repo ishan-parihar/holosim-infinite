@@ -173,6 +173,7 @@ impl OrganSystemType {
 pub struct NervousSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
+    #[allow(dead_code)]
     signal_speed: Float,
     processing_capacity: Float,
 }
@@ -227,6 +228,7 @@ impl Default for NervousSystem {
 pub struct CirculatorySystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
+    #[allow(dead_code)]
     blood_volume: Float,
     cardiac_output: Float,
     distribution_efficiency: Float,
@@ -288,6 +290,7 @@ impl Default for CirculatorySystem {
 pub struct RespiratorySystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
+    #[allow(dead_code)]
     oxygen_uptake_rate: Float,
     gas_exchange_efficiency: Float,
 }
@@ -343,6 +346,7 @@ impl Default for RespiratorySystem {
 pub struct DigestiveSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
+    #[allow(dead_code)]
     digestion_rate: Float,
     nutrient_absorption: Float,
 }
@@ -399,6 +403,7 @@ pub struct ImmuneSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
     defense_strength: Float,
+    #[allow(dead_code)]
     response_time: Float,
 }
 
@@ -454,6 +459,7 @@ pub struct EndocrineSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
     hormone_balance: Float,
+    #[allow(dead_code)]
     regulation_accuracy: Float,
 }
 
@@ -507,7 +513,11 @@ impl Default for EndocrineSystem {
 pub struct ReproductiveSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
+    /// TODO: Planned for reproduction simulation mechanics
+    #[allow(dead_code)]
     fertility: Float,
+    /// TODO: Planned for genetic inheritance simulation
+    #[allow(dead_code)]
     genetic_integrity: Float,
 }
 

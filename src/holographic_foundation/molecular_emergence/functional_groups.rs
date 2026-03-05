@@ -276,13 +276,13 @@ impl ReactivityProfile {
 
         Self {
             group,
-            electrophilicity: electrophilicity.min(1.0).max(0.0),
-            nucleophilicity: nucleophilicity.min(1.0).max(0.0),
-            acidity: acidity.min(1.0).max(0.0),
-            basicity: basicity.min(1.0).max(0.0),
-            oxidation_susceptibility: oxidation.min(1.0).max(0.0),
-            reduction_susceptibility: reduction.min(1.0).max(0.0),
-            archetype_reactivity: archetype_reactivity.min(1.0).max(0.0),
+            electrophilicity: electrophilicity.clamp(0.0, 1.0),
+            nucleophilicity: nucleophilicity.clamp(0.0, 1.0),
+            acidity: acidity.clamp(0.0, 1.0),
+            basicity: basicity.clamp(0.0, 1.0),
+            oxidation_susceptibility: oxidation.clamp(0.0, 1.0),
+            reduction_susceptibility: reduction.clamp(0.0, 1.0),
+            archetype_reactivity: archetype_reactivity.clamp(0.0, 1.0),
         }
     }
 
@@ -306,21 +306,24 @@ impl ReactivityProfile {
     }
 
     pub fn compatible_with(&self, other: &ReactivityProfile) -> Float {
-        let acid_base = if self.group.is_acidic() && other.group.is_basic() {
-            0.9
-        } else if self.group.is_basic() && other.group.is_acidic() {
+        // Acid-base compatibility (order doesn't matter)
+        let acid_base = if (self.group.is_acidic() && other.group.is_basic())
+            || (self.group.is_basic() && other.group.is_acidic())
+        {
             0.9
         } else {
             0.0
         };
 
-        let electrophil_nucleophil = if self.electrophilicity > 0.6 && other.nucleophilicity > 0.6 {
-            0.85
-        } else if self.nucleophilicity > 0.6 && other.electrophilicity > 0.6 {
-            0.85
-        } else {
-            0.0
-        };
+        // Electrophilic-nucleophilic compatibility (order doesn't matter)
+        let electrophil_nucleophil =
+            if (self.electrophilicity > 0.6 && other.nucleophilicity > 0.6)
+                || (self.nucleophilicity > 0.6 && other.electrophilicity > 0.6)
+            {
+                0.85
+            } else {
+                0.0
+            };
 
         (acid_base + electrophil_nucleophil) / 2.0
     }
@@ -448,7 +451,7 @@ impl FunctionalGroupPattern {
 
     pub fn can_recognize(
         &self,
-        elements: &[u32],
+        _elements: &[u32],
         archetype_pattern: &[Float; NUM_ARCHETYPES],
     ) -> bool {
         let match_score = self.archetype_match_score(archetype_pattern);
@@ -475,17 +478,17 @@ impl FunctionalGroupResonance {
     pub fn analyze(
         &mut self,
         elements: &[ElementAttractorField],
-        bonds: &[ArchetypeBond],
+        _bonds: &[ArchetypeBond],
     ) -> &HashMap<FunctionalGroup, Float> {
         self.recognized_groups.clear();
 
-        let element_atomic_numbers: Vec<u32> = elements.iter().map(|e| e.atomic_number()).collect();
+        let _element_atomic_numbers: Vec<u32> = elements.iter().map(|e| e.atomic_number()).collect();
 
         let mut combined_archetype = [0.0; NUM_ARCHETYPES];
         for elem in elements {
             let config = elem.configuration();
-            for i in 0..NUM_ARCHETYPES {
-                combined_archetype[i] += config.archetype_vector[i];
+            for (comb_i, &arch_i) in combined_archetype.iter_mut().zip(config.archetype_vector.iter()) {
+                *comb_i += arch_i;
             }
         }
         for val in combined_archetype.iter_mut() {
@@ -605,14 +608,14 @@ mod tests {
     fn test_reactivity_profile_creation() {
         let profile = ReactivityProfile::for_group(FunctionalGroup::Hydroxyl);
         assert!(profile.electrophilicity >= 0.0 && profile.electrophilicity <= 1.0);
-        assert!(profile.nucleophilicity >= 0.0 && profile.nucleophilicity <= 1.0);
+        assert!((0.0..=1.0).contains(&profile.nucleophilicity));
     }
 
     #[test]
     fn test_reactivity_overall() {
         let profile = ReactivityProfile::for_group(FunctionalGroup::Amino);
         let overall = profile.overall_reactivity();
-        assert!(overall >= 0.0 && overall <= 1.0);
+        assert!((0.0..=1.0).contains(&overall));
     }
 
     #[test]
@@ -684,6 +687,6 @@ mod tests {
         let base = ReactivityProfile::for_group(FunctionalGroup::Amino);
 
         let compatibility = acid.compatible_with(&base);
-        assert!(compatibility >= 0.0 && compatibility <= 1.0);
+        assert!((0.0..=1.0).contains(&compatibility));
     }
 }

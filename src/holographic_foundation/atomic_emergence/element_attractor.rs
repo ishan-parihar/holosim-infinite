@@ -20,11 +20,9 @@ use crate::types::Float;
 use std::fmt;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
-use super::super::quantum_consciousness::quantum_numbers::{
-    ArchetypeToQuantumMapping, QuantumNumberSet, Spin,
-};
+use super::super::quantum_consciousness::quantum_numbers::QuantumNumberSet;
 use super::attractor_field::{
-    AttractorBasin, AttractorField, AttractorId, AttractorStability, FieldConfiguration,
+    AttractorField, FieldConfiguration,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -316,9 +314,9 @@ impl ElementAttractorField {
         archetype[21] = 0.5;
 
         // Scale with atomic number
-        let scale = (atomic_number as Float / 60.0).min(1.5).max(0.5);
+        let scale = (atomic_number as Float / 60.0).clamp(0.5, 1.5);
         for coeff in archetype.iter_mut() {
-            *coeff = (*coeff * scale).min(1.0).max(0.1);
+            *coeff = (*coeff * scale).clamp(0.1, 1.0);
         }
 
         archetype
@@ -346,28 +344,18 @@ impl ElementAttractorField {
             11..=12 => z - 10,
             13..=18 => z,
             19..=36 => {
-                if z <= 20 {
-                    z - 18
-                } else if z <= 30 {
-                    z - 18
-                } else {
-                    z - 18
-                }
+                // All transition metals have the same formula
+                z - 18
             }
             37..=54 => {
-                if z <= 38 {
-                    z - 36
-                } else if z <= 48 {
-                    z - 36
-                } else {
-                    z - 36
-                }
+                // All elements in this range have the same formula
+                z - 36
             }
             _ => 1,
         }
     }
 
-    fn calculate_electronegativity(archetype: &[Float; NUM_ARCHETYPES], z: u32) -> Float {
+    fn calculate_electronegativity(archetype: &[Float; NUM_ARCHETYPES], _z: u32) -> Float {
         let catalyst = archetype[2];
         let body_factor: Float = archetype[7..14].iter().sum::<Float>() / 7.0;
         let matrix = archetype[0];
@@ -379,8 +367,7 @@ impl ElementAttractorField {
         };
 
         (base_en * body_factor * (0.5 + matrix * 0.5))
-            .min(4.0)
-            .max(0.7)
+            .clamp(0.7, 4.0)
     }
 
     fn calculate_atomic_radius(archetype: &[Float; NUM_ARCHETYPES], z: u32) -> Float {
@@ -390,14 +377,14 @@ impl ElementAttractorField {
         30.0 + matrix_avg * 150.0 + period as Float * 20.0
     }
 
-    fn calculate_ionization_energy(archetype: &[Float; NUM_ARCHETYPES], z: u32) -> Float {
+    fn calculate_ionization_energy(archetype: &[Float; NUM_ARCHETYPES], _z: u32) -> Float {
         let matrix = archetype[0];
         let great_way = archetype[6];
 
         (matrix + great_way) / 2.0 * 12.0 + 3.9
     }
 
-    fn calculate_electron_affinity(archetype: &[Float; NUM_ARCHETYPES], z: u32) -> Float {
+    fn calculate_electron_affinity(archetype: &[Float; NUM_ARCHETYPES], _z: u32) -> Float {
         let catalyst = archetype[2];
         let experience = archetype[3];
 

@@ -16,13 +16,10 @@ use crate::types::Float;
 use std::collections::HashMap;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
-use super::super::field_state::{FieldAmplitude, HolographicFieldState, Position3D};
-use super::super::quantum_consciousness::quantum_numbers::QuantumNumberSet;
+use super::super::field_state::{HolographicFieldState, Position3D};
 use super::super::scale_level::ScaleLevel;
-use super::atomic_manifestation::{
-    AtomFormationEvent, AtomicManifestation, ManifestationConditions, ManifestationType,
-};
-use super::attractor_field::{AttractorField, FieldConfiguration};
+use super::atomic_manifestation::AtomicManifestation;
+use super::attractor_field::FieldConfiguration;
 use super::element_attractor::ElementAttractorField;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -356,7 +353,7 @@ impl SimultaneousEmergence {
     }
 
     pub fn process_field(&mut self, field: &HolographicFieldState, timestamp: Float) {
-        let root_position = field.root().position.clone();
+        let root_position = field.root().position;
 
         if let Some(scale_pair) = EmergenceScalePair::from_field(field, &root_position) {
             if scale_pair.can_manifest_simultaneously() {
@@ -364,9 +361,9 @@ impl SimultaneousEmergence {
             }
         }
 
-        if let Some(galaxy) = GalacticEmergence::from_field(field, root_position.clone(), timestamp)
+        if let Some(galaxy) = GalacticEmergence::from_field(field, root_position, timestamp)
         {
-            if let Some(atom) = AtomicManifestation::from_field(field, root_position.clone()) {
+            if let Some(atom) = AtomicManifestation::from_field(field, root_position) {
                 let pair = AtomGalaxyPair::new(atom, galaxy.clone());
                 self.pairs.push(pair);
                 self.total_atoms += 1;
@@ -708,7 +705,7 @@ mod tests {
         se.add_pair(pair);
 
         let avg_res = se.average_resonance();
-        assert!(avg_res >= 0.0 && avg_res <= 1.0);
+        assert!((0.0..=1.0).contains(&avg_res));
     }
 
     #[test]

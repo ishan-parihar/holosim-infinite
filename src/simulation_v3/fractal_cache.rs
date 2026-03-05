@@ -422,21 +422,19 @@ impl FractalCache {
 
                 if current_level > target_level {
                     self.get(key, target_level)
-                } else {
-                    if let Some(data) = self.get(key, current_level)? {
-                        if current_level == target_level {
-                            Ok(Some(data))
-                        } else {
-                            self.interpolate_data(
-                                data,
-                                current_level,
-                                target_level,
-                                refinement.progress,
-                            )
-                        }
+                } else if let Some(data) = self.get(key, current_level)? {
+                    if current_level == target_level {
+                        Ok(Some(data))
                     } else {
-                        Ok(None)
+                        self.interpolate_data(
+                            data,
+                            current_level,
+                            target_level,
+                            refinement.progress,
+                        )
                     }
+                } else {
+                    Ok(None)
                 }
             }
 
@@ -714,13 +712,13 @@ impl FractalCache {
         let mut max_distance = 0;
 
         for (key, entry) in self.entries.iter() {
-            let distance = (key.scale_level as i32 - current_scale_level).abs() as usize;
+            let distance = (key.scale_level as i32 - current_scale_level).unsigned_abs() as usize;
 
             if distance > max_distance {
                 max_distance = distance;
                 furthest_key = Some(key.clone());
-            } else if distance == max_distance {
-                if entry.last_access
+            } else if distance == max_distance
+                && entry.last_access
                     < furthest_key
                         .as_ref()
                         .and_then(|k| self.entries.get(k).map(|e| e.last_access))
@@ -728,7 +726,6 @@ impl FractalCache {
                 {
                     furthest_key = Some(key.clone());
                 }
-            }
         }
 
         if let Some(key) = furthest_key {
@@ -836,12 +833,7 @@ impl FractalCacheEntry {
 
     /// Get the coarsest populated level
     pub fn get_coarsest_level(&self) -> Option<usize> {
-        for level in (0..=7).rev() {
-            if self.get_level(level).is_some() {
-                return Some(level);
-            }
-        }
-        None
+        (0..=7).rev().find(|&level| self.get_level(level).is_some())
     }
 }
 

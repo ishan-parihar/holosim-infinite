@@ -8,7 +8,7 @@ use crate::archetypes::common::{
     FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
     LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Rung};
+use crate::types::{Float, Rung};
 use std::collections::HashMap;
 
 /// Milieu - Environment definition for Lesser Cycle processing
@@ -59,20 +59,18 @@ impl Milieu {
 
     /// Calculate overall milieu quality
     pub fn overall_quality(&self) -> Float {
-        let factors = vec![
-            self.time_factor,
+        let factors = [self.time_factor,
             self.space_factor,
             self.entropy_factor,
             self.creativity_factor,
-            self.stability_factor,
-        ];
+            self.stability_factor];
         factors.iter().sum::<Float>() / factors.len() as Float
     }
 
     /// Check if milieu is balanced
     pub fn is_balanced(&self) -> bool {
         let quality = self.overall_quality();
-        quality >= 0.8 && quality <= 1.2
+        (0.8..=1.2).contains(&quality)
     }
 }
 
@@ -156,9 +154,7 @@ impl GreatWayMindArchetype {
         lambda.healthy_min = 0.5;
         lambda.healthy_max = 0.8;
 
-        let tarot_correlation = TarotCorrelation::new(format!(
-            "The Chariot (VII): The path of the adept, the journey of transformation"
-        ));
+        let tarot_correlation = TarotCorrelation::new("The Chariot (VII): The path of the adept, the journey of transformation".to_string());
 
         let activation_levels = HashMap::new();
 
@@ -198,8 +194,7 @@ impl GreatWayMindArchetype {
         (self.environment_perception * 0.3
             + self.veil_lifting_progress * 0.3
             + self.foundation_integration * 0.4)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate environment perception
@@ -214,8 +209,7 @@ impl GreatWayMindArchetype {
         (self.time_space_connection * 0.4
             + self.veil_lifting_progress * 0.3
             + self.framework_configuration * 0.3)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate time/space connection
@@ -227,8 +221,7 @@ impl GreatWayMindArchetype {
     /// Returns: Time/space connection (0.0 to 1.0)
     pub fn calculate_time_space_connection(&self) -> Float {
         (self.veil_lifting_progress * 0.6 + self.framework_configuration * 0.4)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate veil lifting progress
@@ -241,8 +234,7 @@ impl GreatWayMindArchetype {
     pub fn calculate_veil_lifting_progress(&self) -> Float {
         let rung_level = self.developmental_position.rung_level() as Float / 7.0;
         (rung_level * 0.5 + self.integration_capacity * 0.5)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate foundation integration
@@ -256,8 +248,7 @@ impl GreatWayMindArchetype {
         // This increases with integration capacity and developmental position
         let rung_level = self.developmental_position.rung_level() as Float / 7.0;
         (rung_level * 0.4 + self.integration_capacity * 0.6)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Calculate alignment score
@@ -271,8 +262,8 @@ impl GreatWayMindArchetype {
     /// Returns: Alignment score (0.0 to 1.0)
     pub fn calculate_alignment_score(&self, significator_choice: Float) -> Float {
         let perception = self.lambda.value;
-        let alignment = (significator_choice * perception).max(0.0).min(1.0);
-        alignment
+        
+        (significator_choice * perception).clamp(0.0, 1.0)
     }
 
     /// Calculate framework configuration
@@ -284,8 +275,7 @@ impl GreatWayMindArchetype {
         (self.framework_clarity * 0.4
             + self.environment_perception * 0.3
             + self.foundation_integration * 0.3)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Process Great Way
@@ -301,8 +291,7 @@ impl GreatWayMindArchetype {
 
         // Update lambda based on framework clarity and alignment
         self.lambda.value = (self.framework_clarity * 0.6 + self.significator_alignment * 0.4)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Get framework status
@@ -509,8 +498,8 @@ impl Paired for GreatWayMindArchetype {
     fn calculate_pair_tension(&self, _paired_archetype: &dyn Paired) -> Float {
         // Identity Pair tension: |Significator coherence - Great Way clarity|
         // This is a placeholder - actual calculation requires Significator reference
-        let tension = (self.significator_alignment - self.framework_clarity).abs();
-        tension
+        
+        (self.significator_alignment - self.framework_clarity).abs()
     }
 
     fn calculate_pair_balance(&self, paired_archetype: &dyn Paired) -> Float {
@@ -609,7 +598,7 @@ impl GreatWayArchetypeTrait for GreatWayMindArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -685,7 +674,7 @@ impl ArchetypeTrait for GreatWayMindArchetype {
         ArchetypeRole::GreatWay
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, _catalyst: Float, _position: DevelopmentalPosition) {
         self.process_great_way();
     }
 
@@ -800,9 +789,9 @@ mod tests {
         let score_mid = great_way.calculate_alignment_score(0.5);
         let score_high = great_way.calculate_alignment_score(0.8);
 
-        assert!(score_low >= 0.0 && score_low <= 1.0);
-        assert!(score_mid >= 0.0 && score_mid <= 1.0);
-        assert!(score_high >= 0.0 && score_high <= 1.0);
+        assert!((0.0..=1.0).contains(&score_low));
+        assert!((0.0..=1.0).contains(&score_mid));
+        assert!((0.0..=1.0).contains(&score_high));
         assert!(score_high > score_mid);
         assert!(score_mid > score_low);
     }

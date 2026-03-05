@@ -8,11 +8,7 @@
 //! Each layer "transcends and includes" all previous steps, creating the holographic principle
 //! where each entity contains the complete architecture.
 
-use super::field_state::{
-    Complex, DensityBand, FieldNodeData, Float, HolographicFieldState, OctreeNode,
-};
-use super::spectrum_dynamics::SpectrumDynamics;
-use std::collections::HashMap;
+use super::field_state::{Complex, Float, HolographicFieldState, OctreeNode};
 
 /// The Seven Layers of Cosmological Involution
 /// Each layer represents a distinct stage of cosmic evolution
@@ -199,11 +195,11 @@ impl LayerAttractor {
         if let Some(next_layer) = self.layer.next() {
             let next_freq = next_layer.frequency();
             let current_freq = self.layer.frequency();
-            let freq_ratio = next_freq / current_freq;
+            let _freq_ratio = next_freq / current_freq;
 
             // Shift amplitude toward next layer's frequency
             for (i, amp) in node.field_data.density_amplitudes.iter_mut().enumerate() {
-                let target = if i == next_layer.index() as usize {
+                let target = if i == next_layer.index() {
                     amp.magnitude() * (1.0 + force * 0.1)
                 } else {
                     amp.magnitude() * (1.0 - force * 0.05)
@@ -362,12 +358,12 @@ impl CosmicSequence {
         // The higher the coherence, the further along the sequence
         // This implements "transcend and include" - each layer adds to previous
 
-        let violet_base = 1.0; // Always present at base
+        let _violet_base = 1.0; // Always present at base
         let coherence_factor = coherence.clamp(0.0, 1.0);
 
         // Each layer activates based on coherence progression
         for i in 0..8 {
-            let layer = CosmologicalLayer::from_index(i).unwrap();
+            let _layer = CosmologicalLayer::from_index(i).unwrap();
             let target = (coherence_factor * (i + 1) as Float / 8.0).min(1.0);
 
             // Smooth transition
@@ -388,7 +384,7 @@ impl CosmicSequence {
     /// Apply all active attractor fields to the field
     fn apply_attractors(&mut self, field: &mut HolographicFieldState) {
         // Apply each active attractor
-        for (i, attractor) in self.attractors.iter_mut().enumerate() {
+        for attractor in self.attractors.iter_mut() {
             let layer_idx = attractor.layer.index();
             let activation = self.layer_activations[layer_idx];
 
@@ -453,7 +449,7 @@ impl CosmicSequence {
     }
 
     /// Check if a layer transition should occur
-    fn check_layer_transitions(&mut self, coherence: Float) {
+    fn check_layer_transitions(&mut self, _coherence: Float) {
         let current_idx = self.current_layer.index();
 
         // Transition occurs when current layer is highly activated

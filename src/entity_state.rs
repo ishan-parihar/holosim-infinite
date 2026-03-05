@@ -98,9 +98,10 @@ pub struct EntityState {
 /// Archetype State
 ///
 /// Each archetype can be in one of these states during evolution
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ArchetypeState {
     /// Not yet activated
+    #[default]
     Latent,
 
     /// In process of activation
@@ -114,12 +115,6 @@ pub enum ArchetypeState {
 
     /// Active but distorted
     Distorted,
-}
-
-impl Default for ArchetypeState {
-    fn default() -> Self {
-        ArchetypeState::Latent
-    }
 }
 
 impl ArchetypeState {

@@ -5,11 +5,8 @@
 //!
 //! This module implements individual entities that emerge from the top-down cosmological flow.
 
-use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::entity_layer7::layer7::{
-    DensityLevel, EntityExperience, EntityId, EntitySpectrumAccess, EntityState, EntityType,
-    IndividualSpectrumConfiguration, SpectrumAccess, SpectrumAccessLevel, SubSubLogos,
-    VibrationalState,
+    EntityId, EntityType, IndividualSpectrumConfiguration, SubSubLogos,
 };
 use crate::evolution_density_octave::density_octave::{
     Density, Density1SubLevel, Density2SubLevel,
@@ -22,11 +19,7 @@ use crate::spectrum::larson_framework::SpectrumRatio;
 use crate::spectrum::orange_realm::OrangeRealm;
 use crate::spectrum::red_realm::RedRealm;
 use crate::spectrum::yellow_realm::YellowRealm;
-use crate::template::transcend_include::{
-    AttractorField, Feature, LayerTransition, Orientation, TargetDensity, TranscendInclude,
-};
-
-use std::sync::Arc;
+use crate::template::transcend_include::{AttractorField, Orientation, TargetDensity};
 
 /// Individual entity (Sub-Sub-Logos) that emerges from cosmological layers
 ///

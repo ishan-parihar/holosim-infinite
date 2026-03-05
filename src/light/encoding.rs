@@ -6,8 +6,8 @@ use crate::spectrum::ArchetypicalMind;
 ///
 /// Knowledge Base Reference:
 /// - COSMOLOGICAL-ARCHITECTURE.md Section 2.2 - The Structure (Blue-Ray Realm)
-/// - Cosmology.json - Third distortion: Light
-/// "Every quantum of Light carries the complete blueprint for consciousness development"
+/// - Cosmology.json - Third distortion: Light:
+///   "Every quantum of Light carries the complete blueprint for consciousness development"
 use crate::types::Float;
 
 /// Archetype Encoding on Light
@@ -37,8 +37,8 @@ impl ArchetypeEncoding {
 
         // Encode 21 archetypes from Archetypical Mind
         // Each complex (Mind, Body, Spirit) has 7 archetypes
-        for i in 0..21 {
-            pattern[i] = ArchetypePatternBit {
+        for (i, pattern_bit) in pattern.iter_mut().enumerate().take(21) {
+            *pattern_bit = ArchetypePatternBit {
                 archetype_number: (i + 1) as u8,
                 value: 0.5, // Default activation level
                 pattern_type: match i % 7 {
@@ -448,9 +448,9 @@ impl HolographicEncoding {
         let second_half: Vec<Float> = pattern[mid..].iter().map(|p| p.value).collect();
 
         // Calculate correlation between halves
-        let correlation = Self::calculate_correlation(&first_half, &second_half);
+        
 
-        correlation
+        Self::calculate_correlation(&first_half, &second_half)
     }
 
     /// Calculate correlation between two sequences
@@ -698,7 +698,7 @@ mod tests {
     fn test_calculate_density() {
         let mut encoding = ArchetypeEncoding::default();
         let density = encoding.calculate_density();
-        assert!(density >= 0.0 && density <= 1.0);
+        assert!((0.0..=1.0).contains(&density));
 
         // Set some patterns to non-zero values
         for i in 0..5 {
@@ -717,7 +717,7 @@ mod tests {
             encoding.archetype_pattern[i].value = 0.5;
         }
 
-        let original_density = encoding.calculate_density();
+        let _original_density = encoding.calculate_density();
 
         // Compress
         let compression_ratio = encoding.compress_pattern();
@@ -796,7 +796,7 @@ mod tests {
         let encoding = HolographicEncoding::from_pattern(&pattern);
 
         let integrity = encoding.calculate_integrity();
-        assert!(integrity >= 0.0 && integrity <= 1.0);
+        assert!((0.0..=1.0).contains(&integrity));
     }
 
     #[test]
@@ -843,9 +843,7 @@ mod tests {
         // Pattern with uniform values should show self-similarity
         let result = encoding.self_similarity_check();
         // The test verifies the method runs and produces a boolean result
-        // (whether it returns true or false depends on the correlation calculation)
-        // For uniform values, it should return true
-        assert!(result || !result); // Just verify it returns a boolean
+        let _ = result; // Just verify it returns a boolean
     }
 
     #[test]
@@ -861,7 +859,7 @@ mod tests {
         let reference = HolographicReference::new(complete_structure);
         let coherence = reference.calculate_coherence();
 
-        assert!(coherence >= 0.0 && coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&coherence));
     }
 
     #[test]

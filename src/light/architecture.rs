@@ -21,6 +21,7 @@ use crate::types::Float;
 /// Combined them with Archetype 22 (The Choice from Violet-Ray Realm)
 /// Impressed this 22-Archetype structure upon the Light"
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct LightArchitecture {
     /// The 22-Archetype encoding on light
     ///
@@ -41,15 +42,6 @@ pub struct LightArchitecture {
     pub light_laws: LightLaws,
 }
 
-impl Default for LightArchitecture {
-    fn default() -> Self {
-        Self {
-            archetype_encoding: ArchetypeEncoding::default(),
-            holographic_encoding: HolographicEncoding::default(),
-            light_laws: LightLaws::default(),
-        }
-    }
-}
 
 impl LightArchitecture {
     /// Create light architecture by impressing archetypes
@@ -68,8 +60,8 @@ impl LightArchitecture {
         // A1-A7: Mind Complex
         // A8-A14: Body Complex
         // A15-A21: Spirit Complex
-        for i in 0..21 {
-            pattern[i] = ArchetypePatternBit {
+        for (i, pattern_bit) in pattern.iter_mut().enumerate().take(21) {
+            *pattern_bit = ArchetypePatternBit {
                 archetype_number: (i + 1) as u8,
                 value: 0.5, // Default balanced value
                 pattern_type: match i % 7 {
@@ -259,7 +251,7 @@ impl LightLaws {
 
         // Balance is when values are close to 0.5
         let balance_score = 1.0 - (average - 0.5).abs() * 2.0;
-        balance_score.max(0.0).min(1.0)
+        balance_score.clamp(0.0, 1.0)
     }
 
     /// Calculate Law of Confusion strength from pattern
@@ -286,9 +278,9 @@ impl LightLaws {
 
         // Love is related to the average value (higher = more love)
         let sum: Float = pattern.iter().map(|bit| bit.value).sum();
-        let average = sum / pattern.len() as Float;
+        
 
-        average
+        sum / pattern.len() as Float
     }
 
     /// Calculate Law of Light strength from pattern

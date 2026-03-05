@@ -193,7 +193,7 @@ impl LayerInteraction {
     }
 
     pub fn layer_distance(&self) -> u32 {
-        ((self.from_layer as i32 - self.to_layer as i32).unsigned_abs()) as u32
+        (self.from_layer as i32 - self.to_layer as i32).unsigned_abs()
     }
 }
 
@@ -262,8 +262,10 @@ impl LayerVisualization {
     }
 
     pub fn with_colors(colors: LayerColors) -> Self {
-        let mut viz = Self::default();
-        viz.colors = colors;
+        let mut viz = Self {
+            colors,
+            ..Default::default()
+        };
         viz.update_layer_colors();
         viz
     }
@@ -450,40 +452,44 @@ impl EntityLayerMapping {
 
     fn default_layer_activations(density: Density) -> [f32; 8] {
         let density_idx = density as usize - 1;
-        let mut activations = [0.0_f32; 8];
-
-        for i in 0..8 {
-            activations[i] = if i <= density_idx {
-                0.5_f32 + ((i as f32) / 7.0) * 0.5_f32
-            } else {
-                0.2_f32
-            };
-        }
+        let activations: [f32; 8] = (0..8)
+            .map(|i| {
+                if i <= density_idx {
+                    0.5_f32 + ((i as f32) / 7.0) * 0.5_f32
+                } else {
+                    0.2_f32
+                }
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         activations
     }
 
     fn default_layer_resolutions() -> [f32; 8] {
-        let mut resolutions = [0.0_f32; 8];
-
-        for i in 0..8 {
-            resolutions[i] = 0.3_f32 + ((i as f32) / 7.0) * 0.7_f32;
-        }
+        let resolutions: [f32; 8] = (0..8)
+            .map(|i| 0.3_f32 + ((i as f32) / 7.0) * 0.7_f32)
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         resolutions
     }
 
     fn default_layer_spectrum_access(density: Density) -> [f32; 8] {
         let density_idx = density as usize - 1;
-        let mut access = [0.0_f32; 8];
-
-        for i in 0..8 {
-            access[i] = if i <= density_idx + 2 {
-                0.4_f32 + ((i as f32) / 7.0) * 0.6_f32
-            } else {
-                0.1_f32
-            };
-        }
+        let access: [f32; 8] = (0..8)
+            .map(|i| {
+                if i <= density_idx + 2 {
+                    0.4_f32 + ((i as f32) / 7.0) * 0.6_f32
+                } else {
+                    0.1_f32
+                }
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         access
     }

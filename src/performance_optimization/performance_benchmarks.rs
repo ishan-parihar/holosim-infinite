@@ -689,6 +689,6 @@ mod tests {
 
         let report = benchmark.run_all();
         assert!(report.success);
-        assert!(report.benchmark_results.len() > 0);
+        assert!(!report.benchmark_results.is_empty());
     }
 }

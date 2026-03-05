@@ -114,7 +114,7 @@ impl Possibility {
     /// "Each possibility has: outcome (STO, STS, or Neutral), probability, archetype_influence"
     pub fn new(outcome: PolarityChoice, probability: f64, archetype_influence: [f64; 22]) -> Self {
         assert!(
-            probability >= 0.0 && probability <= 1.0,
+            (0.0..=1.0).contains(&probability),
             "Probability must be between 0.0 and 1.0"
         );
         Possibility {
@@ -254,7 +254,7 @@ impl Archetype22 {
         .clamp(0.1, 0.6);
 
         let sto_archetype_influence =
-            self.calculate_archetype_influence(&entity_state, PolarityChoice::ServiceToOthers);
+            self.calculate_archetype_influence(entity_state, PolarityChoice::ServiceToOthers);
 
         space.add_possibility(Possibility::new(
             PolarityChoice::ServiceToOthers,
@@ -271,7 +271,7 @@ impl Archetype22 {
         .clamp(0.1, 0.6);
 
         let sts_archetype_influence =
-            self.calculate_archetype_influence(&entity_state, PolarityChoice::ServiceToSelf);
+            self.calculate_archetype_influence(entity_state, PolarityChoice::ServiceToSelf);
 
         space.add_possibility(Possibility::new(
             PolarityChoice::ServiceToSelf,
@@ -287,7 +287,7 @@ impl Archetype22 {
         };
 
         let neutral_archetype_influence =
-            self.calculate_archetype_influence(&entity_state, PolarityChoice::Neutral);
+            self.calculate_archetype_influence(entity_state, PolarityChoice::Neutral);
 
         space.add_possibility(Possibility::new(
             PolarityChoice::Neutral,
@@ -336,8 +336,8 @@ impl Archetype22 {
 
         // Consciousness level influences all archetypes
         let consciousness_factor = entity_state.consciousness_level;
-        for i in 0..22 {
-            influence[i] = influence[i] * consciousness_factor;
+        for item in &mut influence {
+            *item *= consciousness_factor;
         }
 
         influence
@@ -349,7 +349,7 @@ impl Archetype22 {
 
         if total > 0.0 {
             for possibility in &mut space.possibilities {
-                possibility.probability = possibility.probability / total;
+                possibility.probability /= total;
             }
         }
     }
@@ -436,9 +436,7 @@ impl Archetype22 {
         } else {
             // Fallback to uniform weights if all evaluations are zero
             let uniform = 1.0 / weights.len() as f64;
-            for w in &mut weights {
-                *w = uniform;
-            }
+            weights.fill(uniform);
         }
 
         // Weighted random selection

@@ -146,7 +146,7 @@ pub struct DensityBands {
 impl DensityBands {
     pub fn new(config: DensityBandConfig) -> Self {
         let oscillators: [DensityBandOscillator; NUM_DENSITY_BANDS] =
-            std::array::from_fn(|i| DensityBandOscillator::new(i));
+            std::array::from_fn(DensityBandOscillator::new);
 
         let coupling_matrix = Self::build_coupling_matrix(config.coupling_strength);
 
@@ -168,11 +168,11 @@ impl DensityBands {
     fn build_coupling_matrix(strength: Float) -> [[Float; NUM_DENSITY_BANDS]; NUM_DENSITY_BANDS] {
         let mut matrix = [[0.0; NUM_DENSITY_BANDS]; NUM_DENSITY_BANDS];
 
-        for i in 0..NUM_DENSITY_BANDS {
-            for j in 0..NUM_DENSITY_BANDS {
+        for (i, row) in matrix.iter_mut().enumerate() {
+            for (j, cell) in row.iter_mut().enumerate() {
                 if i != j {
                     let distance = (i as Float - j as Float).abs();
-                    matrix[i][j] = strength / (1.0 + distance);
+                    *cell = strength / (1.0 + distance);
                 }
             }
         }
@@ -245,7 +245,7 @@ impl DensityBands {
     }
 
     pub fn set_position(&mut self, position: &DensityPosition) {
-        let primary = position.primary_density();
+        let _primary = position.primary_density();
         let phase = position.sub_density_phase();
 
         // Set amplitudes based on position using Gaussian-like distribution

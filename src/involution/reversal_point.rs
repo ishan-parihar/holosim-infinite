@@ -25,8 +25,8 @@ pub struct ReversalCriteria {
 }
 
 impl ReversalCriteria {
-    /// Create default reversal criteria
-    pub fn default() -> Self {
+    /// Create initial reversal criteria
+    pub fn initial() -> Self {
         Self {
             min_density: Density::Second(Density2SubLevel::Cellular),
             min_catalyst: 10,
@@ -61,7 +61,7 @@ impl ReversalCriteria {
 
 impl Default for ReversalCriteria {
     fn default() -> Self {
-        Self::default()
+        Self::initial()
     }
 }
 
@@ -215,7 +215,7 @@ impl ReversalPointSystem {
     /// Create a new reversal point system with default criteria
     pub fn new() -> Self {
         Self {
-            criteria: ReversalCriteria::default(),
+            criteria: ReversalCriteria::initial(),
             states: std::collections::HashMap::new(),
             all_events: Vec::new(),
         }
@@ -252,7 +252,7 @@ impl ReversalPointSystem {
         let state = self
             .states
             .entry(entity_id)
-            .or_insert_with(ReversalState::new);
+            .or_default();
         let current_time = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
@@ -639,7 +639,7 @@ mod tests {
 
     #[test]
     fn test_reversal_criteria_default() {
-        let criteria = ReversalCriteria::default();
+        let criteria = ReversalCriteria::initial();
         assert_eq!(
             criteria.min_density,
             Density::Second(Density2SubLevel::Cellular)
@@ -861,7 +861,7 @@ mod tests {
         );
         let events = system.get_events(123);
         assert!(events.is_some());
-        assert!(events.unwrap().len() > 0);
+        assert!(!events.unwrap().is_empty());
     }
 
     #[test]
@@ -882,7 +882,7 @@ mod tests {
             3600,
         );
         let events = system.get_all_events();
-        assert!(events.len() > 0);
+        assert!(!events.is_empty());
     }
 
     #[test]

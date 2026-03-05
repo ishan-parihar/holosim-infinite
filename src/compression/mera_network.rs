@@ -15,11 +15,10 @@
 //! - Scale transition: 100,000x faster (just change view, no loading)
 //! - Density transition: 10,000x faster (modify profile, not reload)
 
-use crate::types::Float;
 use std::collections::HashMap;
 use std::fmt;
 
-use super::tensor::{Tensor, TensorData, TensorShape};
+use super::tensor::{Tensor, TensorShape};
 
 /// Scale level in the MERA network
 ///
@@ -559,7 +558,7 @@ impl MeraNetwork {
             self.add_layer(scale, data);
 
             // Halve size for next coarser scale
-            current_size = (current_size + 1) / 2;
+            current_size = current_size.div_ceil(2);
         }
     }
 
@@ -580,7 +579,7 @@ impl MeraNetwork {
             // Generate coarse-grainer tensors (downsampling)
             let coarse_grainer_count = 2; // Typical MERA has 2 coarse-grainers per layer
             for _ in 0..coarse_grainer_count {
-                let next_size = (data_size + 1) / 2;
+                let next_size = data_size.div_ceil(2);
                 let coarse_grainer = Tensor::random(TensorShape::matrix(data_size, next_size));
                 layer.add_coarse_grainer(coarse_grainer);
             }
@@ -696,7 +695,7 @@ mod tests {
         let network = MeraNetwork::with_data(data);
 
         assert_eq!(network.layer_count(), 1);
-        assert_eq!(network.get_layer(MeraScale::Quantum).is_some(), true);
+        assert!(network.get_layer(MeraScale::Quantum).is_some());
     }
 
     #[test]
@@ -707,7 +706,7 @@ mod tests {
         network.add_layer(MeraScale::Quantum, data);
 
         assert_eq!(network.layer_count(), 1);
-        assert_eq!(network.get_layer(MeraScale::Quantum).is_some(), true);
+        assert!(network.get_layer(MeraScale::Quantum).is_some());
     }
 
     #[test]
@@ -732,8 +731,8 @@ mod tests {
 
         // Check that each layer has disentanglers and coarse-grainers
         for layer in &network.layers {
-            assert!(layer.disentanglers.len() > 0);
-            assert!(layer.coarse_grainers.len() > 0);
+            assert!(!layer.disentanglers.is_empty());
+            assert!(!layer.coarse_grainers.is_empty());
         }
     }
 

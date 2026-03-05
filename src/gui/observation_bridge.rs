@@ -132,7 +132,7 @@ impl ObservationBridge {
         let polarity = ((key % 200) as f64 / 100.0) - 1.0;
         let wisdom = ((key % 50) as f64 / 100.0) * 0.5;
         let density = match key % 8 {
-            0 | 1 | 2 => Density::Third,
+            0..=2 => Density::Third,
             3 => Density::Fourth,
             4 => Density::Fifth,
             5 => Density::Sixth,
@@ -160,8 +160,8 @@ impl ObservationBridge {
 
     fn get_social_data(&self, key: u64) -> (usize, f64, f64, f64) {
         let relationship_count = (key % 10) as usize;
-        let total_bond = ((key % 100) as f64 / 100.0);
-        let connection = ((key % 80) as f64 / 100.0);
+        let total_bond = (key % 100) as f64 / 100.0;
+        let connection = (key % 80) as f64 / 100.0;
         let isolation = 1.0 - connection;
 
         (relationship_count, total_bond, connection, isolation)

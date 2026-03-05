@@ -96,7 +96,7 @@ impl SocialMemoryComplexEngine {
         }
     }
 
-    pub fn tick(&mut self, tick: u64, entity_ids: &[EntityId]) -> Vec<SmcEvent> {
+    pub fn tick(&mut self, _tick: u64, entity_ids: &[EntityId]) -> Vec<SmcEvent> {
         let mut events = Vec::new();
 
         // Simplified: form SMC if we have enough 4th+ density entities

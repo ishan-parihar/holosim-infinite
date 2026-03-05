@@ -554,7 +554,7 @@ mod tests {
     use super::*;
     use crate::entity_layer7::holographic_blueprint::SpectrumConfiguration;
     use crate::entity_layer7::{EvolutionaryStage, IndividualSpectrumConfiguration};
-    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio, SpectrumSide};
+    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio};
 
     #[test]
     fn test_dna_pattern_quantum_realm() {

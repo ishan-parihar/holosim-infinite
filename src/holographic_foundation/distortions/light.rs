@@ -93,6 +93,12 @@ pub struct InterferencePattern {
     pub standing_wave_ratio: f64,
 }
 
+impl Default for InterferencePattern {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InterferencePattern {
     pub fn new() -> Self {
         Self {
@@ -131,6 +137,7 @@ impl InterferencePattern {
 struct SpectrumPropagation {
     effective_speed: f64,
     damping_modifier: f64,
+    #[allow(dead_code)]
     interference_modifier: f64,
 }
 
@@ -222,7 +229,7 @@ impl LightTerm {
     /// "Wave propagation changes based on coordinate system"
     fn calculate_spectrum_propagation(&self, state: &FieldState) -> SpectrumPropagation {
         let base_speed = self.config.propagation_speed;
-        let base_damping = self.config.damping;
+        let _base_damping = self.config.damping;
 
         if state.is_time_space() {
             // Time/Space: 3D time, 1D space
@@ -254,7 +261,7 @@ impl LightTerm {
         &self,
         state: &FieldState,
         band_idx: usize,
-        position: &[f64; 3],
+        _position: &[f64; 3],
         dt: f64,
         spectrum_params: SpectrumPropagation,
     ) -> DensityAmplitude {
@@ -280,7 +287,7 @@ impl LightTerm {
     ///
     /// From Phase 2 R&D:
     /// "Veil crossing produces qualitative change in field behavior"
-    fn apply_veil_interference(&mut self, state: &mut FieldState, position: &[f64; 3], time: f64) {
+    fn apply_veil_interference(&mut self, state: &mut FieldState, _position: &[f64; 3], time: f64) {
         self.total_interference_events += 1;
 
         // At the veil, interference creates phase transition
@@ -317,6 +324,8 @@ impl LightTerm {
     ///
     /// Uses simplified wave equation:
     /// ψ(t+dt) = 2ψ(t) - ψ(t-dt) + c²∇²ψ·dt² - damping·(ψ(t) - ψ(t-dt))
+    // TODO: This method is planned for future wave simulation dynamics
+    #[allow(dead_code)]
     fn propagate_wave(
         &self,
         state: &FieldState,
@@ -329,9 +338,8 @@ impl LightTerm {
         // Get previous state if available
         let prev_amp = self
             .prev_states
-            .back()
-            .and_then(|s| Some(s.density_amplitudes[band_idx]))
-            .unwrap_or_else(|| current.clone());
+            .back().map(|s| s.density_amplitudes[band_idx])
+            .unwrap_or_else(|| *current);
 
         // Calculate Laplacian (spatial second derivative)
         let laplacian = self.calculate_laplacian(state, band_idx, position);
@@ -353,9 +361,11 @@ impl LightTerm {
         DensityAmplitude::new(new_re, new_im)
     }
 
-    /// Calculate Laplacian for wave propagation
+    /// Calculate the Laplacian (spatial second derivative) for a density band
     ///
-    /// ∇²ψ = ∂²ψ/∂x² + ∂²ψ/∂y² + ∂²ψ/∂z²
+    /// This represents the curvature of the light field in space
+    // TODO: Used in tests and planned for future wave propagation simulation
+    #[allow(dead_code)]
     fn calculate_laplacian(
         &self,
         state: &FieldState,
@@ -385,7 +395,7 @@ impl LightTerm {
     /// Apply interference between waves
     ///
     /// Waves interfere constructively (in phase) or destructively (out of phase)
-    fn apply_interference(&mut self, state: &mut FieldState, position: &[f64; 3], time: f64) {
+    fn apply_interference(&mut self, state: &mut FieldState, _position: &[f64; 3], _time: f64) {
         if self.prev_states.len() < 2 {
             return;
         }
@@ -488,7 +498,7 @@ impl LightTerm {
     pub fn create_interference_pattern(
         &self,
         sources: &[[f64; 3]],
-        state: &FieldState,
+        _state: &FieldState,
         time: f64,
     ) -> InterferencePattern {
         let mut pattern = InterferencePattern::new();
@@ -538,7 +548,7 @@ impl LightTerm {
     pub fn emit_pulse(
         &mut self,
         state: &mut FieldState,
-        position: &[f64; 3],
+        _position: &[f64; 3],
         intensity: f64,
         frequency: f64,
     ) {
@@ -623,7 +633,7 @@ mod tests {
         let mut state = FieldState::uniform(0.5);
 
         // Initial state
-        let initial_mag = state.total_magnitude();
+        let _initial_mag = state.total_magnitude();
 
         // Propagate for several steps
         for t in 0..10 {

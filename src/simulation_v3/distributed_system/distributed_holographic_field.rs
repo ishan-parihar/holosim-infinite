@@ -36,7 +36,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 // ============================================================================
 
 /// Unique identifier for a holographic field
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct FieldId(pub u64);
 
 impl FieldId {
@@ -65,12 +65,6 @@ impl fmt::Display for FieldId {
     }
 }
 
-impl Default for FieldId {
-    fn default() -> Self {
-        FieldId(0)
-    }
-}
-
 impl From<u64> for FieldId {
     fn from(id: u64) -> Self {
         FieldId(id)
@@ -78,7 +72,7 @@ impl From<u64> for FieldId {
 }
 
 /// Unique identifier for a network message
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct MessageId(pub u64);
 
 impl MessageId {
@@ -107,12 +101,6 @@ impl fmt::Display for MessageId {
     }
 }
 
-impl Default for MessageId {
-    fn default() -> Self {
-        MessageId(0)
-    }
-}
-
 impl From<u64> for MessageId {
     fn from(id: u64) -> Self {
         MessageId(id)
@@ -120,7 +108,7 @@ impl From<u64> for MessageId {
 }
 
 /// Unique identifier for a consensus proposal
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ProposalId(pub u64);
 
 impl ProposalId {
@@ -139,12 +127,6 @@ impl fmt::Display for ProposalId {
     }
 }
 
-impl Default for ProposalId {
-    fn default() -> Self {
-        ProposalId(0)
-    }
-}
-
 impl From<u64> for ProposalId {
     fn from(id: u64) -> Self {
         ProposalId(id)
@@ -152,7 +134,7 @@ impl From<u64> for ProposalId {
 }
 
 /// Unique identifier for a conflict
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ConflictId(pub u64);
 
 impl ConflictId {
@@ -182,12 +164,6 @@ impl fmt::Display for ConflictId {
     }
 }
 
-impl Default for ConflictId {
-    fn default() -> Self {
-        ConflictId(0)
-    }
-}
-
 impl From<u64> for ConflictId {
     fn from(id: u64) -> Self {
         ConflictId(id)
@@ -199,11 +175,12 @@ impl From<u64> for ConflictId {
 // ============================================================================
 
 /// Type of change to the holographic field
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ChangeType {
     /// A new entity was created in the field
     EntityCreated,
     /// An existing entity was modified
+    #[default]
     EntityModified,
     /// An entity was deleted from the field
     EntityDeleted,
@@ -225,12 +202,6 @@ impl fmt::Display for ChangeType {
             ChangeType::SpectrumChanged => write!(f, "SpectrumChanged"),
             ChangeType::FieldCollapsed => write!(f, "FieldCollapsed"),
         }
-    }
-}
-
-impl Default for ChangeType {
-    fn default() -> Self {
-        ChangeType::EntityModified
     }
 }
 
@@ -257,7 +228,7 @@ impl ResonancePattern {
         }
     }
 
-    pub fn default() -> Self {
+    pub fn initial() -> Self {
         Self {
             frequency: 0.5,
             amplitude: 0.5,
@@ -269,7 +240,7 @@ impl ResonancePattern {
 
 impl Default for ResonancePattern {
     fn default() -> Self {
-        Self::default()
+        Self::initial()
     }
 }
 
@@ -391,11 +362,10 @@ impl FieldChange {
     /// Check if this change is compatible with another change
     pub fn is_compatible_with(&self, other: &FieldChange) -> bool {
         // Changes to different entities are compatible
-        if self.entity_id.is_some() && other.entity_id.is_some() {
-            if self.entity_id != other.entity_id {
+        if self.entity_id.is_some() && other.entity_id.is_some()
+            && self.entity_id != other.entity_id {
                 return true;
             }
-        }
 
         // Same entity modified concurrently - check if changes conflict
         if self.change_type == ChangeType::EntityModified
@@ -531,9 +501,10 @@ impl FieldUpdate {
 // ============================================================================
 
 /// Type of consensus algorithm
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ConsensusType {
     /// Higher resonance priority wins
+    #[default]
     ResonancePriority,
     /// Latest timestamp wins
     LastWriteWins,
@@ -554,20 +525,15 @@ impl fmt::Display for ConsensusType {
     }
 }
 
-impl Default for ConsensusType {
-    fn default() -> Self {
-        ConsensusType::ResonancePriority
-    }
-}
-
 /// Vote in consensus
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Vote {
     /// Vote in favor
     Approve,
     /// Vote against
     Reject,
     /// Abstain from voting
+    #[default]
     Abstain,
 }
 
@@ -581,16 +547,11 @@ impl fmt::Display for Vote {
     }
 }
 
-impl Default for Vote {
-    fn default() -> Self {
-        Vote::Abstain
-    }
-}
-
 /// Status of a consensus proposal
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ProposalStatus {
     /// Proposal is being voted on
+    #[default]
     Pending,
     /// Proposal was approved
     Approved,
@@ -608,12 +569,6 @@ impl fmt::Display for ProposalStatus {
             ProposalStatus::Rejected => write!(f, "Rejected"),
             ProposalStatus::Expired => write!(f, "Expired"),
         }
-    }
-}
-
-impl Default for ProposalStatus {
-    fn default() -> Self {
-        ProposalStatus::Pending
     }
 }
 
@@ -851,9 +806,10 @@ impl Default for ConsensusAlgorithm {
 // ============================================================================
 
 /// Type of conflict
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ConflictType {
     /// Same entity modified concurrently
+    #[default]
     ConcurrentModification,
     /// Version mismatch between updates
     VersionConflict,
@@ -874,16 +830,11 @@ impl fmt::Display for ConflictType {
     }
 }
 
-impl Default for ConflictType {
-    fn default() -> Self {
-        ConflictType::ConcurrentModification
-    }
-}
-
 /// Type of resolution
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ResolutionType {
     /// One update was chosen over others
+    #[default]
     ChosenUpdate,
     /// Updates were merged
     MergedUpdate,
@@ -901,12 +852,6 @@ impl fmt::Display for ResolutionType {
             ResolutionType::ConsensusReached => write!(f, "ConsensusReached"),
             ResolutionType::DiscardedAll => write!(f, "DiscardedAll"),
         }
-    }
-}
-
-impl Default for ResolutionType {
-    fn default() -> Self {
-        ResolutionType::ChosenUpdate
     }
 }
 
@@ -1043,7 +988,7 @@ impl PeerDiscovery {
         let peer_info = self
             .known_peers
             .get_mut(&peer_id)
-            .ok_or_else(|| NetworkError::PeerNotFound(peer_id))?;
+            .ok_or(NetworkError::PeerNotFound(peer_id))?;
 
         peer_info.connection_status = ConnectionStatus::Connecting;
 
@@ -1062,7 +1007,7 @@ impl PeerDiscovery {
         let peer_info = self
             .known_peers
             .get_mut(&peer_id)
-            .ok_or_else(|| NetworkError::PeerNotFound(peer_id))?;
+            .ok_or(NetworkError::PeerNotFound(peer_id))?;
 
         peer_info.connection_status = ConnectionStatus::Disconnected;
 
@@ -1090,9 +1035,9 @@ impl PeerDiscovery {
 
     /// Add a new peer
     pub fn add_peer(&mut self, peer_id: PeerId, address: String) {
-        if !self.known_peers.contains_key(&peer_id) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.known_peers.entry(peer_id) {
             let peer_info = PeerInfo::new(peer_id, address);
-            self.known_peers.insert(peer_id, peer_info);
+            e.insert(peer_info);
             self.peer_list.push(peer_id);
         }
     }
@@ -1101,7 +1046,7 @@ impl PeerDiscovery {
     pub fn remove_peer(&mut self, peer_id: PeerId) -> Result<()> {
         self.known_peers
             .remove(&peer_id)
-            .ok_or_else(|| NetworkError::PeerNotFound(peer_id))?;
+            .ok_or(NetworkError::PeerNotFound(peer_id))?;
 
         self.peer_list.retain(|&id| id != peer_id);
         Ok(())
@@ -1289,7 +1234,7 @@ impl Default for FieldSynchronizer {
 // ============================================================================
 
 /// Type of network message
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum MessageType {
     /// Field update message
     FieldUpdateMsg,
@@ -1306,6 +1251,7 @@ pub enum MessageType {
     /// Peer announcement
     PeerAnnouncement,
     /// Keep-alive message
+    #[default]
     KeepAlive,
 }
 
@@ -1321,12 +1267,6 @@ impl fmt::Display for MessageType {
             MessageType::PeerAnnouncement => write!(f, "PeerAnnouncement"),
             MessageType::KeepAlive => write!(f, "KeepAlive"),
         }
-    }
-}
-
-impl Default for MessageType {
-    fn default() -> Self {
-        MessageType::KeepAlive
     }
 }
 
@@ -1695,7 +1635,7 @@ impl DistributedHolographicField {
     pub fn remove_peer(&mut self, peer_id: PeerId) -> Result<()> {
         self.peer_fields
             .remove(&peer_id)
-            .ok_or_else(|| DistributedFieldError::PeerNotFound(peer_id))?;
+            .ok_or(DistributedFieldError::PeerNotFound(peer_id))?;
 
         Ok(())
     }
@@ -2008,7 +1948,7 @@ mod tests {
         let change1 = FieldChange {
             change_type: ChangeType::EntityModified,
             entity_id: Some(EntityId::new("entity-1".to_string())),
-            resonance_pattern: Some(ResonancePattern::default()),
+            resonance_pattern: Some(ResonancePattern::initial()),
             position: None,
             spectrum_ratio: None,
         };
@@ -2016,7 +1956,7 @@ mod tests {
         let change2 = FieldChange {
             change_type: ChangeType::EntityModified,
             entity_id: Some(EntityId::new("entity-2".to_string())),
-            resonance_pattern: Some(ResonancePattern::default()),
+            resonance_pattern: Some(ResonancePattern::initial()),
             position: None,
             spectrum_ratio: None,
         };
@@ -2076,7 +2016,7 @@ mod tests {
         let change1 = FieldChange {
             change_type: ChangeType::EntityModified,
             entity_id: Some(EntityId::new("entity-1".to_string())),
-            resonance_pattern: Some(ResonancePattern::default()),
+            resonance_pattern: Some(ResonancePattern::initial()),
             position: None,
             spectrum_ratio: None,
         };

@@ -16,7 +16,7 @@ use crate::types::Float;
 // ============================================================================
 
 /// Interference pattern from archetype interactions
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct InterferencePattern {
     /// Intensity field (bright/dark fringes)
     pub intensity_field: IntensityField,
@@ -33,7 +33,7 @@ pub struct InterferencePattern {
 impl InterferencePattern {
     /// Create interference pattern from archetype complex vectors
     pub fn from_archetypes(archetypes: &[ComplexVector; 22]) -> Self {
-        let mut pattern = InterferencePattern::default();
+        let mut pattern = Self::default();
 
         // Calculate cross-terms (the holographic encoding)
         for i in 0..22 {
@@ -92,18 +92,6 @@ impl InterferencePattern {
     /// Phase coherence (0.0 to 1.0, where 1.0 is perfect coherence)
     pub fn phase_coherence(&self) -> Float {
         self.cross_terms.phase_coherence()
-    }
-}
-
-impl Default for InterferencePattern {
-    fn default() -> Self {
-        InterferencePattern {
-            intensity_field: IntensityField::default(),
-            phase_field: PhaseField::default(),
-            cross_terms: CrossTermMatrix::default(),
-            constructive_nodes: Vec::new(),
-            destructive_nodes: Vec::new(),
-        }
     }
 }
 
@@ -298,6 +286,7 @@ impl Default for PhaseField {
 
 /// Cross-term matrix (encodes holographic information)
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct CrossTermMatrix {
     /// Matrix of cross-terms between all archetype pairs
     pub matrix: [[ComplexVector; 22]; 22],
@@ -328,7 +317,7 @@ impl CrossTermMatrix {
             for j in 0..22 {
                 if i != j {
                     let cross_term = self.matrix[i][j];
-                    let normalized = cross_term.normalize().unwrap_or(ComplexVector::default());
+                    let normalized = cross_term.normalize().unwrap_or_default();
                     coherence += normalized.real; // cos(phase)
                     count += 1;
                 }
@@ -340,14 +329,6 @@ impl CrossTermMatrix {
             (coherence / count as Float).abs()
         } else {
             0.0
-        }
-    }
-}
-
-impl Default for CrossTermMatrix {
-    fn default() -> Self {
-        CrossTermMatrix {
-            matrix: [[ComplexVector::default(); 22]; 22],
         }
     }
 }
@@ -367,8 +348,8 @@ mod tests {
         let pattern = InterferencePattern::from_archetypes(&archetypes);
 
         assert_eq!(pattern.cross_terms.matrix.len(), 22);
-        assert!(pattern.constructive_nodes.len() > 0);
-        assert!(pattern.destructive_nodes.len() > 0);
+        assert!(!pattern.constructive_nodes.is_empty());
+        assert!(!pattern.destructive_nodes.is_empty());
     }
 
     #[test]
@@ -403,7 +384,7 @@ mod tests {
         let pattern = InterferencePattern::from_archetypes(&archetypes);
 
         let coherence = pattern.cross_terms.phase_coherence();
-        assert!(coherence >= -1.0 && coherence <= 1.0);
+        assert!((-1.0..=1.0).contains(&coherence));
     }
 
     #[test]
@@ -421,7 +402,7 @@ mod tests {
         let pattern = InterferencePattern::from_archetypes(&archetypes);
 
         let maxima = pattern.intensity_field.find_local_maxima();
-        assert!(maxima.len() > 0);
+        assert!(!maxima.is_empty());
     }
 
     #[test]
@@ -430,7 +411,7 @@ mod tests {
         let pattern = InterferencePattern::from_archetypes(&archetypes);
 
         let minima = pattern.intensity_field.find_local_minima();
-        assert!(minima.len() > 0);
+        assert!(!minima.is_empty());
     }
 
     #[test]

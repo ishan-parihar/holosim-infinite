@@ -230,7 +230,7 @@ impl FieldConfiguration {
         }
     }
 
-    pub fn refine_from_solar(&self, solar: &SolarLogosConfig) -> Self {
+    pub fn refine_from_solar(&self, _solar: &SolarLogosConfig) -> Self {
         Self {
             distortion_config: self.distortion_config.clone(),
             spectrum_state: SpectrumState::new(),

@@ -19,10 +19,13 @@ pub struct FieldVisualBridge {
     /// Volume dimensions for sampling
     dimensions: VolumeDimensions,
     /// Sample spacing
+    #[allow(dead_code)]
     sample_spacing: Float,
     /// Minimum coherence threshold for visualization
+    #[allow(dead_code)]
     coherence_threshold: Float,
     /// Enable interpolation between samples
+    #[allow(dead_code)]
     interpolate: bool,
 }
 
@@ -85,7 +88,7 @@ impl FieldVisualBridge {
         field_state: &'a HolographicFieldState,
         pos: &[Float; 3],
     ) -> Option<&'a crate::hpo::OctreeNode> {
-        use crate::hpo::OctreeNode;
+        
 
         // Check if position is within field bounds
         if !field_state.root.bounds.contains(pos) {
@@ -195,8 +198,8 @@ impl FieldVisualBridge {
                             (pattern.atan2(0.0) + std::f64::consts::PI as Float) * layer_weight;
                     }
 
-                    data.coherence[idx] = (total_coherence / 7.0).min(1.0).max(0.0);
-                    data.amplitude[idx] = (total_amplitude / 7.0).min(1.0).max(0.0);
+                    data.coherence[idx] = (total_coherence / 7.0).clamp(0.0, 1.0);
+                    data.amplitude[idx] = (total_amplitude / 7.0).clamp(0.0, 1.0);
                     data.phase[idx] = (total_phase / 7.0) % tau;
 
                     // Determine dominant layer
@@ -255,8 +258,7 @@ impl FieldVisualBridge {
 
         // Phase from first density amplitude (simplified)
         let phase = field_data
-            .density_amplitudes
-            .get(0)
+            .density_amplitudes.first()
             .map(|c| c.phase())
             .unwrap_or(0.0);
 
@@ -370,7 +372,7 @@ impl FieldVisualBridge {
             let avg_diff = total_diff / count as Float;
             // Normalize to 0.0 - 1.0 (0 = no coherence, 1 = perfect coherence)
             let coherence = 1.0 - (avg_diff / std::f64::consts::PI as Float);
-            coherence.max(0.0).min(1.0)
+            coherence.clamp(0.0, 1.0)
         } else {
             0.0
         }

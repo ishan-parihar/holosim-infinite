@@ -12,7 +12,6 @@
 use crate::gui::visualization::emergence_viz::{
     EmergenceEvent, EmergenceEventType, EmergenceLevel, EmergenceMetricsData, EmergenceVisualizer,
 };
-use std::collections::HashMap;
 
 /// Emergence dashboard
 #[derive(Debug, Clone)]

@@ -14,7 +14,6 @@
 //! - StellarPhysics (src/cosmos/stellar_physics.rs)
 //! - PlanetaryFormation (src/cosmos/planetary_formation.rs)
 
-use wgpu::util::DeviceExt;
 
 // ============================================================================
 // Vertex Data Structures

@@ -52,10 +52,11 @@ impl NaturalLawsGenerator {
         // Generate random archetype activations using a seed
         let seed = 42; // Default seed
         let mut rng = SeededRng::new(seed);
-        let mut archetypes = [0.0; 22];
-        for i in 0..22 {
-            archetypes[i] = rng.next_f64();
-        }
+        let archetypes: [Float; 22] = (0..22)
+            .map(|_| rng.next_f64())
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 22]);
 
         NaturalLawsGenerator {
             logos_archetypes: archetypes,

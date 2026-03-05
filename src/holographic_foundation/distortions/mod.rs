@@ -32,10 +32,8 @@ pub use love::{CoherenceGradient, LoveConfig, LoveTerm};
 pub use unified::{CoherencePeak, DistortionStatistics, UnifiedFieldConfig, UnifiedFieldEquation};
 
 use crate::holographic_foundation::spectrum::{
-    CoordinateTransform, DensityPosition, SpectrumSide, SpectrumState, VeilCrossing, VelocityRatio,
-    VEIL_POSITION,
+    CoordinateTransform, DensityPosition, SpectrumSide, VelocityRatio,
 };
-use crate::types::Float;
 
 pub const NUM_DENSITY_BANDS: usize = 8;
 
@@ -298,8 +296,7 @@ impl FieldState {
 
         // Update velocity ratio (bounded evolution)
         let new_v = (self.velocity_ratio.value + coherence_pull * dt + density_influence * dt)
-            .max(0.1)
-            .min(2.0);
+            .clamp(0.1, 2.0);
         self.velocity_ratio = VelocityRatio::new(new_v);
         self.spectrum_side = self.velocity_ratio.side();
         self.spectrum_position = new_v;
@@ -511,7 +508,7 @@ mod tests {
     #[test]
     fn test_spectrum_evolution() {
         let mut field = FieldState::uniform(0.5);
-        let initial_v = field.velocity_ratio.value;
+        let _initial_v = field.velocity_ratio.value;
 
         field.evolve_spectrum(0.1, 1.0);
 
@@ -535,7 +532,7 @@ mod tests {
         // Should apply veil effects
         if let VeilEffectResult::Applied {
             coherence_boost,
-            veil_transparency,
+            veil_transparency: _,
         } = result
         {
             assert!(coherence_boost >= 1.0);

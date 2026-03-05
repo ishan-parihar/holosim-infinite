@@ -9,7 +9,6 @@ use crate::evolution_density_octave::density_octave::{
     Density, Density1SubLevel, Density2SubLevel,
 };
 use crate::types::Float;
-use crate::types::Polarity;
 use crate::veil::density_variation::PolarizationState;
 
 /// Catalyst types that can be generated for entities
@@ -462,7 +461,7 @@ impl CatalystIntensitySystem {
         // Store catalyst
         self.catalysts
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(catalyst.clone());
 
         Some(catalyst)
@@ -640,7 +639,6 @@ impl CatalystStatistics {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::Polarity;
 
     #[test]
     fn test_catalyst_type_all() {
@@ -877,12 +875,12 @@ mod tests {
         system.generate_catalyst(1, Density::Fourth, &polarization, 1.0);
         system.generate_catalyst(2, Density::Third, &polarization, 1.0);
 
-        assert!(system.get_catalysts(1).len() > 0);
-        assert!(system.get_catalysts(2).len() > 0);
+        assert!(!system.get_catalysts(1).is_empty());
+        assert!(!system.get_catalysts(2).is_empty());
 
         system.clear_all();
 
-        assert_eq!(system.get_catalysts(1).len(), 0);
-        assert_eq!(system.get_catalysts(2).len(), 0);
+        assert!(system.get_catalysts(1).is_empty());
+        assert!(system.get_catalysts(2).is_empty());
     }
 }

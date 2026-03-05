@@ -12,9 +12,8 @@
 //! - Trophic efficiency = field coherence transfer efficiency
 //! - Food web stability = field network stability
 
-use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::ecosystem_dynamics::species_field::{
-    Species, SpeciesId, SpeciesInteraction,
+    SpeciesId, SpeciesInteraction,
 };
 use crate::types::Float;
 use std::collections::HashMap;
@@ -135,7 +134,7 @@ impl TrophicNode {
         self.field_amplitude * self.coherence
     }
 
-    pub fn update(&mut self, dt: Float) {
+    pub fn update(&mut self, _dt: Float) {
         self.field_amplitude = self.biomass.sqrt();
     }
 }
@@ -612,6 +611,6 @@ mod tests {
         network.add_node(node1);
 
         let stability = network.stability_index();
-        assert!(stability >= 0.0 && stability <= 1.0);
+        assert!((0.0..=1.0).contains(&stability));
     }
 }

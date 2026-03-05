@@ -76,7 +76,9 @@ pub struct EntityMutableState {
 
 /// Consciousness states
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum ConsciousnessState {
+    #[default]
     Calm,
     Alert,
     Agitated,
@@ -85,11 +87,6 @@ pub enum ConsciousnessState {
     Anxious,
 }
 
-impl Default for ConsciousnessState {
-    fn default() -> Self {
-        ConsciousnessState::Calm
-    }
-}
 
 /// Environmental Effects Applicator
 ///
@@ -380,7 +377,7 @@ mod tests {
         let effects = EnvironmentalEffects::new();
 
         // Test clear weather
-        let mut env_state = EntityEnvironmentState {
+        let env_state = EntityEnvironmentState {
             weather: WeatherPattern::Clear,
             ..Default::default()
         };
@@ -396,7 +393,7 @@ mod tests {
         let effects = EnvironmentalEffects::new();
 
         // Test mountains
-        let mut env_state = EntityEnvironmentState {
+        let env_state = EntityEnvironmentState {
             terrain: EnvironmentTerrain::Mountains,
             ..Default::default()
         };
@@ -413,7 +410,7 @@ mod tests {
         let effects = EnvironmentalEffects::new();
 
         // Test extreme heat
-        let mut env_state = EntityEnvironmentState {
+        let env_state = EntityEnvironmentState {
             temperature: 45.0,
             ..Default::default()
         };

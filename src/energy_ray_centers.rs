@@ -36,7 +36,7 @@ impl PackedRay {
     /// Creates a new packed ray
     pub fn new(ray_type: RayCenter, compression_ratio: f64) -> Self {
         // Higher rays have higher compression ratios
-        let actual_compression = compression_ratio.min(1.0).max(0.0);
+        let actual_compression = compression_ratio.clamp(0.0, 1.0);
 
         PackedRay {
             ray_type,
@@ -2400,7 +2400,7 @@ mod tests {
     fn test_sub_color_average_balance() {
         let state = RayCenterState::new(RayCenter::Blue);
         let avg = state.get_sub_color_average_balance();
-        assert!(avg >= 0.0 && avg <= 1.0);
+        assert!((0.0..=1.0).contains(&avg));
     }
 
     #[test]
@@ -2565,7 +2565,7 @@ mod tests {
     #[test]
     fn test_get_coupling_state() {
         let entity_id: usize = 1;
-        let mut system = EnergyRayCenterSystem::new(entity_id);
+        let system = EnergyRayCenterSystem::new(entity_id);
 
         let coupling = system.get_coupling_state();
         assert!(coupling.overall_coupling >= 0.0 && coupling.overall_coupling <= 1.0);
@@ -2574,7 +2574,7 @@ mod tests {
     #[test]
     fn test_coupling_state_is_balanced() {
         let entity_id: usize = 1;
-        let mut system = EnergyRayCenterSystem::new(entity_id);
+        let system = EnergyRayCenterSystem::new(entity_id);
 
         let coupling = system.get_coupling_state();
         // Initially should be balanced (all zeros)

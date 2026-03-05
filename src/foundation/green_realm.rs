@@ -63,11 +63,11 @@ impl HolographicPattern {
     /// Create a new holographic pattern
     pub fn new(energy_level: f64, direction: [f64; 3], complexity: f64) -> Self {
         assert!(
-            energy_level >= 0.0 && energy_level <= 1.0,
+            (0.0..=1.0).contains(&energy_level),
             "Energy level must be between 0.0 and 1.0"
         );
         assert!(
-            complexity >= 0.0 && complexity <= 1.0,
+            (0.0..=1.0).contains(&complexity),
             "Complexity must be between 0.0 and 1.0"
         );
         HolographicPattern {
@@ -114,15 +114,15 @@ impl Rhythm {
     /// Create a new rhythm
     pub fn new(frequency: f64, amplitude: f64, phase: f64) -> Self {
         assert!(
-            frequency >= 0.0 && frequency <= 1.0,
+            (0.0..=1.0).contains(&frequency),
             "Frequency must be between 0.0 and 1.0"
         );
         assert!(
-            amplitude >= 0.0 && amplitude <= 1.0,
+            (0.0..=1.0).contains(&amplitude),
             "Amplitude must be between 0.0 and 1.0"
         );
         assert!(
-            phase >= 0.0 && phase <= 2.0 * std::f64::consts::PI,
+            (0.0..=2.0 * std::f64::consts::PI).contains(&phase),
             "Phase must be between 0.0 and 2π"
         );
         Rhythm {
@@ -174,11 +174,11 @@ impl Field {
     /// Create a new field
     pub fn new(strength: f64, coherence: f64, field_type: impl Into<String>) -> Self {
         assert!(
-            strength >= 0.0 && strength <= 1.0,
+            (0.0..=1.0).contains(&strength),
             "Strength must be between 0.0 and 1.0"
         );
         assert!(
-            coherence >= 0.0 && coherence <= 1.0,
+            (0.0..=1.0).contains(&coherence),
             "Coherence must be between 0.0 and 1.0"
         );
         Field {

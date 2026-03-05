@@ -3,13 +3,10 @@
 //! From GUI_IMPLEMENTATION_ROADMAP.md:
 //! "Create render pipeline management for entity rendering"
 
-use crate::gui::renderer::{
-    buffers::BufferManager, shaders::BASIC_SHADER, wgpu_context::WgpuContext,
-};
+use crate::gui::renderer::shaders::BASIC_SHADER;
 use wgpu::{
-    Color, CommandEncoder, Device, LoadOp, Operations, Queue, RenderPass,
-    RenderPassColorAttachment, RenderPipeline as WgpuRenderPipeline, StoreOp, Surface,
-    SurfaceConfiguration, TextureView,
+    Device, RenderPipeline as WgpuRenderPipeline,
+    SurfaceConfiguration,
 };
 
 /// Render pipeline for entity rendering

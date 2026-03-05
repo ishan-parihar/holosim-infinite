@@ -6,11 +6,8 @@
 // This module provides the bridge between Entity Layer 7 (Sub-Sub-Logos)
 // and the Density Octave progression system.
 
-use crate::entity_layer7::holographic_blueprint::{
-    ArchetypicalMindBlueprint, HolographicBlueprint,
-};
 use crate::entity_layer7::layer7::{
-    EntityId, EntityState, IndividualSpectrumConfiguration, SubSubLogos,
+    EntityId, EntityState, SubSubLogos,
 };
 use crate::evolution_density_octave::density_octave::Density;
 use crate::evolution_density_octave::requirements::DensityTransitionRequirements;
@@ -62,7 +59,7 @@ impl Layer7ToDensityBridge {
 
         // Store density assignment
         self.entity_density_assignments
-            .insert(entity.entity_id.clone(), density.clone());
+            .insert(entity.entity_id.clone(), density);
 
         // Add to transitioning entities
         self.transitioning_entities.push(entity);
@@ -296,8 +293,9 @@ pub struct TransitionReadiness {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::{EntityId, EntitySpectrumAccess};
+    use crate::entity_layer7::layer7::EntityId;
     use crate::evolution_density_octave::density_octave::Density1SubLevel;
+    use crate::entity_layer7::holographic_blueprint::ArchetypicalMindBlueprint;
 
     fn create_test_entity(id: EntityId, consciousness: f64) -> SubSubLogos {
         use crate::entity_layer7::layer7::{

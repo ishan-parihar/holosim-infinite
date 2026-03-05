@@ -632,8 +632,8 @@ impl SimulationRunner {
         let emergent_properties = EmergentProperties::calculate_from_system_state(
             &entities_vec,
             &holographic_stats_converted,
-            &environmental_stats,
-            &collective_influence_stats,
+            environmental_stats,
+            collective_influence_stats,
         );
 
         self.statistics_tracker.statistics.emergent_properties = emergent_properties;
@@ -833,7 +833,7 @@ impl SimulationRunner {
             );
 
             // Add to holographic manager
-            if let Err(_) = self.holographic_manager.add_entity(entity.clone()) {
+            if self.holographic_manager.add_entity(entity.clone()).is_err() {
                 // Continue even if holographic manager fails
             }
 
@@ -944,7 +944,7 @@ impl SimulationRunner {
 
         // Phase 5: Collect entity types from involution result
         // We'll get these from the lifecycle manager entities
-        for (entity_id, _lifecycle_data) in &self.lifecycle_manager.entities {
+        for entity_id in self.lifecycle_manager.entities.keys() {
             // Try to get entity type from involution result
             // For now, we'll use default values - this will be improved
             entity_types.insert(entity_id.clone(), EntityType::Individual);
@@ -990,24 +990,24 @@ impl SimulationRunner {
                 .lifecycle_manager
                 .entities
                 .iter()
-                .map(|(id, data)| (id.clone(), data.current_density.clone()))
+                .map(|(id, data)| (id.clone(), data.current_density))
                 .collect();
 
             // Phase 5: Generate catalysts periodically (every 5 steps)
             // Phase 3: Increased frequency to ensure 3rd density entities get catalyst events
             if step % 5 == 0 {
-                let num_catalysts = (self.lifecycle_manager.entities.len() / 15).max(1).min(10);
+                let num_catalysts = (self.lifecycle_manager.entities.len() / 15).clamp(1, 10);
 
                 // Collect entity types for catalyst generation (Phase 5)
                 let entity_types: HashMap<EntityId, EntityType> = self
                     .entities
                     .iter()
-                    .map(|(id, data)| (id.clone(), data.entity_type.clone()))
+                    .map(|(id, data)| (id.clone(), data.entity_type))
                     .collect();
 
                 // Phase 3: Pass entity_densities to ensure 3rd density entities are included
                 self.catalyst_manager.generate_catalysts(
-                    &mut entity_states,
+                    &entity_states,
                     &entity_types,
                     &entity_densities,
                     num_catalysts,
@@ -1022,7 +1022,7 @@ impl SimulationRunner {
                 .lifecycle_manager
                 .entities
                 .iter()
-                .map(|(id, data)| (id.clone(), data.current_density.clone()))
+                .map(|(id, data)| (id.clone(), data.current_density))
                 .collect();
 
             // Phase 3: Apply catalysts with Free Will integration
@@ -1332,8 +1332,7 @@ impl SimulationRunner {
 
         // Calculate karmic pattern statistics
         if karmic_pattern_stats.total_patterns > 0 {
-            karmic_pattern_stats.average_intensity =
-                karmic_pattern_stats.average_intensity / karmic_pattern_stats.total_patterns as f64;
+            karmic_pattern_stats.average_intensity /= karmic_pattern_stats.total_patterns as f64;
             karmic_pattern_stats.average_patterns_per_entity =
                 karmic_pattern_stats.total_patterns as f64 / entities.len() as f64;
         }
@@ -1414,7 +1413,7 @@ impl SimulationRunner {
         catalyst_stats.total_consciousness_expansion += event.consciousness_expansion;
 
         // Update percentages (only periodically to avoid overhead)
-        if catalyst_stats.total_events % 10 == 0 {
+        if catalyst_stats.total_events.is_multiple_of(10) {
             catalyst_stats.polarity_choices.update_percentages();
         }
     }
@@ -1727,7 +1726,7 @@ impl SimulationRunner {
             .process_composition_interactions(&self.entities);
 
         // Create holographic connections (every 10 steps to avoid too many connections)
-        if self.current_step % 10 == 0 {
+        if self.current_step.is_multiple_of(10) {
             let _connections = self
                 .inter_scale_interaction_manager
                 .create_holographic_connections(&self.entities, 0.5); // 0.5 similarity threshold
@@ -1739,7 +1738,7 @@ impl SimulationRunner {
             .process_collective_influence(&self.entities);
 
         // Track co-evolution (every 10 steps)
-        if self.current_step % 10 == 0 {
+        if self.current_step.is_multiple_of(10) {
             let _co_evolution = self
                 .inter_scale_interaction_manager
                 .track_co_evolution(&self.entities);
@@ -2022,7 +2021,7 @@ impl SimulationRunner {
         let mut entity_types: HashMap<EntityId, EntityType> = HashMap::new();
 
         // Collect entity types from involution result
-        for (entity_id, _lifecycle_data) in &self.lifecycle_manager.entities {
+        for entity_id in self.lifecycle_manager.entities.keys() {
             entity_types.insert(entity_id.clone(), EntityType::Individual);
         }
 
@@ -2042,15 +2041,15 @@ impl SimulationRunner {
             .lifecycle_manager
             .entities
             .iter()
-            .map(|(id, data)| (id.clone(), data.current_density.clone()))
+            .map(|(id, data)| (id.clone(), data.current_density))
             .collect();
 
         // Generate catalysts periodically (every 5 steps)
-        if step % 5 == 0 {
-            let num_catalysts = (self.lifecycle_manager.entities.len() / 15).max(1).min(10);
+        if step.is_multiple_of(5) {
+            let num_catalysts = (self.lifecycle_manager.entities.len() / 15).clamp(1, 10);
 
             self.catalyst_manager.generate_catalysts(
-                &mut entity_states,
+                &entity_states,
                 &entity_types,
                 &entity_densities,
                 num_catalysts,
@@ -2128,7 +2127,7 @@ impl SimulationRunner {
         self.catalyst_manager.update_time();
 
         // Update collective dynamics
-        if step % 5 == 0 {
+        if step.is_multiple_of(5) {
             self.update_collective_dynamics();
         }
 
@@ -2373,7 +2372,7 @@ impl SimulationRunner {
     pub fn simulate_scale_step(&mut self, time_step: Float) -> Result<(), ScalePhysicsError> {
         // From MASTER_R&D_ROADMAP.md Phase 1 Week 1:
         // "In each evolution step, call simulate_scale_step() instead of generic entity updates"
-        let result = self
+        let _result = self
             .scale_physics
             .simulate_step(self.current_scale, time_step)?;
 
@@ -2450,8 +2449,7 @@ impl SimulationRunner {
             }
 
             // Coupling to non-adjacent scales (weaker)
-            for j in (i + 2)..scales.len() {
-                let distant_scale = scales[j];
+            for (j, &distant_scale) in scales.iter().enumerate().skip(i + 2) {
                 let coupling_key = (*scale, distant_scale);
                 let distance = (j - i) as Float;
                 let coupling_strength = 0.8 / distance; // Decays with distance
@@ -2830,7 +2828,7 @@ mod tests {
         let mut runner = SimulationRunner::new(parameters);
 
         // Create and set multi-scale camera
-        let mut camera = MultiScaleCamera::new(ScaleLevel::Biological, 16.0 / 9.0);
+        let camera = MultiScaleCamera::new(ScaleLevel::Biological, 16.0 / 9.0);
         runner.set_multiscale_camera(camera);
 
         // No transition should be detected initially
@@ -2992,8 +2990,8 @@ mod tests {
         // Verify holographic manager was initialized
         let field_result = runner.holographic_manager.get_field_result();
 
-        // After initialization, field should track steps (or 0 before run)
-        assert!(field_result.steps >= 0, "Field should track steps");
+        // After initialization, field should track steps (steps is usize, always >= 0)
+        let _ = field_result.steps;
     }
 
     /// Test Phase 2: Full simulation runs without panic
@@ -3075,7 +3073,7 @@ mod tests {
             .coherence_tracker
             .global_coherence;
         assert!(
-            coherence >= 0.0 && coherence <= 1.0,
+            (0.0..=1.0).contains(&coherence),
             "Coherence should be valid"
         );
     }

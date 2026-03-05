@@ -305,20 +305,22 @@ impl FrustumCuller {
 
         let mut planes = [nalgebra_glm::Vec4::zeros(); 6];
 
-        for i in 0..4 {
-            let row = view_projection.row(i);
-            planes[0][i] = row[3] + row[0]; // Left
-            planes[1][i] = row[3] - row[0]; // Right
-            planes[2][i] = row[3] + row[1]; // Bottom
-            planes[3][i] = row[3] - row[1]; // Top
-            planes[4][i] = row[3] + row[2]; // Near
-            planes[5][i] = row[3] - row[2]; // Far
+        // Extract frustum planes from view-projection matrix
+        // Left, Right, Bottom, Top, Near, Far
+        for col in 0..4 {
+            let row = view_projection.row(col);
+            planes[0][col] = row[3] + row[0]; // Left
+            planes[1][col] = row[3] - row[0]; // Right
+            planes[2][col] = row[3] + row[1]; // Bottom
+            planes[3][col] = row[3] - row[1]; // Top
+            planes[4][col] = row[3] + row[2]; // Near
+            planes[5][col] = row[3] - row[2]; // Far
         }
 
         for plane in &mut planes {
             let length = (plane[0].powi(2) + plane[1].powi(2) + plane[2].powi(2)).sqrt();
             if length > 0.0 {
-                *plane = *plane / length;
+                *plane /= length;
             }
         }
 

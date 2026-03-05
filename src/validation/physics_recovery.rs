@@ -85,6 +85,7 @@ pub struct PhysicsRecoveryValidator {
     physical_constants: Vec<ConstantData>,
 
     /// Tolerance for value comparisons (relative error)
+    #[allow(dead_code)]
     tolerance: Float,
 }
 
@@ -335,21 +336,17 @@ impl PhysicsRecoveryValidator {
     ///
     /// Physics recovery test result
     pub fn validate_all(&self) -> PhysicsRecoveryResult {
-        let mut particles_recovered = 0;
-        let mut elements_recovered = 0;
-        let mut constants_recovered = 0;
-
         // Test particle recovery
         let particle_recovery_result = self.test_particle_recovery();
-        particles_recovered = particle_recovery_result.recovered_count;
+        let particles_recovered = particle_recovery_result.recovered_count;
 
         // Test element recovery
         let element_recovery_result = self.test_element_recovery();
-        elements_recovered = element_recovery_result.recovered_count;
+        let elements_recovered = element_recovery_result.recovered_count;
 
         // Test constant recovery
         let constant_recovery_result = self.test_constant_recovery();
-        constants_recovered = constant_recovery_result.recovered_count;
+        let constants_recovered = constant_recovery_result.recovered_count;
 
         // Calculate overall recovery rate
         let total_items = self.standard_model_particles.len()
@@ -439,6 +436,7 @@ impl PhysicsRecoveryValidator {
     /// # Returns
     ///
     /// True if values match within tolerance
+    #[allow(dead_code)]
     fn compare_values(&self, recovered: Float, reference: Float) -> Bool {
         if reference == 0.0 {
             return recovered.abs() < self.tolerance;
@@ -462,6 +460,7 @@ struct RecoveryResult {
     recovered_count: usize,
 
     /// Total number of items
+    #[allow(dead_code)]
     total_count: usize,
 }
 

@@ -7,7 +7,6 @@
 
 use crate::hpo::types::*;
 use rand::prelude::*;
-use rand::seq::IteratorRandom;
 use rand::SeedableRng;
 
 /// Parameter Space Manager for generating and mutating configurations
@@ -105,7 +104,7 @@ impl ParameterSpaceManager {
             num_archetypes,
             density_transition_rates,
             catalyst_generation_rate,
-            seed: config_id as u64,
+            seed: config_id,
             metadata: std::collections::HashMap::new(),
         }
     }
@@ -182,7 +181,7 @@ impl ParameterSpaceManager {
         }
 
         mutated.config_id += 1000; // Ensure unique ID
-        mutated.seed = mutated.config_id as u64;
+        mutated.seed = mutated.config_id;
 
         mutated
     }
@@ -264,7 +263,7 @@ impl ParameterSpaceManager {
             num_archetypes,
             density_transition_rates,
             catalyst_generation_rate,
-            seed: (parent_a.config_id + parent_b.config_id) as u64,
+            seed: (parent_a.config_id + parent_b.config_id),
             metadata: std::collections::HashMap::new(),
         }
     }
@@ -300,8 +299,8 @@ impl ParameterSpaceManager {
                 .unwrap_or(std::cmp::Ordering::Equal)
         });
 
-        for i in 0..elite_count.min(sorted_population.len()) {
-            next_generation.push(sorted_population[i].config.clone());
+        for individual in sorted_population.iter().take(elite_count) {
+            next_generation.push(individual.config.clone());
         }
 
         // Generate rest through crossover and mutation

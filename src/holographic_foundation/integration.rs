@@ -128,9 +128,9 @@ impl HolographicFoundation {
     }
 
     pub fn derive_density_at(&self, position: &Position3D) -> Option<Density> {
-        self.field_state.get_node_at(position).and_then(|node| {
+        self.field_state.get_node_at(position).map(|node| {
             let scale = node.dominant_scale();
-            Some(match scale {
+            match scale {
                 ScaleLevel::Quantum => Density::First(1),
                 ScaleLevel::Atomic => Density::First(2),
                 ScaleLevel::Molecular => Density::First(3),
@@ -139,7 +139,7 @@ impl HolographicFoundation {
                 ScaleLevel::Planetary => Density::Fourth,
                 ScaleLevel::Stellar => Density::Fifth,
                 ScaleLevel::Cosmic => Density::Eighth,
-            })
+            }
         })
     }
 
@@ -203,9 +203,8 @@ impl HolographicFoundation {
         magnitude: Float,
     ) {
         if let Some(node) = self.field_state.get_or_create_node_mut(position) {
-            for i in 0..22 {
-                node.archetype_vector[i] =
-                    (node.archetype_vector[i] + archetype_shift[i] * magnitude).clamp(0.0, 1.0);
+            for (node_i, &shift_i) in node.archetype_vector.iter_mut().zip(archetype_shift.iter()) {
+                *node_i = (*node_i + shift_i * magnitude).clamp(0.0, 1.0);
             }
             node.recalculate_coherence();
         }
@@ -416,7 +415,7 @@ mod tests {
 
     #[test]
     fn test_resonance_calculation() {
-        let mut foundation = HolographicFoundation::new(FoundationConfig {
+        let foundation = HolographicFoundation::new(FoundationConfig {
             initial_coherence: 0.8,
             ..Default::default()
         });

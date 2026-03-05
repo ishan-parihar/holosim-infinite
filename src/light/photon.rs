@@ -7,14 +7,13 @@ use crate::entity_layer7::holographic_blueprint::{HolographicSeed, HolographicSe
 ///
 /// Knowledge Base References:
 /// - COSMOLOGICAL-ARCHITECTURE.md Section 2.2 - The Structure (Blue-Ray Realm)
-/// - Cosmology.json - Third distortion: Light
-/// "Every photon is encoded with the full 22-Archetype structure"
+/// - Cosmology.json - Third distortion: Light:
+///   "Every photon is encoded with the full 22-Archetype structure"
 ///
 /// Phase 2.2 Update: Fractal-Holographic Behavior
 /// "Every photon contains the entire Violet-Ray and Indigo-Ray realms within it"
 /// Knowledge Base Reference: ARCHITECTURE_AUDIT_REPORT.md Section 2.6
 use crate::types::Float;
-use std::sync::Arc;
 
 /// Photon - individual quantum of light with embedded structure
 ///
@@ -833,10 +832,11 @@ pub enum MeasurementResult {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::sync::Arc;
     use crate::entity_layer7::holographic_blueprint::HolographicSeed;
     use crate::light::{
         ArchetypeEncoding, ArchetypePatternBit, HolographicEncoding, HolographicReference,
-        LightArchitecture, PatternType,
+        LightArchitecture,
     };
 
     fn create_test_holographic_reference() -> HolographicSeedReference {
@@ -912,7 +912,7 @@ mod tests {
         let photon = Photon::new_with_holographic_reference(seed_ref, 1.0e-19);
 
         let integrity = photon.holographic_integrity();
-        assert!(integrity >= 0.0 && integrity <= 1.0);
+        assert!((0.0..=1.0).contains(&integrity));
     }
 
     #[test]
@@ -1145,7 +1145,7 @@ mod tests {
             .calculate_part_whole_similarity(0);
 
         // Part-whole similarity should also be reasonable
-        assert!(part_whole_similarity >= 0.0 && part_whole_similarity <= 1.0);
+        assert!((0.0..=1.0).contains(&part_whole_similarity));
     }
 
     #[test]

@@ -218,7 +218,7 @@ impl CompleteSimulation {
                 };
                 self.entity_evolution
                     .entry(i as u64)
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(evolution_step);
             }
 
@@ -271,6 +271,7 @@ impl CompleteSimulation {
     }
 
     /// Update polarization tracking
+    #[allow(dead_code)]
     fn update_polarization_tracking(&mut self, choice: crate::decision_engine::Choice) {
         match choice {
             crate::decision_engine::Choice::STO => self.polarization_tracking.sto_count += 1,
@@ -432,8 +433,6 @@ impl Default for CompleteSimulation {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::decision_engine::DecisionEngine;
-    use crate::holon::Holon;
 
     #[test]
     fn test_complete_simulation_creation() {
@@ -464,9 +463,8 @@ mod tests {
     #[test]
     fn test_get_state() {
         let simulation = CompleteSimulation::new();
-        let state = simulation.get_state();
-        // Just verify state retrieval works
-        assert!(true);
+        let _state = simulation.get_state();
+        // Test passes if state retrieval works without panic
     }
 
     #[test]
@@ -507,17 +505,16 @@ mod tests {
         simulation.run_simulation(10);
 
         // Get polarization distribution
-        let dist = simulation.get_polarization_distribution();
-        // Just verify method works
-        assert!(true);
+        let _dist = simulation.get_polarization_distribution();
+        // Test passes if method works without panic
     }
 
     #[test]
     fn test_validate() {
         let simulation = CompleteSimulation::new();
         let result = simulation.validate();
-        // ValidationResult has is_valid field
-        assert!(!result.is_valid || result.is_valid);
+        // ValidationResult has is_valid field, just verify it's a boolean
+        let _ = result.is_valid;
     }
 
     #[test]

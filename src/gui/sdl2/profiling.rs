@@ -572,8 +572,9 @@ mod tests {
         }
 
         assert!(tracker.median_frame_time() > 0.0);
-        assert!(tracker.p95_frame_time_ms > 0.0);
-        assert!(tracker.p99_frame_time_ms > 0.0);
+        let report = tracker.generate_report();
+        assert!(report.p95_frame_time_ms > 0.0);
+        assert!(report.p99_frame_time_ms > 0.0);
     }
 
     #[test]

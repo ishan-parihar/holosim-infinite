@@ -339,7 +339,7 @@ impl OctaveTransition {
         self
     }
 
-    pub fn update(&mut self, dt: Float, current_time: Float) {
+    pub fn update(&mut self, dt: Float, _current_time: Float) {
         self.preparation.update(dt);
 
         let threshold = match self.completion_stage {

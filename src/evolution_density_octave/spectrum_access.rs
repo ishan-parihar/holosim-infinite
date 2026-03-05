@@ -11,7 +11,6 @@
 // 4. Evolution as spectrum access, not movement between realms
 
 use crate::entity_layer7::layer7::{EntitySpectrumAccess, EntityState, SpectrumAccessLevel};
-use crate::evolution_density_octave::density_octave::Density1SubLevel;
 
 /// Spectrum Access Mechanism
 ///
@@ -316,7 +315,7 @@ impl SpectrumAccessMechanism {
         VeilPerceptionResult {
             enhanced_perception,
             perception_modifiers: modifiers,
-            veil_state: self.veil_state.clone(),
+            veil_state: self.veil_state,
         }
     }
 
@@ -588,6 +587,7 @@ pub struct VeilPerceptionResult {
 mod tests {
     use super::*;
     use crate::entity_layer7::{EntityState, PolarityState, VibrationalState};
+    use crate::evolution_density_octave::density_octave::Density1SubLevel;
 
     fn create_test_entity_state(consciousness_level: f64) -> EntityState {
         EntityState {

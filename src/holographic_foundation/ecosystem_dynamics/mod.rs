@@ -57,6 +57,6 @@ mod tests {
         let _species_id = SpeciesId::new(1);
         let _trophic_level = TrophicLevel::Level0;
         let _population_id = PopulationId::new(1);
-        assert!(true);
+        // Test passes if types can be created
     }
 }

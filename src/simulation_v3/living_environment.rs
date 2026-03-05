@@ -19,8 +19,6 @@
 
 use crate::cosmos::planetary_formation::{Planet, Season};
 use crate::entity_layer7::layer7::EntityId;
-use crate::planet::atmosphere::DynamicAtmosphere;
-use crate::planet::energy_flow::EnergyFlowSystem;
 use crate::planet::hydrosphere::Hydrosphere;
 use crate::planet::lithosphere::{Lithosphere, TerrainClass};
 use crate::simulation_v3::embodied_body::BodyEnvironment;
@@ -38,6 +36,8 @@ const SOLAR_CONSTANT: Float = 1361.0;
 const SPATIAL_CELL_RESOLUTION: Float = 5.0;
 
 /// Altitude bands for atmosphere layers (km)
+/// Note: Used for atmosphere layer calculations
+#[allow(dead_code)]
 const ALTITUDE_BANDS: [Float; 5] = [0.0, 2.0, 10.0, 50.0, 100.0];
 
 // ============================================================================
@@ -656,7 +656,9 @@ impl LivingEnvironment {
         }
 
         // Derive from planet systems
-        let resources = match (&self.planet.lithosphere, &self.planet.hydrosphere) {
+        
+
+        match (&self.planet.lithosphere, &self.planet.hydrosphere) {
             (Some(litho), Some(hydro)) => {
                 ResourceDistribution::from_planet_systems(litho, hydro, latitude, longitude)
             }
@@ -673,9 +675,7 @@ impl LivingEnvironment {
                 longitude,
             ),
             (None, None) => ResourceDistribution::default(),
-        };
-
-        resources
+        }
     }
 
     /// Set an entity's position in the environment.
@@ -865,11 +865,13 @@ mod tests {
 
     #[test]
     fn test_resource_distribution_richness() {
-        let mut dist = ResourceDistribution::default();
-        dist.water = 1.0;
-        dist.plant_biomass = 1.0;
-        dist.prey_density = 1.0;
-        dist.shelter = 1.0;
+        let dist = ResourceDistribution {
+            water: 1.0,
+            plant_biomass: 1.0,
+            prey_density: 1.0,
+            shelter: 1.0,
+            ..Default::default()
+        };
 
         assert!((dist.richness() - 1.0).abs() < 0.001);
     }

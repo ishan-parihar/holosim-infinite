@@ -13,7 +13,7 @@ use sdl2::keyboard::{Keycode, Mod};
 use sdl2::mouse::MouseButton;
 use std::time::{Duration, Instant};
 use wgpu::{
-    Buffer, BufferDescriptor, BufferUsages, Device, Instance, PresentMode, Queue, Surface,
+    BufferDescriptor, BufferUsages, Device, Instance, PresentMode, Queue, Surface,
     SurfaceConfiguration,
 };
 
@@ -141,6 +141,12 @@ pub struct EmergenceMetrics {
     pub emergence_events: u32,
 }
 
+impl Default for EmergenceMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EmergenceMetrics {
     pub fn new() -> Self {
         EmergenceMetrics {
@@ -205,6 +211,12 @@ pub struct Camera2D {
     pub position: [f32; 2],
     pub zoom: f32,
     pub rotation: f32,
+}
+
+impl Default for Camera2D {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Camera2D {
@@ -389,8 +401,8 @@ impl HolonicSdl2Gui {
         let wgpu_surface = unsafe {
             wgpu_instance
                 .create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
-                    raw_display_handle: display_handle.as_raw().into(),
-                    raw_window_handle: window_handle.as_raw().into(),
+                    raw_display_handle: display_handle.as_raw(),
+                    raw_window_handle: window_handle.as_raw(),
                 })
                 .map_err(|e| format!("Failed to create WGPU surface: {}", e))?
         };
@@ -527,13 +539,13 @@ impl HolonicSdl2Gui {
         println!("Surface format: {:?}", format);
         println!("Surface size: {}x{}", window_size.0, window_size.1);
 
-        let entities: Vec<EntityData> = (0..100).map(|i| EntityData::new(i)).collect();
+        let entities: Vec<EntityData> = (0..100).map(EntityData::new).collect();
 
         let collective_groups = vec![
-            CollectiveGroup::new(0, (0..25).map(|i| i).collect()),
-            CollectiveGroup::new(1, (25..50).map(|i| i).collect()),
-            CollectiveGroup::new(2, (50..75).map(|i| i).collect()),
-            CollectiveGroup::new(3, (75..100).map(|i| i).collect()),
+            CollectiveGroup::new(0, (0..25).collect()),
+            CollectiveGroup::new(1, (25..50).collect()),
+            CollectiveGroup::new(2, (50..75).collect()),
+            CollectiveGroup::new(3, (75..100).collect()),
         ];
 
         println!(
@@ -709,7 +721,7 @@ impl HolonicSdl2Gui {
                 render_time.as_secs_f64() * 1000.0,
             );
 
-            if self.perf_tracker.frame_times.len() % 60 == 0 {
+            if self.perf_tracker.frame_times.len().is_multiple_of(60) {
                 self.print_performance();
             }
 
@@ -969,7 +981,7 @@ impl HolonicSdl2Gui {
         if self.show_entity_viz && !self.entities.is_empty() {
             let screen_size = self.window.size();
 
-            for (idx, entity) in self.entities.iter().enumerate() {
+            for entity in self.entities.iter() {
                 let screen_pos = self.camera.world_to_screen(entity.position, screen_size);
                 let radius = entity.size * self.camera.zoom * 0.01;
 
@@ -1019,7 +1031,7 @@ impl HolonicSdl2Gui {
 
         let vertex_buffer = self.wgpu_device.create_buffer(&BufferDescriptor {
             label: Some("Vertex Buffer"),
-            size: (vertex_data.len() * std::mem::size_of::<f32>()) as u64,
+            size: std::mem::size_of_val(vertex_data) as u64,
             usage: BufferUsages::VERTEX | BufferUsages::COPY_DST,
             mapped_at_creation: false,
         });
@@ -1027,7 +1039,7 @@ impl HolonicSdl2Gui {
         self.wgpu_queue.write_buffer(&vertex_buffer, 0, unsafe {
             std::slice::from_raw_parts(
                 vertex_data.as_ptr() as *const u8,
-                vertex_data.len() * std::mem::size_of::<f32>(),
+                std::mem::size_of_val(vertex_data),
             )
         });
 

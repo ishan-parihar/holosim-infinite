@@ -16,7 +16,7 @@
 //! - Periodic table landscape from field relationships
 //! - Entity integration for atomic property display
 
-use egui::{Color32, Context, Ui, Vec2};
+use egui::{Color32, Context, Ui};
 use std::collections::HashMap;
 
 use crate::entity_layer7::layer7::SubSubLogos;
@@ -26,7 +26,6 @@ use crate::gui::visualization::atomic_viz::{
 };
 use crate::holographic_foundation::atomic_emergence::atomic_manifestation::AtomicManifestation;
 use crate::holographic_foundation::atomic_emergence::attractor_field::AttractorField;
-use crate::holographic_foundation::atomic_emergence::element_attractor::ElementIdentity;
 use crate::holographic_foundation::atomic_emergence::particle_derivation::{
     DerivationFactors, ParticleArchetypePattern, ParticleProperties, ParticleType,
 };
@@ -38,8 +37,10 @@ use crate::holographic_foundation::quantum_consciousness::quantum_numbers::{
 
 /// View mode for atomic panel tabs
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Default)]
 pub enum AtomicViewMode {
     /// Orbital shell visualization
+    #[default]
     Orbitals,
     /// Attractor field topology
     AttractorFields,
@@ -51,11 +52,6 @@ pub enum AtomicViewMode {
     PeriodicTable,
 }
 
-impl Default for AtomicViewMode {
-    fn default() -> Self {
-        Self::Orbitals
-    }
-}
 
 /// Atomic Panel for Phase C.2
 ///
@@ -169,7 +165,7 @@ impl AtomicPanel {
         let normalized = archetype_sum / 22.0; // Average activation
         let atomic_num = ((normalized * 10.0).floor() as u32) % 118;
 
-        atomic_num.max(1).min(118)
+        atomic_num.clamp(1, 118)
     }
 
     /// Update animations
@@ -189,7 +185,7 @@ impl AtomicPanel {
         if let Some(field_state) = field_state {
             let focus = focus_position
                 .cloned()
-                .unwrap_or_else(|| field_state.root().position.clone());
+                .unwrap_or_else(|| field_state.root().position);
             self.refresh_from_field(field_state, &focus);
         }
 
@@ -202,14 +198,14 @@ impl AtomicPanel {
     }
 
     fn refresh_from_field(&mut self, field_state: &HolographicFieldState, focus: &Position3D) {
-        let manifestation = AtomicManifestation::from_field(field_state, focus.clone());
+        let manifestation = AtomicManifestation::from_field(field_state, *focus);
         let (element, quantum_numbers) = if let Some(manifestation) = manifestation {
             (
                 manifestation.element().clone(),
-                manifestation.element().quantum_numbers().clone(),
+                *manifestation.element().quantum_numbers(),
             )
         } else if let Some(attractor) = AttractorField::from_field_state(field_state, focus) {
-            let qn = attractor.quantum_numbers().clone();
+            let qn = *attractor.quantum_numbers();
             let estimated_atomic_number =
                 ((qn.n as f64 * attractor.configuration().coherence * 10.0) as u32).clamp(1, 118);
             (
@@ -389,7 +385,6 @@ impl AtomicPanel {
         // Create demo quantum numbers based on atomic number
         let quantum_numbers = self
             .field_quantum_numbers
-            .clone()
             .unwrap_or_else(|| self.generate_quantum_numbers(self.selected_atomic_number));
 
         // Render orbital visualization
@@ -846,19 +841,19 @@ impl AtomicPanel {
         };
 
         // Determine azimuthal quantum number
-        let l = ((atomic_number - 1) % (n * (n + 1) / 2)) as u32;
+        let l = (atomic_number - 1) % (n * (n + 1) / 2);
 
         // Magnetic quantum number
         let m = ((atomic_number - 1) % (2 * l + 1)) as i32 - l as i32;
 
         // Spin
-        let spin = if atomic_number % 2 == 0 {
+        let spin = if atomic_number.is_multiple_of(2) {
             Spin::Down
         } else {
             Spin::Up
         };
 
-        QuantumNumberSet::new(n as u32, l as u32, m as i32, spin)
+        QuantumNumberSet::new(n, l, m, spin)
     }
 
     /// Derive atomic mass from field geometry
@@ -983,7 +978,7 @@ impl AtomicPanel {
 
     /// Set selected atomic number
     pub fn set_selected_atomic_number(&mut self, atomic_number: u32) {
-        self.selected_atomic_number = atomic_number.max(1).min(118);
+        self.selected_atomic_number = atomic_number.clamp(1, 118);
     }
 }
 

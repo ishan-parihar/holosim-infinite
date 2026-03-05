@@ -125,7 +125,7 @@ impl HierarchicalCompositionManager {
         for child_id in child_ids {
             self.reverse_mapping
                 .entry(child_id)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(parent_id);
         }
     }
@@ -149,14 +149,14 @@ impl HierarchicalCompositionManager {
     pub fn is_leaf(&self, structure_id: u64) -> bool {
         self.compositions
             .get(&structure_id)
-            .map_or(true, |r| r.child_ids.is_empty())
+            .is_none_or(|r| r.child_ids.is_empty())
     }
 
     /// Check if a structure is a root (no parents)
     pub fn is_root(&self, structure_id: u64) -> bool {
         self.reverse_mapping
             .get(&structure_id)
-            .map_or(true, |parents| parents.is_empty())
+            .is_none_or(|parents| parents.is_empty())
     }
 
     /// Get the hierarchy depth of a structure
@@ -292,7 +292,7 @@ impl SimultaneousEmergenceManager {
 
         for i in 0..count {
             // Create quantum particles: protons, neutrons, electrons
-            let particle_types = vec!["proton", "neutron", "electron"];
+            let particle_types = ["proton", "neutron", "electron"];
             let particle_type = particle_types[i % 3].to_string();
 
             let charge = match particle_type.as_str() {
@@ -1094,7 +1094,7 @@ impl SimultaneousEmergenceManager {
     /// Helper: Calculate electron configuration for an atom
     fn calculate_electron_configuration(&self, atomic_number: u8) -> String {
         // Simplified electron configuration
-        let shells = vec![2, 8, 8, 18, 18, 32, 32];
+        let shells = [2, 8, 8, 18, 18, 32, 32];
         let mut remaining = atomic_number as usize;
         let mut config = String::new();
 

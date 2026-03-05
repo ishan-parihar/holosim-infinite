@@ -7,6 +7,7 @@
 
 /// Easing function types for animations
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default)]
 pub enum EasingFunction {
     /// Linear interpolation (no easing)
     Linear,
@@ -25,6 +26,7 @@ pub enum EasingFunction {
     /// Cubic ease in
     CubicIn,
     /// Cubic ease out
+    #[default]
     CubicOut,
     /// Cubic ease in-out
     CubicInOut,
@@ -34,11 +36,6 @@ pub enum EasingFunction {
     Bounce,
 }
 
-impl Default for EasingFunction {
-    fn default() -> Self {
-        EasingFunction::CubicOut
-    }
-}
 
 impl EasingFunction {
     /// Apply easing to a value (0.0 to 1.0)

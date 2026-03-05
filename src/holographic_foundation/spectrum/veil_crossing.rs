@@ -14,7 +14,7 @@
 //! KEY INSIGHT: Veil is not a binary barrier but a CONTINUOUS TRANSPARENCY field.
 //! Transparency increases with evolution and varies across the density octave.
 
-use super::{DensityPosition, VelocityRatio, VEIL_POSITION, VEIL_THRESHOLD};
+use super::{DensityPosition, VelocityRatio};
 use crate::types::Float;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -484,7 +484,7 @@ mod tests {
         }
 
         let rate = crossing.crossing_rate();
-        assert!(rate >= 0.0 && rate <= 1.0);
+        assert!((0.0..=1.0).contains(&rate));
     }
 
     #[test]

@@ -13,7 +13,6 @@
 //! 3. **Serializable**: All data types must be serializable for caching
 //! 4. **Clone-Friendly**: Cheap to clone (use Arc for heavy data)
 
-use std::sync::Arc;
 
 use crate::entity_layer7::layer7::EntityId;
 use crate::matter::particle::{Complex, Coordinate3D, Vector3D};
@@ -709,7 +708,7 @@ impl TemplateComponent for AtomData {
             .iter()
             .sum::<Float>()
             / 22.0;
-        let atomic_number = ((coherence * 118.0).round() as u32).max(1).min(118);
+        let atomic_number = ((coherence * 118.0).round() as u32).clamp(1, 118);
 
         Self::new(
             config.free_will_seed,

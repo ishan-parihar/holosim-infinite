@@ -7,7 +7,7 @@ use crate::archetypes::common::{
     FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
     LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 use std::collections::HashMap;
 
 // Use Mind Great Way's Milieu type for consistency
@@ -132,55 +132,50 @@ impl GreatWayBodyArchetype {
             + self.athanor_effectiveness * 0.2
             + self.time_space_connection * 0.2
             + self.manifestation_capacity * 0.1)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Update mirror quality based on mind activity
     pub fn update_mirror_quality(&mut self, mind_activity: Float) {
         // Mirror quality improves when mind activity is balanced
-        let target = (mind_activity * 0.7 + 0.3).max(0.0).min(1.0);
-        self.mirror_quality = (self.mirror_quality * 0.8 + target * 0.2).max(0.0).min(1.0);
+        let target = (mind_activity * 0.7 + 0.3).clamp(0.0, 1.0);
+        self.mirror_quality = (self.mirror_quality * 0.8 + target * 0.2).clamp(0.0, 1.0);
         self.update_lambda(self.calculate_great_way_harmony());
     }
 
     /// Update athanor effectiveness based on transformation needs
     pub fn update_athanor_effectiveness(&mut self, transformation_needs: Float) {
         // Athanor effectiveness responds to transformation needs
-        let target = (transformation_needs * 0.8 + 0.2).max(0.0).min(1.0);
+        let target = (transformation_needs * 0.8 + 0.2).clamp(0.0, 1.0);
         self.athanor_effectiveness = (self.athanor_effectiveness * 0.85 + target * 0.15)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda(self.calculate_great_way_harmony());
     }
 
     /// Update time/space connection based on spiritual connection
     pub fn update_time_space_connection(&mut self, spiritual_connection: Float) {
         // Time/space connection improves with spiritual connection
-        let target = (spiritual_connection * 0.75 + 0.25).max(0.0).min(1.0);
+        let target = (spiritual_connection * 0.75 + 0.25).clamp(0.0, 1.0);
         self.time_space_connection = (self.time_space_connection * 0.9 + target * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda(self.calculate_great_way_harmony());
     }
 
     /// Update manifestation capacity
     pub fn update_manifestation_capacity(&mut self, mind_fruits: Float, spirit_fruits: Float) {
         // Manifestation capacity depends on fruits of mind and spirit
-        let target = (mind_fruits * 0.5 + spirit_fruits * 0.5).max(0.0).min(1.0);
+        let target = (mind_fruits * 0.5 + spirit_fruits * 0.5).clamp(0.0, 1.0);
         self.manifestation_capacity = (self.manifestation_capacity * 0.85 + target * 0.15)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda(self.calculate_great_way_harmony());
     }
 
     /// Update environmental conditions from veiling process
     pub fn update_environmental_conditions(&mut self, veiling_conditions: Float) {
         // Environmental conditions drawn from veiling process
-        let target = veiling_conditions.max(0.0).min(1.0);
+        let target = veiling_conditions.clamp(0.0, 1.0);
         self.environmental_conditions = (self.environmental_conditions * 0.9 + target * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda(self.calculate_great_way_harmony());
     }
 
@@ -288,7 +283,7 @@ impl ArchetypeTrait for GreatWayBodyArchetype {
     }
 
     fn update_lambda(&mut self, value: Float) {
-        self.lambda.value = value.max(0.0).min(1.0);
+        self.lambda.value = value.clamp(0.0, 1.0);
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
@@ -309,16 +304,14 @@ impl ArchetypeTrait for GreatWayBodyArchetype {
 
         // Update clarity based on harmony
         self.great_way_clarity = (self.great_way_clarity * 0.9 + harmony * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
 
         // Update lambda
         self.update_lambda(harmony);
 
         // Update integration capacity based on harmony
         self.integration_capacity = (self.integration_capacity * 0.95 + harmony * 0.05)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     fn archetype_id(&self) -> u8 {
@@ -488,8 +481,8 @@ impl Paired for GreatWayBodyArchetype {
     fn calculate_pair_tension(&self, paired_archetype: &dyn Paired) -> Float {
         // Identity pair tension: difference between identity (Significator) and environment (Great Way)
         let paired_lambda = paired_archetype.lambda().value;
-        let tension = (self.lambda.value - paired_lambda).abs();
-        tension
+        
+        (self.lambda.value - paired_lambda).abs()
     }
 
     fn calculate_pair_balance(&self, paired_archetype: &dyn Paired) -> Float {
@@ -539,7 +532,6 @@ impl Holonic for GreatWayBodyArchetype {
                     true
                 }
                 HolonicLevel::Meta => false, // Already at highest level
-                _ => false,
             }
         } else {
             false
@@ -553,8 +545,7 @@ impl Holonic for GreatWayBodyArchetype {
         // Integration is successful when there's room for inclusion
         if self.integration_capacity < 0.9 {
             self.integration_capacity = (self.integration_capacity + lower_capacity * 0.3)
-                .max(0.0)
-                .min(1.0);
+                .clamp(0.0, 1.0);
             true
         } else {
             false
@@ -599,7 +590,7 @@ impl GreatWayArchetypeTrait for GreatWayBodyArchetype {
 
     // Developmental
     fn get_developmental_position(&self) -> DevelopmentalPosition {
-        self.developmental_position.clone()
+        self.developmental_position
     }
 
     fn get_activated_rungs(&self) -> Vec<Rung> {
@@ -668,6 +659,7 @@ impl GreatWayArchetypeTrait for GreatWayBodyArchetype {
 mod tests {
     use super::*;
     use crate::archetypes::common::{ArchetypeRole, HealthStatus, SigmaAxis};
+    use crate::types::Octant;
 
     // Mock Significator for testing paired relationships
     struct MockSignificatorBody {
@@ -709,7 +701,7 @@ mod tests {
         }
 
         fn update_lambda(&mut self, value: Float) {
-            self.lambda.value = value.max(0.0).min(1.0);
+            self.lambda.value = value.clamp(0.0, 1.0);
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
@@ -840,7 +832,7 @@ mod tests {
         let lambda = great_way.calculate_lambda();
 
         // Lambda should be within valid range
-        assert!(lambda >= 0.0 && lambda <= 1.0);
+        assert!((0.0..=1.0).contains(&lambda));
 
         // Lambda should be close to initial harmony
         assert!((lambda - 0.65).abs() < 0.1);
@@ -1119,7 +1111,7 @@ mod tests {
         let harmony = great_way.calculate_great_way_harmony();
 
         // Harmony should be within valid range
-        assert!(harmony >= 0.0 && harmony <= 1.0);
+        assert!((0.0..=1.0).contains(&harmony));
 
         // Harmony should be close to initial values
         assert!((harmony - 0.65).abs() < 0.1);

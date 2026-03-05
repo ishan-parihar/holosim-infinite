@@ -388,7 +388,7 @@ impl SpectrumConfiguration {
     /// Stable structures have balanced ratios (close to 1.0)
     pub fn is_stable(&self) -> bool {
         let ratio = self.get_ratio();
-        ratio >= 0.8 && ratio <= 1.2
+        (0.8..=1.2).contains(&ratio)
     }
 }
 

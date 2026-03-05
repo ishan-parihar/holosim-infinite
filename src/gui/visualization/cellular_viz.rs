@@ -20,31 +20,23 @@
 //! - Cells as field boundaries with membranes
 //! - Simultaneous emergence: cells AND Gaia consciousness from the same field
 
-use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::cellular_emergence::archetype_genes::{
-    ArchetypeGene, GeneCategory, GeneExpressionProfile, GeneId, GeneRegulatoryNetwork,
+    ArchetypeGene, GeneCategory, GeneExpressionProfile, GeneRegulatoryNetwork,
 };
 use crate::holographic_foundation::cellular_emergence::cell_manifestation::{
-    CellBoundary, CellId, CellManifestation, CellMembrane, CellOrganelle, CellState,
-    CellularFieldConfiguration,
-};
-use crate::holographic_foundation::cellular_emergence::gene_expression::{
-    ExpressionCondition, ExpressionResult, GeneExpressionEngine,
+    CellManifestation, CellOrganelle, CellState,
 };
 use crate::holographic_foundation::cellular_emergence::holographic_blueprint::{
-    BlueprintId, DevelopmentalStage, HolographicBlueprint, OrganismManifestation,
+    DevelopmentalStage, HolographicBlueprint, OrganismManifestation,
 };
 use crate::holographic_foundation::cellular_emergence::protein_field::{
-    AminoAcid, ProteinFoldingField, ProteinManifestation, ProteinStructure, SecondaryStructure,
+    AminoAcid, ProteinManifestation, SecondaryStructure,
 };
 use crate::holographic_foundation::cellular_emergence::simultaneous_emergence::{
-    CellularGaiaPair, CellularPlanetaryResonance, GaiaConsciousness, PlanetaryCellField,
-    PlanetaryCellType,
+    GaiaConsciousness, PlanetaryCellField,
 };
 use crate::holographic_foundation::field_state::Position3D;
 use egui::Color32;
-use egui::Stroke;
-use std::collections::HashMap;
 
 // ============================================================================
 // Blueprint Renderer - Visualize Holographic Blueprint for Morphogenesis
@@ -97,7 +89,7 @@ pub struct DevelopmentalStageData {
 impl From<&DevelopmentalStage> for DevelopmentalStageData {
     fn from(stage: &DevelopmentalStage) -> Self {
         Self {
-            stage: stage.clone(),
+            stage: *stage,
             complexity_factor: stage.complexity_factor() as f32,
             activation_threshold: stage.gene_activation_threshold() as f32,
             cell_count: match stage {
@@ -145,7 +137,7 @@ impl From<&HolographicBlueprint> for BlueprintRenderData {
             developmental_stages: blueprint
                 .developmental_sequence
                 .iter()
-                .map(|s| DevelopmentalStageData::from(s))
+                .map(DevelopmentalStageData::from)
                 .collect(),
             species_signature: blueprint.species_signature,
         }
@@ -437,6 +429,7 @@ impl From<&GeneRegulatoryNetwork> for NetworkViewData {
 
 /// Gene expression view widget
 pub struct GeneExpressionView {
+    #[allow(dead_code)]
     selected_category: Option<GeneCategory>,
     pub show_network: bool,
     pub show_expression_levels: bool,
@@ -787,7 +780,7 @@ impl ProteinFoldingView {
                     .max_height(40.0)
                     .show(ui, |ui| {
                         ui.horizontal(|ui| {
-                            for (i, protein) in proteins.iter().enumerate() {
+                            for (i, _protein) in proteins.iter().enumerate() {
                                 let label = format!("P{}", i + 1);
                                 let is_selected = i == self.selected_protein_index;
                                 if ui.selectable_label(is_selected, label).clicked() {
@@ -1623,7 +1616,7 @@ impl CellularVisualizationPanel {
             CellularTab::GeneExpression => {
                 self.gene_expression_view.render(
                     ui,
-                    &organism
+                    organism
                         .cells
                         .first()
                         .map(|c| &c.expression_profile)

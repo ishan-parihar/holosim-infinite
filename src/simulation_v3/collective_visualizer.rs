@@ -52,7 +52,7 @@ impl CollectiveVisualizer {
             "Total Shared Experiences: {}\n",
             statistics.basic.total_shared_experiences
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Collective polarity distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -79,7 +79,7 @@ impl CollectiveVisualizer {
             "Unpolarized Collectives: {}\n",
             polarity.unpolarized_count
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Behavior type distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -88,7 +88,7 @@ impl CollectiveVisualizer {
         for (behavior_type, count) in &statistics.basic.collectives_by_behavior {
             output.push_str(&format!("  {:?}: {}\n", behavior_type, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Density distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -97,7 +97,7 @@ impl CollectiveVisualizer {
         for (density, count) in &statistics.basic.collective_density_distribution {
             output.push_str(&format!("  {:?}: {}\n", density, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -136,7 +136,7 @@ impl CollectiveVisualizer {
             "Average Integration Level: {:.4}\n",
             statistics.behavior.average_integration_level
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Behavior type distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -158,7 +158,7 @@ impl CollectiveVisualizer {
                 behavior_type, count, percentage
             ));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -197,7 +197,7 @@ impl CollectiveVisualizer {
             "Average Shared Experience Intensity: {:.4}\n",
             statistics.consciousness.average_shared_experience_intensity
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Shared experience types
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -219,7 +219,7 @@ impl CollectiveVisualizer {
                 exp_type, count, percentage
             ));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Emergent properties
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -228,7 +228,7 @@ impl CollectiveVisualizer {
         for (property, value) in &statistics.consciousness.emergent_properties {
             output.push_str(&format!("  {}: {:.4}\n", property, value));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -259,7 +259,7 @@ impl CollectiveVisualizer {
             "Average Collective Learning Rate: {:.4}\n",
             statistics.evolution.average_collective_learning_rate
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Density distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -277,7 +277,7 @@ impl CollectiveVisualizer {
                 density, count, percentage
             ));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Transitions by density
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -286,7 +286,7 @@ impl CollectiveVisualizer {
         for (density, count) in &statistics.evolution.transitions_by_density {
             output.push_str(&format!("  From {:?}: {} transitions\n", density, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -325,7 +325,7 @@ impl CollectiveVisualizer {
             "Average Voting Power: {:.4}\n",
             statistics.free_will.average_voting_power
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Consensus mechanism distribution
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -347,7 +347,7 @@ impl CollectiveVisualizer {
                 mechanism, count, percentage
             ));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -382,7 +382,7 @@ impl CollectiveVisualizer {
             "Resonance Coherence: {:.4}\n",
             statistics.resonance.resonance_coherence
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Resonance by scale
         output.push_str("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
@@ -391,7 +391,7 @@ impl CollectiveVisualizer {
         for (scale, resonance) in &statistics.resonance.resonance_by_scale {
             output.push_str(&format!("  {:?}: {:.4}\n", scale, resonance));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -441,7 +441,7 @@ impl CollectiveVisualizer {
                 "  Total Collective Decisions: {}\n",
                 data.total_collective_decisions
             ));
-            output.push_str("\n");
+            output.push('\n');
         }
 
         output
@@ -454,13 +454,9 @@ impl CollectiveVisualizer {
     ) -> String {
         let mut output = String::new();
 
-        output.push_str(&format!(
-            "╔════════════════════════════════════════════════════════════╗\n"
-        ));
+        output.push_str("╔════════════════════════════════════════════════════════════╗\n");
         output.push_str(&format!("║          COLLECTIVE: {:<40} ║\n", collective_id));
-        output.push_str(&format!(
-            "╚════════════════════════════════════════════════════════════╝\n\n"
-        ));
+        output.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
 
         // Find collective behavior
         if let Some(behavior) = manager
@@ -488,7 +484,7 @@ impl CollectiveVisualizer {
                 "Collective Polarity: {:?}\n",
                 behavior.collective_polarity
             ));
-            output.push_str("\n");
+            output.push('\n');
 
             output.push_str("Behavior Parameters:\n");
             output.push_str(&format!(
@@ -511,7 +507,7 @@ impl CollectiveVisualizer {
                 "  Integration Level: {:.4}\n",
                 behavior.behavior_parameters.integration_level
             ));
-            output.push_str("\n");
+            output.push('\n');
         }
 
         // Find collective evolution
@@ -540,7 +536,7 @@ impl CollectiveVisualizer {
                 "Density Transitions: {}\n",
                 evolution.collective_transitions.len()
             ));
-            output.push_str("\n");
+            output.push('\n');
         }
 
         // Find group consciousness
@@ -568,14 +564,14 @@ impl CollectiveVisualizer {
                 "Collective Memories: {}\n",
                 consciousness.collective_memory.len()
             ));
-            output.push_str("\n");
+            output.push('\n');
 
             if !consciousness.emergent_properties.is_empty() {
                 output.push_str("Emergent Properties:\n");
                 for (property, value) in &consciousness.emergent_properties {
                     output.push_str(&format!("  {}: {:.4}\n", property, value));
                 }
-                output.push_str("\n");
+                output.push('\n');
             }
         }
 
@@ -604,7 +600,7 @@ impl CollectiveVisualizer {
                 "Voting Power Distribution: {} entities\n",
                 free_will.voting_power.len()
             ));
-            output.push_str("\n");
+            output.push('\n');
         }
 
         output

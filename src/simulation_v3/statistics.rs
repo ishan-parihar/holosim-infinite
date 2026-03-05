@@ -25,6 +25,7 @@ use std::time::Duration;
 /// Tracks all aspects of the simulation including involution, evolution,
 /// holographic field, and physical manifestation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct SimulationStatistics {
     /// Involution phase statistics
     pub involution: InvolutionStatistics,
@@ -534,11 +535,11 @@ impl StatisticsTracker {
                     crate::matter::Matter::Particle(p) => {
                         mass_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(p.mass);
                         charge_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(p.charge);
                         position_distribution.push(p.position);
                         total_energy += p.total_energy();
@@ -548,11 +549,11 @@ impl StatisticsTracker {
                         let mass = a.atomic_mass();
                         mass_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(mass);
                         charge_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(a.atomic_number as Float);
                         position_distribution.push(a.position);
                         total_energy += mass * 2.998e8 * 2.998e8; // E = mc²
@@ -566,7 +567,7 @@ impl StatisticsTracker {
                         }
                         mass_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(molecule_mass);
                         total_energy += molecule_mass * 2.998e8 * 2.998e8;
                         total_mass += molecule_mass;
@@ -576,7 +577,7 @@ impl StatisticsTracker {
                         let cell_mass = 1.0e-12; // Typical cell mass
                         mass_distribution
                             .entry(scale_name.clone())
-                            .or_insert_with(Vec::new)
+                            .or_default()
                             .push(cell_mass);
                         total_energy += cell_mass * 2.998e8 * 2.998e8;
                         total_mass += cell_mass;
@@ -634,53 +635,51 @@ impl StatisticsTracker {
 
     /// Update architecture alignment metrics
     pub fn update_architecture_metrics(&mut self) {
-        let mut metrics = ArchitectureMetrics::default();
-
         // Check Three Primal Distortions
-        metrics.three_primal_distortions = self.statistics.involution.stage_details.len() >= 4;
+        let three_primal_distortions = self.statistics.involution.stage_details.len() >= 4;
 
         // Check "transcend and include" stages
-        metrics.transcend_include_stages = self.statistics.involution.stage_details.len();
-        metrics.transcend_include_stages_total = 8;
+        let transcend_include_stages = self.statistics.involution.stage_details.len();
+        let transcend_include_stages_total = 8;
 
         // Check Space/Time spectrum
-        metrics.space_time_spectrum = !self
+        let space_time_spectrum = !self
             .statistics
             .spectrum_access
             .spectrum_ratio_distribution
             .is_empty();
 
         // Check Veil position
-        metrics.veil_position = self.statistics.spectrum_access.veil_active_count > 0
+        let veil_position = self.statistics.spectrum_access.veil_active_count > 0
             || self.statistics.spectrum_access.veil_inactive_count > 0;
 
         // Check Logos Hierarchy
-        metrics.logos_hierarchy = self.statistics.involution.attractor_fields_created > 0;
+        let logos_hierarchy = self.statistics.involution.attractor_fields_created > 0;
 
         // Check Density Octave
-        metrics.density_octave = !self.statistics.evolution.density_distribution.is_empty()
+        let density_octave = !self.statistics.evolution.density_distribution.is_empty()
             && self.statistics.evolution.density_distribution.len() > 1;
 
         // Check Holographic principle
-        metrics.holographic_principle = self.statistics.holographic.connection_count > 0
+        let holographic_principle = self.statistics.holographic.connection_count > 0
             && self.statistics.holographic.global_phase_coherence > 0.0;
 
         // Phase 4: Check Environmental interaction
-        metrics.environmental_interaction = self
+        let environmental_interaction = self
             .statistics
             .emergent_properties
             .environmental_integration
             > 0.0;
 
         // Phase 4: Check Collective influence
-        metrics.collective_influence = self
+        let collective_influence = self
             .statistics
             .emergent_properties
             .collective_consciousness_level
             > 0.0;
 
         // Phase 4: Check Emergent properties
-        metrics.emergent_properties = self.statistics.emergent_properties.emergence_score > 0.3;
+        let emergent_properties = self.statistics.emergent_properties.emergence_score > 0.3;
 
         // Phase 3: Check Free Will / Polarity
         // Check if there are polarized entities (STO or STS)
@@ -692,13 +691,13 @@ impl StatisticsTracker {
                 .evolution
                 .polarization_distribution
                 .unpolarized;
-        metrics.polarization_diversity = total_entities > 0 && total_polarized > 0;
+        let polarization_diversity = total_entities > 0 && total_polarized > 0;
 
         // Phase 7: Check Quantum pools
-        metrics.quantum_pools = self.statistics.consciousness_to_matter.total_pools > 0;
+        let quantum_pools = self.statistics.consciousness_to_matter.total_pools > 0;
 
         // Phase 7: Check Consciousness-to-matter transitions
-        metrics.consciousness_to_matter_transitions =
+        let consciousness_to_matter_transitions =
             self.statistics.consciousness_to_matter.active_transitions > 0
                 || self
                     .statistics
@@ -709,18 +708,18 @@ impl StatisticsTracker {
         // Calculate alignment score (Phase 3: Now includes Phase 3 features)
         let total_checks = 13;
         let passed_checks = [
-            metrics.three_primal_distortions,
-            metrics.space_time_spectrum,
-            metrics.veil_position,
-            metrics.logos_hierarchy,
-            metrics.density_octave,
-            metrics.holographic_principle,
-            metrics.environmental_interaction,
-            metrics.collective_influence,
-            metrics.emergent_properties,
-            metrics.polarization_diversity, // Phase 3
-            metrics.quantum_pools,
-            metrics.consciousness_to_matter_transitions,
+            three_primal_distortions,
+            space_time_spectrum,
+            veil_position,
+            logos_hierarchy,
+            density_octave,
+            holographic_principle,
+            environmental_interaction,
+            collective_influence,
+            emergent_properties,
+            polarization_diversity, // Phase 3
+            quantum_pools,
+            consciousness_to_matter_transitions,
         ]
         .iter()
         .filter(|&&x| x)
@@ -749,9 +748,30 @@ impl StatisticsTracker {
             0.0
         };
 
-        metrics.alignment_score =
+        let alignment_score =
             ((passed_checks / total_checks as Float) + emergence_bonus + transition_bonus)
                 .clamp(0.0, 1.0);
+
+        let alignment_percentage = alignment_score * 100.0;
+
+        let metrics = ArchitectureMetrics {
+            three_primal_distortions,
+            transcend_include_stages,
+            transcend_include_stages_total,
+            space_time_spectrum,
+            veil_position,
+            logos_hierarchy,
+            density_octave,
+            holographic_principle,
+            environmental_interaction,
+            collective_influence,
+            emergent_properties,
+            polarization_diversity,
+            quantum_pools,
+            consciousness_to_matter_transitions,
+            alignment_score,
+            alignment_percentage,
+        };
 
         self.statistics.architecture = metrics;
     }
@@ -862,11 +882,13 @@ impl StatisticsTracker {
             let total_st: Float = st_access.iter().sum();
             let total_ts: Float = ts_access.iter().sum();
 
-            let mut stats = SpectrumAccessStats::default();
-            stats.count = count;
-            stats.average_ratio = total_ratio / count as Float;
-            stats.average_space_time_access = total_st / count as Float;
-            stats.average_time_space_access = total_ts / count as Float;
+            let mut stats = SpectrumAccessStats {
+                count,
+                average_ratio: total_ratio / count as Float,
+                average_space_time_access: total_st / count as Float,
+                average_time_space_access: total_ts / count as Float,
+                ..Default::default()
+            };
 
             // Count dominance types
             for ratio in &ratios {
@@ -905,11 +927,13 @@ impl StatisticsTracker {
             let total_st: Float = st_access.iter().sum();
             let total_ts: Float = ts_access.iter().sum();
 
-            let mut stats = SpectrumAccessStats::default();
-            stats.count = count;
-            stats.average_ratio = total_ratio / count as Float;
-            stats.average_space_time_access = total_st / count as Float;
-            stats.average_time_space_access = total_ts / count as Float;
+            let mut stats = SpectrumAccessStats {
+                count,
+                average_ratio: total_ratio / count as Float,
+                average_space_time_access: total_st / count as Float,
+                average_time_space_access: total_ts / count as Float,
+                ..Default::default()
+            };
 
             // Count dominance types
             for ratio in &ratios {
@@ -1020,22 +1044,6 @@ impl StatisticsTracker {
 // DEFAULT IMPLEMENTATIONS
 // ============================================================================
 
-impl Default for SimulationStatistics {
-    fn default() -> Self {
-        SimulationStatistics {
-            involution: InvolutionStatistics::default(),
-            evolution: EvolutionStatistics::default(),
-            holographic: HolographicFieldStatistics::default(),
-            physical: PhysicalStatistics::default(),
-            performance: PerformanceMetrics::default(),
-            architecture: ArchitectureMetrics::default(),
-            spectrum_access: SpectrumAccessStatistics::default(),
-            individual_variation: IndividualVariationStatistics::default(),
-            emergent_properties: EmergentProperties::default(),
-            consciousness_to_matter: ConsciousnessToMatterStatistics::default(),
-        }
-    }
-}
 
 impl Default for InvolutionStatistics {
     fn default() -> Self {
@@ -1721,7 +1729,7 @@ mod tests {
     #[test]
     fn test_architecture_metrics_default() {
         let metrics = ArchitectureMetrics::default();
-        assert_eq!(metrics.three_primal_distortions, false);
+        assert!(!metrics.three_primal_distortions);
         assert_eq!(metrics.transcend_include_stages, 0);
         assert_eq!(metrics.alignment_score, 0.0);
     }

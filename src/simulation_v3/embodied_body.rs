@@ -30,8 +30,10 @@ use crate::types::Float;
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 3:
 /// "Bodies need survival, can die from starvation, trauma, disease"
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub enum SurvivalStatus {
     /// Body is healthy and functioning
+    #[default]
     Alive,
     /// Body is in critical condition (value indicates health percentage 0.0-1.0)
     Critical(Float),
@@ -39,11 +41,6 @@ pub enum SurvivalStatus {
     Dead(DeathCause),
 }
 
-impl Default for SurvivalStatus {
-    fn default() -> Self {
-        SurvivalStatus::Alive
-    }
-}
 
 impl SurvivalStatus {
     /// Check if the body is alive
@@ -410,7 +407,7 @@ impl BodyEnvironment {
         let safety_score = 1.0 - (self.predator_density + self.radiation).min(1.0);
 
         // Weighted average
-        (temp_score * 0.3 + resource_score * 0.4 + safety_score * 0.3)
+        temp_score * 0.3 + resource_score * 0.4 + safety_score * 0.3
     }
 
     /// Check if environment is hostile (requires immediate survival response)
@@ -787,9 +784,11 @@ mod tests {
         assert!(habitability > 0.5 && habitability <= 1.0);
 
         // Hostile environment should have lower habitability
-        let mut hostile = BodyEnvironment::default();
-        hostile.temperature = 350.0; // Very hot
-        hostile.water_availability = 0.05; // Almost no water
+        let hostile = BodyEnvironment {
+            temperature: 350.0, // Very hot
+            water_availability: 0.05, // Almost no water
+            ..Default::default()
+        };
         let hostile_habitability = hostile.calculate_habitability();
         assert!(hostile_habitability < habitability);
     }
@@ -799,12 +798,16 @@ mod tests {
         let env = BodyEnvironment::default();
         assert!(!env.is_hostile());
 
-        let mut hostile = BodyEnvironment::default();
-        hostile.temperature = 200.0; // Very cold
+        let hostile = BodyEnvironment {
+            temperature: 200.0, // Very cold
+            ..Default::default()
+        };
         assert!(hostile.is_hostile());
 
-        hostile = BodyEnvironment::default();
-        hostile.predator_density = 0.8;
+        let hostile = BodyEnvironment {
+            predator_density: 0.8,
+            ..Default::default()
+        };
         assert!(hostile.is_hostile());
     }
 

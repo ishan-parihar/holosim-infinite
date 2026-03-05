@@ -261,7 +261,7 @@ impl ViewSystem {
     /// Update transition state, returns (interpolated_position, interpolated_zoom, interpolated_rotation)
     pub fn update_transition(
         &mut self,
-        delta_time: Duration,
+        _delta_time: Duration,
         current_time: Duration,
     ) -> Option<(Vec3, f32, f32)> {
         if let Some(target_view) = self.state.target_view {
@@ -273,7 +273,7 @@ impl ViewSystem {
             let start_time = self.state.transition_start.unwrap();
             let config = self.view_configs.get(&target_view)?;
             let elapsed = current_time.saturating_sub(start_time);
-            let duration = Duration::from_secs_f32(config.transition_duration);
+            let _duration = Duration::from_secs_f32(config.transition_duration);
 
             // Calculate progress with ease-in-out smoothing
             let raw_progress = (elapsed.as_secs_f32() / config.transition_duration).min(1.0);

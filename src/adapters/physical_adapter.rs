@@ -966,14 +966,8 @@ pub struct PhysicalAdapterSummary {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::{EntityId, IndividualSpectrumConfiguration};
-    use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
-    use crate::foundation::{
-        IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm,
-        VioletRealm,
-    };
-    use crate::spectrum::{ArchetypicalMind, OrangeRealm, RedRealm, SpectrumRatio, YellowRealm};
-    use std::collections::HashMap;
+    use crate::entity_layer7::layer7::IndividualSpectrumConfiguration;
+    use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel, Density2SubLevel};
 
     // Helper function to create a test entity
     fn create_test_entity(entity_id: u64) -> SubSubLogos {
@@ -982,8 +976,7 @@ mod tests {
             IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm,
             VioletRealm,
         };
-        use crate::spectrum::{ArchetypicalMind, OrangeRealm, RedRealm, YellowRealm};
-        use std::collections::HashMap;
+        use crate::spectrum::{OrangeRealm, RedRealm, YellowRealm};
 
         // Create all required realms (simplified)
         let violet_realm = VioletRealm::new();
@@ -1001,7 +994,7 @@ mod tests {
         let red_realm = RedRealm::new(orange_realm.clone());
 
         // Create spectrum configuration
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_configuration = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
@@ -1086,9 +1079,7 @@ mod tests {
 
     #[test]
     fn test_energy_level_from_vibrational_state() {
-        use crate::evolution_density_octave::density_octave::{
-            Density, Density1SubLevel, Density2SubLevel,
-        };
+        use crate::evolution_density_octave::density_octave::Density;
         let vibrational_state = VibrationalState {
             frequency: 0.1,
             amplitude: 0.5,
@@ -1181,7 +1172,7 @@ mod tests {
 
     #[test]
     fn test_physical_properties_from_spectrum_configuration() {
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
@@ -1197,7 +1188,7 @@ mod tests {
 
     #[test]
     fn test_physical_properties_binding_energy() {
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.8, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
@@ -1215,7 +1206,7 @@ mod tests {
 
     #[test]
     fn test_physical_properties_binding_energy_alternative_constructor() {
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.8, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
@@ -1288,7 +1279,7 @@ mod tests {
     fn test_translation_mappings_add_spectrum_mapping() {
         let mut mappings = TranslationMappings::new();
 
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
         let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
@@ -1302,7 +1293,7 @@ mod tests {
     fn test_translation_mappings_add_spectrum_mapping_with_ratio() {
         let mut mappings = TranslationMappings::new();
 
-        use crate::spectrum::larson_framework::SpectrumSide;
+        use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
         let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
@@ -1391,9 +1382,7 @@ mod tests {
         adapter.add_entity(entity);
 
         adapter.update_physical_manifestations(1e-15);
-
-        // Should not panic
-        assert!(true);
+        // Test passes if no panic occurred
     }
 
     #[test]

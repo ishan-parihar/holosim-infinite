@@ -158,7 +158,7 @@ mod integration_tests {
         assert!(soul_choice.karmic_patterns_to_resolve.contains(&pattern_id));
 
         // 3. Second incarnation
-        let incarnation2_id = soul_stream.start_incarnation(
+        let _incarnation2_id = soul_stream.start_incarnation(
             soul_choice.chosen_density,
             soul_choice.chosen_polarity_goal,
             soul_choice.chosen_lessons,
@@ -252,6 +252,6 @@ mod integration_tests {
         // Retrieve similar experiences (should find from both incarnations)
         let similar = soul_stream.retrieve_similar(&query, 5);
 
-        assert!(similar.len() > 0);
+        assert!(!similar.is_empty());
     }
 }

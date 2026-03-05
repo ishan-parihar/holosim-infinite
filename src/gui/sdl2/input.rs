@@ -9,7 +9,7 @@
 use sdl2::keyboard::Keycode;
 use sdl2::mouse::MouseButton;
 use std::collections::{HashMap, HashSet};
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use super::event_loop::{GamepadAxis, GamepadButton, Modifiers, WindowEvent};
 
@@ -66,8 +66,10 @@ impl WorldPosition {
 
 /// Mouse drag state
 #[derive(Debug, Clone, PartialEq)]
+#[derive(Default)]
 pub enum DragState {
     /// Not dragging
+    #[default]
     Idle,
     /// Dragging with start position
     Dragging {
@@ -79,11 +81,6 @@ pub enum DragState {
     },
 }
 
-impl Default for DragState {
-    fn default() -> Self {
-        DragState::Idle
-    }
-}
 
 impl DragState {
     pub fn is_dragging(&self) -> bool {
@@ -1182,7 +1179,7 @@ impl CameraInputController {
         let mut move_z = 0.0f32;
         let mut rotate_x = 0.0f32;
         let mut rotate_y = 0.0f32;
-        let mut zoom = 0.0f32;
+        let mut zoom: f32;
 
         // Keyboard movement (check for key repeat to allow smooth movement)
         let is_w_pressed = input.is_key_pressed(Keycode::W);
@@ -1253,7 +1250,7 @@ impl CameraInputController {
 
     /// Get movement vector (only x, y, z)
     pub fn get_movement(&self, input: &InputState) -> (f32, f32, f32) {
-        let (_, my, mz, rx, ry, zoom) = self.process(input);
+        let (_, my, mz, _rx, _ry, _zoom) = self.process(input);
         (0.0, my, mz)
     }
 
@@ -1434,8 +1431,8 @@ impl CameraInputController {
     /// Returns: (move_x, move_y, move_z, rotate_x, rotate_y, zoom)
     pub fn process_gamepad(&self, input: &InputState) -> (f32, f32, f32, f32, f32, f32) {
         let mut move_x = 0.0f32;
-        let mut move_y = 0.0f32;
-        let mut move_z = 0.0f32;
+        let move_y = 0.1f32;
+        let mut move_z = 0.1f32;
         let mut rotate_x = 0.0f32;
         let mut rotate_y = 0.0f32;
         let mut zoom = 0.0f32;
@@ -1548,6 +1545,7 @@ impl CameraInputController {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use sdl2::controller::{Axis, Button};
 
     #[test]
     fn test_input_state_default() {
@@ -1604,7 +1602,7 @@ mod tests {
         let controller = CameraInputController::new();
         let input = InputState::new();
 
-        let (mx, my, mz, rx, ry, zoom) = controller.process(&input);
+        let (mx, my, mz, _rx, _ry, _zoom) = controller.process(&input);
         assert_eq!(mx, 0.0);
         assert_eq!(my, 0.0);
         assert_eq!(mz, 0.0);

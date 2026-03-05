@@ -342,7 +342,7 @@ impl<T: Clone> LayerBuilder<T> {
             layer_name: first_name,
         });
 
-        for (name, data) in iter {
+        for (_name, data) in iter {
             current = Arc::new(LayerReference::transcend(current, data));
         }
 

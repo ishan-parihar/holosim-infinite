@@ -131,7 +131,7 @@ impl FreeWillTerm {
     ///  - Time/Space (v < 1): More deterministic, structured perturbations
     ///  - At Veil (v ≈ 1): Maximal choice potential, phase transition
     ///  - Space/Time (v > 1): More chaotic, individual choices"
-    pub fn apply(&mut self, state: &mut FieldState, position: &[f64; 3], time: f64) {
+    pub fn apply(&mut self, state: &mut FieldState, _position: &[f64; 3], _time: f64) {
         self.entropy_accumulator += self.config.entropy_rate * 0.01;
         self.total_applications += 1;
 
@@ -308,9 +308,7 @@ impl FreeWillTerm {
 
         // Possibility 2: Balance all densities
         let mut p2 = [0.0; NUM_DENSITY_BANDS];
-        for i in 0..NUM_DENSITY_BANDS {
-            p2[i] = self.config.amplitude * 0.5;
-        }
+        p2.fill(self.config.amplitude * 0.5);
         possibilities.push(p2);
 
         // Possibility 3: Shift to adjacent density
@@ -321,9 +319,7 @@ impl FreeWillTerm {
 
         // Possibility 4: Create entropy (breakdown)
         let mut p4 = [0.0; NUM_DENSITY_BANDS];
-        for i in 0..NUM_DENSITY_BANDS {
-            p4[i] = -self.config.amplitude * 0.3;
-        }
+        p4.fill(-self.config.amplitude * 0.3);
         possibilities.push(p4);
 
         possibilities
@@ -386,7 +382,7 @@ impl FreeWillTerm {
         // Base noise that all densities share (correlated component)
         let base_noise = self.rng.sample(uniform) * noise_scale;
 
-        for (i, amp) in state.density_amplitudes.iter_mut().enumerate() {
+        for amp in state.density_amplitudes.iter_mut() {
             // Each density gets base + independent component
             let independent = self.rng.sample(uniform) * (1.0 - noise_scale);
             let total_noise = (base_noise + independent) * self.config.amplitude;

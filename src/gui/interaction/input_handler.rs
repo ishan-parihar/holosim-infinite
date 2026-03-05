@@ -15,7 +15,6 @@ use crate::gui::interaction::raycaster::{RaycastResult, Raycaster3D, SelectionMa
 use crate::gui::{Coordinate3D, ScreenPosition};
 use std::collections::HashMap;
 use winit::{
-    dpi::PhysicalPosition,
     event::{ElementState, KeyEvent, MouseButton, MouseScrollDelta, WindowEvent},
     keyboard::{Key, NamedKey},
 };
@@ -527,7 +526,7 @@ impl InputHandler {
                 self.last_mouse_position = self.mouse_position;
                 self.mouse_position = ScreenPosition::new(position.x as f32, position.y as f32);
 
-                let event = InputEvent::MouseMoved {
+                let _event = InputEvent::MouseMoved {
                     position: self.mouse_position,
                 };
 
@@ -535,7 +534,7 @@ impl InputHandler {
             }
 
             WindowEvent::MouseWheel { delta, .. } => {
-                let event = InputEvent::MouseScrolled {
+                let _event = InputEvent::MouseScrolled {
                     delta: *delta,
                     modifiers: self.modifiers,
                 };

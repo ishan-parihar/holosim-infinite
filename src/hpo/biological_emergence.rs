@@ -17,7 +17,7 @@
 
 use super::archetype_matter::NUM_ARCHETYPES;
 use super::complexity_emergence::{ComplexMolecule, ComplexityPhase};
-use super::field_state::{FieldNodeData, Float};
+use super::field_state::Float;
 use super::spatial_field::Position3D;
 use std::collections::HashMap;
 
@@ -81,7 +81,7 @@ impl EmergentDNA {
             let value = archetypes[archetype_idx];
 
             // Map value to nucleotide (simplified)
-            let nucleotide = Nucleotide::from_index(((value * 100.0) as usize + i));
+            let nucleotide = Nucleotide::from_index((value * 100.0) as usize + i);
             sequence.push(nucleotide);
         }
 
@@ -414,10 +414,10 @@ impl BiologicalEmergence {
         let dna = self.derive_dna_from_molecules(molecules);
 
         // Derive metabolism from energy flow (R&D-5)
-        let metabolism = self.derive_metabolism(molecules);
+        let _metabolism = self.derive_metabolism(molecules);
 
         // Create cell with emergent properties
-        let mut cell = LivingCell::new(self.next_cell_id(), position, dna);
+        let cell = LivingCell::new(self.next_cell_id(), position, dna);
 
         // Add metabolic information (stored in cell metadata)
         // For now, we'll add it as part of the cell's archetype pattern
@@ -567,7 +567,7 @@ impl BiologicalEmergence {
 
         let mut new_cells = Vec::new();
 
-        for (cell_id, cell, cell_seed) in cell_data {
+        for (_cell_id, cell, cell_seed) in cell_data {
             if cell.can_divide() && pseudo_rand(cell_seed) < self.config.division_rate {
                 // Create daughter cell
                 let offset = Position3D::new(
@@ -851,7 +851,7 @@ mod tests {
         let emergence = BiologicalEmergence::with_defaults();
 
         // Low coherence should not trigger life
-        let low_archetypes = [0.2; 22];
+        let _low_archetypes = [0.2; 22];
         let can_emerge = emergence.check_life_emergence(ComplexityPhase::Molecular, 10);
 
         // Will be false because coherence is low

@@ -301,7 +301,7 @@ impl BidirectionalCoupling {
         // In a full implementation, this would modify actual terrain/atmosphere/hydrosphere
         // For now, we track the modifications via Gaia updates
 
-        let mut count = 0;
+        
 
         // Modifications would be applied to:
         // - Gaia's planetary data (biosphere health, etc.)
@@ -311,7 +311,7 @@ impl BidirectionalCoupling {
         // Apply to Gaia's biosphere based on influence types
         // (This is tracked in update_gaia_from_coupling)
 
-        count
+        0
     }
 
     /// Generate environmental responses based on influence

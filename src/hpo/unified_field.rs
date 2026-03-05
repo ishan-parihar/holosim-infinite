@@ -15,7 +15,7 @@
 //!
 //! KEY PARADIGM SHIFT: Field is PRIMARY - matter/space/biology emerge from field dynamics
 
-use super::field_state::{Complex, DensityBand, FieldNodeData, Float, OctreeNode};
+use super::field_state::{FieldNodeData, Float, OctreeNode};
 use rand::distributions::Uniform;
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::HashMap;
@@ -141,7 +141,7 @@ impl FreeWillTerm {
     /// This represents Free Will breaking the perfect symmetry through actual randomness
     ///
     /// From R&D Roadmap: "Use actual quantum randomness or high-entropy seed"
-    pub fn apply(&mut self, node_data: &mut FieldNodeData, position: &[Float; 3], time: Float) {
+    pub fn apply(&mut self, node_data: &mut FieldNodeData, _position: &[Float; 3], _time: Float) {
         // Accumulate entropy over time
         self.entropy_accumulator += self.entropy_rate * 0.01;
 
@@ -152,7 +152,7 @@ impl FreeWillTerm {
         // Use uniform distribution for base randomness
         let uniform = Uniform::new(-1.0, 1.0);
 
-        for density_idx in 0..8 {
+        for (density_idx, perturbation) in perturbations.iter_mut().enumerate() {
             // Generate multiple uniform samples and combine for Gaussian-like distribution
             // Box-Muller approximation for normal distribution
             let u1: Float = self.rng.sample(uniform);
@@ -171,7 +171,7 @@ impl FreeWillTerm {
             let new_perturbation = (u1 * new_weight + normal_noise * new_weight * 0.5)
                 + self.prev_perturbation[density_idx] * prev_weight * 0.5;
 
-            perturbations[density_idx] = new_perturbation * self.amplitude;
+            *perturbation = new_perturbation * self.amplitude;
 
             // Store for next iteration (correlation)
             self.prev_perturbation[density_idx] = new_perturbation;
@@ -181,14 +181,14 @@ impl FreeWillTerm {
         if self.entropy_accumulator > 1.0 {
             self.entropy_accumulator = 0.0;
             // Fresh entropy injection - break correlation temporarily
-            for i in 0..8 {
-                self.prev_perturbation[i] *= 0.5;
+            for prev in &mut self.prev_perturbation {
+                *prev *= 0.5;
             }
         }
 
         // Apply perturbations to field amplitudes
-        for density_idx in 0..8 {
-            node_data.density_amplitudes[density_idx].re += perturbations[density_idx];
+        for (density_idx, &perturbation) in perturbations.iter().enumerate() {
+            node_data.density_amplitudes[density_idx].re += perturbation;
 
             // Keep amplitude bounded
             let mag = node_data.density_amplitudes[density_idx].magnitude();
@@ -247,6 +247,7 @@ pub struct LoveTerm {
     pub coherence_sensitivity: Float,
 
     /// Cache for coherence gradient calculation
+    #[allow(dead_code)]
     coherence_cache: HashMap<[i64; 3], Float>,
 }
 
@@ -266,7 +267,7 @@ impl LoveTerm {
     /// Force direction: toward higher coherence
     /// Force magnitude: proportional to coherence gradient
     pub fn apply(&mut self, node: &mut OctreeNode) {
-        let local_coherence = node.field_data.coherence;
+        let _local_coherence = node.field_data.coherence;
 
         // Calculate coherence gradient (direction and magnitude)
         let gradient = self.calculate_coherence_gradient(node);
@@ -280,7 +281,7 @@ impl LoveTerm {
         // Apply force as energy flow toward coherence
         // Energy flows from low to high coherence regions (opposite of thermodynamic entropy!)
         let energy_flow = attraction_magnitude * 0.01;
-        node.field_data.energy *= (1.0 + energy_flow);
+        node.field_data.energy *= 1.0 + energy_flow;
 
         // Love increases coherence locally
         // This represents the organizing influence of Love/Logos
@@ -293,16 +294,13 @@ impl LoveTerm {
         let green_mag = node.field_data.density_amplitudes[green_idx].magnitude();
 
         // Collect current magnitudes first to avoid borrow issues
-        let mut mags: [Float; 8] = [0.0; 8];
-        for i in 0..8 {
-            mags[i] = node.field_data.density_amplitudes[i].magnitude();
-        }
+        let mags: [Float; 8] = node.field_data.density_amplitudes.map(|d| d.magnitude());
 
         // Transfer from other densities toward Green (Love unifies)
-        for i in 0..8 {
-            if i != green_idx && mags[i] > 0.001 {
+        for (i, &mag) in mags.iter().enumerate() {
+            if i != green_idx && mag > 0.001 {
                 // Transfer rate proportional to coherence gradient
-                let transfer = mags[i] * self.strength * 0.001 * (1.0 + gradient_magnitude);
+                let transfer = mag * self.strength * 0.001 * (1.0 + gradient_magnitude);
                 node.field_data.density_amplitudes[green_idx].re += transfer;
             }
         }
@@ -375,6 +373,7 @@ pub struct LightTerm {
 struct WaveState {
     position: [Float; 3],
     energy: Float,
+    #[allow(dead_code)]
     coherence: Float,
     time: Float,
 }
@@ -641,7 +640,7 @@ impl UnifiedFieldEquation {
         self.update_statistics(root);
 
         // Periodically detect coherence peaks
-        if (self.time / dt) as usize % 10 == 0 {
+        if ((self.time / dt) as usize).is_multiple_of(10) {
             self.detect_coherence_peaks(root);
         }
     }
@@ -920,7 +919,7 @@ impl Default for UnifiedFieldBuilder {
 
 #[cfg(test)]
 mod tests {
-    use super::super::field_state::{FieldBounds, HolographicFieldState};
+    use super::super::field_state::HolographicFieldState;
     use super::*;
 
     #[test]
@@ -987,9 +986,9 @@ mod tests {
             field.evolve(&mut state.root);
         }
 
-        let peaks = field.get_coherence_peaks();
-        // Should have detected at least one peak
-        assert!(field.get_statistics().coherence_peak_count >= 0);
+        let _peaks = field.get_coherence_peaks();
+        // coherence_peak_count is usize which is always >= 0
+        let _ = field.get_statistics().coherence_peak_count;
     }
 
     #[test]

@@ -486,7 +486,7 @@ mod tests {
         let configurations = engine.discover_configurations(&field);
 
         // Should discover some configurations
-        assert!(configurations.len() > 0);
+        assert!(!configurations.is_empty());
 
         // All configurations should have resonance above threshold
         for config in &configurations {
@@ -509,7 +509,7 @@ mod tests {
         let configurations = engine.discover_configurations(&field);
 
         // Should discover more configurations with lower threshold
-        assert!(configurations.len() > 0);
+        assert!(!configurations.is_empty());
 
         // All configurations should have resonance above threshold
         for config in &configurations {
@@ -527,7 +527,7 @@ mod tests {
             let configurations = engine.discover_configurations(&field);
 
             // Should discover configurations at each layer
-            assert!(configurations.len() > 0);
+            assert!(!configurations.is_empty());
 
             // All configurations should be at the correct layer
             for config in &configurations {
@@ -556,9 +556,9 @@ mod tests {
         let classification = engine.classify_configurations(&all_configs);
 
         // Should classify configurations correctly
-        assert!(classification.particles.len() > 0);
-        assert!(classification.atoms.len() > 0);
-        assert!(classification.molecules.len() > 0);
+        assert!(!classification.particles.is_empty());
+        assert!(!classification.atoms.is_empty());
+        assert!(!classification.molecules.is_empty());
     }
 
     #[test]

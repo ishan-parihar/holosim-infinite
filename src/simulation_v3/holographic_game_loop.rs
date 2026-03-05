@@ -223,21 +223,21 @@ impl HolographicGameLoop {
             .lifecycle_manager
             .entities
             .iter()
-            .map(|(id, data)| (id.clone(), data.current_density.clone()))
+            .map(|(id, data)| (id.clone(), data.current_density))
             .collect();
 
         // Collect entity types
         let entity_types: HashMap<EntityId, crate::entity_layer7::layer7::EntityType> = self
             .entities
             .iter()
-            .map(|(id, data)| (id.clone(), data.entity_type.clone()))
+            .map(|(id, data)| (id.clone(), data.entity_type))
             .collect();
 
         // Generate catalysts periodically
-        if self.current_step % 5 == 0 {
-            let num_catalysts = (self.lifecycle_manager.entities.len() / 15).max(1).min(10);
+        if self.current_step.is_multiple_of(5) {
+            let num_catalysts = (self.lifecycle_manager.entities.len() / 15).clamp(1, 10);
             self.catalyst_manager.generate_catalysts(
-                &mut entity_states,
+                &entity_states,
                 &entity_types,
                 &entity_densities,
                 num_catalysts,
@@ -279,22 +279,22 @@ impl HolographicGameLoop {
         self.catalyst_manager.update_time();
 
         // Update collective dynamics periodically
-        if self.current_step % 5 == 0 {
+        if self.current_step.is_multiple_of(5) {
             self.update_collective_dynamics();
         }
 
         // Update environmental interactions periodically
-        if self.current_step % 5 == 0 {
+        if self.current_step.is_multiple_of(5) {
             self.update_environmental_interactions();
         }
 
         // Update inter-scale interactions periodically
-        if self.current_step % 5 == 0 {
+        if self.current_step.is_multiple_of(5) {
             self.update_inter_scale_interactions();
         }
 
         // Update emergent behavior periodically
-        if self.current_step % 10 == 0 {
+        if self.current_step.is_multiple_of(10) {
             self.update_emergent_behavior();
         }
     }
@@ -339,7 +339,7 @@ impl HolographicGameLoop {
             .iter()
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
-        let system_emergence = self
+        let _system_emergence = self
             .emergence_manager
             .calculate_system_emergence(&entities_map);
         // Note: calculate_system_emergence already adds the measurement internally
@@ -371,7 +371,7 @@ impl HolographicGameLoop {
     /// Update statistics
     fn update_statistics(&mut self) {
         // Record step statistics periodically
-        if self.current_step % 10 == 0 || self.current_step == 1 {
+        if self.current_step.is_multiple_of(10) || self.current_step == 1 {
             let lifecycle_stats = self.lifecycle_manager.get_statistics();
 
             // Build density distribution
@@ -458,7 +458,7 @@ impl HolographicGameLoop {
         let free_will_kernel = crate::consciousness::free_will::FreeWillKernel::new(
             entity.indigo_realm.archetype22.clone(),
         );
-        let initial_density = entity.current_density.clone();
+        let initial_density = entity.current_density;
 
         // Create EntitySpectrumAccess from SpectrumAccess
         let spectrum_configuration = crate::entity_layer7::layer7::EntitySpectrumAccess {
@@ -557,7 +557,6 @@ impl GameLoopResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::EntityId;
 
     #[test]
     fn test_holographic_game_loop_creation() {

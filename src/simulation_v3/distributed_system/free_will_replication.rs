@@ -109,25 +109,7 @@ pub fn can_transition_density(from: Density, to: Density) -> bool {
     let to_val = to.value() as i8;
     // Can transition to next density or skip one density at most
     let diff = to_val - from_val;
-    diff >= 1 && diff <= 2
-}
-
-/// Convert density_mechanics::Polarity to simplified internal form
-fn polarity_to_internal(p: Polarity) -> InternalPolarity {
-    match p {
-        Polarity::ServiceToOthers => InternalPolarity::STO,
-        Polarity::ServiceToSelf => InternalPolarity::STS,
-        Polarity::Undecided | Polarity::Balanced => InternalPolarity::Unpolarized,
-    }
-}
-
-/// Convert from internal form back to density_mechanics::Polarity
-fn internal_to_polarity(p: InternalPolarity) -> Polarity {
-    match p {
-        InternalPolarity::STO => Polarity::ServiceToOthers,
-        InternalPolarity::STS => Polarity::ServiceToSelf,
-        InternalPolarity::Unpolarized => Polarity::Undecided,
-    }
+    (1..=2).contains(&diff)
 }
 
 /// Internal simplified polarity representation
@@ -1404,7 +1386,7 @@ impl ClientReconciliation {
     pub fn reconcile(&mut self) -> Result<ReconciliationResult, FreeWillReplicationError> {
         let mut reconciled_choices = Vec::new();
         let mut conflicts_resolved = Vec::new();
-        let mut choices_discarded = Vec::new();
+        let choices_discarded = Vec::new();
 
         // Detect conflicts
         let conflicts = self.detect_conflicts();
@@ -1938,7 +1920,7 @@ mod tests {
 
     #[test]
     fn test_choice_validate() {
-        let mut choice = create_test_choice(
+        let choice = create_test_choice(
             ChoiceId(1),
             100,
             200,

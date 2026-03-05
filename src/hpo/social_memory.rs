@@ -15,7 +15,7 @@
 //! From COSMOLOGICAL-ARCHITECTURE.md:
 //! "Collectives form by resonance, not proximity"
 
-use super::field_state::{Complex, FieldNodeData, Float, HolographicFieldState, OctreeNode};
+use super::field_state::{Float, HolographicFieldState, OctreeNode};
 use std::collections::{HashMap, HashSet};
 
 /// Entity phase information for resonance calculation
@@ -182,10 +182,9 @@ impl Collective {
             self.members.insert(entity_id);
 
             // Update collective phase (average of members)
-            for i in 0..8 {
-                self.collective_phase[i] =
-                    (self.collective_phase[i] * (self.members.len() - 1) as Float + phase[i])
-                        / self.members.len() as Float;
+            for (cp_i, &phase_i) in self.collective_phase.iter_mut().zip(phase.iter()) {
+                *cp_i = (*cp_i * (self.members.len() - 1) as Float + phase_i)
+                    / self.members.len() as Float;
             }
 
             // Update collective consciousness (can exceed individual)
@@ -414,7 +413,7 @@ impl SocialMemory {
                         let phase = self
                             .entity_phases
                             .get(&member)
-                            .map(|p| p.phase_vector.clone())
+                            .map(|p| p.phase_vector)
                             .unwrap_or([0.0; 8]);
                         let consciousness = self
                             .entity_phases
@@ -586,6 +585,6 @@ mod tests {
         memory.register_entity(1, [1.0, 1.0, 1.0]);
 
         let resonance = memory.compute_resonance(0, 1);
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 }

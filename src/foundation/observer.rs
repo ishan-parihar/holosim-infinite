@@ -382,6 +382,11 @@ impl PossibilitySpace {
         }
     }
 
+    /// Create an initial possibility space (alias for empty with default scale)
+    pub fn initial() -> Self {
+        Self::empty(ScaleLevel::default())
+    }
+
     /// Add a potential to this space
     pub fn add_potential(&mut self, potential: PotentialManifestation) {
         self.total_probability += potential.probability();
@@ -715,7 +720,7 @@ impl Observer {
     /// Get recent observations (last n observations)
     pub fn recent_observations(&self, n: usize) -> Vec<&ObservationRecord> {
         let len = self.observation_history.len();
-        let start = if len > n { len - n } else { 0 };
+        let start = len.saturating_sub(n);
         self.observation_history[start..].iter().collect()
     }
 
@@ -1108,7 +1113,7 @@ mod tests {
         let field_sig =
             FieldSignature::new(1, "Test".to_string(), 0.3, 0.0, 0.2, ScaleLevel::Molecular);
 
-        let collapsed = observer.observe(&target, &field_sig, 100);
+        let _collapsed = observer.observe(&target, &field_sig, 100);
 
         // May not collapse due to low coherence and low density
         assert_eq!(observer.observation_count(), 1);
@@ -1213,7 +1218,7 @@ mod tests {
         let field_sig = FieldSignature::default();
         assert_eq!(field_sig.scale_level, ScaleLevel::Molecular);
 
-        let space = PossibilitySpace::default();
+        let space = PossibilitySpace::initial();
         assert_eq!(space.scale_level, ScaleLevel::Molecular);
     }
 

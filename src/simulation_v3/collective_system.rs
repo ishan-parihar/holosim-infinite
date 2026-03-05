@@ -955,9 +955,9 @@ mod tests {
         let manager = CollectiveSystemManager::new();
 
         assert_eq!(manager.collective_state.current_step, 0);
-        assert_eq!(manager.emergence_history.first_density_emerged, true);
-        assert_eq!(manager.emergence_history.second_density_emerged, false);
-        assert_eq!(manager.emergence_history.third_density_emerged, false);
+        assert!(manager.emergence_history.first_density_emerged);
+        assert!(!manager.emergence_history.second_density_emerged);
+        assert!(!manager.emergence_history.third_density_emerged);
     }
 
     #[test]
@@ -973,9 +973,9 @@ mod tests {
     fn test_emergence_history() {
         let history = EmergenceHistory::new();
 
-        assert_eq!(history.first_density_emerged, true);
-        assert_eq!(history.second_density_emerged, false);
-        assert_eq!(history.third_density_emerged, false);
+        assert!(history.first_density_emerged);
+        assert!(!history.second_density_emerged);
+        assert!(!history.third_density_emerged);
     }
 
     #[test]

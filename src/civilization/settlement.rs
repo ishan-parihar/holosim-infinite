@@ -12,6 +12,7 @@ use super::CivilizationId;
 
 /// Unique identifier for a settlement
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub struct SettlementId(pub u64);
 
 impl SettlementId {
@@ -24,20 +25,16 @@ impl SettlementId {
     }
 }
 
-impl Default for SettlementId {
-    fn default() -> Self {
-        Self(0)
-    }
-}
 
 // ============================================================================
 // Settlement Type
 // ============================================================================
 
 /// Type of settlement based on population
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SettlementType {
     /// Small group of dwellings (< 100 people)
+    #[default]
     Hamlet,
 
     /// Small community (100 - 1,000)
@@ -91,12 +88,6 @@ impl SettlementType {
             SettlementType::Metropolis => (1_000_000, 9_999_999),
             SettlementType::Megalopolis => (10_000_000, u64::MAX),
         }
-    }
-}
-
-impl Default for SettlementType {
-    fn default() -> Self {
-        SettlementType::Hamlet
     }
 }
 

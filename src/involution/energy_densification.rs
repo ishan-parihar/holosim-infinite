@@ -37,17 +37,21 @@ const SPEED_OF_LIGHT: Float = 299_792_458.0;
 /// Electron mass (kg)
 ///
 /// Rest mass of an electron
-const ELECTRON_MASS: Float = 9.109_383_7015e-31;
+const ELECTRON_MASS: Float = 9.109_383_701_5e-31;
 
 /// Proton mass (kg)
 ///
 /// Rest mass of a proton
-const PROTON_MASS: Float = 1.672_621_92369e-27;
+/// TODO: Used in future particle physics simulations for nucleon densification
+#[allow(dead_code)]
+const PROTON_MASS: Float = 1.672_621_923_69e-27;
 
 /// Neutron mass (kg)
 ///
 /// Rest mass of a neutron
-const NEUTRON_MASS: Float = 1.674_927_49804e-27;
+/// TODO: Used in future particle physics simulations for nucleon densification
+#[allow(dead_code)]
+const NEUTRON_MASS: Float = 1.674_927_498_04e-27;
 
 /// Energy conservation tolerance (0.01%)
 ///
@@ -303,13 +307,13 @@ impl EnergyDensificationSystem {
         input_energy: Float,
     ) -> Result<MatterProperties, String> {
         // Validate densities
-        if current_density < 1 || current_density > 7 {
+        if !(1..=7).contains(&current_density) {
             return Err(format!(
                 "Invalid current density: {}. Must be 1-7.",
                 current_density
             ));
         }
-        if target_density < 1 || target_density > 7 {
+        if !(1..=7).contains(&target_density) {
             return Err(format!(
                 "Invalid target density: {}. Must be 1-7.",
                 target_density
@@ -402,7 +406,7 @@ impl EnergyDensificationSystem {
         energy: Float,
     ) -> Result<MatterProperties, String> {
         // Validate density
-        if density < 1 || density > 7 {
+        if !(1..=7).contains(&density) {
             return Err(format!("Invalid density: {}. Must be 1-7.", density));
         }
 
@@ -485,7 +489,7 @@ impl EnergyDensificationSystem {
         archetype_activation: &[Float; 22],
     ) -> Result<MatterProperties, String> {
         // Validate density
-        if density < 1 || density > 7 {
+        if !(1..=7).contains(&density) {
             return Err(format!("Invalid density: {}. Must be 1-7.", density));
         }
 
@@ -592,7 +596,7 @@ impl EnergyDensificationSystem {
     fn record_densification_event(&mut self, entity_id: u64, event: EnergyDensificationEvent) {
         self.densification_history
             .entry(entity_id)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(event);
     }
 

@@ -114,7 +114,7 @@ impl MatrixBodyArchetype {
                 healthy_max: 0.8,
                 measurement_type: LambdaMeasurementType::MatrixRigidity,
             },
-            tarot_correlation: TarotCorrelation::new(format!("Strength (VIII): Balanced working, unrestricted motion, control over physical body")),
+            tarot_correlation: TarotCorrelation::new("Strength (VIII): Balanced working, unrestricted motion, control over physical body".to_string()),
             balanced_working: 0.6,
             unrestricted_motion: 0.6,
             experience_recording: 0.5,
@@ -254,7 +254,7 @@ impl MatrixBodyArchetype {
     pub fn assess_health(&self) -> crate::archetypes::common::HealthStatus {
         let lambda_value = self.lambda.value;
 
-        if lambda_value >= 0.5 && lambda_value <= 0.8 {
+        if (0.5..=0.8).contains(&lambda_value) {
             crate::archetypes::common::HealthStatus::Healthy
         } else if lambda_value < 0.5 {
             crate::archetypes::common::HealthStatus::PathologicalLow
@@ -545,7 +545,7 @@ impl ArchetypeTrait for MatrixBodyArchetype {
     }
 
     fn update_lambda(&mut self, value: Float) {
-        self.lambda.value = value.max(0.0).min(1.0);
+        self.lambda.value = value.clamp(0.0, 1.0);
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
@@ -1022,7 +1022,7 @@ mod tests {
         let matrix = create_test_matrix();
         let balance_score = matrix.calculate_body_balance_score();
 
-        assert!(balance_score >= 0.0 && balance_score <= 1.0);
+        assert!((0.0..=1.0).contains(&balance_score));
     }
 
     #[test]
@@ -1031,7 +1031,7 @@ mod tests {
         let mind_matrix_rigidity = 0.5;
         let reflection_score = matrix.calculate_reflection_score(mind_matrix_rigidity);
 
-        assert!(reflection_score >= 0.0 && reflection_score <= 1.0);
+        assert!((0.0..=1.0).contains(&reflection_score));
     }
 
     #[test]
@@ -1091,7 +1091,7 @@ mod tests {
         let matrix = create_test_matrix();
         let lambda = matrix.calculate_lambda();
 
-        assert!(lambda >= 0.0 && lambda <= 1.0);
+        assert!((0.0..=1.0).contains(&lambda));
     }
 
     #[test]
@@ -1103,7 +1103,7 @@ mod tests {
         matrix.unrestricted_motion = 0.6;
         matrix.potentiator_regulation = 0.6;
         let lambda = matrix.calculate_lambda();
-        assert!(lambda >= 0.5 && lambda <= 0.8);
+        assert!((0.5..=0.8).contains(&lambda));
 
         // Too low
         matrix.balanced_working = 0.3;
@@ -1180,8 +1180,8 @@ mod tests {
         let tension = matrix.calculate_pair_tension(&matrix); // Using self as mock
         let balance = matrix.calculate_pair_balance(&matrix);
 
-        assert!(tension >= 0.0 && tension <= 1.0);
-        assert!(balance >= 0.0 && balance <= 1.0);
+        assert!((0.0..=1.0).contains(&tension));
+        assert!((0.0..=1.0).contains(&balance));
     }
 
     #[test]
@@ -1189,7 +1189,7 @@ mod tests {
         let matrix = create_test_matrix();
         let integration_score = matrix.calculate_integration_score();
 
-        assert!(integration_score >= 0.0 && integration_score <= 1.0);
+        assert!((0.0..=1.0).contains(&integration_score));
     }
 
     #[test]
@@ -1239,7 +1239,7 @@ mod tests {
         // Check structure
         for (name, value, _is_healthy) in indicators {
             assert!(!name.is_empty());
-            assert!(value >= 0.0 && value <= 1.0);
+            assert!((0.0..=1.0).contains(&value));
         }
     }
 
@@ -1332,8 +1332,8 @@ mod tests {
         let high_reflection = matrix.calculate_reflection_score(1.0);
         let low_reflection = matrix.calculate_reflection_score(0.0);
 
-        assert!(high_reflection >= 0.0 && high_reflection <= 1.0);
-        assert!(low_reflection >= 0.0 && low_reflection <= 1.0);
+        assert!((0.0..=1.0).contains(&high_reflection));
+        assert!((0.0..=1.0).contains(&low_reflection));
     }
 
     #[test]

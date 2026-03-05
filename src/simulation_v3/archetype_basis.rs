@@ -350,14 +350,15 @@ impl ArchetypeBasis {
     ///
     /// This is the inverse operation of reconstruct()
     pub fn project(&self, pattern: &ArchetypicalPattern) -> ArchetypeActivationProfile {
-        let mut coefficients = [0.0; NUM_ARCHETYPES];
-
-        for i in 0..NUM_ARCHETYPES {
-            let basis_vector = &self.basis[i];
-            let pattern_vector = ArchetypeVector::new(pattern.components().to_vec());
-            coefficients[i] =
-                basis_vector.dot(&pattern_vector) / basis_vector.dot(basis_vector).max(1e-10);
-        }
+        let coefficients: [Float; NUM_ARCHETYPES] = self.basis
+            .iter()
+            .map(|basis_vector| {
+                let pattern_vector = ArchetypeVector::new(pattern.components().to_vec());
+                basis_vector.dot(&pattern_vector) / basis_vector.dot(basis_vector).max(1e-10)
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; NUM_ARCHETYPES]);
 
         ArchetypeActivationProfile::new(coefficients)
     }
@@ -638,7 +639,7 @@ mod tests {
 
     #[test]
     fn test_archetype_vector_normalize() {
-        let mut components = vec![1.0; 100];
+        let components = vec![1.0; 100];
         let vector = ArchetypeVector::new(components);
         let normalized = vector.normalize();
         assert!((normalized.norm() - 1.0).abs() < 1e-6);

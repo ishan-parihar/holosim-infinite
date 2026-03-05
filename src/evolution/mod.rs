@@ -92,7 +92,7 @@ pub use social_memory::{
 mod phase3_integration_tests {
     use super::*;
     use crate::entity_layer7::layer7::{
-        EntityId, EntitySpectrumAccess, EntityState, EntityType, SubSubLogos,
+        EntityId, EntityType, SubSubLogos,
     };
     use crate::foundation::{
         IntelligentInfinity as IndigoRealm, LightLoveField as GreenRealm, Logos as BlueRealm,

@@ -425,7 +425,7 @@ mod tests {
     fn test_check_health_unhealthy_coherence() {
         let monitor = HealthMonitor::new();
 
-        let mut result = SimulationResult {
+        let result = SimulationResult {
             simulation_id: 1,
             config: SimulationConfig::new(1),
             completed: true,

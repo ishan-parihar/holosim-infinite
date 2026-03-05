@@ -9,7 +9,6 @@
 //! that directly affect entity consciousness states. Different weather
 //! conditions have different field resonance patterns.
 
-use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -276,7 +275,7 @@ impl ConsciousnessWeatherCoupling {
         }
     }
 
-    pub fn update(&mut self, dt: Float, base_consciousness: Float) {
+    pub fn update(&mut self, dt: Float, _base_consciousness: Float) {
         self.atmospheric_influence.update(dt);
 
         let weather = self.atmospheric_influence.weather_field.current_state;

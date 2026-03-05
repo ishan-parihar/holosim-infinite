@@ -151,7 +151,7 @@ impl CircleBuffers {
     pub fn update_entities(&self, queue: &wgpu::Queue, entities: &[SubSubLogos]) {
         let instances: Vec<EntityInstanceData> = entities
             .iter()
-            .map(|entity| EntityInstanceData::from_entity(entity))
+            .map(EntityInstanceData::from_entity)
             .collect();
 
         queue.write_buffer(&self.instance_buffer, 0, bytemuck::cast_slice(&instances));

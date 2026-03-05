@@ -52,6 +52,14 @@ impl Hash for ArchetypeActivationProfile {
     }
 }
 
+impl Default for ArchetypeActivationProfile {
+    fn default() -> Self {
+        Self {
+            coefficients: [0.5; NUM_ARCHETYPES],
+        }
+    }
+}
+
 impl ArchetypeActivationProfile {
     pub fn new(coefficients: [Float; NUM_ARCHETYPES]) -> Self {
         Self {
@@ -59,10 +67,9 @@ impl ArchetypeActivationProfile {
         }
     }
 
-    pub fn default() -> Self {
-        Self {
-            coefficients: [0.5; NUM_ARCHETYPES],
-        }
+    /// Create an initial profile (alias for default for backward compatibility)
+    pub fn initial() -> Self {
+        Self::default()
     }
 
     pub fn zero() -> Self {
@@ -86,7 +93,7 @@ impl ArchetypeActivationProfile {
     }
 
     pub fn get_activation(&self, archetype_number: usize) -> Option<Float> {
-        if archetype_number >= 1 && archetype_number <= 22 {
+        if (1..=22).contains(&archetype_number) {
             Some(self.coefficients[archetype_number - 1])
         } else {
             None
@@ -94,7 +101,7 @@ impl ArchetypeActivationProfile {
     }
 
     pub fn set_activation(&mut self, archetype_number: usize, activation: Float) {
-        if archetype_number >= 1 && archetype_number <= 22 {
+        if (1..=22).contains(&archetype_number) {
             self.coefficients[archetype_number - 1] = activation.clamp(0.0, 1.0);
         }
     }
@@ -271,12 +278,6 @@ impl ArchetypeActivationProfile {
     }
 }
 
-impl Default for ArchetypeActivationProfile {
-    fn default() -> Self {
-        Self::default()
-    }
-}
-
 impl fmt::Display for ArchetypeActivationProfile {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "Archetype Activation Profile:")?;
@@ -333,7 +334,7 @@ mod tests {
 
     #[test]
     fn test_default_profile() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         assert_eq!(profile.coherence(), 1.0);
     }
 
@@ -365,7 +366,7 @@ mod tests {
 
     #[test]
     fn test_dominant_archetype() {
-        let mut profile = ArchetypeActivationProfile::default();
+        let mut profile = ArchetypeActivationProfile::initial();
         profile.set_activation(22, 1.0);
         let (index, value) = profile.dominant_archetype();
         assert_eq!(index, 22);
@@ -374,7 +375,7 @@ mod tests {
 
     #[test]
     fn test_polarization() {
-        let mut profile = ArchetypeActivationProfile::default();
+        let mut profile = ArchetypeActivationProfile::initial();
         profile.set_choice(1.0);
         assert!((profile.polarization() - 1.0).abs() < 0.01);
 

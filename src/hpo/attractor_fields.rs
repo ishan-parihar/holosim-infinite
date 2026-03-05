@@ -10,7 +10,7 @@
 //! and field configurations toward higher consciousness states.
 
 use super::cosmic_sequence::CosmologicalLayer;
-use super::field_state::{Complex, Float, OctreeNode};
+use super::field_state::{Float, OctreeNode};
 use std::collections::HashMap;
 
 /// Coherence peak in the field (R&D-7)

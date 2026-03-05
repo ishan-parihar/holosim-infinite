@@ -25,7 +25,6 @@ use egui::{Color32, FontId, Pos2, Rect, Shape, Stroke, Vec2};
 use std::f32::consts::{PI, TAU};
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::atomic_emergence::element_attractor::ElementAttractorField;
 use crate::holographic_foundation::molecular_emergence::bond_formation::{
     ArchetypeBond, BondOrder, BondType, MolecularInterferencePattern,
 };
@@ -33,13 +32,12 @@ use crate::holographic_foundation::molecular_emergence::functional_groups::{
     FunctionalGroup, FunctionalGroupResonance, ReactivityProfile,
 };
 use crate::holographic_foundation::molecular_emergence::molecular_geometry::{
-    BondAngle, GeometryPrediction, InterferenceMinima, MolecularShape,
+    GeometryPrediction, MolecularShape,
 };
 use crate::holographic_foundation::molecular_emergence::simultaneous_emergence::{
     MolecularManifestation, MolecularPlanetaryPair, MolecularPlanetarySystem, PlanetType,
     PlanetaryEmergence,
 };
-use crate::types::Float;
 
 /// Color palette for molecular visualizations
 pub struct MolecularColors;
@@ -1215,7 +1213,7 @@ impl MolecularManifestationView {
             let stroke_width = MolecularColors::bond_order(bond.bond_order);
 
             if let (Some(pos1), Some(pos2)) = (
-                atom_positions.get(0),
+                atom_positions.first(),
                 atom_positions.get(bond.element2.atomic_number() as usize % num_atoms.max(1)),
             ) {
                 painter.line_segment([*pos1, *pos2], Stroke::new(stroke_width, bond_color));
@@ -1383,7 +1381,7 @@ impl MolecularManifestationView {
         let num_dashes = 10;
         let dash_length = 8.0;
         let gap_length = 8.0;
-        let total_length = end.x - start.x;
+        let _total_length = end.x - start.x;
         let segment_length = dash_length + gap_length;
 
         let offset = (self.animation_time * 30.0) % segment_length;
@@ -1546,7 +1544,7 @@ pub fn create_functional_group_render_data(
     group: FunctionalGroup,
     resonance: &FunctionalGroupResonance,
 ) -> Option<FunctionalGroupRenderData> {
-    let confidence = resonance.get_confidence(group)?;
+    let _confidence = resonance.get_confidence(group)?;
 
     let reactivity = ReactivityProfile::for_group(group);
 

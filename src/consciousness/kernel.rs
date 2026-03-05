@@ -153,12 +153,12 @@ impl ConsciousnessKernel {
 
         // Each archetype coefficient is influenced by position
         use std::f64::consts::PI;
-        for i in 0..22 {
+        for (i, coeff) in coefficients.iter_mut().enumerate() {
             let freq = (i + 1) as Float;
             let phase_mod = (freq * position.x * PI).cos()
                 * (freq * position.y * PI).cos()
                 * (freq * position.z * PI).cos();
-            coefficients[i] = (0.5 + 0.3 * phase_mod.abs()).clamp(0.0, 1.0);
+            *coeff = (0.5 + 0.3 * phase_mod.abs()).clamp(0.0, 1.0);
         }
 
         ArchetypeActivationProfile::new(coefficients)
@@ -883,7 +883,7 @@ mod tests {
         let (index, value) = kernel.dominant_archetype();
 
         assert!(index < 22);
-        assert!(value >= 0.0 && value <= 1.0);
+        assert!((0.0..=1.0).contains(&value));
     }
 
     #[test]

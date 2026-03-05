@@ -228,13 +228,9 @@ impl ParticleArchetypePattern {
         pattern[5] = 0.68;
         pattern[6] = 0.90;
 
-        for i in 7..14 {
-            pattern[i] = 0.55;
-        }
+        pattern[7..14].fill(0.55);
 
-        for i in 14..21 {
-            pattern[i] = 0.30;
-        }
+        pattern[14..21].fill(0.30);
 
         pattern[21] = 0.60;
 
@@ -244,13 +240,9 @@ impl ParticleArchetypePattern {
     pub fn electron_pattern() -> [Float; NUM_ARCHETYPES] {
         let mut pattern = [0.5; NUM_ARCHETYPES];
 
-        for i in 0..7 {
-            pattern[i] = 0.25;
-        }
+        pattern[0..7].fill(0.25);
 
-        for i in 7..14 {
-            pattern[i] = 0.40;
-        }
+        pattern[7..14].fill(0.40);
 
         pattern[14] = 0.95;
         pattern[15] = 0.90;
@@ -288,21 +280,21 @@ impl ParticleArchetypePattern {
             ParticleType::Neutron => Self::neutron_pattern(),
             ParticleType::Positron => {
                 let mut pattern = Self::electron_pattern();
-                for i in 0..7 {
-                    pattern[i] = 0.95 - pattern[i];
+                for item in &mut pattern[0..7] {
+                    *item = 0.95 - *item;
                 }
-                for i in 14..21 {
-                    pattern[i] = 0.95 - pattern[i];
+                for item in &mut pattern[14..21] {
+                    *item = 0.95 - *item;
                 }
                 pattern
             }
             ParticleType::Antiproton => {
                 let mut pattern = Self::proton_pattern();
-                for i in 0..7 {
-                    pattern[i] = 0.95 - pattern[i];
+                for item in &mut pattern[0..7] {
+                    *item = 0.95 - *item;
                 }
-                for i in 14..21 {
-                    pattern[i] = 0.95 - pattern[i];
+                for item in &mut pattern[14..21] {
+                    *item = 0.95 - *item;
                 }
                 pattern
             }

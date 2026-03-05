@@ -253,7 +253,7 @@ impl DecisionEngine {
         // This determines if the entity tends toward STO or STS
         let polarity_bias = ((seed as Float).sin() * 2.0).clamp(-1.0, 1.0);
 
-        for i in 0..22 {
+        for (i, activation) in archetype_activations.iter_mut().enumerate() {
             // Use deterministic pseudo-random based on seed and archetype index
             let combined = (seed as Float) * ((i + 1) as Float);
             let variation = (combined.sin() * 0.5).clamp(-0.3, 0.3);
@@ -262,12 +262,12 @@ impl DecisionEngine {
             // STO archetypes: A7 (Great Way), A8 (Matrix), A9 (Potentiator), A10 (Catalyst)
             // STS archetypes: A11 (Experience), A12 (Significator), A13 (Transformation)
             let polarity_adjustment = match i {
-                6 | 7 | 8 | 9 => polarity_bias * 0.3, // STO-biased archetypes
-                10 | 11 | 12 => -polarity_bias * 0.3, // STS-biased archetypes
+                6..=9 => polarity_bias * 0.3, // STO-biased archetypes
+                10..=12 => -polarity_bias * 0.3, // STS-biased archetypes
                 _ => 0.0,
             };
 
-            archetype_activations[i] = (0.5 + variation + polarity_adjustment).clamp(0.0, 1.0);
+            *activation = (0.5 + variation + polarity_adjustment).clamp(0.0, 1.0);
         }
 
         // Initialize holographic container
@@ -710,96 +710,81 @@ impl DecisionEngine {
 
     /// Get all contributing factors for the current decision
     fn get_contributing_factors(&self) -> Vec<ContributingFactor> {
-        let mut factors = Vec::new();
-
-        // STO factors
-        factors.push(ContributingFactor {
-            factor_name: "Love".to_string(),
-            influence: self.love_score(),
-            direction: InfluenceDirection::STO,
-            weight: 0.3,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Abundance".to_string(),
-            influence: self.abundance_score(),
-            direction: InfluenceDirection::STO,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Cooperation".to_string(),
-            influence: self.cooperation_score(),
-            direction: InfluenceDirection::STO,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Service".to_string(),
-            influence: self.service_score(),
-            direction: InfluenceDirection::STO,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Wisdom".to_string(),
-            influence: self.wisdom_score(),
-            direction: InfluenceDirection::STO,
-            weight: 0.1,
-        });
-
-        // STS factors
-        factors.push(ContributingFactor {
-            factor_name: "Fear".to_string(),
-            influence: self.fear_score(),
-            direction: InfluenceDirection::STS,
-            weight: 0.3,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Scarcity".to_string(),
-            influence: self.scarcity_score(),
-            direction: InfluenceDirection::STS,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Competition".to_string(),
-            influence: self.competition_score(),
-            direction: InfluenceDirection::STS,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Power".to_string(),
-            influence: self.power_score(),
-            direction: InfluenceDirection::STS,
-            weight: 0.2,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Self-Preservation".to_string(),
-            influence: self.self_preservation_score(),
-            direction: InfluenceDirection::STS,
-            weight: 0.1,
-        });
-
-        // Modifying factors
-        factors.push(ContributingFactor {
-            factor_name: "Free Will Capacity".to_string(),
-            influence: self.free_will_capacity,
-            direction: InfluenceDirection::Neutral,
-            weight: 0.5,
-        });
-
-        factors.push(ContributingFactor {
-            factor_name: "Veil Thickness".to_string(),
-            influence: self.veil_thickness,
-            direction: InfluenceDirection::Neutral,
-            weight: 0.3,
-        });
-
-        factors
+        // STO factors, STS factors, Modifying factors
+        vec![
+            ContributingFactor {
+                factor_name: "Love".to_string(),
+                influence: self.love_score(),
+                direction: InfluenceDirection::STO,
+                weight: 0.3,
+            },
+            ContributingFactor {
+                factor_name: "Abundance".to_string(),
+                influence: self.abundance_score(),
+                direction: InfluenceDirection::STO,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Cooperation".to_string(),
+                influence: self.cooperation_score(),
+                direction: InfluenceDirection::STO,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Service".to_string(),
+                influence: self.service_score(),
+                direction: InfluenceDirection::STO,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Wisdom".to_string(),
+                influence: self.wisdom_score(),
+                direction: InfluenceDirection::STO,
+                weight: 0.1,
+            },
+            ContributingFactor {
+                factor_name: "Fear".to_string(),
+                influence: self.fear_score(),
+                direction: InfluenceDirection::STS,
+                weight: 0.3,
+            },
+            ContributingFactor {
+                factor_name: "Scarcity".to_string(),
+                influence: self.scarcity_score(),
+                direction: InfluenceDirection::STS,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Competition".to_string(),
+                influence: self.competition_score(),
+                direction: InfluenceDirection::STS,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Power".to_string(),
+                influence: self.power_score(),
+                direction: InfluenceDirection::STS,
+                weight: 0.2,
+            },
+            ContributingFactor {
+                factor_name: "Self-Preservation".to_string(),
+                influence: self.self_preservation_score(),
+                direction: InfluenceDirection::STS,
+                weight: 0.1,
+            },
+            ContributingFactor {
+                factor_name: "Free Will Capacity".to_string(),
+                influence: self.free_will_capacity,
+                direction: InfluenceDirection::Neutral,
+                weight: 0.5,
+            },
+            ContributingFactor {
+                factor_name: "Veil Thickness".to_string(),
+                influence: self.veil_thickness,
+                direction: InfluenceDirection::Neutral,
+                weight: 0.3,
+            },
+        ]
     }
 
     /// Add a physical experience to the engine

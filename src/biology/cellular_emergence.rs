@@ -7,12 +7,11 @@
 // From COSMOLOGICAL-ARCHITECTURE.md:
 // "Prokaryotes and simple life emerge from cellular realm"
 
-use crate::biology::dna_system::{Gene, GeneExpression, Protein, DNA};
+use crate::biology::dna_system::{Protein, DNA};
 use crate::entity_layer7::dna_encoding::DNAPattern;
 use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::types::Float;
 use rand::Rng;
-use std::collections::HashMap;
 
 /// Cellular Emergence - Emerges cells from holographic blueprint
 ///
@@ -512,6 +511,7 @@ pub enum AwarenessType {
 /// Prokaryote Emerger
 #[derive(Debug, Clone)]
 struct ProkaryoteEmerger {
+    #[allow(dead_code)]
     emergence_threshold: Float,
 }
 
@@ -525,7 +525,7 @@ impl ProkaryoteEmerger {
     fn emerge(
         &self,
         blueprint: &HolographicBlueprint,
-        config: &CellularEmergenceConfig,
+        _config: &CellularEmergenceConfig,
     ) -> Prokaryote {
         let dna_pattern = DNAPattern::cellular_realm(&blueprint.spectrum_configuration);
         let dna = DNA::from_blueprint(dna_pattern);
@@ -539,6 +539,7 @@ impl ProkaryoteEmerger {
 /// Eukaryote Emerger
 #[derive(Debug, Clone)]
 struct EukaryoteEmerger {
+    #[allow(dead_code)]
     emergence_threshold: Float,
 }
 
@@ -552,7 +553,7 @@ impl EukaryoteEmerger {
     fn emerge(
         &self,
         blueprint: &HolographicBlueprint,
-        config: &CellularEmergenceConfig,
+        _config: &CellularEmergenceConfig,
     ) -> Eukaryote {
         let dna_pattern = DNAPattern::cellular_realm(&blueprint.spectrum_configuration);
         let dna = DNA::from_blueprint(dna_pattern);
@@ -566,6 +567,7 @@ impl EukaryoteEmerger {
 /// Cell Divider
 #[derive(Debug, Clone)]
 struct CellDivider {
+    #[allow(dead_code)]
     division_speed: Float,
 }
 
@@ -626,6 +628,7 @@ impl CellDivider {
 /// Cellular Consciousness Calculator
 #[derive(Debug, Clone)]
 struct CellularConsciousnessCalculator {
+    #[allow(dead_code)]
     calculation_method: ConsciousnessMethod,
 }
 
@@ -668,6 +671,7 @@ impl CellularConsciousnessCalculator {
 
 /// Consciousness Calculation Method
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 enum ConsciousnessMethod {
     Integrated,
     EnergyBased,
@@ -682,13 +686,13 @@ enum ConsciousnessMethod {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::{EvolutionaryStage, IndividualSpectrumConfiguration};
-    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio, SpectrumSide};
+    use crate::entity_layer7::IndividualSpectrumConfiguration;
+    use crate::spectrum::SpectrumRatio;
 
     fn create_test_blueprint() -> HolographicBlueprint {
         let ratio = SpectrumRatio::space_time(1.5, 1.0);
         let spectrum_config = IndividualSpectrumConfiguration::new(ratio);
-        let config =
+        let _config =
             crate::entity_layer7::holographic_blueprint::SpectrumConfiguration::from_individual(
                 &spectrum_config,
             );

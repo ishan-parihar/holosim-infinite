@@ -27,7 +27,7 @@
 
 use crate::holographic::holographic_field::HolographicField;
 use crate::holographic::Position;
-use crate::matter::particle::{Complex, Coordinate3D};
+use crate::matter::particle::Coordinate3D;
 use crate::types::Float;
 
 // ============================================================================
@@ -633,7 +633,7 @@ mod tests {
         );
 
         // Low stability = unstable particle
-        let mut unstable = [0.3; 22];
+        let unstable = [0.3; 22];
         let stability_low = ParticleProperties::calculate_stability(&unstable);
         assert!(
             stability_low < stability,

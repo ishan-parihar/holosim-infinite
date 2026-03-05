@@ -56,6 +56,7 @@ impl Default for DynamicMechanismsConfig {
 ///
 /// Combined state of all dynamic mechanisms.
 #[derive(Debug, Clone)]
+#[derive(Default)]
 pub struct DynamicMechanismsState {
     /// Catalyst generator state
     pub catalyst_generator_state: catalyst_generator::CatalystGeneratorState,
@@ -70,14 +71,3 @@ pub struct DynamicMechanismsState {
     pub holographic_unfolding_state: holographic_unfolding::HolographicUnfoldingState,
 }
 
-impl Default for DynamicMechanismsState {
-    fn default() -> Self {
-        Self {
-            catalyst_generator_state: catalyst_generator::CatalystGeneratorState::default(),
-            archetype_processor_state: archetype_processor::ArchetypeProcessorState::default(),
-            free_will_engine_state: free_will_engine::FreeWillEngineState::default(),
-            holographic_unfolding_state: holographic_unfolding::HolographicUnfoldingState::default(
-            ),
-        }
-    }
-}

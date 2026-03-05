@@ -103,7 +103,7 @@ impl ResonanceCalculator {
             + self.archetype_weight * archetype_resonance)
             / total_weight;
 
-        resonance.max(0.0).min(1.0)
+        resonance.clamp(0.0, 1.0)
     }
 
     /// Calculate group resonance for multiple entities
@@ -250,7 +250,7 @@ impl MemoryFormer {
     ) {
         if new_experiences.is_empty() {
             // Apply decay
-            memory.strength *= (1.0 - self.decay_rate);
+            memory.strength *= 1.0 - self.decay_rate;
             return;
         }
 
@@ -431,7 +431,7 @@ impl TelepathicLink {
         TelepathicLink {
             source,
             target,
-            strength: strength.max(0.0).min(1.0),
+            strength: strength.clamp(0.0, 1.0),
             bandwidth: strength * 0.8,
             latency: 1.0 - strength * 0.5,
         }
@@ -482,10 +482,10 @@ impl GroupConsciousness {
         synchronization: Float,
     ) -> Self {
         GroupConsciousness {
-            awareness: awareness.max(0.0).min(1.0),
-            intentionality: intentionality.max(0.0).min(1.0),
-            wisdom: wisdom.max(0.0).min(1.0),
-            synchronization: synchronization.max(0.0).min(1.0),
+            awareness: awareness.clamp(0.0, 1.0),
+            intentionality: intentionality.clamp(0.0, 1.0),
+            wisdom: wisdom.clamp(0.0, 1.0),
+            synchronization: synchronization.clamp(0.0, 1.0),
         }
     }
 
@@ -500,7 +500,7 @@ impl GroupConsciousness {
 /// From SIMULATION-AUDIT-AND-REFACTOR-PLAN.md Phase 4:
 /// "SocialMemoryComplex: Entity resonance calculation, collective memory
 /// formation, telepathic communication, group consciousness"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct SocialMemoryComplexSystem {
     /// Resonance calculator
     resonance_calculator: ResonanceCalculator,
@@ -510,16 +510,6 @@ pub struct SocialMemoryComplexSystem {
 
     /// Configuration
     config: NoosphereConfig,
-}
-
-impl Default for SocialMemoryComplexSystem {
-    fn default() -> Self {
-        SocialMemoryComplexSystem {
-            resonance_calculator: ResonanceCalculator::default(),
-            memory_former: MemoryFormer::default(),
-            config: NoosphereConfig::default(),
-        }
-    }
 }
 
 impl SocialMemoryComplexSystem {
@@ -571,7 +561,7 @@ impl SocialMemoryComplexSystem {
         entity_experiences: &HashMap<EntityId, Vec<Float>>,
         resonance: Float,
     ) -> MemoryFormationResult {
-        if !resonance.is_finite() || resonance < 0.0 || resonance > 1.0 {
+        if !resonance.is_finite() || !(0.0..=1.0).contains(&resonance) {
             return MemoryFormationResult {
                 collective_memory: CollectiveMemory::default(),
                 success: false,

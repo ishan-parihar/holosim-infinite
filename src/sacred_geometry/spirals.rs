@@ -110,7 +110,7 @@ pub struct SpiralPattern {
 impl SpiralPattern {
     /// Create a golden spiral
     pub fn golden_spiral(center_x: Float, center_y: Float, turns: Float) -> Self {
-        let phi: Float = 1.6180339887498948482;
+        let phi: Float = 1.618_033_988_749_895;
         let mut points = Vec::new();
         let steps = (turns * 100.0) as usize;
 
@@ -285,7 +285,7 @@ impl GoldenSpiral {
         let pattern = SpiralPattern::golden_spiral(center_x, center_y, turns);
         GoldenSpiral {
             pattern,
-            phi: 1.6180339887498948482,
+            phi: 1.618_033_988_749_895,
         }
     }
 
@@ -439,14 +439,14 @@ pub fn spiral_point(
     let (a, b) = params;
     let radius = match spiral_type {
         SpiralType::Golden => {
-            let phi: Float = 1.6180339887498948482;
+            let phi: Float = 1.618_033_988_749_895;
             a * phi.powf(angle / (std::f64::consts::PI / 2.0))
         }
         SpiralType::Archimedean => a + b * angle,
         SpiralType::Logarithmic => a * (b * angle).exp(),
         SpiralType::Fibonacci => {
             // Approximate using golden ratio
-            let phi: Float = 1.6180339887498948482;
+            let phi: Float = 1.618_033_988_749_895;
             a * phi.powf(angle / (std::f64::consts::PI / 2.0))
         }
     };

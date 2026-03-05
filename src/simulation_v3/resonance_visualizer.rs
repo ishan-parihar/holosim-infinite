@@ -269,10 +269,9 @@ impl ResonanceHeatmapVisualizer {
         let mut all_values = Vec::new();
         let mut distribution = ResonanceDistribution::default();
 
-        for i in 0..n {
-            for j in 0..n {
+        for (i, row) in matrix.iter().enumerate().take(n) {
+            for (j, &value) in row.iter().enumerate().take(n) {
                 if i != j {
-                    let value = matrix[i][j];
                     all_values.push(value);
 
                     // Update distribution
@@ -330,13 +329,9 @@ impl ResonanceHeatmapVisualizer {
         if heatmap.config.show_entity_ids {
             output.push_str("      ");
             for (i, _entity_id) in heatmap.entity_ids.iter().enumerate() {
-                if i < 10 {
-                    output.push_str(&format!(" {:02} ", i));
-                } else {
-                    output.push_str(&format!(" {:02} ", i));
-                }
+                output.push_str(&format!(" {:02} ", i));
             }
-            output.push_str("\n");
+            output.push('\n');
         }
 
         // Matrix
@@ -732,12 +727,12 @@ impl ResonanceHeatmapVisualizer {
         // Generate heatmap
         let heatmap = Self::generate_heatmap(holographic_manager, None);
         output.push_str(&Self::visualize_ascii(&heatmap));
-        output.push_str("\n");
+        output.push('\n');
 
         // Identify patterns
         let patterns = Self::identify_patterns(holographic_manager);
         output.push_str(&Self::visualize_patterns(&patterns));
-        output.push_str("\n");
+        output.push('\n');
 
         // Coherence visualization
         let coherence_viz = Self::create_coherence_visualization(
@@ -747,7 +742,7 @@ impl ResonanceHeatmapVisualizer {
             &holographic_manager.coherence_tracker.coherence_history,
         );
         output.push_str(&Self::visualize_coherence(&coherence_viz));
-        output.push_str("\n");
+        output.push('\n');
 
         // Resonance statistics
         let resonance_stats = holographic_manager.get_resonance_statistics();

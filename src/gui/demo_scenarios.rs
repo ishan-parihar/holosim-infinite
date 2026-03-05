@@ -7,11 +7,6 @@
 
 use std::collections::HashMap;
 
-use crate::entity_layer7::{DensityLevel, EntityId, EntityType};
-use crate::foundation::{IntelligentInfinity, LightLoveField, Logos, VioletRealm};
-use crate::hpo::SimulationConfig;
-use crate::integrated_system::IntegratedSystem;
-use crate::types::Density;
 
 /// Demo scenario definition
 ///
@@ -558,7 +553,7 @@ impl DemoScenarioManager {
 
         self.categories
             .entry(category)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(id);
     }
 

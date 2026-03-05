@@ -70,6 +70,6 @@ mod tests {
         let _terrain = TerrainType::Forest;
         let _weather = WeatherState::Clear;
         let _resource = ResourceType::Organic;
-        assert!(true);
+        // Test passes if types can be created
     }
 }

@@ -7,7 +7,7 @@
 // From COSMOLOGICAL-ARCHITECTURE.md:
 // "Entities as catalysts for each other"
 
-use crate::biology::cellular_emergence::{Cell, CellType, Eukaryote, Prokaryote};
+use crate::biology::cellular_emergence::Cell;
 use crate::types::Float;
 use rand::Rng;
 use std::collections::HashMap;
@@ -400,6 +400,7 @@ pub struct CoEvolutionResult {
 /// Species Interactor
 #[derive(Debug, Clone)]
 struct SpeciesInteractor {
+    #[allow(dead_code)]
     interaction_matrix: HashMap<String, HashMap<String, InteractionType>>,
 }
 
@@ -477,9 +478,7 @@ impl SpeciesInteractor {
         // Determine interaction based on trophic levels and traits
         let level_diff = (species_a.trophic_level as i32 - species_b.trophic_level as i32).abs();
 
-        if level_diff >= 2 {
-            InteractionType::Predation
-        } else if level_diff == 1 {
+        if level_diff >= 1 {
             InteractionType::Predation
         } else if species_a.trophic_level == species_b.trophic_level {
             InteractionType::Competition
@@ -492,6 +491,7 @@ impl SpeciesInteractor {
 /// Energy Flow Calculator
 #[derive(Debug, Clone)]
 struct EnergyFlowCalculator {
+    #[allow(dead_code)]
     trophic_efficiency: Float,
 }
 
@@ -530,6 +530,7 @@ impl EnergyFlowCalculator {
 /// Population Tracker
 #[derive(Debug, Clone)]
 struct PopulationTracker {
+    #[allow(dead_code)]
     tracking_window: usize,
 }
 
@@ -582,6 +583,7 @@ impl PopulationTracker {
 /// Co-Evolution Simulator
 #[derive(Debug, Clone)]
 struct CoEvolutionSimulator {
+    #[allow(dead_code)]
     simulation_steps: usize,
 }
 
@@ -653,8 +655,9 @@ mod tests {
     use super::*;
     use crate::biology::dna_system::DNA;
     use crate::entity_layer7::dna_encoding::DNAPattern;
-    use crate::entity_layer7::{EvolutionaryStage, IndividualSpectrumConfiguration};
-    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio, SpectrumSide};
+    use crate::entity_layer7::IndividualSpectrumConfiguration;
+    use crate::spectrum::SpectrumRatio;
+    use crate::biology::cellular_emergence::CellType;
 
     fn create_test_cell() -> Cell {
         let ratio = SpectrumRatio::space_time(1.5, 1.0);

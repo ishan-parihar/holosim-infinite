@@ -610,7 +610,7 @@ impl CatalystGenerator {
             amount: base_amount,
             quality,
             source_archetypes: archetypes.to_vec(),
-            density_level: Density::from_u8((archetypes.len() as u8).min(8).max(1)),
+            density_level: Density::from_u8((archetypes.len() as u8).clamp(1, 8)),
             polarity_alignment: Polarity::Neutral,
             timestamp: 0,
         }
@@ -1456,9 +1456,8 @@ mod tests {
 
     #[test]
     fn test_catalyst_generator_new() {
-        let generator = CatalystGenerator::new();
-        // Just verify it creates successfully
-        assert!(true);
+        let _generator = CatalystGenerator::new();
+        // Test passes if creation succeeds
     }
 
     #[test]
@@ -1982,9 +1981,8 @@ mod tests {
         let outcome: EvolutionOutcome = Default::default();
         assert_eq!(outcome.density_progression, 0.0);
 
-        let generator: CatalystGenerator = Default::default();
-        assert!(true); // Just verify it creates
-
+        let _generator: CatalystGenerator = Default::default();
+        // Test passes if default creation succeeds
         let system: CatalystCombat = Default::default();
         assert_eq!(system.active_combat_count(), 0);
     }

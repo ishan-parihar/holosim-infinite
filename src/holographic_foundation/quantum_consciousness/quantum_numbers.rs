@@ -42,7 +42,7 @@ impl QuantumNumberSet {
     }
 
     pub fn is_valid(&self) -> bool {
-        self.l < self.n && (self.m.abs() as u32) <= self.l
+        self.l < self.n && self.m.unsigned_abs() <= self.l
     }
 
     pub fn degeneracy(&self) -> usize {
@@ -124,8 +124,9 @@ impl fmt::Display for QuantumNumberSet {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Spin {
+    #[default]
     Up,
     Down,
 }
@@ -158,15 +159,13 @@ impl Spin {
     }
 }
 
-impl Default for Spin {
-    fn default() -> Self {
-        Spin::Up
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct ArchetypeToQuantumMapping {
+    /// TODO: Planned for weighted quantum number derivation
+    #[allow(dead_code)]
     mind_weight: Float,
+    /// TODO: Planned for weighted quantum number derivation
+    #[allow(dead_code)]
     body_weight: Float,
     spirit_weight: Float,
     choice_weight: Float,
@@ -271,27 +270,27 @@ impl ArchetypeToQuantumMapping {
         let mut vector = [0.5; NUM_ARCHETYPES];
 
         let n_factor = qn.n as Float / 7.0;
-        for i in 0..22 {
-            vector[i] = vector[i] * (0.5 + n_factor * 0.5);
+        for item in &mut vector {
+            *item *= 0.5 + n_factor * 0.5;
         }
 
         if qn.n > 0 {
             let l_factor = qn.l as Float / (qn.n - 1).max(1) as Float;
-            for i in 0..7 {
-                vector[i] = vector[i].min(1.0) * (0.7 + l_factor * 0.3);
+            for item in &mut vector[0..7] {
+                *item = item.min(1.0) * (0.7 + l_factor * 0.3);
             }
         }
 
         if qn.l > 0 {
             let m_normalized = (qn.m as Float + qn.l as Float) / (2.0 * qn.l as Float);
-            for i in 7..14 {
-                vector[i] = vector[i].min(1.0) * (0.5 + m_normalized * 0.5);
+            for item in &mut vector[7..14] {
+                *item = item.min(1.0) * (0.5 + m_normalized * 0.5);
             }
         }
 
         let spin_factor = if qn.s == Spin::Up { 0.7 } else { 0.3 };
-        for i in 14..21 {
-            vector[i] = vector[i].min(1.0) * spin_factor;
+        for item in &mut vector[14..21] {
+            *item = item.min(1.0) * spin_factor;
         }
 
         let spin_influence = qn.s.value().abs();

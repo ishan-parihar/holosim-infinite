@@ -130,8 +130,8 @@ impl FieldWave {
         let wave_amplitude = self.amplitude_at(position, time);
         let mut resonance = 0.0;
 
-        for i in 0..NUM_ARCHETYPES {
-            resonance += self.archetype_pattern[i] * organ_pattern[i];
+        for (&self_i, &organ_i) in self.archetype_pattern.iter().zip(organ_pattern.iter()) {
+            resonance += self_i * organ_i;
         }
 
         resonance / NUM_ARCHETYPES as Float * wave_amplitude
@@ -192,7 +192,7 @@ impl OrganCommunication {
     pub fn emit_field_wave(&mut self, organ_id: OrganId) {
         if let Some(organ) = self.organs.get(&organ_id) {
             let wave = FieldWave::new(
-                organ.position.clone(),
+                organ.position,
                 organ.archetype_pattern,
                 organ.field_output(),
             );

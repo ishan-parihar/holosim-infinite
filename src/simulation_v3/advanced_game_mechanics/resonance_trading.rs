@@ -720,16 +720,16 @@ impl MultiPartyTrade {
         let mut total_phase = 0.0;
 
         for resonance in self.participant_resonances.values() {
-            for i in 0..8 {
-                combined_pattern[i] += resonance.pattern[i];
+            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(resonance.pattern.iter()) {
+                *combined_i += pattern_i;
             }
             total_stability += resonance.stability;
             total_phase += resonance.phase;
         }
 
         // Average the patterns
-        for i in 0..8 {
-            combined_pattern[i] /= count;
+        for item in &mut combined_pattern {
+            *item /= count;
         }
 
         self.collective_resonance = ResonancePattern {
@@ -1426,7 +1426,7 @@ mod tests {
         assert!(offer.can_accept(&pattern, 500.0));
 
         // Different pattern may not be compatible
-        let different_pattern = ResonancePattern::new();
+        let _different_pattern = ResonancePattern::new();
         // Note: Compatibility depends on the exact calculation
 
         // Expired offer should not be acceptable
@@ -2023,7 +2023,7 @@ mod tests {
         );
 
         assert!(result.is_ok());
-        let offer = result.unwrap();
+        let _offer = result.unwrap();
         assert_eq!(trading.trade_matcher.active_offer_count(), 1);
     }
 
@@ -2183,7 +2183,7 @@ mod tests {
         );
 
         assert!(result.is_ok());
-        let trade = result.unwrap();
+        let _trade = result.unwrap();
         assert_eq!(trading.active_multi_party_trades.len(), 1);
     }
 

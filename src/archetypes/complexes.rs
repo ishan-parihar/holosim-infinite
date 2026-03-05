@@ -558,21 +558,21 @@ mod tests {
     fn test_mind_capacity_calculation() {
         let mind = MindComplex::new();
         let capacity = mind.calculate_mind_capacity();
-        assert!(capacity >= 0.0 && capacity <= 1.0);
+        assert!((0.0..=1.0).contains(&capacity));
     }
 
     #[test]
     fn test_body_capacity_calculation() {
         let body = BodyComplex::new();
         let capacity = body.calculate_body_capacity();
-        assert!(capacity >= 0.0 && capacity <= 1.0);
+        assert!((0.0..=1.0).contains(&capacity));
     }
 
     #[test]
     fn test_spirit_capacity_calculation() {
         let spirit = SpiritComplex::new();
         let capacity = spirit.calculate_spirit_capacity();
-        assert!(capacity >= 0.0 && capacity <= 1.0);
+        assert!((0.0..=1.0).contains(&capacity));
     }
 
     #[test]

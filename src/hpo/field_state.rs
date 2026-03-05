@@ -14,9 +14,6 @@
 //! - HolographicEncoder: Maps entity properties to field amplitudes/phases
 //! - EntityExtractor: Derives entities from field configurations
 
-use std::collections::HashMap;
-use std::sync::{Arc, RwLock};
-
 /// Float type for field calculations
 pub type Float = f64;
 
@@ -231,7 +228,7 @@ impl OctreeNode {
 
         let center = self.bounds.center();
         let size = self.bounds.size();
-        let half_size = [size[0] / 2.0, size[1] / 2.0, size[2] / 2.0];
+        let _half_size = [size[0] / 2.0, size[1] / 2.0, size[2] / 2.0];
 
         let mut children = Box::new([
             // Bottom layer (y = min)

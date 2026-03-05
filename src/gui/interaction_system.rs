@@ -388,7 +388,7 @@ impl EntityTracker {
 
     /// Set follow speed
     pub fn set_follow_speed(&mut self, speed: f64) {
-        self.follow_speed = speed.max(0.0).min(1.0);
+        self.follow_speed = speed.clamp(0.0, 1.0);
     }
 
     /// Clear history

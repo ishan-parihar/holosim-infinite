@@ -53,25 +53,24 @@ impl CraftingInterferencePattern {
         let num_items = signatures.len() as Float;
 
         for signature in signatures {
-            for i in 0..22 {
-                combined_pattern[i] += signature.archetype_pattern[i];
+            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(signature.archetype_pattern.iter()) {
+                *combined_i += pattern_i;
             }
         }
 
-        for i in 0..22 {
-            combined_pattern[i] /= num_items;
+        for item in &mut combined_pattern {
+            *item /= num_items;
         }
 
         let mut pattern_variance = 0.0;
-        for i in 0..22 {
-            let mean = combined_pattern[i];
+        for (i, &mean) in combined_pattern.iter().enumerate() {
             for signature in signatures {
                 pattern_variance += (signature.archetype_pattern[i] - mean).powi(2);
             }
         }
         pattern_variance /= num_items * 22.0;
 
-        let coherence = (1.0 - pattern_variance.sqrt()).max(0.0).min(1.0);
+        let coherence = (1.0 - pattern_variance.sqrt()).clamp(0.0, 1.0);
         let stability = coherence * 0.8 + 0.2;
 
         let mut archetype_magnitudes: Vec<(usize, Float)> = combined_pattern
@@ -213,11 +212,11 @@ impl ArchetypicalCrafting {
 
         let resonance_pattern = self.compute_resonance_pattern(&archetype_signature);
 
-        let (item_category, item_name) = self.determine_item_category(&interference, input_items);
+        let (item_category, item_name) = self.determine_item_category(interference, input_items);
 
         let blueprint = self.generate_blueprint(&archetype_signature, &resonance_pattern);
 
-        let item_id = self.generate_item_id(&interference, input_items);
+        let item_id = self.generate_item_id(interference, input_items);
 
         let resonance_cost = archetype_signature.compute_resonance_cost();
 
@@ -255,11 +254,14 @@ impl ArchetypicalCrafting {
 
     fn compute_resonance_pattern(&self, signature: &ArchetypicalItemSignature) -> ResonancePattern {
         let base_frequency = signature.resonance_frequency / 880.0;
-        let mut pattern = [0.0; 8];
-        for i in 0..8 {
-            pattern[i] = signature.archetype_pattern[i % 22].abs()
-                * (1.0 + base_frequency * (i as Float / 8.0)).min(1.0);
-        }
+        let pattern: [Float; 8] = (0..8)
+            .map(|i| {
+                signature.archetype_pattern[i % 22].abs()
+                    * (1.0 + base_frequency * (i as Float / 8.0)).min(1.0)
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         ResonancePattern {
             pattern,
@@ -360,7 +362,7 @@ impl ArchetypicalCrafting {
         HolographicItemBlueprint {
             blueprint_id: 0,
             base_signature: signature.clone(),
-            material_components: (0..material_count).map(|i| i as u64).collect(),
+            material_components: (0..material_count).collect(),
             archetypical_components: vec![signature.archetype_pattern],
             craft_difficulty: (1.0 - signature.density_affinity) * 100.0,
             required_density_level: (signature.density_affinity * 8.0),
@@ -492,7 +494,7 @@ mod tests {
         let interference = crafting.create_interference_pattern(&signatures);
         let crafting_resonance = interference.compute_crafting_resonance();
 
-        assert!(crafting_resonance >= 0.0 && crafting_resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&crafting_resonance));
     }
 
     #[test]
@@ -560,7 +562,7 @@ mod tests {
 
         for (item_ids, resonance) in possibilities {
             assert_eq!(item_ids.len(), 2);
-            assert!(resonance >= 0.0 && resonance <= 1.0);
+            assert!((0.0..=1.0).contains(&resonance));
         }
     }
 

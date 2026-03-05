@@ -22,7 +22,7 @@
 
 use crate::foundation::manifestation_engine::ManifestationEngine;
 use crate::foundation::observer::{
-    CollapsedState, FieldSignature, FocusTarget, FocusTargetType, ObservationRecord, Observer,
+    CollapsedState, FieldSignature, Observer,
     PotentialManifestation,
 };
 use crate::foundation::SpectrumPosition;
@@ -538,7 +538,7 @@ impl HolographicRenderer {
         frame.observer_ids = observer_ids.clone();
 
         // Collect all potentials from observers
-        let mut all_potentials: Vec<PotentialManifestation> = Vec::new();
+        let _all_potentials: Vec<PotentialManifestation> = Vec::new();
         let mut total_observations = 0;
         let mut total_collapses = 0;
 
@@ -707,7 +707,7 @@ impl HolographicRenderer {
                 // Check cache for signature
                 let signature_key = observer.spectrum_position.hash() ^ level as u64;
 
-                let signature = if let Some(cached) = self.signature_cache.get(&signature_key) {
+                let _signature = if let Some(cached) = self.signature_cache.get(&signature_key) {
                     cached.clone()
                 } else {
                     // Create new signature
@@ -998,7 +998,7 @@ mod tests {
         renderer.render_frame(100);
 
         // Should have cached entities
-        let initial_cache_size = renderer.entity_cache.len();
+        let _initial_cache_size = renderer.entity_cache.len();
 
         renderer.invalidate_cache();
 

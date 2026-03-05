@@ -24,7 +24,6 @@ pub use input_handler::{
 pub use raycaster::{Ray, RaycastResult, Raycaster3D, SelectionManager, SelectionState};
 
 use crate::entity_layer7::layer7::EntityId;
-use crate::gui::time_controller::TimeController;
 use crate::gui::Camera2D as Camera3D;
 use crate::gui::{Coordinate3D, ScreenPosition};
 use std::time::Instant;
@@ -45,6 +44,7 @@ pub struct InteractionSystem {
     /// Entity data for raycasting
     entities: Vec<(EntityId, Coordinate3D, f64)>,
     /// Last update time
+    #[allow(dead_code)]
     last_update: Instant,
     /// Current camera
     current_camera: Camera3D,

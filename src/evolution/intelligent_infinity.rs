@@ -229,7 +229,7 @@ impl IntelligentInfinity {
             self.total_tapped_energy = 0.0;
 
             // Periodically analyze feedback and adjust teleological emission
-            if self.pulse_count % 10 == 0 {
+            if self.pulse_count.is_multiple_of(10) {
                 self.analyze_feedback_patterns();
                 self.adjust_teleological_emission();
             }
@@ -249,7 +249,7 @@ impl IntelligentInfinity {
     ///
     /// # Returns
     /// The amount of energy tapped (0.0 to 1.0)
-    pub fn tap(&mut self, entity_id: EntityId, free_will_capacity: Float) -> Float {
+    pub fn tap(&mut self, _entity_id: EntityId, free_will_capacity: Float) -> Float {
         // Amount tapped = free will capacity × kinetic energy
         let tap_strength = free_will_capacity * self.kinetic;
         self.total_tapped_energy += tap_strength;
@@ -262,7 +262,7 @@ impl IntelligentInfinity {
     /// Advanced tap method that considers additional factors.
     pub fn tap_advanced(
         &mut self,
-        entity_id: EntityId,
+        _entity_id: EntityId,
         free_will_capacity: Float,
         developmental_level: Float,
         polarization_intensity: Float,

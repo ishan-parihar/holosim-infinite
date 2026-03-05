@@ -14,9 +14,9 @@
 //! - Energy and vibrational states
 //! - Composition and hierarchy relationships
 
-use crate::entity_layer7::layer7::{EntityId, EntityType, SubSubLogos};
+use crate::entity_layer7::layer7::{EntityId, SubSubLogos};
 use crate::evolution_density_octave::density_octave::Density;
-use egui::{Color32, Context, RichText, Ui};
+use egui::{Color32, Context, RichText};
 
 /// Archetype names (22 archetypes from Law of One)
 const ARCHETYPE_NAMES: [&str; 22] = [
@@ -123,7 +123,7 @@ impl EntityInspectorEnhanced {
         ui.horizontal(|ui| {
             ui.heading(RichText::new(format!("Entity {}", entity.entity_id)).size(18.0));
             ui.label(
-                RichText::new(format!("{}", entity.entity_type.display_name()))
+                RichText::new(entity.entity_type.display_name().to_string())
                     .color(Color32::LIGHT_BLUE),
             );
         });
@@ -394,7 +394,7 @@ impl EntityInspectorEnhanced {
 
             ui.label(format!(
                 "Current Density: {}",
-                format_density(entity.current_density.clone())
+                format_density(entity.current_density)
             ));
 
             ui.add_space(5.0);

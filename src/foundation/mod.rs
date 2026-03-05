@@ -45,7 +45,7 @@ pub use green_realm::{Field, HolographicPattern, LightLoveField, Rhythm};
 pub use holographic_renderer::{
     EntityId, HolographicRenderer, ManifestedEntity, RenderFrame, RenderStats,
 };
-pub use indigo_realm::IntelligentInfinity;
+pub use indigo_realm::{Archetype22, IntelligentInfinity};
 pub use manifestation_engine::{ManifestationEngine, ManifestationRecord, ManifestationStats};
 pub use observer::{
     CollapsedState, FieldSignature, FocusTarget, FocusTargetType, ObservationKey,

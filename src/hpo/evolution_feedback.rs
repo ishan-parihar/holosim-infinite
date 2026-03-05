@@ -13,11 +13,7 @@
 //! From COSMOLOGICAL-ARCHITECTURE.md:
 //! "All development flows from this moment" - entity choices shape the cosmos
 
-use super::field_state::{
-    Complex, DensityBand, FieldNodeData, Float, HolographicFieldState, OctreeNode,
-};
-use super::involution_flow::CosmicHierarchy;
-use super::spectrum_dynamics::SpectrumDynamics;
+use super::field_state::{Complex, Float, HolographicFieldState, OctreeNode};
 
 /// Types of entity decisions that affect the field
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -306,6 +302,7 @@ pub struct DensityProgression {
     progression_rates: Vec<Float>,
 
     /// Configuration
+    #[allow(dead_code)]
     config: EvolutionFeedbackConfig,
 }
 
@@ -344,8 +341,7 @@ impl DensityProgression {
                 };
 
                 self.progression_rates[idx] = (self.progression_rates[idx] + rate_change)
-                    .max(0.0)
-                    .min(0.01);
+                    .clamp(0.0, 0.01);
             }
         }
     }
@@ -376,13 +372,15 @@ impl DensityProgression {
         let density = self.get_density(entity_idx);
 
         // Convert to Gaussian distribution
-        let mut result = [0.0; 8];
-
-        for i in 0..8 {
-            let density_center = i as Float;
-            let distance = (density - density_center).abs();
-            result[i] = (-distance * distance * 10.0).exp();
-        }
+        let mut result: [Float; 8] = (0..8)
+            .map(|i| {
+                let density_center = i as Float;
+                let distance = (density - density_center).abs();
+                (-distance * distance * 10.0).exp()
+            })
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 8]);
 
         // Normalize
         let sum: Float = result.iter().sum();

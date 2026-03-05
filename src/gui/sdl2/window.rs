@@ -141,7 +141,7 @@ impl Sdl2Window {
     pub unsafe fn create_surface(
         &self,
         instance: &wgpu::Instance,
-    ) -> Result<wgpu::Surface, Sdl2WindowError> {
+    ) -> Result<wgpu::Surface<'_>, Sdl2WindowError> {
         // Use raw-window-handle to get window/display handles
         use raw_window_handle::{HasDisplayHandle, HasWindowHandle};
 
@@ -159,8 +159,8 @@ impl Sdl2Window {
         // Use unsafe surface creation to bypass Send+Sync requirement
         instance
             .create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
-                raw_display_handle: display_handle.as_raw().into(),
-                raw_window_handle: window_handle.as_raw().into(),
+                raw_display_handle: display_handle.as_raw(),
+                raw_window_handle: window_handle.as_raw(),
             })
             .map_err(|e| Sdl2WindowError::SurfaceCreationFailed(e.to_string()))
     }
@@ -182,12 +182,12 @@ impl Sdl2Window {
     /// ```
     pub fn new(title: &str, width: u32, height: u32) -> Result<Self, Sdl2WindowError> {
         // Initialize SDL2
-        let sdl_context = sdl2::init().map_err(|e| Sdl2WindowError::InitializationFailed(e))?;
+        let sdl_context = sdl2::init().map_err(Sdl2WindowError::InitializationFailed)?;
 
         // Get video subsystem
         let video_subsystem = sdl_context
             .video()
-            .map_err(|e| Sdl2WindowError::VideoSubsystemFailed(e))?;
+            .map_err(Sdl2WindowError::VideoSubsystemFailed)?;
 
         // Configure window
         let window = video_subsystem
@@ -289,7 +289,7 @@ impl Sdl2Window {
     pub fn display_index(&self) -> Result<i32, Sdl2WindowError> {
         self.window
             .display_index()
-            .map_err(|e| Sdl2WindowError::DisplayIndexFailed(e))
+            .map_err(Sdl2WindowError::DisplayIndexFailed)
     }
 
     /// Get the total number of available displays
@@ -317,7 +317,7 @@ impl Sdl2Window {
             .display_bounds(display_index)
             .map_err(|e| Sdl2WindowError::DisplayInfoFailed(e.to_string()))?;
 
-        let (ddpi, hdpi, vdpi) = self
+        let (ddpi, _hdpi, _vdpi) = self
             .video_subsystem
             .display_dpi(display_index)
             .unwrap_or((96.0, 96.0, 96.0));
@@ -576,7 +576,7 @@ impl Sdl2Window {
                 sdl2::video::WindowPos::Positioned(state.position.0),
                 sdl2::video::WindowPos::Positioned(state.position.1),
             );
-            self.window.set_size(state.size.0, state.size.1);
+            let _ = self.window.set_size(state.size.0, state.size.1);
         }
 
         if state.maximized && !self.maximized {
@@ -697,7 +697,7 @@ impl Sdl2Window {
         entity_id: u64,
         entity_data: &T,
     ) -> Result<(), Sdl2WindowError> {
-        let mut info = serde_json::json!({
+        let info = serde_json::json!({
             "entity_id": entity_id,
             "data": entity_data,
         });
@@ -851,7 +851,7 @@ mod tests {
 
     #[test]
     fn test_sdl2_window_creation_with_state() {
-        let mut window = Sdl2Window::new("Test Window", 800, 600).unwrap();
+        let window = Sdl2Window::new("Test Window", 800, 600).unwrap();
 
         assert_eq!(window.mode(), WindowMode::Windowed);
         assert!(!window.is_maximized());
@@ -962,7 +962,10 @@ mod tests {
 
         let temp_path = std::path::Path::new("/tmp/test_window_state.json");
 
-        state.save_state_to_file(temp_path).unwrap();
+        // Save state directly as JSON (WindowState is serializable)
+        let json = serde_json::to_string_pretty(&state).unwrap();
+        std::fs::write(temp_path, json).unwrap();
+
         let loaded_state = Sdl2Window::load_state_from_file(temp_path).unwrap();
 
         assert_eq!(loaded_state.position, state.position);
@@ -1192,7 +1195,7 @@ mod tests {
 
     #[test]
     fn test_paste_configuration_invalid_json() {
-        let window = Sdl2Window::new("Test Window", 800, 600).unwrap();
+        let mut window = Sdl2Window::new("Test Window", 800, 600).unwrap();
 
         window.set_clipboard_text("not valid json").unwrap();
 

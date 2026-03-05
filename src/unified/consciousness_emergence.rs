@@ -1,6 +1,5 @@
 //! Consciousness Emergence - Mind from Field
 
-use super::biology_emergence::BiologicalOrganism;
 use super::unified_field::UnifiedField;
 use std::sync::Arc;
 
@@ -150,6 +149,7 @@ pub struct ConsciousnessEmergenceResult {
 }
 
 pub struct UnifiedEmergence {
+    #[allow(dead_code)]
     field: Arc<UnifiedField>,
     physics: super::physics_emergence::PhysicsEmergence,
     biology: super::biology_emergence::BiologyEmergence,

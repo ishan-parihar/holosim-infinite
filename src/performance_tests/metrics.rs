@@ -314,7 +314,7 @@ impl MemoryMetric {
     }
 
     /// Record a deallocation
-    pub fn record_deallocation(&mut self, bytes: usize) {
+    pub fn record_deallocation(&mut self, _bytes: usize) {
         if !self.active {
             return;
         }

@@ -16,7 +16,7 @@
 //! 4. Holographic continuity preservation
 //! 5. Performance metrics (target: <50ms)
 
-use super::fractal_cache::{FractalCache, FractalCacheKey, FractalData};
+use super::fractal_cache::FractalData;
 use super::multiscale_camera::{InterpolatedScale, InterpolationMode, ScaleLevel};
 use super::predictive_loading::PredictiveLoader;
 use crate::types::Float;
@@ -91,6 +91,7 @@ pub struct TransitionCacheEntry {
     to_data: Option<FractalData>,
 
     /// Intermediate scale data (for progressive refinement)
+    #[allow(dead_code)]
     intermediate_data: Vec<Option<FractalData>>,
 
     /// Last access time
@@ -359,7 +360,7 @@ impl ScaleTransitionOptimizer {
 
         let cache_entry = self.get_or_load_transition_data(&transition_key, position_log)?;
 
-        let scale_distance = (to_scale.index() as i32 - from_scale.index() as i32).abs() as usize;
+        let scale_distance = (to_scale.index() as i32 - from_scale.index() as i32).unsigned_abs() as usize;
         let total_steps = if self.progressive_refinement {
             scale_distance * 2
         } else {
@@ -405,7 +406,7 @@ impl ScaleTransitionOptimizer {
     /// Should be called each frame to update transition progress.
     pub fn update_transition(
         &mut self,
-        delta: Duration,
+        _delta: Duration,
     ) -> Result<InterpolatedScale, TransitionOptimizerError> {
         let transition =
             self.active_transition
@@ -483,6 +484,7 @@ impl ScaleTransitionOptimizer {
     }
 
     /// Update progressive refinement
+    #[allow(dead_code)]
     fn update_progressive_refinement(
         &mut self,
         transition: &mut OptimizedTransition,
@@ -534,7 +536,7 @@ impl ScaleTransitionOptimizer {
         let to_data = self.load_scale_data(key.to_scale, position_log)?;
 
         let scale_distance =
-            (key.to_scale.index() as i32 - key.from_scale.index() as i32).abs() as usize;
+            (key.to_scale.index() as i32 - key.from_scale.index() as i32).unsigned_abs() as usize;
         let intermediate_levels = scale_distance.saturating_sub(1).min(5);
         let mut intermediate_data = Vec::with_capacity(intermediate_levels);
 

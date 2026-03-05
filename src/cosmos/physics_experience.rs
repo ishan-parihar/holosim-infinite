@@ -11,17 +11,21 @@
 use crate::holographic::field_address::{HolographicAddress, Vector3};
 
 use super::planetary_formation::{Planet, Season, TerrainType};
-use super::stellar_physics::{RadiationSpectrum, Star};
+use super::stellar_physics::Star;
 
 // ============================================================================
 // Constants
 // ============================================================================
 
 const STEFAN_BOLTZMANN: f64 = 5.670374e-8; // W/(m²·K⁴)
+#[allow(dead_code)]
 const AU_IN_METERS: f64 = 1.496e11;
+#[allow(dead_code)]
 const EARTH_MASS: f64 = 5.972e24; // kg
 const EARTH_RADIUS: f64 = 6.371e6; // m
+#[allow(dead_code)]
 const GRAVITATIONAL_CONSTANT: f64 = 6.674e-11; // m³/(kg·s²)
+#[allow(dead_code)]
 const SOLAR_TEMPERATURE: f64 = 5778.0; // K
 
 // ============================================================================
@@ -142,7 +146,7 @@ impl PhysicsExperience {
     ///
     /// This is the main integration point that connects cosmos physics to entities.
     pub fn compute(
-        entity_address: &HolographicAddress,
+        _entity_address: &HolographicAddress,
         planet: &Planet,
         star: &Star,
         latitude_degrees: f64,
@@ -381,7 +385,7 @@ impl PhysicsExperience {
     }
 
     /// Compute comfort score for human-like entities
-    fn compute_comfort(temperature: f64, pressure: f64, solar_angle: f64, wind_speed: f64) -> f64 {
+    fn compute_comfort(temperature: f64, pressure: f64, solar_angle: f64, _wind_speed: f64) -> f64 {
         // Humans prefer 20-25°C
         let temp_comfort = 1.0 - ((temperature - 293.0) / 20.0).abs().min(1.0);
 

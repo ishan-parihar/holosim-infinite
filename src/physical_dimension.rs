@@ -193,7 +193,7 @@ impl PhysicalDimension {
         // In a full implementation, this would analyze matter interactions
         // and generate appropriate physical experiences
 
-        if self.matter.cells().len() > 0 {
+        if !self.matter.cells().is_empty() {
             // Generate one experience per cell (simplified)
             for (i, _cell) in self.matter.cells().iter().enumerate() {
                 let experience = PhysicalExperience {
@@ -403,8 +403,8 @@ mod tests {
     #[test]
     fn test_physical_dimension_from_light() {
         let dimension = PhysicalDimension::from_light(1.0e25, 42);
-        assert!(dimension.matter.particles().len() > 0);
-        assert!(dimension.matter.atoms().len() > 0);
+        assert!(!dimension.matter.particles().is_empty());
+        assert!(!dimension.matter.atoms().is_empty());
     }
 
     #[test]
@@ -521,7 +521,7 @@ mod tests {
         dimension.matter = Matter::Cell(eukaryotic_cell);
         dimension.update(1.0e-15);
         // Should generate experiences
-        assert!(dimension.experiences.len() > 0);
+        assert!(!dimension.experiences.is_empty());
     }
 
     #[test]

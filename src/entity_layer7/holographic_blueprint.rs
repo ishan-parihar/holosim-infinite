@@ -415,7 +415,7 @@ impl HolographicSeed {
         let physics_constraints = Arc::new(SolarSystemConstraints::default());
 
         // 6. Initialize fractal-holographic references
-        let fractal_references = Arc::new(std::array::from_fn(|i| FractalReference::new(i)));
+        let fractal_references = Arc::new(std::array::from_fn(FractalReference::new));
 
         HolographicSeed {
             free_will,
@@ -604,26 +604,20 @@ impl HolographicBlueprint {
         spectrum_config: &SpectrumConfiguration,
         _archetypical_mind: &ArchetypicalMindBlueprint,
     ) -> Vec<DNAPattern> {
-        let mut dna_patterns = Vec::new();
-
         // DNA pattern for quantum realm
-        dna_patterns.push(DNAPattern::quantum_realm(spectrum_config));
-
         // DNA pattern for atomic realm
-        dna_patterns.push(DNAPattern::atomic_realm(spectrum_config));
-
         // DNA pattern for molecular realm
-        dna_patterns.push(DNAPattern::molecular_realm(spectrum_config));
-
         // DNA pattern for cellular realm
-        dna_patterns.push(DNAPattern::cellular_realm(spectrum_config));
-
         // DNA pattern for conscious life realm
         // TODO: Need to convert ArchetypicalMindBlueprint to ArchetypicalMind
         // For now, create a default conscious life pattern
-        dna_patterns.push(DNAPattern::cellular_realm(spectrum_config));
-
-        dna_patterns
+        vec![
+            DNAPattern::quantum_realm(spectrum_config),
+            DNAPattern::atomic_realm(spectrum_config),
+            DNAPattern::molecular_realm(spectrum_config),
+            DNAPattern::cellular_realm(spectrum_config),
+            DNAPattern::cellular_realm(spectrum_config),
+        ]
     }
 
     /// Generate collective development patterns
@@ -1017,7 +1011,7 @@ impl PhysicalUniverseArchitecture {
     fn generate_matter_patterns(dna_patterns: &[DNAPattern]) -> Vec<MatterPattern> {
         dna_patterns
             .iter()
-            .map(|dna| MatterPattern::from_dna(dna))
+            .map(MatterPattern::from_dna)
             .collect()
     }
 }
@@ -1227,7 +1221,6 @@ impl StageBlueprint {
 // being expressed in the simulation.
 
 use crate::entity_layer7::layer7::EntityState;
-use crate::types::EnvironmentID;
 use std::collections::HashMap;
 
 /// Archetypical mind state summary
@@ -1311,7 +1304,7 @@ impl HolographicProperties {
 
     /// Calculate entity octave containment
     fn calculate_entity_octave_containment(&mut self, entities: &HashMap<usize, EntityState>) {
-        for (entity_id, _entity) in entities {
+        for entity_id in entities.keys() {
             let _containment = 0.5; // Placeholder value
             let entity_containment = EntityOctaveContainment {
                 octave_containment: _containment,

@@ -125,14 +125,14 @@ impl PeriodicTable {
                 let formation_energy = self.calculate_formation_energy(atomic_number);
 
                 let attractor = ElementAttractor::new(
-                    element.clone(),
+                    element,
                     config,
                     stability,
                     min_coherence,
                     formation_energy,
                 );
 
-                self.elements.insert(element.clone(), attractor);
+                self.elements.insert(element, attractor);
                 self.atomic_number_cache.insert(atomic_number, element);
             }
         }
@@ -145,7 +145,7 @@ impl PeriodicTable {
         // Simplified mapping based on principal quantum number and orbital angular momentum
         // This is a heuristic - real mapping would involve full quantum mechanics
 
-        let protons = (signature.n * signature.n) as u32;
+        let protons = signature.n * signature.n;
 
         // Map to element
         self.atomic_number_cache
@@ -173,7 +173,7 @@ impl PeriodicTable {
         self.elements
             .iter()
             .filter(|(_, attractor)| attractor.stability > 0.5)
-            .map(|(element, _)| element.clone())
+            .map(|(element, _)| *element)
             .collect()
     }
 
@@ -195,7 +195,7 @@ impl PeriodicTable {
 
         // Create quantum state signature for this element
         let n = attractor.atomic_number();
-        let l = ((n - 1) % 4) as u32; // Simplified orbital angular momentum
+        let l = (n - 1) % 4; // Simplified orbital angular momentum
         let m = 0; // Ground state
         let s = Spin::Up;
 
@@ -212,7 +212,7 @@ impl PeriodicTable {
             signature,
             energy_level,
             coherence_peak,
-            element.clone(),
+            *element,
             attractor.stability,
         ))
     }
@@ -631,9 +631,8 @@ mod tests {
         assert!(elem2.is_some());
     }
 
-    #[ignore]
-    #[ignore]
     #[test]
+    #[ignore]
     fn test_electron_configuration_comprehensive() {
         let table = PeriodicTable::new();
 

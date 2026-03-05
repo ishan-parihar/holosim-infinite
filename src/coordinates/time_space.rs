@@ -38,9 +38,9 @@ impl ExperienceVector {
 
     /// Create experience vector with specific values
     pub fn with_values(mind: Float, body: Float, spirit: Float) -> Self {
-        let mind = mind.max(0.0).min(1.0);
-        let body = body.max(0.0).min(1.0);
-        let spirit = spirit.max(0.0).min(1.0);
+        let mind = mind.clamp(0.0, 1.0);
+        let body = body.clamp(0.0, 1.0);
+        let spirit = spirit.clamp(0.0, 1.0);
         let total = (mind + body + spirit) / 3.0;
 
         ExperienceVector {
@@ -53,9 +53,9 @@ impl ExperienceVector {
 
     /// Add experience
     pub fn add_experience(&mut self, mind: Float, body: Float, spirit: Float) {
-        self.mind_experience = (self.mind_experience + mind).max(0.0).min(1.0);
-        self.body_experience = (self.body_experience + body).max(0.0).min(1.0);
-        self.spirit_experience = (self.spirit_experience + spirit).max(0.0).min(1.0);
+        self.mind_experience = (self.mind_experience + mind).clamp(0.0, 1.0);
+        self.body_experience = (self.body_experience + body).clamp(0.0, 1.0);
+        self.spirit_experience = (self.spirit_experience + spirit).clamp(0.0, 1.0);
         self.total_experience =
             (self.mind_experience + self.body_experience + self.spirit_experience) / 3.0;
     }
@@ -122,7 +122,7 @@ impl IncarnationPlan {
         density_target: Option<crate::types::Density>,
     ) -> Self {
         IncarnationPlan {
-            planned_catalyst_intensity: catalyst_intensity.max(0.0).min(1.0),
+            planned_catalyst_intensity: catalyst_intensity.clamp(0.0, 1.0),
             planned_lessons: lessons,
             planned_polarization: polarization,
             planned_density_target: density_target,
@@ -137,7 +137,7 @@ impl IncarnationPlan {
 
     /// Update completeness
     pub fn set_completeness(&mut self, completeness: Float) {
-        self.completeness = completeness.max(0.0).min(1.0);
+        self.completeness = completeness.clamp(0.0, 1.0);
     }
 
     /// Check if plan is complete
@@ -184,9 +184,9 @@ impl BroaderConsciousnessAccess {
 
     /// Create with specific access levels
     pub fn with_values(archetypical: Float, soul_stream: Float, infinity: Float) -> Self {
-        let archetypical = archetypical.max(0.0).min(1.0);
-        let soul_stream = soul_stream.max(0.0).min(1.0);
-        let infinity = infinity.max(0.0).min(1.0);
+        let archetypical = archetypical.clamp(0.0, 1.0);
+        let soul_stream = soul_stream.clamp(0.0, 1.0);
+        let infinity = infinity.clamp(0.0, 1.0);
         let total = (archetypical + soul_stream + infinity) / 3.0;
 
         BroaderConsciousnessAccess {
@@ -199,11 +199,10 @@ impl BroaderConsciousnessAccess {
 
     /// Increase access levels
     pub fn increase_access(&mut self, archetypical: Float, soul_stream: Float, infinity: Float) {
-        self.archetypical_access = (self.archetypical_access + archetypical).max(0.0).min(1.0);
-        self.soul_stream_access = (self.soul_stream_access + soul_stream).max(0.0).min(1.0);
+        self.archetypical_access = (self.archetypical_access + archetypical).clamp(0.0, 1.0);
+        self.soul_stream_access = (self.soul_stream_access + soul_stream).clamp(0.0, 1.0);
         self.intelligent_infinity_access = (self.intelligent_infinity_access + infinity)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.total_access =
             (self.archetypical_access + self.soul_stream_access + self.intelligent_infinity_access)
                 / 3.0;
@@ -224,7 +223,7 @@ impl Default for BroaderConsciousnessAccess {
 /// Time/Space Coordinate - metaphysical realm coordinates
 ///
 /// Knowledge Base Reference: COSMOLOGICAL-ARCHITECTURE.md Section 2.3
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct MetaphysicalTimeSpaceCoord {
     /// Experience point (accumulated experience)
     pub experience_point: ExperienceVector,
@@ -279,16 +278,6 @@ impl MetaphysicalTimeSpaceCoord {
     /// Check if ready for incarnation
     pub fn is_ready_for_incarnation(&self) -> bool {
         self.incarnation_plan.is_complete() && self.get_total_experience() > 0.3
-    }
-}
-
-impl Default for MetaphysicalTimeSpaceCoord {
-    fn default() -> Self {
-        MetaphysicalTimeSpaceCoord {
-            experience_point: ExperienceVector::new(),
-            incarnation_plan: IncarnationPlan::new(),
-            broader_consciousness: BroaderConsciousnessAccess::new(),
-        }
     }
 }
 

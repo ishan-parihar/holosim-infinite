@@ -1023,9 +1023,10 @@ impl CollectiveDynamicsManager {
     ///
     /// Returns statistics about resonance within collectives.
     pub fn get_collective_resonance_statistics(&self) -> CollectiveResonanceStatistics {
-        let mut statistics = CollectiveResonanceStatistics::default();
-
-        statistics.total_collectives = self.collective_behaviors.len();
+        let mut statistics = CollectiveResonanceStatistics {
+            total_collectives: self.collective_behaviors.len(),
+            ..Default::default()
+        };
 
         if self.collective_behaviors.is_empty() {
             return statistics;
@@ -1159,7 +1160,7 @@ impl CollectiveDynamicsManager {
                     group_consciousness.update_emergent_properties(entities);
 
                     // Generate shared experiences periodically
-                    if self.simulation_time % 20 == 0 {
+                    if self.simulation_time.is_multiple_of(20) {
                         let shared_experience = SharedExperience {
                             experience_id: format!(
                                 "exp-{}-{}",
@@ -1209,7 +1210,7 @@ impl CollectiveDynamicsManager {
                 free_will.update_voting_power(entities);
 
                 // Make collective decisions periodically
-                if self.simulation_time % 30 == 0 {
+                if self.simulation_time.is_multiple_of(30) {
                     // Find catalyst affecting this collective
                     let relevant_catalyst = catalysts
                         .iter()
@@ -1818,19 +1819,14 @@ pub struct CollectiveResonanceStatistics {
 #[cfg(test)]
 mod phase6_tests {
     use super::*;
-    use crate::entity_layer7::{DensityLevel, EntityId, EntityState, EntityType, SubSubLogos};
-    use crate::evolution_density_octave::density_octave::Density;
-    use crate::polarization::{PolarityDirection, PolarizationProgress};
-    use crate::simulation_v3::catalyst_system::PolarityChoice;
-    use crate::spectrum::veil::Veil;
+    use crate::entity_layer7::{EntityId, SubSubLogos};
     use crate::IndividualSpectrumConfiguration;
-    use std::collections::HashMap;
 
     /// Helper function to create a test entity
     fn create_test_entity(
         id: String,
         consciousness_level: f64,
-        archetype_activations: [f64; 22],
+        _archetype_activations: [f64; 22],
     ) -> SubSubLogos {
         use crate::foundation::{BlueRealm, GreenRealm, IndigoRealm, VioletRealm};
         use crate::spectrum::{OrangeRealm, RedRealm, SpectrumRatio, SpectrumSide, YellowRealm};
@@ -1909,7 +1905,7 @@ mod phase6_tests {
         ];
 
         let mut entities = HashMap::new();
-        for (i, id) in member_ids.iter().enumerate() {
+        for (_i, id) in member_ids.iter().enumerate() {
             // Create entities with similar consciousness levels (high resonance)
             let entity = create_test_entity(
                 id.uuid.clone(),
@@ -2006,7 +2002,7 @@ mod phase6_tests {
 
     #[test]
     fn test_phase6_holographic_synchronization_calculates_cosine_similarity() {
-        let mut manager = CollectiveDynamicsManager::new();
+        let manager = CollectiveDynamicsManager::new();
 
         // Create two entities with similar consciousness levels
         let entity1 = create_test_entity("1".to_string(), 0.6, [0.0; 22]);
@@ -2034,7 +2030,7 @@ mod phase6_tests {
 
     #[test]
     fn test_phase6_holographic_synchronization_weighted_by_consciousness_difference() {
-        let mut manager = CollectiveDynamicsManager::new();
+        let manager = CollectiveDynamicsManager::new();
 
         // Create two entities with different consciousness levels
         let entity1 = create_test_entity("1".to_string(), 0.3, [0.0; 22]);
@@ -2062,7 +2058,7 @@ mod phase6_tests {
 
     #[test]
     fn test_phase6_synergy_factor_increases_with_member_count() {
-        let mut manager = CollectiveDynamicsManager::new();
+        let manager = CollectiveDynamicsManager::new();
 
         // Create collective with 2 members
         let entity1 = create_test_entity("1".to_string(), 0.6, [0.0; 22]);
@@ -2088,7 +2084,7 @@ mod phase6_tests {
 
     #[test]
     fn test_phase6_synergy_factor_increases_with_diversity() {
-        let mut manager = CollectiveDynamicsManager::new();
+        let manager = CollectiveDynamicsManager::new();
 
         // Create collective with identical members (similar consciousness)
         let entity1 = create_test_entity("1".to_string(), 0.6, [0.0; 22]);
@@ -2106,13 +2102,13 @@ mod phase6_tests {
 
         // Synergy should be valid for both cases
         assert!(
-            synergy_identical >= 0.0 && synergy_identical <= 1.0,
+            (0.0..=1.0).contains(&synergy_identical),
             "Synergy with identical members ({}) should be in [0.0, 1.0]",
             synergy_identical
         );
 
         assert!(
-            synergy_diverse >= 0.0 && synergy_diverse <= 1.0,
+            (0.0..=1.0).contains(&synergy_diverse),
             "Synergy with diverse members ({}) should be in [0.0, 1.0]",
             synergy_diverse
         );
@@ -2282,7 +2278,7 @@ mod phase6_tests {
 
     #[test]
     fn test_phase6_collective_consciousness_nonexistent_collective() {
-        let mut manager = CollectiveDynamicsManager::new();
+        let manager = CollectiveDynamicsManager::new();
 
         // Calculate collective consciousness for nonexistent collective
         let collective_id = EntityId::new("999".to_string());

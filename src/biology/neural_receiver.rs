@@ -267,7 +267,7 @@ impl NeuralReceiver {
         let coefficients = activation.coefficients();
 
         // Matrix archetype (A1) influences structure
-        let matrix = coefficients.get(0).copied().unwrap_or(0.5);
+        let matrix = coefficients.first().copied().unwrap_or(0.5);
 
         // Catalyst archetype (A3) influences reactivity
         let catalyst = coefficients.get(2).copied().unwrap_or(0.5);

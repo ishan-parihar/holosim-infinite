@@ -360,7 +360,7 @@ impl EntityLifecycleManager {
 
         // Each entity gets its own density octave to track individual progression
         // Initialize with First density
-        let density_octave = DensityOctave::with_initial_density(current_density.clone());
+        let density_octave = DensityOctave::with_initial_density(current_density);
 
         // Generate unique evolutionary rate for this entity
         // This affects how quickly the entity progresses through the density octave
@@ -478,7 +478,7 @@ impl EntityLifecycleManager {
         ];
 
         for (density, base_strength) in densities {
-            let attractor = AdaptiveAttractorField::new(density.clone(), base_strength);
+            let attractor = AdaptiveAttractorField::new(density, base_strength);
             self.adaptive_attractors.insert(density, attractor);
         }
     }
@@ -540,7 +540,7 @@ impl EntityLifecycleManager {
         // Get current density to determine which attractor to update
         // Note: Need to convert density_octave::Density to types::Density
         let current_density_octave = if let Some(entity_data) = self.entities.get(entity_id) {
-            entity_data.current_density.clone()
+            entity_data.current_density
         } else {
             return; // Entity not found
         };
@@ -1198,7 +1198,7 @@ impl EntityLifecycleManager {
         let current_density_octave = self
             .entities
             .get(entity_id)
-            .map(|e| e.current_density.clone())
+            .map(|e| e.current_density)
             .unwrap();
 
         // Convert density_octave::Density to types::Density for attractor lookup
@@ -1840,7 +1840,7 @@ impl EntityLifecycleManager {
             entities_by_density,
             entities_by_access_level,
             avg_consciousness_level: total_consciousness / total_entities as Float,
-            total_experiences: total_experiences as u64,
+            total_experiences,
             total_transitions,
             avg_developmental_level: total_developmental / total_entities as Float,
             polarization_distribution: PolarizationDistribution {

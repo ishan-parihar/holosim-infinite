@@ -3122,7 +3122,7 @@ mod tests {
         // Verify emergence chain:
         // 1. Seed contains Light Architecture (Layer 2)
         let light_encoding = seed.light_encoding();
-        assert!(light_encoding.holographic_encoding.len() > 0);
+        assert!(!light_encoding.holographic_encoding.is_empty());
 
         // 2. Dimensional constraints derive from Light Architecture
         let constraints = DimensionalConstraints::from_light_encoding(light_encoding);

@@ -406,7 +406,7 @@ mod tests {
         let resonance = calculate_entity_resonance((0.0, 0.0), (1.0, 0.0), 1.0);
 
         // Resonance should be between 0 and 1
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 
     #[test]

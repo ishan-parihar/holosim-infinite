@@ -177,13 +177,13 @@ impl FibonacciSpiral {
     /// Generate the spiral points
     fn generate(&mut self) {
         let seq = FibonacciSequence::new(self.generations);
-        let mut angle = 0.0;
+        let mut angle: Float = 0.0;
         let angle_increment = std::f64::consts::PI / 2.0; // 90 degrees
 
         for i in 0..=self.generations {
             let radius = seq.get(i as u64) as Float;
-            let x = radius * (angle as f64).cos();
-            let y = radius * (angle as f64).sin();
+            let x = radius * angle.cos();
+            let y = radius * angle.sin();
             self.points.push((x, y));
             angle += angle_increment;
         }

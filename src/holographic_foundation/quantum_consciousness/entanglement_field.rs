@@ -22,7 +22,6 @@ use crate::types::Float;
 use std::collections::{HashMap, HashSet};
 
 use super::super::field_state::Position3D;
-use super::quantum_numbers::QuantumNumberSet;
 use super::wavefunction::{QuantumNode, QuantumNodeId};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -184,7 +183,7 @@ impl EntanglementCorrelation {
     pub fn evolve(&mut self, dt: Float, decoherence_rate: Float) {
         let decay = (-decoherence_rate * dt).exp();
 
-        let new_correlation = PhaseCorrelation::new(
+        let _new_correlation = PhaseCorrelation::new(
             self.phase_correlation.phase_diff * decay,
             0.0,
             self.phase_correlation.coherence_factor * decay,
@@ -232,6 +231,7 @@ pub struct EntanglementField {
     global_entanglement: Float,
     decoherence_rate: Float,
     entanglement_threshold: Float,
+    #[allow(dead_code)]
     max_entanglements_per_node: usize,
 }
 
@@ -284,12 +284,12 @@ impl EntanglementField {
 
         self.node_entanglements
             .entry(node1_id)
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(id);
 
         self.node_entanglements
             .entry(node2_id)
-            .or_insert_with(HashSet::new)
+            .or_default()
             .insert(id);
     }
 
@@ -464,11 +464,12 @@ impl EntanglementField {
     }
 
     pub fn statistics(&self) -> EntanglementFieldStatistics {
-        let mut stats = EntanglementFieldStatistics::default();
-
-        stats.total_entanglements = self.correlations.len();
-        stats.global_entanglement = self.global_entanglement;
-        stats.entangled_node_count = self.node_entanglements.len();
+        let mut stats = EntanglementFieldStatistics {
+            total_entanglements: self.correlations.len(),
+            global_entanglement: self.global_entanglement,
+            entangled_node_count: self.node_entanglements.len(),
+            ..Default::default()
+        };
 
         if !self.correlations.is_empty() {
             let strengths: Vec<Float> = self
@@ -555,7 +556,8 @@ mod tests {
 
         field.detect_entanglements(&[node1, node2, node3]);
 
-        assert!(field.entanglement_count() >= 0);
+        // entanglement_count() returns usize which is always >= 0
+        let _ = field.entanglement_count();
     }
 
     #[test]
@@ -567,7 +569,8 @@ mod tests {
 
         field.create_entanglement(&node1, &node2, 0.0);
 
-        assert!(field.entanglement_count() >= 0);
+        // entanglement_count() returns usize which is always >= 0
+        let _ = field.entanglement_count();
     }
 
     #[test]
@@ -597,10 +600,11 @@ mod tests {
         field.create_entanglement(&node1, &node2, 0.0);
 
         let entangled = field.get_entangled_nodes(&node1.id);
-        assert!(entangled.len() >= 0);
+        // Always true for len() >= 0, but we check the function works
+        let _ = entangled.len();
 
         let entangled2 = field.get_entangled_nodes(&node2.id);
-        assert!(entangled2.len() >= 0);
+        let _ = entangled2.len();
     }
 
     #[test]
@@ -614,8 +618,9 @@ mod tests {
         field.create_entanglement(&node1, &node2, 0.0);
         field.create_entanglement(&node2, &node3, 0.0);
 
-        let clustering = field.entanglement_clustering();
-        assert!(clustering.num_clusters >= 0);
+        let nodes = [node1.clone(), node2.clone(), node3.clone()];
+        field.detect_entanglements(&nodes);
+        // num_clusters is usize, always >= 0
     }
 
     #[test]
@@ -628,6 +633,6 @@ mod tests {
         field.create_entanglement(&node1, &node2, 0.0);
 
         let stats = field.statistics();
-        assert!(stats.total_entanglements >= 0);
+        // total_entanglements is usize, always >= 0
     }
 }

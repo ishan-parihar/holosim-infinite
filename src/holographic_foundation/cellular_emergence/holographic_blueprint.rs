@@ -19,7 +19,7 @@ use std::collections::HashMap;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
 use super::{
-    AminoAcid, ArchetypeGene, CellManifestation, GeneCategory, GeneId, GeneRegulatoryNetwork,
+    AminoAcid, ArchetypeGene, CellManifestation, GeneId, GeneRegulatoryNetwork,
     Nucleotide, NucleotideSequence, ProteinManifestation,
 };
 
@@ -38,7 +38,7 @@ impl BlueprintId {
     pub fn from_archetype_pattern(pattern: &[Float; NUM_ARCHETYPES]) -> Self {
         let mut hash: u64 = 0xcbf29ce484222325;
         for (i, val) in pattern.iter().enumerate() {
-            hash ^= val.to_bits() as u64;
+            hash ^= val.to_bits();
             hash = hash.wrapping_mul(0x100000001b3);
             hash ^= i as u64;
         }
@@ -191,9 +191,7 @@ impl HolographicBlueprint {
         pattern[9] = 0.68;
 
         // Lower spirit
-        for i in 14..21 {
-            pattern[i] = 0.30;
-        }
+        pattern[14..21].fill(0.30);
 
         pattern[21] = 0.45;
 
@@ -285,7 +283,7 @@ impl HolographicBlueprint {
                     .gene_network
                     .gene_for_archetype(gene_id.archetype_source())
                 {
-                    let modified_threshold =
+                    let _modified_threshold =
                         gene.expression_threshold * (1.0 - trigger.activation_modifier);
                     // Gene activation threshold is modified
                 }
@@ -299,7 +297,7 @@ impl HolographicBlueprint {
     pub fn unfold_to_organism(
         &self,
         stage: DevelopmentalStage,
-        environment_signals: &[String],
+        _environment_signals: &[String],
     ) -> OrganismManifestation {
         let threshold = stage.gene_activation_threshold();
         let complexity = stage.complexity_factor();
@@ -431,7 +429,7 @@ impl NucleotideSequence {
 
 impl CellManifestation {
     pub fn from_blueprint(
-        blueprint: &HolographicBlueprint,
+        _blueprint: &HolographicBlueprint,
         cell_index: usize,
         _proteins: &[ProteinManifestation],
     ) -> Self {

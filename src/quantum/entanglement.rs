@@ -210,14 +210,14 @@ impl EntanglementLink {
         self.shared_spectrum.apply_measurement(measurement);
 
         // Calculate instant effect on the other particle
-        let effect = InstantEffect {
+        
+
+        InstantEffect {
             phase_change: self.shared_spectrum.phase,
             coherence_change: measurement.coherence_delta,
             spin_flip: self.should_flip_spin(measurement),
             correlation_preserved: self.shared_spectrum.correlation_strength(),
-        };
-
-        effect
+        }
     }
 
     /// Determine if the other particle's spin should flip
@@ -276,7 +276,7 @@ impl EntanglementLink {
 // ============================================================================
 
 /// Types of quantum entanglement
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EntanglementType {
     /// Spin correlation (spin-up ↔ spin-down)
     SpinCorrelation,
@@ -294,6 +294,7 @@ pub enum EntanglementType {
     OrbitalAngularMomentum,
 
     /// General quantum correlation
+    #[default]
     General,
 }
 
@@ -311,12 +312,6 @@ impl EntanglementType {
         }
 
         // Default to general
-        EntanglementType::General
-    }
-}
-
-impl Default for EntanglementType {
-    fn default() -> Self {
         EntanglementType::General
     }
 }

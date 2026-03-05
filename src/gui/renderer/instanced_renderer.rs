@@ -6,10 +6,9 @@
 use crate::gui::renderer::{
     buffers::{Entity3DInstanceData, InstanceBufferManager},
     shaders::generate_sphere_geometry,
-    wgpu_context::WgpuContext,
 };
 use wgpu::{
-    util::DeviceExt, BindGroup, BindGroupLayout, Buffer, BufferUsages, CommandEncoder, Device,
+    util::DeviceExt, BindGroup, BindGroupLayout, Buffer, BufferUsages, Device,
     IndexFormat, Queue, RenderPass, RenderPipeline as WgpuRenderPipeline, SurfaceConfiguration,
 };
 
@@ -297,7 +296,7 @@ impl InstancedRenderer {
     pub fn update_camera(
         &mut self,
         device: &Device,
-        queue: &Queue,
+        _queue: &Queue,
         camera_uniforms: &CameraUniforms,
     ) {
         let camera_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -317,7 +316,7 @@ impl InstancedRenderer {
     }
 
     /// Update light uniforms
-    pub fn update_light(&mut self, device: &Device, queue: &Queue, light_uniforms: &LightUniforms) {
+    pub fn update_light(&mut self, device: &Device, _queue: &Queue, light_uniforms: &LightUniforms) {
         let light_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Light Uniform Buffer"),
             contents: bytemuck::cast_slice(&[*light_uniforms]),

@@ -12,11 +12,9 @@
 //! - Both derive from the SAME archetype patterns in the field
 //! - Cellular coherence contributes to planetary coherence
 
-use crate::holographic_foundation::archetype_profile::{
-    ArchetypeActivationProfile, NUM_ARCHETYPES,
-};
+use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::cellular_emergence::cell_manifestation::{
-    CellId, CellManifestation, CellState,
+    CellManifestation, CellState,
 };
 use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
@@ -130,12 +128,13 @@ impl GaiaConsciousness {
         let mut archetype_resonance = [0.0; NUM_ARCHETYPES];
         for cell in cells {
             let pattern = cell.field_config.archetype_pattern();
-            for i in 0..NUM_ARCHETYPES {
-                archetype_resonance[i] += pattern[i];
+            for (res_i, &pat_i) in archetype_resonance.iter_mut().zip(pattern.iter()) {
+                *res_i += pat_i;
             }
         }
-        for i in 0..NUM_ARCHETYPES {
-            archetype_resonance[i] /= cells.len() as Float;
+        let divisor = cells.len() as Float;
+        for item in &mut archetype_resonance {
+            *item /= divisor;
         }
 
         let cellular_network_density = if cells.len() > 1 {
@@ -465,7 +464,7 @@ mod tests {
     fn test_gaia_planetary_health() {
         let gaia = GaiaConsciousness::new();
         let health = gaia.planetary_health();
-        assert!(health >= 0.0 && health <= 1.0);
+        assert!((0.0..=1.0).contains(&health));
     }
 
     #[test]

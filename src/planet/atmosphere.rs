@@ -8,7 +8,6 @@
 //! space and surface."
 
 use rand::Rng;
-use std::collections::HashMap;
 
 // Re-export Season from cosmos for convenience
 pub use crate::cosmos::planetary_formation::Season;
@@ -403,7 +402,7 @@ impl DynamicAtmosphere {
     }
 
     /// Main tick: advance atmospheric processes
-    pub fn tick(&mut self, solar_radiation: f64, solar_angle: f64, season: Season, dt: f64) {
+    pub fn tick(&mut self, solar_radiation: f64, solar_angle: f64, _season: Season, dt: f64) {
         // 1. Solar heating
         self.apply_solar_heating(solar_radiation, solar_angle);
 
@@ -548,8 +547,8 @@ impl DynamicAtmosphere {
 
         // Form new clouds where humidity is high
         for cell in &self.humidity_field {
-            if cell.relative_humidity > 0.8 {
-                if rand::thread_rng().gen::<f64>() < 0.001 {
+            if cell.relative_humidity > 0.8
+                && rand::thread_rng().gen::<f64>() < 0.001 {
                     self.cloud_formations.push(CloudFormation {
                         center: cell.position,
                         radius: 50.0 + rand::thread_rng().gen::<f64>() * 100.0,
@@ -559,7 +558,6 @@ impl DynamicAtmosphere {
                         water_content: cell.relative_humidity * 0.5,
                     });
                 }
-            }
         }
     }
 

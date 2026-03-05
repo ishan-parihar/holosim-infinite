@@ -19,7 +19,7 @@ use std::collections::HashMap;
 // ============================================================================
 
 /// Detailed collective statistics
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DetailedCollectiveStatistics {
     /// Basic statistics
     pub basic: CollectiveDynamicsStatistics,
@@ -215,19 +215,6 @@ pub struct HistoricalCollectiveData {
 // IMPLEMENTATIONS
 // ============================================================================
 
-impl Default for DetailedCollectiveStatistics {
-    fn default() -> Self {
-        DetailedCollectiveStatistics {
-            basic: CollectiveDynamicsStatistics::default(),
-            behavior: CollectiveBehaviorStatistics::default(),
-            consciousness: GroupConsciousnessStatistics::default(),
-            evolution: CollectiveEvolutionStatistics::default(),
-            free_will: CollectiveFreeWillStatistics::default(),
-            resonance: CollectiveResonanceStatistics::default(),
-        }
-    }
-}
-
 impl Default for CollectiveBehaviorStatistics {
     fn default() -> Self {
         CollectiveBehaviorStatistics {
@@ -336,7 +323,7 @@ impl CollectiveStatisticsTracker {
         self.record_resonance_statistics(collective_behaviors, holographic_field);
 
         // Record historical data periodically
-        if self.simulation_time % 50 == 0 {
+        if self.simulation_time.is_multiple_of(50) {
             self.record_historical_data();
         }
     }

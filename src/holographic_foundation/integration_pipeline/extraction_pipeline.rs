@@ -258,10 +258,10 @@ impl EntityExtractionPipeline {
         let coherence_factor = peak.coherence;
 
         let mut density_amplitudes = [num_complex::Complex::new(0.0, 0.0); 8];
-        for i in 0..8 {
+        for (i, amp) in density_amplitudes.iter_mut().enumerate() {
             let phase = (peak.archetype_vector[i * 2 % 22] * std::f64::consts::TAU).cos();
             let magnitude = coherence_factor * (1.0 - (i as f64 * 0.1));
-            density_amplitudes[i] = num_complex::Complex::new(magnitude, phase);
+            *amp = num_complex::Complex::new(magnitude, phase);
         }
 
         let spectrum_position = match peak.dominant_scale {

@@ -185,8 +185,14 @@ pub struct WorldEvolutionStatistics {
 
 pub struct DynamicWorldEvolution {
     world_evolution: HashMap<WorldId, WorldEvolution>,
+    /// Holographic memory system for world state storage
+    /// Note: Reserved for future holographic persistence features
+    #[allow(dead_code)]
     memory_system: HolographicMemorySystem,
     world_snapshots: HashMap<WorldId, Vec<WorldSnapshot>>,
+    /// Whether world persistence is enabled
+    /// Note: Reserved for future save/load features
+    #[allow(dead_code)]
     persistence_enabled: bool,
     statistics: WorldEvolutionStatistics,
 }
@@ -240,7 +246,7 @@ impl DynamicWorldEvolution {
                 .get_mut(&world_id)
                 .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
 
-            let previous_spectrum = evolution.current_spectrum.clone();
+            let previous_spectrum = evolution.current_spectrum;
             let new_spectrum = self.compute_new_spectrum(world_id, &trigger, world)?;
             (previous_spectrum, new_spectrum)
         };
@@ -334,13 +340,13 @@ impl DynamicWorldEvolution {
         world: &HolographicWorld,
     ) -> Result<WorldSnapshot, WorldEvolutionError> {
         // Clone data needed before mutations
-        let (current_spectrum, holographic_integrity, holographic_completeness) = {
+        let (current_spectrum, _holographic_integrity, holographic_completeness) = {
             let evolution = self
                 .world_evolution
                 .get(&world_id)
                 .ok_or(WorldEvolutionError::InvalidWorldId(world_id))?;
             (
-                evolution.current_spectrum.clone(),
+                evolution.current_spectrum,
                 evolution.holographic_integrity,
                 evolution.holographic_integrity, // Use integrity as completeness for now
             )
@@ -353,7 +359,7 @@ impl DynamicWorldEvolution {
             snapshot_id: self.generate_snapshot_id(),
             world_id,
             timestamp: SystemTime::now(),
-            spectrum_configuration: current_spectrum.clone(),
+            spectrum_configuration: current_spectrum,
             dominant_density,
             holographic_signature: HolographicSignature::from_spectrum(&current_spectrum),
             region_states,
@@ -591,7 +597,7 @@ impl DynamicWorldEvolution {
         &self,
         world_id: WorldId,
         trigger: &EvolutionTrigger,
-        world: &HolographicWorld,
+        _world: &HolographicWorld,
     ) -> Result<SpectrumRatio, WorldEvolutionError> {
         let evolution = self
             .world_evolution
@@ -635,7 +641,7 @@ impl DynamicWorldEvolution {
         trigger: &EvolutionTrigger,
         world: &HolographicWorld,
     ) -> Vec<RegionId> {
-        let evolution = match self.world_evolution.get(&world_id) {
+        let _evolution = match self.world_evolution.get(&world_id) {
             Some(e) => e,
             None => return Vec::new(),
         };

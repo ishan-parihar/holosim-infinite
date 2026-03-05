@@ -49,8 +49,8 @@ impl PotentiatorOperation {
         }
     }
 
-    /// Create a new Potentiator operation with default values
-    pub fn default() -> Self {
+    /// Create a new Potentiator operation with initial values
+    pub fn initial() -> Self {
         Self::new(PotentiatorMindArchetype::new())
     }
 
@@ -233,12 +233,12 @@ impl fmt::Display for PotentiatorOperation {
 mod tests {
     use super::*;
     use crate::archetypes::computational_operations::{
-        Catalyst, CatalystSource, CatalystType, ComplexType, CycleStep, ProcessingContext,
+        Catalyst, ComplexType, CycleStep, ProcessingContext,
     };
 
     #[test]
     fn test_potentiator_operation_creation() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         assert_eq!(operation.archetype_id(), 2);
         assert_eq!(operation.archetype_name(), "Potentiator Operation");
@@ -246,7 +246,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_process() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         let input = ConsciousnessInput {
             raw_experience: 0.8,
@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_signature() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
         let signature = operation.signature();
 
         assert_eq!(signature.archetype_id, 2);
@@ -284,7 +284,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_can_process() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         // Valid input
         let valid_input = ConsciousnessInput {
@@ -319,7 +319,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_provide_resources() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         let resources = operation.provide_resources(0.8);
 
@@ -329,7 +329,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_extract_wisdom() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         let wisdom = operation.extract_wisdom(0.8);
 
@@ -339,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_efficiency() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         let efficiency = operation.processing_efficiency();
 
@@ -349,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_potentiator_operation_display() {
-        let operation = PotentiatorOperation::default();
+        let operation = PotentiatorOperation::initial();
 
         let display = format!("{}", operation);
 

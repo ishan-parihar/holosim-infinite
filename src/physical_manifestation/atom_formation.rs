@@ -524,7 +524,7 @@ impl AtomFormationSystem {
         particle.charge = -1.0; // elementary charge
 
         // Spin quantum number (+1/2 or -1/2)
-        let spin = if spin_index % 2 == 0 { 0.5 } else { -0.5 };
+        let spin = if spin_index.is_multiple_of(2) { 0.5 } else { -0.5 };
 
         // Orbital label
         let azimuthal_char = match azimuthal_qn {
@@ -852,14 +852,14 @@ impl AtomFormationSystem {
         let group = ((atomic_number as Float - 1.0) % 18.0 + 1.0) as u8;
 
         // Modify archetype activation based on position in periodic table
-        for i in 0..22 {
+        for (i, item) in activation.iter_mut().enumerate() {
             // Create periodic variation
             let periodic_factor = (2.0 * std::f64::consts::PI * i as Float / 22.0).sin();
             let group_factor = (group as Float / 18.0) * 2.0 - 1.0;
             let period_factor = (period as Float / 7.0) * 2.0 - 1.0;
 
-            activation[i] = 0.5 + 0.3 * periodic_factor + 0.1 * group_factor + 0.1 * period_factor;
-            activation[i] = activation[i].clamp(0.0, 1.0);
+            *item = 0.5 + 0.3 * periodic_factor + 0.1 * group_factor + 0.1 * period_factor;
+            *item = item.clamp(0.0, 1.0);
         }
 
         activation
@@ -1389,7 +1389,7 @@ mod tests {
             Coordinate3D::new(1.0e-10, 0.0, 0.0),
         );
         let compatibility = system.calculate_archetype_compatibility(&atom, &atom2);
-        assert!(compatibility >= 0.0 && compatibility <= 1.0);
+        assert!((0.0..=1.0).contains(&compatibility));
 
         println!("✅ Task 2.3 validation: All tests passed!");
     }

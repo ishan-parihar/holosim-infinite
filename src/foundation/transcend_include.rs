@@ -32,7 +32,7 @@ impl AttractorField {
     /// Create a new attractor-field
     pub fn new(name: impl Into<String>, strength: f64, target: impl Into<String>) -> Self {
         assert!(
-            strength >= 0.0 && strength <= 1.0,
+            (0.0..=1.0).contains(&strength),
             "Strength must be between 0.0 and 1.0"
         );
         AttractorField {
@@ -78,7 +78,7 @@ impl Feature {
     /// Create a new feature
     pub fn new(name: impl Into<String>, description: impl Into<String>, strength: f64) -> Self {
         assert!(
-            strength >= 0.0 && strength <= 1.0,
+            (0.0..=1.0).contains(&strength),
             "Strength must be between 0.0 and 1.0"
         );
         Feature {

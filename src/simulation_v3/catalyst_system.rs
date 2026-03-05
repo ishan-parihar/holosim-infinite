@@ -18,7 +18,7 @@
 use crate::consciousness::free_will::{ChoiceContext, FreeWillKernel, PolarityPreference};
 use crate::entity_layer7::layer7::EntityState;
 use crate::entity_layer7::layer7::{EntityId, EntityType};
-use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
+use crate::evolution_density_octave::density_octave::Density;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
@@ -1105,6 +1105,7 @@ impl Default for CatalystStatistics {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::Density1SubLevel;
 
     #[test]
     fn test_catalyst_manager_creation() {
@@ -1182,7 +1183,7 @@ mod tests {
         );
 
         assert_eq!(events.len(), 1);
-        assert!(manager.catalyst_history.len() > 0);
+        assert!(!manager.catalyst_history.is_empty());
     }
 
     // ========================================================================
@@ -1207,7 +1208,7 @@ mod tests {
         let spectrum_config = crate::entity_layer7::IndividualSpectrumConfiguration::new(ratio);
 
         // Create a test entity with weak emotional development
-        let mut entity = crate::entity_layer7::SubSubLogos::new(
+        let entity = crate::entity_layer7::SubSubLogos::new(
             EntityId::new("test-weak-emotional".to_string()),
             crate::entity_layer7::layer7::EntityType::Individual,
             None,   // parent_id
@@ -1388,7 +1389,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_growth_applied_to_entity() {
-        let mut manager = CatalystManager::new();
+        let manager = CatalystManager::new();
 
         // Create a test catalyst with high intensity
         let catalyst = Catalyst {

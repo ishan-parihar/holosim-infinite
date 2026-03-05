@@ -35,7 +35,6 @@ pub use logos_config::{
 };
 pub use propagation::{FieldConfiguration, InvolutionFlow, PropagationResult};
 
-use crate::types::Float;
 
 pub const NUM_HIERARCHY_LEVELS: usize = 4;
 
@@ -86,17 +85,12 @@ impl HierarchyLevel {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum PropagationMode {
     Strict,
     Probabilistic,
+    #[default]
     Resonant,
-}
-
-impl Default for PropagationMode {
-    fn default() -> Self {
-        PropagationMode::Resonant
-    }
 }
 
 #[cfg(test)]

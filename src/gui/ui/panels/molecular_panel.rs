@@ -13,7 +13,7 @@
 //! - Simultaneous molecular/planetary emergence visualization
 //! - Entity integration for molecular property display
 
-use egui::{Color32, Context, Ui, Vec2};
+use egui::{Context, Ui};
 use std::collections::HashMap;
 
 use crate::entity_layer7::layer7::SubSubLogos;
@@ -29,8 +29,10 @@ use crate::holographic_foundation::molecular_emergence::simultaneous_emergence::
 
 /// View mode for molecular panel tabs
 #[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Default)]
 pub enum MolecularViewMode {
     /// Bond visualization from archetype interference
+    #[default]
     Bonds,
     /// Molecular geometry as field interference minima
     Geometry,
@@ -40,11 +42,6 @@ pub enum MolecularViewMode {
     Manifestation,
 }
 
-impl Default for MolecularViewMode {
-    fn default() -> Self {
-        Self::Bonds
-    }
-}
 
 /// Molecular Panel for Phase C.3
 ///
@@ -259,7 +256,7 @@ impl MolecularPanel {
         if let Some(field_state) = field_state {
             let focus = focus_position
                 .cloned()
-                .unwrap_or_else(|| field_state.root().position.clone());
+                .unwrap_or_else(|| field_state.root().position);
             self.refresh_from_field(field_state, &focus);
         }
 
@@ -271,7 +268,7 @@ impl MolecularPanel {
     }
 
     fn refresh_from_field(&mut self, field_state: &HolographicFieldState, focus: &Position3D) {
-        let Some(planet) = PlanetaryEmergence::from_field(field_state, focus.clone(), 0.0) else {
+        let Some(planet) = PlanetaryEmergence::from_field(field_state, *focus, 0.0) else {
             return;
         };
 
@@ -282,9 +279,9 @@ impl MolecularPanel {
             .unwrap_or(8);
 
         let molecule = if dominant_element == 6 {
-            MolecularManifestation::methane(focus.clone())
+            MolecularManifestation::methane(*focus)
         } else {
-            MolecularManifestation::water(focus.clone())
+            MolecularManifestation::water(*focus)
         };
 
         let pair = MolecularPlanetaryPair::new(molecule.clone(), planet);

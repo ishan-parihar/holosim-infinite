@@ -147,7 +147,7 @@ impl FieldNode {
             let mut child = FieldNode::new(child_position, child_bounds, self.depth + 1);
 
             for i in 0..NUM_SCALE_LEVELS {
-                child.amplitudes[i] = self.amplitudes[i].clone();
+                child.amplitudes[i] = self.amplitudes[i];
             }
             child.archetype_vector = self.archetype_vector;
             child.coherence = self.coherence * 0.9;
@@ -496,7 +496,7 @@ impl HolographicFieldState {
         scale: ScaleLevel,
     ) -> Option<FieldAmplitude> {
         self.get_node_at(position)
-            .map(|n| n.get_amplitude_at_scale(scale).clone())
+            .map(|n| *n.get_amplitude_at_scale(scale))
     }
 
     fn recalculate_global_coherence(&mut self) {

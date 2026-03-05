@@ -24,10 +24,12 @@ pub struct TimeControlsPanel {
     /// Panel size
     pub size: [f32; 2],
     /// Current time rate slider value
+    #[allow(dead_code)]
     rate_slider_value: f32,
     /// Timeline scrubber value (0.0 to 1.0)
     timeline_scrubber: f32,
     /// Show advanced controls
+    #[allow(dead_code)]
     show_advanced: bool,
     /// Step count for step-through
     step_count: usize,

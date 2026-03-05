@@ -302,7 +302,7 @@ impl PolarizationProgress {
         }
 
         // Cap at 1.0
-        self.intensity = intensity.min(1.0).max(0.0);
+        self.intensity = intensity.clamp(0.0, 1.0);
     }
 
     /// Update polarization state based on intensity and direction

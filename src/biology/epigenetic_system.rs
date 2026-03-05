@@ -8,7 +8,7 @@
 // "Epigenetic factors and developmental instructions"
 
 use crate::biology::cellular_emergence::Cell;
-use crate::biology::dna_system::{EpigeneticMarkerType, Gene, GeneExpression, DNA};
+use crate::biology::dna_system::{EpigeneticMarkerType, DNA};
 use crate::types::Float;
 use rand::Rng;
 use std::collections::HashMap;
@@ -315,6 +315,7 @@ pub enum PlasticityType {
 /// Environment Sensor
 #[derive(Debug, Clone)]
 struct EnvironmentSensor {
+    #[allow(dead_code)]
     sensing_resolution: Float,
 }
 
@@ -371,7 +372,6 @@ impl EnvironmentSensor {
 
         let nutrient_deviation = (environment.nutrients - 0.5).abs();
         if nutrient_deviation > max_deviation {
-            max_deviation = nutrient_deviation;
             signal_type = EnvironmentalSignalType::NutrientAvailability;
         }
 
@@ -410,10 +410,8 @@ impl EnvironmentSensor {
     ) -> Float {
         match signal_type {
             EnvironmentalSignalType::TemperatureStress => {
-                if environment.temperature > 0.7 {
-                    -0.3 // Heat stress represses genes
-                } else if environment.temperature < 0.3 {
-                    -0.3 // Cold stress represses genes
+                if environment.temperature > 0.7 || environment.temperature < 0.3 {
+                    -0.3 // Heat or cold stress represses genes
                 } else {
                     0.1 // Optimal temperature activates genes
                 }
@@ -544,6 +542,7 @@ impl GeneRegulator {
 /// Epigenetic Inheritor
 #[derive(Debug, Clone)]
 struct EpigeneticInheritor {
+    #[allow(dead_code)]
     inheritance_threshold: Float,
 }
 
@@ -598,6 +597,7 @@ impl EpigeneticInheritor {
 /// Plasticity Calculator
 #[derive(Debug, Clone)]
 struct PlasticityCalculator {
+    #[allow(dead_code)]
     calculation_method: PlasticityMethod,
 }
 
@@ -684,6 +684,7 @@ impl PlasticityCalculator {
 
 /// Plasticity Calculation Method
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
 enum PlasticityMethod {
     Integrated,
     EpigeneticBased,
@@ -701,8 +702,8 @@ mod tests {
     use crate::biology::cellular_emergence::CellType;
     use crate::biology::dna_system::DNA;
     use crate::entity_layer7::dna_encoding::DNAPattern;
-    use crate::entity_layer7::{EvolutionaryStage, IndividualSpectrumConfiguration};
-    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio, SpectrumSide};
+    use crate::entity_layer7::IndividualSpectrumConfiguration;
+    use crate::spectrum::SpectrumRatio;
 
     fn create_test_cell() -> Cell {
         let ratio = SpectrumRatio::space_time(1.5, 1.0);
@@ -738,9 +739,11 @@ mod tests {
         let system = EpigeneticSystem::new();
         let cell = create_test_cell();
 
-        let mut environment = EnvironmentalConditions::default();
-        environment.temperature = 0.9; // Heat stress
-        environment.stress = 0.8;
+        let environment = EnvironmentalConditions {
+            temperature: 0.9, // Heat stress
+            stress: 0.8,
+            ..Default::default()
+        };
 
         let signal = system.sense_environment(&cell, &environment);
 
@@ -753,8 +756,10 @@ mod tests {
         let system = EpigeneticSystem::new();
         let mut cell = create_test_cell();
 
-        let mut environment = EnvironmentalConditions::default();
-        environment.light = 0.9; // High light
+        let environment = EnvironmentalConditions {
+            light: 0.9, // High light
+            ..Default::default()
+        };
 
         let signal = system.sense_environment(&cell, &environment);
 
@@ -805,8 +810,10 @@ mod tests {
         let system = EpigeneticSystem::new();
         let mut cell = create_test_cell();
 
-        let mut environment = EnvironmentalConditions::default();
-        environment.nutrients = 0.1; // Low nutrients
+        let environment = EnvironmentalConditions {
+            nutrients: 0.1, // Low nutrients
+            ..Default::default()
+        };
 
         let signal = system.sense_environment(&cell, &environment);
         let regulation = system.regulate_gene_expression(&mut cell.dna, &signal);
@@ -822,30 +829,37 @@ mod tests {
         let cell = create_test_cell();
 
         // Test different environmental conditions
-        let mut environment = EnvironmentalConditions::default();
-
-        environment.temperature = 0.9;
+        let environment = EnvironmentalConditions {
+            temperature: 0.9,
+            ..Default::default()
+        };
         let signal = system.sense_environment(&cell, &environment);
         assert_eq!(
             signal.signal_type,
             EnvironmentalSignalType::TemperatureStress
         );
 
-        environment = EnvironmentalConditions::default();
-        environment.light = 0.9;
+        let environment = EnvironmentalConditions {
+            light: 0.9,
+            ..Default::default()
+        };
         let signal = system.sense_environment(&cell, &environment);
         assert_eq!(signal.signal_type, EnvironmentalSignalType::LightStimulus);
 
-        environment = EnvironmentalConditions::default();
-        environment.nutrients = 0.1;
+        let environment = EnvironmentalConditions {
+            nutrients: 0.1,
+            ..Default::default()
+        };
         let signal = system.sense_environment(&cell, &environment);
         assert_eq!(
             signal.signal_type,
             EnvironmentalSignalType::NutrientAvailability
         );
 
-        environment = EnvironmentalConditions::default();
-        environment.stress = 0.9;
+        let environment = EnvironmentalConditions {
+            stress: 0.9,
+            ..Default::default()
+        };
         let signal = system.sense_environment(&cell, &environment);
         assert_eq!(signal.signal_type, EnvironmentalSignalType::OxidativeStress);
     }

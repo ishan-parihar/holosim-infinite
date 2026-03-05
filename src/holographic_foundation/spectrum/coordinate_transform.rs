@@ -224,7 +224,7 @@ impl CoordinateTransform {
         factor: Float,
     ) -> TimeSpaceCoordinates {
         // Partial transformation based on factor (0.0 to 1.0)
-        let ts = self.full_to_time_space(st);
+        let _ts = self.full_to_time_space(st);
         TimeSpaceCoordinates {
             s: st.t * factor + st.spatial_magnitude() * (1.0 - factor) * 0.1,
             tx: st.x * factor + st.t * (1.0 - factor) * 0.1,
@@ -249,7 +249,7 @@ impl CoordinateTransform {
         factor: Float,
     ) -> SpaceTimeCoordinates {
         // Partial transformation based on factor (0.0 to 1.0)
-        let st = self.full_to_space_time(ts);
+        let _st = self.full_to_space_time(ts);
         SpaceTimeCoordinates {
             x: ts.tx * factor + ts.s * (1.0 - factor) * 0.1,
             y: ts.ty * factor + ts.s * (1.0 - factor) * 0.1,

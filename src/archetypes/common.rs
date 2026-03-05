@@ -1,6 +1,6 @@
 //! Common types and traits for archetypes
 
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Octant, Rung};
 
 /// Common archetype placeholder
 pub struct ArchetypeCommon {
@@ -59,7 +59,7 @@ impl DevelopmentalPosition {
         }
     }
 
-    pub fn new_with_octant_rung(octant: Octant, rung: u8) -> Self {
+    pub fn new_with_octant_rung(_octant: Octant, rung: u8) -> Self {
         match rung % 4 {
             0 => DevelopmentalPosition::Input,
             1 => DevelopmentalPosition::Catalyst,

@@ -9,11 +9,8 @@ use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-use crate::entity_layer7::{DensityLevel, EntityId, EntityType, SubSubLogos as Entity};
-use crate::evolution_density_octave::density_octave::Density;
-use crate::gui::Coordinate3D;
+use crate::entity_layer7::{EntityId, EntityType};
 use crate::integrated_system::{GuiCollective, GuiEntity, IntegratedSystem};
-use crate::simulation_v3::entity_lifecycle::{EntityLifecycleData, EntityLifecycleManager};
 
 /// Integration bridge between simulation and GUI
 ///
@@ -182,11 +179,8 @@ impl SimulationGuiIntegration {
 
         // Collect events
         self.event_queue.clear();
-        for event in events {
-            let _gui_event = match event {
-                // Map simulation events to GUI events
-                _ => continue, // Skip unmapped events
-            };
+        for _event in events {
+            continue;
         }
     }
 
@@ -249,7 +243,7 @@ impl SimulationGuiIntegration {
 
         EntityRenderData {
             id: entity.id.clone(),
-            entity_type: entity.entity_type.clone(),
+            entity_type: entity.entity_type,
             position: log_position,
             scale: log_scale,
             density: entity.density.as_u8(),

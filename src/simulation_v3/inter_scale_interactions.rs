@@ -561,12 +561,12 @@ impl InterScaleInteractionManager {
 
             // Process member → collective influence
             if let Some(parent_id) = entity.parent() {
-                if let Some(parent_entity) = entities.get(&parent_id) {
+                if let Some(parent_entity) = entities.get(parent_id) {
                     if parent_entity.entity_type.is_collective() {
                         // Calculate member → collective influence
                         let influence = self.calculate_member_to_collective_influence(
                             entity_id,
-                            &parent_id,
+                            parent_id,
                             entity,
                             parent_entity,
                         );

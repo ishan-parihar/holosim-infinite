@@ -297,7 +297,7 @@ mod tests {
 
     #[test]
     fn test_relationship_creation() {
-        let web = RelationshipWeb::new();
+        let _web = RelationshipWeb::new();
         let rel = Relationship::new_stranger();
         assert_eq!(rel.relationship_type, RelationshipType::Stranger);
     }

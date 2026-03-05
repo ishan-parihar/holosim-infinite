@@ -28,7 +28,7 @@ pub struct Entity {
     pub evolution_clock: f64,
     pub spectrum_position: f64,
 }
-use nalgebra_glm::{Vec2, Vec3};
+use nalgebra_glm::Vec3;
 use std::collections::HashMap;
 
 /// Level of collective consciousness
@@ -343,7 +343,7 @@ impl CollectiveVisualizer {
         for entity in entities {
             density_groups
                 .entry(entity.density)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(entity);
         }
 
@@ -389,7 +389,7 @@ impl CollectiveVisualizer {
         for entity in entities {
             polarity_groups
                 .entry(entity.polarity)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(entity);
         }
 
@@ -429,7 +429,7 @@ impl CollectiveVisualizer {
 
         let mut sum = Vec3::new(0.0_f32, 0.0_f32, 0.0_f32);
         for entity in entities {
-            sum += entity.position.clone();
+            sum += entity.position;
         }
 
         let count = entities.len() as f32;

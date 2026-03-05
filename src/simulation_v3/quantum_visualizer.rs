@@ -60,7 +60,7 @@ impl QuantumVisualizer {
                 0.0
             }
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Information content
         output.push_str("Information Content:\n");
@@ -72,7 +72,7 @@ impl QuantumVisualizer {
             "  Average:           {:.2} bits\n",
             stats.average_information_content
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Energy
         output.push_str("Energy Content:\n");
@@ -80,7 +80,7 @@ impl QuantumVisualizer {
             "  Total:             {:.2e} J\n",
             stats.total_energy
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Coherence
         output.push_str("Coherence Levels:\n");
@@ -88,7 +88,7 @@ impl QuantumVisualizer {
             "  Average:           {:.3}\n",
             stats.average_coherence
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Coherence distribution
         output.push_str("Coherence Distribution:\n");
@@ -97,7 +97,7 @@ impl QuantumVisualizer {
         for (range, count) in coherence_entries {
             output.push_str(&format!("  {:<20}: {}\n", range, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Information distribution
         output.push_str("Information Distribution:\n");
@@ -106,7 +106,7 @@ impl QuantumVisualizer {
         for (range, count) in info_entries {
             output.push_str(&format!("  {:<20}: {}\n", range, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Entanglement
         output.push_str("Entanglement:\n");
@@ -152,7 +152,7 @@ impl QuantumVisualizer {
             stats.failed_collapses,
             (1.0 - stats.collapse_success_rate) * 100.0
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Collapse probability
         output.push_str("Collapse Probability:\n");
@@ -160,7 +160,7 @@ impl QuantumVisualizer {
             "  Average:           {:.3}\n",
             stats.average_collapse_probability
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Decoherence time
         output.push_str("Decoherence Time:\n");
@@ -168,7 +168,7 @@ impl QuantumVisualizer {
             "  Average:           {:.2} s\n",
             stats.average_decoherence_time
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Decoherence time distribution
         output.push_str("Decoherence Time Distribution:\n");
@@ -177,7 +177,7 @@ impl QuantumVisualizer {
         for (range, count) in time_entries {
             output.push_str(&format!("  {:<20}: {}\n", range, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Coherence loss rate
         output.push_str("Coherence Dynamics:\n");
@@ -238,7 +238,7 @@ impl QuantumVisualizer {
                 0.0
             }
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Attractor strength
         output.push_str("Attractor Strength:\n");
@@ -246,7 +246,7 @@ impl QuantumVisualizer {
             "  Average:           {:.3}\n",
             stats.average_attractor_strength
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Stability
         output.push_str("Stability:\n");
@@ -254,7 +254,7 @@ impl QuantumVisualizer {
             "  Average:           {:.3}\n",
             stats.average_stability
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Strength distribution
         output.push_str("Strength Distribution:\n");
@@ -263,7 +263,7 @@ impl QuantumVisualizer {
         for (range, count) in strength_entries {
             output.push_str(&format!("  {:<20}: {}\n", range, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Element period distribution
         output.push_str("Element Period Distribution:\n");
@@ -272,7 +272,7 @@ impl QuantumVisualizer {
         for (period, count) in period_entries {
             output.push_str(&format!("  {:<20}: {}\n", period, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Energy well depth
         output.push_str("Energy Well Depth:\n");
@@ -335,7 +335,7 @@ impl QuantumVisualizer {
                 0.0
             }
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Success rate
         output.push_str("Success Metrics:\n");
@@ -347,7 +347,7 @@ impl QuantumVisualizer {
             "  Attractor Match:   {:.1}%\n",
             stats.attractor_match_rate * 100.0
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Transition time
         output.push_str("Transition Time:\n");
@@ -355,7 +355,7 @@ impl QuantumVisualizer {
             "  Average:           {:.2} s\n",
             stats.average_transition_time
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Transition time distribution
         output.push_str("Transition Time Distribution:\n");
@@ -364,7 +364,7 @@ impl QuantumVisualizer {
         for (range, count) in time_entries {
             output.push_str(&format!("  {:<20}: {}\n", range, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // State distribution
         output.push_str("Active States:\n");
@@ -373,7 +373,7 @@ impl QuantumVisualizer {
         for (state, count) in state_entries {
             output.push_str(&format!("  {:<20}: {}\n", state, count));
         }
-        output.push_str("\n");
+        output.push('\n');
 
         // Decoherence level
         output.push_str("Decoherence at Completion:\n");
@@ -407,17 +407,17 @@ impl QuantumVisualizer {
 
         // Quantum pools
         output.push_str(&Self::visualize_quantum_pools(&tracker.quantum_pool_stats));
-        output.push_str("\n");
+        output.push('\n');
 
         // Decoherence
         output.push_str(&Self::visualize_decoherence(&tracker.decoherence_stats));
-        output.push_str("\n");
+        output.push('\n');
 
         // Attractor fields
         output.push_str(&Self::visualize_attractor_fields(
             &tracker.attractor_field_stats,
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Transitions
         output.push_str(&Self::visualize_transitions(&tracker.transition_stats));
@@ -468,7 +468,7 @@ impl QuantumVisualizer {
             "  Total Information: {:.2} bits\n",
             first.total_information_content
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         output.push_str("Last Data Point:\n");
         output.push_str(&format!("  Timestamp:         {}\n", last.timestamp));
@@ -490,7 +490,7 @@ impl QuantumVisualizer {
             "  Total Information: {:.2} bits\n",
             last.total_information_content
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // Calculate trends
         if tracker.historical_data.len() > 1 {
@@ -536,7 +536,7 @@ impl QuantumVisualizer {
             let period = Self::get_period(attractor.element_type);
             period_groups
                 .entry(period)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(field_id.clone());
         }
 
@@ -561,7 +561,7 @@ impl QuantumVisualizer {
                         ));
                     }
                 }
-                output.push_str("\n");
+                output.push('\n');
             }
         }
 

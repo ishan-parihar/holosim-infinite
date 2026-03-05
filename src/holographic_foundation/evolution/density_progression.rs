@@ -93,6 +93,7 @@ pub struct DensityProgression {
     entity_rates: HashMap<u64, Float>,
     progression_events: Vec<ProgressionEvent>,
     total_progression: Float,
+    #[allow(dead_code)]
     config: EvolutionFeedbackConfig,
 }
 
@@ -213,7 +214,7 @@ impl DensityProgression {
     }
 
     pub fn calculate_spectrum_shift(&self, entity_id: u64, dt: Float) -> SpectrumShift {
-        let density = self.get_density(entity_id);
+        let _density = self.get_density(entity_id);
         let rate = self.get_rate(entity_id);
 
         SpectrumShift::new(rate * dt, -rate * dt * 0.1, 0.0, dt)

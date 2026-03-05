@@ -120,7 +120,7 @@ impl SpectrumTrajectory {
         }
 
         // Weighted average (recent positions weighted more)
-        let len = self.position_history.len();
+        let _len = self.position_history.len();
         let mut sum = 0.0;
         let mut weight_sum = 0.0;
 

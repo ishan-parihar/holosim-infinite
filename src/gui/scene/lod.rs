@@ -1,4 +1,3 @@
-use crate::gui::camera::Camera2D;
 use std::f32;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -91,7 +90,7 @@ impl LODSystem {
         &self,
         distance: f32,
         previous_lod: LODLevel,
-        delta_time: f32,
+        _delta_time: f32,
     ) -> (LODLevel, f32) {
         let target_lod = self.calculate_lod(distance);
         let interpolation_factor = if previous_lod == target_lod {

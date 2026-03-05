@@ -361,8 +361,10 @@ impl EnergyFlowSystem {
 
     /// Distribute energy to entities based on requests
     pub fn distribute_energy(&mut self, requests: &mut Vec<EnergyRequest>) -> EnergyFlowStats {
-        let mut stats = EnergyFlowStats::default();
-        stats.total_energy_flow = self.input_energy;
+        let mut stats = EnergyFlowStats {
+            total_energy_flow: self.input_energy,
+            ..Default::default()
+        };
 
         // Minimum meaningful allocation (less than this doesn't count as "served")
         const MIN_ALLOCATION: Float = 0.01;
@@ -375,7 +377,7 @@ impl EnergyFlowSystem {
         for (idx, req) in requests.iter().enumerate() {
             requests_by_density
                 .entry(req.density)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(idx);
         }
 
@@ -407,7 +409,7 @@ impl EnergyFlowSystem {
                 };
 
                 // Sort requests by priority when energy is scarce
-                let mut sorted_indices: Vec<_> = request_indices.iter().cloned().collect();
+                let mut sorted_indices: Vec<_> = request_indices.to_vec();
                 if fair_share < MIN_ENTITLEMENT {
                     sorted_indices.sort_by(|&a, &b| {
                         requests[b]

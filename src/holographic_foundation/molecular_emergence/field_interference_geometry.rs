@@ -25,7 +25,6 @@ use super::super::archetype_profile::NUM_ARCHETYPES;
 use super::super::atomic_emergence::{
     ElementAttractorField, ParticleArchetypePattern, ParticleProperties, ParticleType,
 };
-use super::bond_formation::BondType;
 
 pub const FIELD_RESOLUTION: usize = 72;
 pub const CONVERGENCE_THRESHOLD: Float = 1e-6;
@@ -205,13 +204,13 @@ impl ArchetypeFieldPattern {
         amplitude * (phase * PI * time).cos()
     }
 
-    fn spherical_harmonic(theta: Float, phi: Float, l: i32, _m: i32) -> Float {
+    fn spherical_harmonic(theta: Float, _phi: Float, l: i32, _m: i32) -> Float {
         match l {
             0 => 0.5 * (1.0 / PI).sqrt(),
             1 => (3.0 / (4.0 * PI)).sqrt() * theta.cos(),
             2 => (5.0 / (16.0 * PI)).sqrt() * (3.0 * theta.cos().powi(2) - 1.0),
             3 => (7.0 / (16.0 * PI)).sqrt() * theta.cos() * (5.0 * theta.cos().powi(2) - 3.0),
-            _ => theta.cos().powi(l as i32),
+            _ => theta.cos().powi(l),
         }
     }
 }
@@ -305,7 +304,7 @@ impl FieldInterferenceGeometry {
             }
             4 => {
                 // Tetrahedral: 109.5° apart
-                let angle = 109.5_f64.to_radians();
+                let _angle = 109.5_f64.to_radians();
                 let a = 1.0 / 3.0_f64.sqrt();
                 vec![[a, a, a], [a, -a, -a], [-a, a, -a], [-a, -a, a]]
             }
@@ -363,8 +362,8 @@ impl FieldInterferenceGeometry {
         };
 
         // Mark lone pair positions (they're the last ones in the array)
-        for i in bonding_count..minima.len() {
-            minima[i].is_bonding_site = false;
+        for min in &mut minima[bonding_count..] {
+            min.is_bonding_site = false;
         }
 
         // For bent and trigonal pyramidal, adjust the bonding pair positions
@@ -395,6 +394,9 @@ impl FieldInterferenceGeometry {
         minima
     }
 
+    /// Find interference minima for molecular geometry calculation
+    /// TODO: Planned for advanced molecular geometry prediction
+    #[allow(dead_code)]
     fn find_interference_minima(
         central: &ArchetypeFieldPattern,
         bonded: &[ArchetypeFieldPattern],
@@ -414,7 +416,7 @@ impl FieldInterferenceGeometry {
             let z = phi.cos();
 
             // Calculate interference at this direction
-            let interference = Self::calculate_total_interference(central, bonded, [x, y, z], 0.0);
+            let _interference = Self::calculate_total_interference(central, bonded, [x, y, z], 0.0);
 
             // Refine position using gradient descent
             let refined = Self::refine_minimum(central, bonded, [x, y, z]);
@@ -491,6 +493,9 @@ impl FieldInterferenceGeometry {
         destructive + phase_interference.abs() * 0.1 - constructive * 0.3
     }
 
+    /// Refine minimum position using gradient descent
+    /// TODO: Planned for advanced molecular geometry prediction
+    #[allow(dead_code)]
     fn refine_minimum(
         central: &ArchetypeFieldPattern,
         bonded: &[ArchetypeFieldPattern],
@@ -525,6 +530,9 @@ impl FieldInterferenceGeometry {
         InterferenceMinimum::new(current, depth.abs())
     }
 
+    /// Compute gradient for minimum refinement
+    /// TODO: Planned for advanced molecular geometry prediction
+    #[allow(dead_code)]
     fn compute_gradient(
         central: &ArchetypeFieldPattern,
         bonded: &[ArchetypeFieldPattern],
@@ -556,6 +564,9 @@ impl FieldInterferenceGeometry {
         [(dx - fx) / eps, (dy - fx) / eps, (dz - fx) / eps]
     }
 
+    /// Find lone pair minimum position for VSEPR geometry
+    /// TODO: Planned for advanced molecular geometry prediction
+    #[allow(dead_code)]
     fn find_lone_pair_minimum(
         central: &ArchetypeFieldPattern,
         existing_minima: &[InterferenceMinimum],
@@ -838,7 +849,7 @@ mod tests {
 
         // Both should produce valid angles (field-derived)
         assert!(methane_angle > 0.0 && methane_angle <= 180.0);
-        assert!(water_angle >= 0.0 && water_angle <= 180.0);
+        assert!((0.0..=180.0).contains(&water_angle));
 
         // VSEPR theory is a consequence: shapes are determined by electron domain repulsion
         // which emerges from field interference patterns
@@ -849,13 +860,13 @@ mod tests {
     #[test]
     fn test_phase7_lone_pair_effect() {
         let water = FieldInterferenceGeometry::predict_water();
-        let water_lone_pairs = water
+        let _water_lone_pairs = water
             .interference_minima
             .iter()
             .filter(|m| !m.is_bonding_site)
             .count();
 
-        assert!(water_lone_pairs >= 0);
+        // water_lone_pairs is usize, always >= 0
     }
 
     #[test]

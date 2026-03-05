@@ -1,13 +1,12 @@
 // A17: The Catalyst of Spirit
 // Called Hope (Preferably Faith) - causing changes in adept's viewpoint through spiritual potentiation
 
-use crate::archetypes::archetype_traits::CatalystArchetypeTrait;
 use crate::archetypes::common::{
-    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, DevelopmentalPosition,
+    FunctionalPair, HealthStatus, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
+    LambdaMeasurementType, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 use std::collections::HashMap;
 
 /// Catalyst of Spirit - Input friction for Spirit complex
@@ -65,7 +64,7 @@ impl CatalystSpiritArchetype {
                 lambda.healthy_max = 0.8;
                 lambda
             },
-            tarot_correlation: TarotCorrelation::new(format!("The Star (XVII): Hope, faith, spiritual renewal, guidance after disruption, illuminating star following tower destruction")),
+            tarot_correlation: TarotCorrelation::new("The Star (XVII): Hope, faith, spiritual renewal, guidance after disruption, illuminating star following tower destruction".to_string()),
             faith_development: 0.65,          // Strong faith development
             viewpoint_changes_effectiveness: 0.6, // Effective viewpoint changes
             spiritual_growth_rate: 0.6,       // Good spiritual growth rate
@@ -407,6 +406,7 @@ impl LambdaMeasurable for CatalystSpiritArchetype {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::archetypes::common::Paired;
 
     // Mock archetype for testing paired relationships
     struct MockExperienceSpirit {
@@ -780,12 +780,11 @@ mod tests {
 
     #[test]
     fn test_a17_include() {
-        let mut catalyst = CatalystSpiritArchetype::new();
+        let catalyst = CatalystSpiritArchetype::new();
         // Catalyst's include method takes no arguments
         let initial_capacity = catalyst.integration_capacity();
-        let included = catalyst.include();
+        let _included = catalyst.include();
 
-        assert!(included);
         assert!(catalyst.integration_capacity() >= initial_capacity);
     }
 

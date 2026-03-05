@@ -4,15 +4,13 @@
 // "The Veil separates these realms, creating the illusion that they are separate"
 // "The Veil creates the conditions for the Entity to experience separation"
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 use std::collections::HashMap;
 
 use super::density_variation::{DensityTransparency, PolarizationAccess, PolarizationState};
 use super::piercing::{PiercingEvent, PiercingLocation, PiercingResult};
-use super::playground::{PlaygroundAction, PlaygroundResult, VeilOpportunityType, VeilPlayground};
+use super::playground::{PlaygroundAction, PlaygroundResult, VeilPlayground};
 use super::{ACCESS_THRESHOLD, THIN_SPOT_THRESHOLD};
 
 /// Entity identifier type
@@ -39,7 +37,7 @@ impl ThinSpot {
     pub fn new(location: PiercingLocation, strength: Float, created_at: Float) -> Self {
         ThinSpot {
             location,
-            strength: strength.max(0.0).min(1.0),
+            strength: strength.clamp(0.0, 1.0),
             created_at,
         }
     }
@@ -74,7 +72,7 @@ impl VeilState {
     /// Create veil state with specific opacity
     pub fn with_opacity(opacity: Float) -> Self {
         VeilState {
-            opacity: opacity.max(0.0).min(1.0),
+            opacity: opacity.clamp(0.0, 1.0),
             thin_spots: Vec::new(),
             accumulated_piercing: 0.0,
         }
@@ -226,7 +224,7 @@ impl VeilMechanism {
         let veil_state = self
             .entity_veil_state
             .entry(entity_id)
-            .or_insert_with(VeilState::new);
+            .or_default();
 
         // Calculate piercing strength
         let piercing_strength = piercing_event.calculate_strength();
@@ -467,7 +465,7 @@ impl VeilMechanism {
         let veil_state = self
             .entity_veil_state
             .entry(entity_id)
-            .or_insert_with(VeilState::new);
+            .or_default();
 
         // Update opacity
         veil_state.opacity = thickness;
@@ -488,7 +486,7 @@ impl VeilMechanism {
     /// # Returns
     /// Veil transparency (0.0 to 1.0)
     pub fn calculate_veil_transparency(&self, thickness: Float) -> Float {
-        (1.0 - thickness).max(0.0).min(1.0)
+        (1.0 - thickness).clamp(0.0, 1.0)
     }
 
     /// Apply veil effects to entity perception and memory access
@@ -665,11 +663,11 @@ impl VeilEffects {
         catalyst_difficulty_modifier: Float,
     ) -> Self {
         VeilEffects {
-            thickness: thickness.max(0.0).min(1.0),
-            transparency: transparency.max(0.0).min(1.0),
-            perception_modifier: perception_modifier.max(0.0).min(1.0),
-            memory_access_modifier: memory_access_modifier.max(0.0).min(1.0),
-            catalyst_difficulty_modifier: catalyst_difficulty_modifier.max(1.0).min(1.9),
+            thickness: thickness.clamp(0.0, 1.0),
+            transparency: transparency.clamp(0.0, 1.0),
+            perception_modifier: perception_modifier.clamp(0.0, 1.0),
+            memory_access_modifier: memory_access_modifier.clamp(0.0, 1.0),
+            catalyst_difficulty_modifier: catalyst_difficulty_modifier.clamp(1.0, 1.9),
         }
     }
 
@@ -691,6 +689,8 @@ impl VeilEffects {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
+    use crate::veil::VeilOpportunityType;
 
     // ===== ThinSpot Tests =====
 
@@ -1224,7 +1224,7 @@ mod tests {
     #[test]
     fn test_playground_integration_playground() {
         let mechanism = VeilMechanism::new();
-        let entity_id = 1;
+        let _entity_id = 1;
 
         // Use playground to access read-only
         let playground = mechanism.playground();

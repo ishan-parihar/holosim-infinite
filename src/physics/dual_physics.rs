@@ -149,7 +149,7 @@ impl ParticleProperties {
 
         // Resonance score should be between 0 and 1 (if present)
         if let Some(resonance) = self.resonance_score {
-            if resonance < 0.0 || resonance > 1.0 {
+            if !(0.0..=1.0).contains(&resonance) {
                 return false;
             }
         }
@@ -396,7 +396,7 @@ impl HolographicPhysicsEngine {
         // Use spatial frequency to modulate spin (but keep within reasonable range)
         let base_spin = derive_spin_from_archetypes(activation);
         let base_sign = base_spin.signum();
-        let frequency_factor = (config.spatial_frequency / 1000.0).max(0.95).min(1.05);
+        let frequency_factor = (config.spatial_frequency / 1000.0).clamp(0.95, 1.05);
         base_sign * base_spin.abs() * frequency_factor
     }
 

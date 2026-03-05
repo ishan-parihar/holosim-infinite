@@ -118,8 +118,8 @@ impl MatrixSpiritArchetype {
         MatrixSpiritArchetype {
             archetype_id: 15,
             active: true,
-            lambda: lambda,
-            tarot_correlation: TarotCorrelation::new(format!("The Devil (XV): Materialism, bondage, shadow work, liberation through facing darkness")),
+            lambda,
+            tarot_correlation: TarotCorrelation::new("The Devil (XV): Materialism, bondage, shadow work, liberation through facing darkness".to_string()),
 
             // A15-specific fields - healthy initial values
             matrix_receptivity: 0.65,
@@ -166,46 +166,41 @@ impl MatrixSpiritArchetype {
     /// Update matrix receptivity based on potentiator influence
     pub fn update_matrix_receptivity(&mut self, potentiator_influence: Float) {
         // Receptivity increases with potentiator influence
-        let influence = potentiator_influence.max(0.0).min(1.0);
+        let influence = potentiator_influence.clamp(0.0, 1.0);
         self.matrix_receptivity = (self.matrix_receptivity * 0.7 + influence * 0.3)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Update darkness depth based on night of soul experience
     pub fn update_darkness_depth(&mut self, night_experience: Float) {
         // Darkness deepens with night of soul experience
-        let experience = night_experience.max(0.0).min(1.0);
+        let experience = night_experience.clamp(0.0, 1.0);
         self.darkness_depth = (self.darkness_depth * 0.8 + experience * 0.2)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Update lightning activation based on potentiator lightning
     pub fn update_lightning_activation(&mut self, lightning_intensity: Float) {
         // Lightning activation increases with potentiator intensity
-        let intensity = lightning_intensity.max(0.0).min(1.0);
+        let intensity = lightning_intensity.clamp(0.0, 1.0);
         self.lightning_activation = (self.lightning_activation * 0.6 + intensity * 0.4)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Update moonlight discernment based on adept navigation
     pub fn update_moonlight_discernment(&mut self, navigation_skill: Float) {
         // Discernment improves with navigation skill
-        let skill = navigation_skill.max(0.0).min(1.0);
+        let skill = navigation_skill.clamp(0.0, 1.0);
         self.moonlight_discernment = (self.moonlight_discernment * 0.7 + skill * 0.3)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Update spiritual subtlety based on understanding
     pub fn update_spiritual_subtlety(&mut self, understanding: Float) {
         // Subtlety improves with understanding
-        let understanding = understanding.max(0.0).min(1.0);
+        let understanding = understanding.clamp(0.0, 1.0);
         self.spiritual_subtlety = (self.spiritual_subtlety * 0.7 + understanding * 0.3)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
     }
 
     /// Get diagnostic information about the spirit matrix
@@ -472,7 +467,7 @@ impl ArchetypeTrait for MatrixSpiritArchetype {
         ];
         for rung in all_rungs {
             let current_level = self.activation_levels.get(&rung).copied().unwrap_or(0.0);
-            let new_level = (current_level * 0.95 + harmony * 0.05).max(0.0).min(1.0);
+            let new_level = (current_level * 0.95 + harmony * 0.05).clamp(0.0, 1.0);
             self.activation_levels.insert(rung, new_level);
         }
 
@@ -883,7 +878,7 @@ mod tests {
             &self.lambda
         }
         fn update_lambda(&mut self, value: Float) {
-            self.lambda.value = value.max(0.0).min(1.0);
+            self.lambda.value = value.clamp(0.0, 1.0);
         }
         fn tarot_correlation(&self) -> TarotCorrelation {
             self.tarot.clone()
@@ -1121,7 +1116,7 @@ mod tests {
     fn test_process_method() {
         let mut archetype = MatrixSpiritArchetype::new();
 
-        let initial_lambda = archetype.lambda.value;
+        let _initial_lambda = archetype.lambda.value;
         archetype.process(0.5, crate::archetypes::common::DevelopmentalPosition::Input);
 
         // Lambda should be updated based on harmony

@@ -301,7 +301,7 @@ impl TeleologicalPull {
             }
         }
 
-        let mut result = UnityPullResult::new(
+        let result = UnityPullResult::new(
             self.entity_id,
             previous_unity,
             new_unity,

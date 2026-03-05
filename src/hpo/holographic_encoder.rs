@@ -13,7 +13,7 @@
 //! - Phase: Phase offset for resonance calculations
 
 use super::field_state::{
-    Complex, DensityBand, EntityExtractionResult, ExtractedEntity, FieldBounds, FieldNodeData,
+    Complex, DensityBand, EntityExtractionResult, ExtractedEntity, FieldNodeData,
     Float, HolographicFieldState, OctreeNode,
 };
 
@@ -250,7 +250,7 @@ impl EntityExtractor {
 
     /// Recursively find peaks in the octree
     fn find_peaks(&self, node: &OctreeNode, peaks: &mut Vec<([Float; 3], Float)>) {
-        let energy = node.field_data.energy;
+        let _energy = node.field_data.energy;
         let magnitude = node.field_data.total_magnitude();
 
         if node.is_leaf() {

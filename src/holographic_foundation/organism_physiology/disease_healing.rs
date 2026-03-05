@@ -12,7 +12,7 @@
 //! - Immune response = field defense mechanism
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::organism_physiology::organ_field::{OrganId, OrganState};
+use crate::holographic_foundation::organism_physiology::organ_field::OrganId;
 use crate::types::Float;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -282,7 +282,11 @@ impl HealingResult {
 #[derive(Debug, Clone)]
 pub struct HealingSystem {
     active_distortions: Vec<FieldDistortion>,
+    /// TODO: Planned for advanced healing simulation
+    #[allow(dead_code)]
     healing_mechanisms: Vec<HealingMechanism>,
+    /// TODO: Planned for configurable healing rate dynamics
+    #[allow(dead_code)]
     base_healing_rate: Float,
     immune_strength: Float,
     regeneration_capacity: Float,
@@ -451,7 +455,7 @@ mod tests {
 
     #[test]
     fn test_field_distortion_resolved() {
-        let mut distortion = FieldDistortion::new(DiseaseType::Infection, 0.03);
+        let distortion = FieldDistortion::new(DiseaseType::Infection, 0.03);
         assert!(distortion.is_resolved());
     }
 

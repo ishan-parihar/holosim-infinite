@@ -889,7 +889,7 @@ impl Density {
     pub fn get_attractor_field(&self) -> DensityAttractorField {
         match self {
             Density::First(_) => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.3, // Weak attractor - many entities stay here
                 attractor_range: 0.3,
                 attractor_threshold: 0.0,
@@ -897,7 +897,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Second(_) => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.5, // Moderate attractor
                 attractor_range: 0.4,
                 attractor_threshold: 0.2,
@@ -905,7 +905,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Third => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.7, // Strong attractor - choice creates momentum
                 attractor_range: 0.5,
                 attractor_threshold: 0.4,
@@ -913,7 +913,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Fourth => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.9, // Very strong attractor - polarization drives evolution
                 attractor_range: 0.6,
                 attractor_threshold: 0.6,
@@ -921,7 +921,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Fifth => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.95, // Extremely strong attractor
                 attractor_range: 0.7,
                 attractor_threshold: 0.75,
@@ -929,7 +929,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Sixth => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.98, // Near-complete attraction
                 attractor_range: 0.8,
                 attractor_threshold: 0.85,
@@ -937,7 +937,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Seventh => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 0.99, // Almost complete attraction
                 attractor_range: 0.9,
                 attractor_threshold: 0.95,
@@ -945,7 +945,7 @@ impl Density {
                 polarity_bias: 0.0,
             },
             Density::Eighth => DensityAttractorField {
-                density_level: self.clone(),
+                density_level: *self,
                 attractor_strength: 1.0, // Complete attraction
                 attractor_range: 1.0,
                 attractor_threshold: 1.0,
@@ -1340,7 +1340,7 @@ mod tests {
         entity_state.consciousness_level = 0.5;
         entity_state.experience_accumulation = 10.0;
         entity_state.learning_progress = 5.0;
-        let spectrum_access = create_test_spectrum_access(SpectrumAccessLevel::FourthDensity);
+        let _spectrum_access = create_test_spectrum_access(SpectrumAccessLevel::FourthDensity);
 
         octave.update_collective_emergence(&entity_state);
 
@@ -1354,7 +1354,7 @@ mod tests {
     #[test]
     fn test_transition_readiness() {
         let mut octave = DensityOctave::new();
-        let entity_state = create_test_entity_state();
+        let _entity_state = create_test_entity_state();
 
         // Check readiness at 1st density - Quantum Realm
         let readiness = octave.check_collective_emergence_readiness();

@@ -123,6 +123,7 @@ impl PhysicsView for PhysicsViewImpl {
 }
 
 pub struct BiologyViewImpl {
+    #[allow(dead_code)]
     field: Arc<UnifiedField>,
 }
 

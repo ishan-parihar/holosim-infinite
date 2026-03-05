@@ -383,7 +383,7 @@ impl HierarchyNavigationState {
 
     /// Check if we're currently inside a specific entity
     pub fn is_inside(&self, entity_id: &str) -> bool {
-        self.focus_entity_id.as_ref().map(|id| id.as_str()) == Some(entity_id)
+        self.focus_entity_id.as_deref() == Some(entity_id)
     }
 }
 

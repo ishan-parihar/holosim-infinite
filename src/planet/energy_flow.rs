@@ -21,9 +21,13 @@ use crate::cosmos::stellar_physics::Star;
 // ============================================================================
 
 /// Solar constant at 1 AU (W/m²)
+/// Note: Used for stellar physics calculations and habitability scoring
+#[allow(dead_code)]
 const SOLAR_CONSTANT: f64 = 1361.0;
 
 /// Stefan-Boltzmann constant (W/m²/K⁴)
+/// Note: Reserved for future black-body radiation calculations
+#[allow(dead_code)]
 const STEFAN_BOLTZMANN: f64 = 5.67e-8;
 
 /// AU in meters
@@ -36,6 +40,8 @@ const EARTH_ALBEDO: f64 = 0.30;
 const PHOTOSYNTHETIC_EFFICIENCY: f64 = 0.01;
 
 /// Primary productivity (gC/m²/year) - Earth average
+/// Note: Used for biosphere energy calculations
+#[allow(dead_code)]
 const EARTH_NPP: f64 = 400.0;
 
 /// Trophic efficiency (10% per level)

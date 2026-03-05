@@ -112,7 +112,7 @@ impl Camera {
 
     /// Set zoom level directly
     pub fn set_zoom_level(&mut self, zoom: f64) {
-        self.zoom_level = zoom.max(1.616255e-35).min(8.8e26);
+        self.zoom_level = zoom.clamp(1.616255e-35, 8.8e26);
         self.update_position_for_zoom();
     }
 
@@ -218,7 +218,7 @@ impl MultiScaleCamera {
     }
 
     /// Focus on an entity at the current scale
-    pub fn focus_on_entity(&mut self, entity_id: EntityId, position: Coordinate3D) {
+    pub fn focus_on_entity(&mut self, _entity_id: EntityId, position: Coordinate3D) {
         self.camera.look_at(position);
     }
 }
@@ -261,7 +261,8 @@ impl Renderable for RenderableEntity {
 
     fn is_visible_at(&self, scale: ScaleLevel) -> bool {
         let entity_scale = ScaleLevel::from_meters(self.scale);
-        entity_scale <= scale && entity_scale >= scale.previous().unwrap_or(ScaleLevel::Quantum)
+        let min_scale = scale.previous().unwrap_or(ScaleLevel::Quantum);
+        (min_scale..=scale).contains(&entity_scale)
     }
 
     fn render_priority(&self) -> i32 {

@@ -659,7 +659,7 @@ impl EmergentBehaviorVisualizer {
             return Ok(());
         }
 
-        let normalized = ((value - min) / range).max(0.0).min(1.0);
+        let normalized = ((value - min) / range).clamp(0.0, 1.0);
         let bar_length = 40;
         let filled_chars = (normalized * bar_length as f64) as usize;
         let empty_chars = bar_length - filled_chars;

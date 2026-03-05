@@ -253,7 +253,7 @@ impl ResonanceFlow {
             .map(|(i, &v)| v.abs() * (i + 1) as Float / 8.0)
             .sum();
 
-        (weighted_sum / sum).min(1.0).max(0.0)
+        (weighted_sum / sum).clamp(0.0, 1.0)
     }
 
     /// Get the age of this flow in time units
@@ -267,8 +267,7 @@ impl ResonanceFlow {
             return 0.0;
         }
         (self.current_amount / self.resonance_amount)
-            .min(1.0)
-            .max(0.0)
+            .clamp(0.0, 1.0)
     }
 }
 
@@ -402,7 +401,7 @@ impl EconomicCycle {
             end_time: None,
             flows: Vec::new(),
             cycle_phase: CyclePhase::Growing,
-            cycle_strength: cycle_strength.min(1.0).max(0.0),
+            cycle_strength: cycle_strength.clamp(0.0, 1.0),
         }
     }
 
@@ -797,7 +796,7 @@ impl ResonanceLedger {
             let from_account = self
                 .entity_accounts
                 .get_mut(&from_account_id)
-                .ok_or_else(|| AdvancedGameMechanicsError::EntityNotFound(from_account_id))?;
+                .ok_or(AdvancedGameMechanicsError::EntityNotFound(from_account_id))?;
 
             from_account.remove_resonance(
                 amount + transaction_fee,
@@ -815,7 +814,7 @@ impl ResonanceLedger {
             let to_account = self
                 .entity_accounts
                 .get_mut(&to_account_id)
-                .ok_or_else(|| AdvancedGameMechanicsError::EntityNotFound(to_account_id))?;
+                .ok_or(AdvancedGameMechanicsError::EntityNotFound(to_account_id))?;
 
             to_account.add_resonance(net_amount, pattern, timestamp);
         }
@@ -975,7 +974,7 @@ impl CycleStatus {
         CycleStatus {
             current_cycle,
             cycle_phase,
-            cycle_strength: cycle_strength.min(1.0).max(0.0),
+            cycle_strength: cycle_strength.clamp(0.0, 1.0),
             estimated_duration,
         }
     }
@@ -1039,7 +1038,7 @@ impl EconomicMetrics {
         } else {
             0.5
         };
-        let growth_score = ((self.economic_growth_rate + 1.0) / 2.0).min(1.0).max(0.0);
+        let growth_score = ((self.economic_growth_rate + 1.0) / 2.0).clamp(0.0, 1.0);
 
         velocity_score * 0.3 + diversity_score * 0.3 + balance_score * 0.2 + growth_score * 0.2
     }

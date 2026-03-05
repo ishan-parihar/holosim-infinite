@@ -447,7 +447,7 @@ impl SocietalEvolution {
                     EvolutionStageTransition::Advanced
                 }
                 EvolutionStage::Cosmic => {
-                    return EvolutionStageTransition::Complete;
+                    EvolutionStageTransition::Complete
                 }
             }
         } else {
@@ -528,12 +528,12 @@ impl CollectiveIntelligence {
             (problem_solving + knowledge_sharing + coordination + innovation + learning_rate) / 5.0;
 
         CollectiveIntelligence {
-            problem_solving: problem_solving.max(0.0).min(1.0),
-            knowledge_sharing: knowledge_sharing.max(0.0).min(1.0),
-            coordination: coordination.max(0.0).min(1.0),
-            innovation: innovation.max(0.0).min(1.0),
-            learning_rate: learning_rate.max(0.0).min(1.0),
-            overall: overall.max(0.0).min(1.0),
+            problem_solving: problem_solving.clamp(0.0, 1.0),
+            knowledge_sharing: knowledge_sharing.clamp(0.0, 1.0),
+            coordination: coordination.clamp(0.0, 1.0),
+            innovation: innovation.clamp(0.0, 1.0),
+            learning_rate: learning_rate.clamp(0.0, 1.0),
+            overall: overall.clamp(0.0, 1.0),
         }
     }
 
@@ -600,7 +600,7 @@ impl CulturalEmerger {
     pub fn emerge_culture(
         &self,
         society: &Society,
-        entity_experiences: &HashMap<EntityId, Vec<Float>>,
+        _entity_experiences: &HashMap<EntityId, Vec<Float>>,
     ) -> Culture {
         let culture_id = society.society_id as CultureId;
         let name = format!("Culture of {}", society.name);
@@ -807,7 +807,7 @@ impl SocietalTracker {
 /// From SIMULATION-AUDIT-AND-REFACTOR-PLAN.md Phase 4:
 /// "NoosphereEmergence: Cultural emergence, ideological formation,
 /// societal evolution, collective intelligence"
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct NoosphereEmergence {
     /// Cultural emerger
     cultural_emerger: CulturalEmerger,
@@ -820,17 +820,6 @@ pub struct NoosphereEmergence {
 
     /// Configuration
     config: NoosphereConfig,
-}
-
-impl Default for NoosphereEmergence {
-    fn default() -> Self {
-        NoosphereEmergence {
-            cultural_emerger: CulturalEmerger::default(),
-            ideological_former: IdeologicalFormer::default(),
-            societal_tracker: SocietalTracker::default(),
-            config: NoosphereConfig::default(),
-        }
-    }
 }
 
 impl NoosphereEmergence {

@@ -10,12 +10,11 @@
 //! - Tracks free will evolution and learning
 
 use crate::consciousness::free_will::{
-    Choice, ChoiceContext, ChoiceRecord, FreeWillKernel, FreeWillStatistics, PolarityPreference,
+    Choice, ChoiceContext, FreeWillKernel, PolarityPreference,
 };
 use crate::entity_layer7::layer7::{EntityId, EntityState};
 use crate::simulation_v3::catalyst_system::{Catalyst, CatalystVariety, PolarityChoice};
-use crate::types::{Float, Polarity};
-use rand::Rng;
+use crate::types::Float;
 use std::collections::HashMap;
 
 /// Free Will Engine
@@ -298,7 +297,7 @@ impl FreeWillEngine {
     /// Trajectory effect measures how the choice affects entity development.
     fn calculate_trajectory_effect(
         &self,
-        entity_state: &EntityState,
+        _entity_state: &EntityState,
         polarity_choice: &PolarityChoice,
         catalyst_intensity: Float,
         choice: &Choice,
@@ -463,7 +462,7 @@ mod tests {
     }
 
     fn create_test_free_will_kernel() -> FreeWillKernel {
-        let intelligent_infinity = IntelligentInfinity::new();
+        let _intelligent_infinity = IntelligentInfinity::new();
         let archetype22 = FoundationArchetype22::new();
         FreeWillKernel::new(archetype22)
     }

@@ -256,7 +256,7 @@ impl EmissionPattern {
 
     pub fn update(&mut self, dt: Float) {
         self.phase += self.frequency * dt * 0.1;
-        self.phase = self.phase % (2.0 * std::f64::consts::PI as Float);
+        self.phase %= 2.0 * std::f64::consts::PI as Float;
     }
 }
 
@@ -498,7 +498,7 @@ impl IntelligentInfinitySource {
         self.global_unity_level = self.global_unity_level.min(1.0);
     }
 
-    pub fn update(&mut self, dt: Float, current_time: Float) {
+    pub fn update(&mut self, dt: Float, _current_time: Float) {
         for pattern in self.emission_patterns.values_mut() {
             pattern.update(dt);
         }

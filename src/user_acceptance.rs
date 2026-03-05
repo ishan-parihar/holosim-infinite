@@ -9,9 +9,6 @@
 //! - Performance testing for system requirements
 //! - Documentation generation
 
-use crate::emergence_validator::EmergenceValidator;
-use crate::integrated_system::IntegratedSystem;
-use crate::performance_optimizer::PerformanceOptimizer;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -342,32 +339,41 @@ impl UserAcceptance {
     pub fn test_performance(&mut self) -> PerformanceReport {
         println!("Testing performance...");
 
-        let mut report = PerformanceReport::default();
-
         // Simulate performance testing
-        report.frame_rate = 65.0;
-        report.latency = 0.8;
-        report.memory_usage = 8 * 1024 * 1024 * 1024; // 8 GB
-        report.startup_time = 5.0;
-        report.throughput = 1000.0;
+        let frame_rate = 65.0;
+        let latency = 0.8;
+        let memory_usage = 8 * 1024 * 1024 * 1024; // 8 GB
+        let startup_time = 5.0;
+        let throughput = 1000.0;
 
         // Check requirements
-        let fps_ok = report.frame_rate >= 60.0;
-        let latency_ok = report.latency <= 1.0;
-        let memory_ok = report.memory_usage <= 16 * 1024 * 1024 * 1024;
+        let fps_ok = frame_rate >= 60.0;
+        let latency_ok = latency <= 1.0;
+        let memory_ok = memory_usage <= 16 * 1024 * 1024 * 1024;
 
-        report.requirements_met = fps_ok && latency_ok && memory_ok;
+        let requirements_met = fps_ok && latency_ok && memory_ok;
 
         // Generate issues
+        let mut issues = Vec::new();
         if !fps_ok {
-            report.issues.push("Frame rate below target".to_string());
+            issues.push("Frame rate below target".to_string());
         }
         if !latency_ok {
-            report.issues.push("Latency above target".to_string());
+            issues.push("Latency above target".to_string());
         }
         if !memory_ok {
-            report.issues.push("Memory usage above target".to_string());
+            issues.push("Memory usage above target".to_string());
         }
+
+        let report = PerformanceReport {
+            frame_rate,
+            latency,
+            memory_usage,
+            startup_time,
+            throughput,
+            requirements_met,
+            issues,
+        };
 
         println!("  Frame rate: {:.1} FPS", report.frame_rate);
         println!("  Latency: {:.2}s", report.latency);

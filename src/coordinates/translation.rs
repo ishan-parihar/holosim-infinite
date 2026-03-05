@@ -34,7 +34,7 @@ impl RealmTranslation {
     pub fn with_settings(speed_of_light: Float, translation_threshold: Float) -> Self {
         RealmTranslation {
             speed_of_light,
-            translation_threshold: translation_threshold.max(0.0).min(1.0),
+            translation_threshold: translation_threshold.clamp(0.0, 1.0),
         }
     }
 
@@ -106,7 +106,7 @@ impl RealmTranslation {
 
     /// Set translation threshold
     pub fn set_translation_threshold(&mut self, threshold: Float) {
-        self.translation_threshold = threshold.max(0.0).min(1.0);
+        self.translation_threshold = threshold.clamp(0.0, 1.0);
     }
 
     /// Get speed of light

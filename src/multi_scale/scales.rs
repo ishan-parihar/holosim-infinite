@@ -195,7 +195,7 @@ impl MultiScaleHierarchy {
     pub fn add_subscale_entity(&mut self, entity_id: EntityId, scale: EntityScale) {
         self.subscale_entities
             .entry(scale)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(entity_id);
     }
 

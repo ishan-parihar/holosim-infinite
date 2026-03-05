@@ -17,7 +17,7 @@ use crate::biology::archetype_processor::{
     BehaviorOutput, BehaviorType, CatalystEvent, CatalystPolarity, CatalystSource, CatalystType,
     EntityArchetypeProcessor, GrowthDirection,
 };
-use crate::consciousness::free_will::{ChoiceResult, FreeWillKernel, PolarityPreference};
+use crate::consciousness::free_will::{ChoiceResult, PolarityPreference};
 use crate::consciousness::kernel::{
     ConsciousnessKernel, ConsciousnessSignal, Experience, KernelChoiceContext,
 };
@@ -25,7 +25,7 @@ use crate::entity_layer7::layer7::EntityId;
 use crate::entity_layer7::layer7::EntityState;
 use crate::simulation_v3::archetype_basis::ArchetypeActivationProfile;
 use crate::simulation_v3::archetypical_interference_engine::{
-    ActionVector, ArchetypicalInterferenceEngine, EmergentBehavior, InterferencePattern,
+    ActionVector, ArchetypicalInterferenceEngine,
 };
 use crate::simulation_v3::embodied_body::SensoryField;
 use crate::simulation_v3::free_will_seed::FreeWillSeed;
@@ -235,7 +235,7 @@ impl ConsciousnessProcessor {
         }
 
         // Generate interference pattern and emergent behavior
-        if let Some(behavior) = &self.current_behavior {
+        if let Some(_behavior) = &self.current_behavior {
             // Use archetype activation profile from kernel
             let profile = self.kernel.archetype_activation.clone();
 
@@ -590,11 +590,13 @@ mod tests {
         let processor = ConsciousnessProcessor::new(entity_id);
 
         // Create sensory field with various activations
-        let mut sensory = SensoryField::default();
-        sensory.hunger = 0.8; // Should generate Challenge catalyst
-        sensory.pain = 0.6; // Should generate Health catalyst
-        sensory.threat_level = 0.6; // Should generate Challenge catalyst
-        sensory.heart_activation = 0.8; // Should generate Relationship catalyst
+        let sensory = SensoryField {
+            hunger: 0.8,        // Should generate Challenge catalyst
+            pain: 0.6,          // Should generate Health catalyst
+            threat_level: 0.6,  // Should generate Challenge catalyst
+            heart_activation: 0.8, // Should generate Relationship catalyst
+            ..Default::default()
+        };
 
         let catalysts = processor.generate_catalysts_from_sensory(&sensory);
 
@@ -624,10 +626,9 @@ mod tests {
         let mut processor = ConsciousnessProcessor::new(entity_id);
 
         let sensory = SensoryField::default();
-        let output = processor.process_tick(&sensory);
+        let _output = processor.process_tick(&sensory);
 
-        // Should have processed (even if no catalysts)
-        assert!(output.catalysts_processed >= 0);
+        // catalysts_processed is usize, always >= 0
     }
 
     #[test]
@@ -636,10 +637,12 @@ mod tests {
         let mut processor = ConsciousnessProcessor::new(entity_id);
 
         // Create sensory field that will generate catalysts
-        let mut sensory = SensoryField::default();
-        sensory.hunger = 0.9;
-        sensory.pain = 0.7;
-        sensory.threat_level = 0.8;
+        let sensory = SensoryField {
+            hunger: 0.9,
+            pain: 0.7,
+            threat_level: 0.8,
+            ..Default::default()
+        };
 
         let output = processor.process_tick(&sensory);
 
@@ -771,8 +774,10 @@ mod tests {
 
         // Process multiple ticks to add to experience buffer
         for _ in 0..5 {
-            let mut sensory = SensoryField::default();
-            sensory.hunger = 0.8;
+            let sensory = SensoryField {
+                hunger: 0.8,
+                ..Default::default()
+            };
             processor.process_tick(&sensory);
         }
 

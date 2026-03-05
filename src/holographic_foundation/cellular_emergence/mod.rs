@@ -64,6 +64,6 @@ mod tests {
     fn test_module_exports() {
         let _profile = GeneExpressionProfile::default();
         let _id = GeneId::new(1);
-        assert!(true);
+        // Test passes if types can be created
     }
 }

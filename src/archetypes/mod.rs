@@ -409,8 +409,8 @@ mod tests {
         let (tension, efficiency) = system.calculate_lesser_cycle_efficiency();
 
         // Both values should be in valid ranges
-        assert!(tension >= 0.0 && tension <= 1.0);
-        assert!(efficiency >= 0.0 && efficiency <= 1.0);
+        assert!((0.0..=1.0).contains(&tension));
+        assert!((0.0..=1.0).contains(&efficiency));
     }
 
     #[test]

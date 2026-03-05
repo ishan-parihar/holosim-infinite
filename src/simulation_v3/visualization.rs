@@ -574,19 +574,19 @@ impl SpectrumVisualizer {
         output.push_str("══════════════════════════════════════════════════════════════════════\n");
         output.push_str("• ONE Unified Spectrum: Space/Time and Time/Space are ONE spectrum,\n");
         output.push_str("  NOT two separate realms. Different perspectives on the same reality.\n");
-        output.push_str("\n");
+        output.push('\n');
         output
             .push_str("• Veil Position (v=1): Structural feature at v=1, NOT separator between\n");
         output.push_str("  space/time and time/space. Creates illusion of separation.\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("• Spectrum Ratio: v = s/t (space/time) or v = t/s (time/space)\n");
         output.push_str("  - v < 1: Time/space dominates (metaphysical)\n");
         output.push_str("  - v = 1: Veil position (boundary)\n");
         output.push_str("  - v > 1: Space/time dominates (physical)\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("• Consciousness-First: Spectrum patterns exist BEFORE physical matter.\n");
         output.push_str("  DNA/RNA patterns encoded in holographic blueprint.\n");
-        output.push_str("\n");
+        output.push('\n');
         output
             .push_str("• Spectrum Folding: Spectrum refactored at each scale (galactic, solar,\n");
         output.push_str("  individual) with unique patterns.\n");
@@ -613,19 +613,19 @@ impl SpectrumVisualizer {
 
         // Add ASCII visualization for stages with spectrum
         if config.ratio > 0.0 {
-            output.push_str("\n");
+            output.push('\n');
             output.push_str("  Spectrum Visualization:\n");
             output.push_str("  ");
             for i in 0..20 {
                 if i < 10 {
-                    output.push_str("🔵"); // Time/space side
+                    output.push('🔵'); // Time/space side
                 } else if i == 10 {
-                    output.push_str("📍"); // Veil position
+                    output.push('📍'); // Veil position
                 } else {
-                    output.push_str("🟢"); // Space/time side
+                    output.push('🟢'); // Space/time side
                 }
             }
-            output.push_str("\n");
+            output.push('\n');
             output.push_str("  ");
             output.push_str("├──────────────────┤\n");
             output.push_str("  ");
@@ -636,7 +636,7 @@ impl SpectrumVisualizer {
             output.push_str("│   Metaphysical  │   Physical      │\n");
             output.push_str("  ");
             output.push_str("│   Inner Exp.    │   Outer Exp.    │\n");
-            output.push_str("\n");
+            output.push('\n');
         }
 
         output
@@ -905,11 +905,11 @@ impl HolographicVisualizer {
         );
         output
             .push_str("This is the result of the \"transcend and include\" universal constant:\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("  1. INCLUDE: Each stage retains all development from previous stages\n");
         output.push_str("  2. TRANSCEND: Each stage adds new development that transcends\n");
         output.push_str("  3. EVOLVES: Each stage creates attractor-fields for the next stage\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("This means that every entity at Layer 7 contains:\n");
         output.push_str("  • All 8 density levels (1st through 8th Density)\n");
         output.push_str("  • All sub-densities within each density\n");
@@ -917,7 +917,7 @@ impl HolographicVisualizer {
         output.push_str("  • Complete holographic blueprint\n");
         output.push_str("  • Complete archetypical mind system\n");
         output.push_str("  • Complete inheritance from Violet → Layer 7\n");
-        output.push_str("\n");
+        output.push('\n');
 
         output.push_str("Holographic Blueprint Encoding:\n");
         output.push_str("─────────────────────────────────────────────────────────────────────\n");
@@ -927,7 +927,7 @@ impl HolographicVisualizer {
         output.push_str("  • Consciousness pathways\n");
         output.push_str("  • Evolutionary attractor-fields\n");
         output.push_str("  • Non-local connections to all other entities\n");
-        output.push_str("\n");
+        output.push('\n');
 
         output.push_str("Consciousness-First Cosmology:\n");
         output.push_str("─────────────────────────────────────────────────────────────────────\n");
@@ -935,7 +935,7 @@ impl HolographicVisualizer {
         output.push_str("• DNA/RNA patterns encoded in holographic blueprint\n");
         output.push_str("• Physical universe manifests from pre-existing spectrum\n");
         output.push_str("• Consciousness determines physical reality\n");
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -969,11 +969,11 @@ impl HolographicVisualizer {
             "Entangled Connections: {}\n",
             self.statistics.holographic.entangled_connections
         ));
-        output.push_str("\n");
+        output.push('\n');
 
         // ASCII visualization of holographic network
         output.push_str("Holographic Network Visualization:\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("         Entity A\n");
         output.push_str("           /|\\ \\\n");
         output.push_str("          / |  \\ \\\n");
@@ -987,12 +987,12 @@ impl HolographicVisualizer {
         output.push_str("          \\ |  /\n");
         output.push_str("           \\| /\n");
         output.push_str("         Entity D\n");
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("Each entity (A, B, C, D) contains the holographic blueprint\n");
         output.push_str(
             "of the entire universe, with non-local connections to all other entities.\n",
         );
-        output.push_str("\n");
+        output.push('\n');
 
         // Connection strength visualization
         output.push_str("Connection Strength Distribution:\n");
@@ -1000,9 +1000,9 @@ impl HolographicVisualizer {
         let strength = self.statistics.holographic.average_connection_strength * 100.0;
         for i in 0..20 {
             if (i as f64) < strength {
-                output.push_str("█");
+                output.push('█');
             } else {
-                output.push_str("░");
+                output.push('░');
             }
         }
         output.push_str(&format!(" ({:.1}%)\n", strength));
@@ -1107,7 +1107,7 @@ impl RealTimeDashboard {
 
         // Phase 3: Veil Evolution (Task 3.4)
         output.push_str("📍 Veil Status:\n");
-        output.push_str(&format!("  Position: v=1.00\n"));
+        output.push_str("  Position: v=1.00\n");
         output.push_str(&format!(
             "  Thickness: {:.4} (1.0 = full veil)\n",
             self.statistics.evolution.veil_thickness
@@ -1285,7 +1285,7 @@ impl RealTimeDashboard {
             "Polarity Diversity Index: {:.4}\n",
             self.statistics.evolution.polarization_diversity_index
         ));
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display density dashboard
@@ -1351,7 +1351,7 @@ impl RealTimeDashboard {
             "Total Density Transitions: {}\n",
             self.statistics.evolution.density_transitions
         ));
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display collective dashboard
@@ -1389,7 +1389,7 @@ impl RealTimeDashboard {
             "Resonance Clusters: {}\n",
             self.statistics.holographic.resonance_cluster_count
         ));
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display spectrum dashboard
@@ -1459,7 +1459,7 @@ impl RealTimeDashboard {
             "Spectrum Access Level: {:.4}\n",
             self.statistics.evolution.spectrum_access_level
         ));
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display attractor field dashboard
@@ -1488,7 +1488,7 @@ impl RealTimeDashboard {
         output.push_str("  Attractor-fields are the 'architectural artifacts' that create\n");
         output.push_str("  'spiritual gravity' pulling entities toward higher densities.\n");
         output.push_str("  Each stage creates attractor-fields that pull toward the next level.\n");
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display catalyst dashboard
@@ -1514,7 +1514,7 @@ impl RealTimeDashboard {
             .push_str("  Catalyst provides contrast, limitation, challenge, choice, and growth.\n");
         output.push_str("  Energy is tapped from IntelligentInfinity to create catalyst events.\n");
         output.push_str("  Catalyst intensity varies based on entity readiness.\n");
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display veil dashboard
@@ -1525,9 +1525,7 @@ impl RealTimeDashboard {
 
         output.push_str("Veil Status:\n");
         output.push_str("┌─────────────────────────────────────────────────────────────────┐\n");
-        output.push_str(&format!(
-            "│ Position:                    v=1.00                    │\n"
-        ));
+        output.push_str("│ Position:                    v=1.00                    │\n");
         output.push_str(&format!(
             "│ Thickness:                   {:>10.4}                   │\n",
             self.statistics.evolution.veil_thickness
@@ -1581,7 +1579,7 @@ impl RealTimeDashboard {
             "  It creates the illusion of separation necessary for 3rd density learning.\n",
         );
         output.push_str("  Veil transparency varies based on density (0.0 in 3rd, 1.0 in 7th).\n");
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Display performance dashboard
@@ -1622,7 +1620,7 @@ impl RealTimeDashboard {
             "Architecture Alignment: {:.2}%\n",
             self.statistics.architecture.alignment_percentage
         ));
-        output.push_str("\n");
+        output.push('\n');
     }
 
     /// Create a progress bar
@@ -1652,9 +1650,7 @@ impl RealTimeDashboard {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::layer7::SubSubLogos;
-    use crate::foundation::{AttractorField, Feature};
-    use crate::simulation_v3::involution_sequence::{InvolutionResult, StageTransitionRecord};
+    use crate::simulation_v3::involution_sequence::InvolutionResult;
     use std::time::Duration;
 
     #[test]
@@ -1860,12 +1856,12 @@ impl SpectrumAccessVisualizer {
 
         for (bucket, &count) in buckets {
             let percentage = if bucket.contains("+") {
-                format!("∞")
+                "∞".to_string()
             } else if bucket.contains("-") {
                 let parts: Vec<&str> = bucket.split('-').collect();
                 format!("{}-{}", parts[0], parts[1])
             } else {
-                format!("{}", bucket)
+                bucket.to_string()
             };
 
             let bar = Self::histogram_bar(count, max_count, 30);
@@ -1882,14 +1878,14 @@ impl SpectrumAccessVisualizer {
         output.push_str("  ");
         for i in 0..60 {
             if i < 30 {
-                output.push_str("🔵"); // Time/Space side
+                output.push('🔵'); // Time/Space side
             } else if i == 30 {
-                output.push_str("📍"); // Veil position
+                output.push('📍'); // Veil position
             } else {
-                output.push_str("🟢"); // Space/Time side
+                output.push('🟢'); // Space/Time side
             }
         }
-        output.push_str("\n");
+        output.push('\n');
         output.push_str("  ");
         output.push_str("├──────────────────────────────┤\n");
         output.push_str("  ");
@@ -1898,7 +1894,7 @@ impl SpectrumAccessVisualizer {
         output.push_str("│        Metaphysical            │      Physical                 │\n");
         output.push_str("  ");
         output.push_str("│        Unity Consciousness      │      Separation Consciousness │\n");
-        output.push_str("\n");
+        output.push('\n');
 
         output
     }
@@ -2158,15 +2154,9 @@ impl SpectrumAccessVisualizer {
             1000.0
         } else if bucket.contains("-") {
             let parts: Vec<&str> = bucket.split('-').collect();
-            if let Ok(val) = parts[0].parse::<f64>() {
-                val
-            } else {
-                0.0
-            }
-        } else if let Ok(val) = bucket.parse::<f64>() {
-            val
+            parts[0].parse::<f64>().unwrap_or(0.0)
         } else {
-            0.0
+            bucket.parse::<f64>().unwrap_or(0.0)
         }
     }
 }
@@ -2427,7 +2417,7 @@ impl DetailedSpectrumVisualizer {
             ));
         }
 
-        output.push_str("\n");
+        output.push('\n');
 
         // Legend
         output.push_str("LEGEND:\n");

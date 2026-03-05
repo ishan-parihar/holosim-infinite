@@ -9,10 +9,8 @@
 //! - Detects archetype pathologies
 //! - Tracks archetype rung progression
 
-use crate::archetypes::common::{
-    DevelopmentalPosition, HealthStatus, LambdaMeasurement, LambdaMeasurementType,
-};
-use crate::types::{Float, Polarity, Rung};
+use crate::archetypes::common::{HealthStatus, LambdaMeasurement, LambdaMeasurementType};
+use crate::types::{Float, Polarity};
 use std::collections::HashMap;
 
 /// Archetype Processor
@@ -335,9 +333,9 @@ impl ArchetypeProcessor {
         }
 
         let total_lambda: Float = lambda_values.iter().map(|l| l.value).sum();
-        let avg_lambda = total_lambda / lambda_values.len() as Float;
+        
 
-        avg_lambda
+        total_lambda / lambda_values.len() as Float
     }
 
     /// Record archetype processing
@@ -364,7 +362,7 @@ impl ArchetypeProcessor {
             let archetype_id = idx + 1;
             self.lambda_history
                 .entry(archetype_id)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(lambda.clone());
         }
     }

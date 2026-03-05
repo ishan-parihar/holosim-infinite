@@ -56,6 +56,7 @@ pub struct EnvironmentExperience {
 
 #[derive(Debug, Clone)]
 pub struct TeleologicalGuidance {
+    #[allow(dead_code)]
     strength: Float,
 }
 
@@ -456,6 +457,7 @@ pub struct UnifiedSimulation {
     pub entities: HashMap<EntityId, UniversalTemplateEntity>,
     next_entity_id: u64,
     // Physics
+    #[allow(dead_code)] // TODO: Use for multiscale physics simulations
     multi_scale_field: Arc<MultiScaleField>,
     quantum_field: QuantumField,
     // Biology
@@ -464,7 +466,9 @@ pub struct UnifiedSimulation {
     // Integration
     planet_bridge: EntityPlanetBridge,
     teleological: TeleologicalGuidance,
+    #[allow(dead_code)] // TODO: Use for holographic visualization
     renderer: HolographicRenderer,
+    #[allow(dead_code)] // TODO: Use for consciousness-to-matter manifestation
     manifestation_engine: ManifestationEngine,
     // State
     time: Float,
@@ -624,7 +628,7 @@ impl UnifiedSimulation {
             .map(|e| e.spectrum_position.clone())
             .collect();
         for position in positions {
-            self.quantum_field.evolve(self.dt);
+            let _ = self.quantum_field.evolve(self.dt);
             let atoms = self.extract_atoms(&position);
             self.stats.atoms_formed += atoms.len() as u64;
             self.molecular_field.add_atoms(atoms);
@@ -792,7 +796,7 @@ mod tests {
     #[test]
     fn test_create_entity() {
         let mut sim = UnifiedSimulation::new();
-        let id = sim.create_entity(EntityConfig {
+        let _id = sim.create_entity(EntityConfig {
             name: "Test".into(),
             spectrum_position: SpectrumPosition::new(1.0, Density::Third, 0.0),
             archetype_activation: [0.5; 22],

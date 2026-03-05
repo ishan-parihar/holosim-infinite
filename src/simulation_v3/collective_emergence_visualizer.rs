@@ -566,7 +566,7 @@ impl CollectiveEmergenceVisualizer {
         Self::visualize_emergence_history(writer, manager)?;
 
         // Check readiness for next density
-        let current_highest = manager.collective_state().highest_density_present.clone();
+        let current_highest = manager.collective_state().highest_density_present;
         let next_density = match current_highest {
             Density::First(..) => Density::Second(Density2SubLevel::Cellular),
             Density::Second(..) => Density::Third,
@@ -584,7 +584,7 @@ impl CollectiveEmergenceVisualizer {
             }
         };
 
-        let readiness = manager.check_emergence_conditions(next_density.clone());
+        let readiness = manager.check_emergence_conditions(next_density);
         Self::visualize_emergence_readiness(writer, next_density, &readiness)?;
 
         Ok(())

@@ -13,8 +13,6 @@
 //! - Evolutionary potential (field pattern plasticity)
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::field_state::Position3D;
-use crate::holographic_foundation::organism_physiology::organism_field::OrganismField;
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -128,9 +126,9 @@ impl SpeciesFieldPattern {
         let dominant = species_type.archetype_dominance();
         archetype_pattern[dominant] = 0.95;
 
-        for i in 0..7 {
+        for (i, item) in archetype_pattern[0..7].iter_mut().enumerate() {
             if i != dominant % 7 {
-                archetype_pattern[i] = 0.6 + (dominant as Float * 0.02);
+                *item = 0.6 + (dominant as Float * 0.02);
             }
         }
         for i in 7..14 {
@@ -363,7 +361,7 @@ mod tests {
         let pattern1 = SpeciesFieldPattern::new(SpeciesType::Producer);
         let pattern2 = SpeciesFieldPattern::new(SpeciesType::Producer);
         let resonance = pattern1.resonance_with(&pattern2);
-        assert!(resonance >= 0.0 && resonance <= 1.0);
+        assert!((0.0..=1.0).contains(&resonance));
     }
 
     #[test]
@@ -371,7 +369,7 @@ mod tests {
         let pattern1 = SpeciesFieldPattern::new(SpeciesType::Herbivore);
         let pattern2 = SpeciesFieldPattern::new(SpeciesType::Carnivore);
         let overlap = pattern1.niche_overlap(&pattern2);
-        assert!(overlap >= 0.0 && overlap <= 1.0);
+        assert!((0.0..=1.0).contains(&overlap));
     }
 
     #[test]
@@ -413,7 +411,7 @@ mod tests {
         let species1 = Species::new("A".to_string(), SpeciesType::Herbivore);
         let species2 = Species::new("B".to_string(), SpeciesType::Herbivore);
         let competition = species1.competition_intensity(&species2);
-        assert!(competition >= 0.0 && competition <= 1.0);
+        assert!((0.0..=1.0).contains(&competition));
     }
 
     #[test]

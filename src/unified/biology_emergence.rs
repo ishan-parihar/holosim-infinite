@@ -1,6 +1,6 @@
 //! Biology Emergence - Life from Field
 
-use super::physics_emergence::{EmergentAtom, EmergentMolecule, EmergentParticle};
+use super::physics_emergence::EmergentMolecule;
 use super::unified_field::UnifiedField;
 use std::sync::Arc;
 
@@ -55,6 +55,7 @@ pub struct BiologicalOrganism {
 }
 
 pub struct BiologyEmergence {
+    #[allow(dead_code)]
     field: Arc<UnifiedField>,
     config: BiologyEmergenceConfig,
     dna_patterns: Vec<EmergentDNA>,

@@ -512,7 +512,6 @@ impl PlatonicStructure {
 /// Helper trait for Vector3 normalization and scaling
 trait Vector3Helper {
     fn normalized(&self) -> Self;
-    fn scale(&self, factor: Float) -> Self;
 }
 
 impl Vector3Helper for Vector3 {
@@ -526,14 +525,6 @@ impl Vector3Helper for Vector3 {
                 y: self.y / mag,
                 z: self.z / mag,
             }
-        }
-    }
-
-    fn scale(&self, factor: Float) -> Self {
-        Vector3 {
-            x: self.x * factor,
-            y: self.y * factor,
-            z: self.z * factor,
         }
     }
 }

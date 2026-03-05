@@ -51,8 +51,8 @@ impl CatalystOperation {
         }
     }
 
-    /// Create a new Catalyst operation with default values
-    pub fn default() -> Self {
+    /// Create a new Catalyst operation with initial values
+    pub fn initial() -> Self {
         Self::new(CatalystMindArchetype::new())
     }
 
@@ -243,7 +243,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_creation() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         assert_eq!(operation.archetype_id(), 3);
         assert_eq!(operation.archetype_name(), "Catalyst Operation");
@@ -251,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_process() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         let input = ConsciousnessInput {
             raw_experience: 0.8,
@@ -276,7 +276,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_signature() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
         let signature = operation.signature();
 
         assert_eq!(signature.archetype_id, 3);
@@ -290,7 +290,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_can_process() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         // Valid input
         let valid_input = ConsciousnessInput {
@@ -325,7 +325,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_process_catalyst() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         let catalyst_input = CatalystInput::mind(0.7);
         let processed = operation.process_catalyst(0.8, &catalyst_input);
@@ -336,7 +336,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_extract_wisdom() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         let wisdom = operation.extract_wisdom(0.8);
 
@@ -346,7 +346,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_efficiency() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         let efficiency = operation.processing_efficiency();
 
@@ -356,7 +356,7 @@ mod tests {
 
     #[test]
     fn test_catalyst_operation_display() {
-        let operation = CatalystOperation::default();
+        let operation = CatalystOperation::initial();
 
         let display = format!("{}", operation);
 

@@ -451,7 +451,7 @@ impl SpatialProjection {
     /// Takes into account spectrum-driven space
     pub fn project_3d_to_2d(
         position: &Position3D,
-        view_matrix: &[Float; 16],
+        _view_matrix: &[Float; 16],
         screen_width: Float,
         screen_height: Float,
     ) -> (Float, Float, Float) {
@@ -459,7 +459,7 @@ impl SpatialProjection {
         let fov = 60.0 * std::f64::consts::PI / 180.0;
         let aspect = screen_width / screen_height;
         let z_near = 0.1;
-        let z_far = 10000.0;
+        let _z_far = 10000.0;
 
         // Apply view transform (simplified)
         let x = position.x;

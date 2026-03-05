@@ -23,7 +23,7 @@ pub use crate::civilization::{CivilizationSummary, SettlementSummary};
 use crate::gui::renderer::entity_instance::EntityInstance;
 use crate::gui::renderer::hierarchy_connection::HierarchyConnection;
 use crate::hpo::{FieldVisualizationData, RenderableEntity, SimulationStatistics};
-use crate::simulation_v3::simulation_runner::{SimulationParameters, SimulationResult, SimulationRunner};
+use crate::simulation_v3::simulation_runner::{SimulationParameters, SimulationRunner};
 use crate::types::Float;
 use std::collections::HashMap;
 
@@ -424,14 +424,12 @@ impl SimulationRunnerAdapter {
 
     /// Extract connection data from entity hierarchy
     fn extract_connections(&self) -> Vec<HierarchyConnection> {
-        use crate::gui::renderer::hierarchy_connection::{
-            generate_connections, ConnectionType,
-        };
+        
 
         let mut connections = Vec::new();
 
         // Generate connections from entity hierarchy
-        for (id, entity) in &self.raw_entities {
+        for entity in self.raw_entities.values() {
             let entity_pos = EntityInstance::position_from_entity(entity);
 
             // Parent-child connections
@@ -542,7 +540,7 @@ impl SimulationRunnerAdapter {
         };
 
         // Calculate average polarization
-        let avg_polarization = if entity_count > 0 {
+        let _avg_polarization = if entity_count > 0 {
             self.cached_entities
                 .iter()
                 .map(|e| e.polarization as Float)
@@ -785,11 +783,10 @@ impl SimulationRunnerAdapter {
                 // Also add entities that have this focus as their parent
                 for entity in self.raw_entities.values() {
                     if let Some(ref parent_id) = entity.parent_id {
-                        if parent_id == focus_id {
-                            if !result.iter().any(|e| e.entity_id == entity.entity_id) {
+                        if parent_id == focus_id
+                            && !result.iter().any(|e| e.entity_id == entity.entity_id) {
                                 result.push(entity.clone());
                             }
-                        }
                     }
                 }
                 
@@ -926,7 +923,7 @@ impl SimulationRunnerAdapter {
     /// Entities with high consciousness become stars,
     /// entities in their vicinity become planets.
     fn generate_stellar_systems_from_entities(&self) -> Vec<StellarSystemData> {
-        use crate::gui::renderer::cosmos_renderer::{PlanetVertex, StarVertex};
+        
 
         let mut systems = Vec::new();
 
@@ -1146,7 +1143,7 @@ impl SimulationRunnerAdapter {
                 let segments = 64;
                 for i in 0..segments {
                     let angle1 = (i as f32 / segments as f32) * std::f32::consts::TAU;
-                    let angle2 = ((i + 1) as f32 / segments as f32) * std::f32::consts::TAU;
+                    let _angle2 = ((i + 1) as f32 / segments as f32) * std::f32::consts::TAU;
 
                     let x1 = system.star_position[0] as f32 + planet.orbit_radius as f32 * angle1.cos();
                     let z1 = system.star_position[2] as f32 + planet.orbit_radius as f32 * angle1.sin();

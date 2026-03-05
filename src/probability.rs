@@ -635,9 +635,9 @@ impl QuantumState {
     pub fn apply_operation(&mut self, operation: &[Vec<Complex>]) {
         let mut new_amplitudes = vec![Complex::zero(); self.amplitudes.len()];
 
-        for i in 0..self.amplitudes.len() {
-            for j in 0..self.amplitudes.len() {
-                new_amplitudes[i] = new_amplitudes[i].add(operation[i][j].mul(self.amplitudes[j]));
+        for (i, new_amp) in new_amplitudes.iter_mut().enumerate() {
+            for (j, &amp_j) in self.amplitudes.iter().enumerate() {
+                *new_amp = new_amp.add(operation[i][j].mul(amp_j));
             }
         }
 
@@ -660,10 +660,9 @@ impl QuantumState {
     pub fn expectation_value(&self, observable: &[Vec<Float>]) -> Float {
         let mut expectation = 0.0;
 
-        for i in 0..self.amplitudes.len() {
-            for j in 0..self.amplitudes.len() {
-                expectation +=
-                    observable[i][j] * self.amplitudes[i].conjugate().mul(self.amplitudes[j]).real;
+        for (i, amp_i) in self.amplitudes.iter().enumerate() {
+            for (j, amp_j) in self.amplitudes.iter().enumerate() {
+                expectation += observable[i][j] * amp_i.conjugate().mul(*amp_j).real;
             }
         }
 

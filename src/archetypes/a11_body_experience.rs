@@ -4,13 +4,10 @@
 // Sigma Axis: σB (Body Capacity)
 // Functional Pair: Process Pair (with A10)
 
-use crate::archetypes::archetype_traits::{
-    ExperienceArchetypeTrait, MatrixArchetypeTrait, PotentiatorArchetypeTrait,
-};
 use crate::archetypes::common::{
-    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, DevelopmentalPosition,
+    FunctionalPair, HealthStatus, HolonicLevel, LambdaMeasurement,
+    LambdaMeasurementType, SigmaAxis, TarotCorrelation,
 };
 use crate::types::{Float, Octant, Polarity, Rung};
 use std::collections::HashMap;
@@ -123,7 +120,7 @@ impl ExperienceBodyArchetype {
                 healthy_max: 0.8,
                 measurement_type: LambdaMeasurementType::ExperienceDepth,
             },
-            tarot_correlation: TarotCorrelation::new(format!("Justice (VIII): Balance, harmony, and fair processing of experience")),
+            tarot_correlation: TarotCorrelation::new("Justice (VIII): Balance, harmony, and fair processing of experience".to_string()),
             processing_depth: 0.7,
             integrated_experience: 0.65,
             developmental_position: DevelopmentalPosition::new_with_octant_rung(Octant::O3, 4),
@@ -205,7 +202,6 @@ impl ExperienceBodyArchetype {
             Rung::R7 => "Unity experience: Unity experiences and non-dual learning".to_string(),
             Rung(0_u8) => "Invalid rung".to_string(),
             Rung(8_u8..=u8::MAX) => "Invalid rung".to_string(),
-            _ => "Unknown rung".to_string(),
         }
     }
 
@@ -345,7 +341,7 @@ impl ArchetypeTrait for ExperienceBodyArchetype {
         ArchetypeRole::Experience
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         // Experience processing
         let processing = catalyst * self.processing_depth;
         self.integrated_experience += processing * 0.01;
@@ -357,7 +353,7 @@ impl ArchetypeTrait for ExperienceBodyArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn update_lambda(&mut self, value: Float) {
@@ -462,7 +458,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {
@@ -472,5 +468,6 @@ mod tests {
         fn functional_pair(&self) -> FunctionalPair {
             FunctionalPair::ProcessPair
         }
+
     }
 }

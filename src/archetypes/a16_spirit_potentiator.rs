@@ -42,14 +42,12 @@ impl SpiritResourceStructure {
 
     /// Calculate resource diversity (lower standard deviation = more balanced)
     pub fn resource_diversity(&self) -> Float {
-        let resources = vec![
-            self.lightning_resources,
+        let resources = [self.lightning_resources,
             self.infinite_potential_resources,
             self.awakening_resources,
             self.illuminating_resources,
             self.generative_resources,
-            self.transformational_resources,
-        ];
+            self.transformational_resources];
 
         // Calculate mean
         let mean = resources.iter().sum::<Float>() / resources.len() as Float;
@@ -92,6 +90,12 @@ pub struct PotentiatorSpiritArchetype {
     pub resource_depth: Float,   // Depth of resources (0.0 - 1.0)
 }
 
+impl Default for PotentiatorSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PotentiatorSpiritArchetype {
     pub fn new() -> Self {
         // Initialize resource structure
@@ -116,7 +120,7 @@ impl PotentiatorSpiritArchetype {
                 lambda.healthy_max = 0.8;
                 lambda
             },
-            tarot_correlation: TarotCorrelation::new(format!("The Tower (XVI): Sudden awakening, illumination, destruction of illusion, lightning strike")),
+            tarot_correlation: TarotCorrelation::new("The Tower (XVI): Sudden awakening, illumination, destruction of illusion, lightning strike".to_string()),
             // A16-specific fields
             lightning_power: 0.7,
             infinite_potential_access: 0.6,
@@ -157,44 +161,40 @@ impl PotentiatorSpiritArchetype {
         let generative_factor = self.generative_power;
         let lightning_factor = self.lightning_power;
 
-        let harmony =
-            (awakening_factor + illumination_factor + generative_factor + lightning_factor) / 4.0;
-        harmony
+        
+        (awakening_factor + illumination_factor + generative_factor + lightning_factor) / 4.0
     }
 
     /// Update lightning power based on spiritual activation
     pub fn update_lightning_power(&mut self, activation: Float) {
-        self.lightning_power = (self.lightning_power + activation * 0.1).max(0.0).min(1.0);
+        self.lightning_power = (self.lightning_power + activation * 0.1).clamp(0.0, 1.0);
         self.update_lambda();
     }
 
     /// Update infinite potential access based on spiritual depth
     pub fn update_infinite_potential_access(&mut self, depth: Float) {
         self.infinite_potential_access = (self.infinite_potential_access + depth * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda();
     }
 
     /// Update sudden awakening based on spiritual breakthrough
     pub fn update_sudden_awakening(&mut self, breakthrough: Float) {
         self.sudden_awakening = (self.sudden_awakening + breakthrough * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda();
     }
 
     /// Update illuminating influence based on spiritual light
     pub fn update_illuminating_influence(&mut self, light: Float) {
         self.illuminating_influence = (self.illuminating_influence + light * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda();
     }
 
     /// Update generative power based on spiritual movement
     pub fn update_generative_power(&mut self, movement: Float) {
-        self.generative_power = (self.generative_power + movement * 0.1).max(0.0).min(1.0);
+        self.generative_power = (self.generative_power + movement * 0.1).clamp(0.0, 1.0);
         self.update_lambda();
     }
 
@@ -202,14 +202,13 @@ impl PotentiatorSpiritArchetype {
     pub fn update_viewpoint_changes_effectiveness(&mut self, effectiveness: Float) {
         self.viewpoint_changes_effectiveness = (self.viewpoint_changes_effectiveness
             + effectiveness * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         self.update_lambda();
     }
 
     /// Increase resource depth for potentiator
     pub fn increase_resource_depth(&mut self, amount: Float) {
-        self.resource_depth = (self.resource_depth + amount * 0.1).max(0.0).min(1.0);
+        self.resource_depth = (self.resource_depth + amount * 0.1).clamp(0.0, 1.0);
         self.resource_quality = self.resource_structure.total_resources();
         self.update_lambda();
     }
@@ -223,7 +222,7 @@ impl PotentiatorSpiritArchetype {
 
         // Calculate lambda as weighted average
         let new_lambda = awakening * 0.3 + illumination * 0.3 + generative * 0.2 + lightning * 0.2;
-        self.lambda.value = new_lambda.max(0.0).min(1.0);
+        self.lambda.value = new_lambda.clamp(0.0, 1.0);
     }
 
     /// Get diagnostic information about the spirit potentiator
@@ -314,7 +313,7 @@ impl LambdaMeasurable for PotentiatorSpiritArchetype {
 
         // Weighted average of key factors
         let lambda = awakening * 0.3 + illumination * 0.3 + generative * 0.2 + lightning * 0.2;
-        lambda.max(0.0).min(1.0)
+        lambda.clamp(0.0, 1.0)
     }
 
     fn healthy_range(&self) -> (Float, Float) {
@@ -425,8 +424,8 @@ impl Paired for PotentiatorSpiritArchetype {
 
     fn calculate_pair_tension(&self, paired_archetype: &dyn Paired) -> Float {
         let paired_lambda = paired_archetype.lambda().value;
-        let tension = (self.lambda.value - paired_lambda).abs();
-        tension
+        
+        (self.lambda.value - paired_lambda).abs()
     }
 
     fn calculate_pair_balance(&self, paired_archetype: &dyn Paired) -> Float {
@@ -481,8 +480,7 @@ impl Holonic for PotentiatorSpiritArchetype {
         // Include lower level by integrating its capacity
         let lower_capacity = lower_level.integration_capacity();
         self.integration_capacity = (self.integration_capacity + lower_capacity * 0.1)
-            .max(0.0)
-            .min(1.0);
+            .clamp(0.0, 1.0);
         true
     }
 }
@@ -705,7 +703,7 @@ mod tests {
             &self.lambda
         }
         fn update_lambda(&mut self, value: Float) {
-            self.lambda.value = value.max(0.0).min(1.0);
+            self.lambda.value = value.clamp(0.0, 1.0);
         }
         fn tarot_correlation(&self) -> TarotCorrelation {
             self.tarot.clone()
@@ -1092,7 +1090,7 @@ mod tests {
 
     #[test]
     fn test_spirit_resource_diversity_unbalanced() {
-        let mut resource_structure = SpiritResourceStructure {
+        let resource_structure = SpiritResourceStructure {
             active: true,
             lightning_resources: 1.0,
             infinite_potential_resources: 0.1,

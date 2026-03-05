@@ -27,7 +27,7 @@
 //! - Developmental stages (how the form emerges)
 
 use crate::sacred_geometry::{
-    constants, HarmonicSeries, InterferenceType, SacredGeometrySystem, StandingWave,
+    constants, InterferenceType, SacredGeometrySystem, StandingWave,
 };
 use crate::types::Float;
 use std::collections::HashMap;
@@ -421,9 +421,8 @@ impl MorphogeneticTemplate {
         let z = element.atomic_number();
         let pattern_coefficients: Vec<Float> = (0..22)
             .map(|i| {
-                ((z as Float * constants::GOLDEN_RATIO.powi(i as i32)) % 1.0)
-                    .max(0.3)
-                    .min(1.0)
+                ((z as Float * constants::GOLDEN_RATIO.powi(i)) % 1.0)
+                    .clamp(0.3, 1.0)
             })
             .collect();
 
@@ -926,7 +925,7 @@ mod tests {
         let template = MorphogeneticTemplate::for_atom(ElementType::Helium);
 
         let contribution = template.coherence_contribution();
-        assert!(contribution >= 0.0 && contribution <= 1.0);
+        assert!((0.0..=1.0).contains(&contribution));
     }
 
     #[test]
@@ -946,7 +945,7 @@ mod tests {
 
         // All values should be valid
         for &value in &signature {
-            assert!(value >= 0.0 && value <= 1.0);
+            assert!((0.0..=1.0).contains(&value));
         }
     }
 

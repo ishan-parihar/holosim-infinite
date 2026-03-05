@@ -17,7 +17,7 @@
 use crate::foundation::spectrum_position::SpectrumPosition;
 use crate::physics::matter_emergence::Atom;
 use crate::physics::quantum_field::{Element, HolographicBlueprint};
-use crate::types::{Density, Float};
+use crate::types::Float;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -51,10 +51,8 @@ impl BondType {
     pub fn from_electronegativity_diff(diff: Float) -> Self {
         if diff > 1.7 {
             BondType::Ionic
-        } else if diff > 0.4 {
-            BondType::Covalent
         } else {
-            BondType::Covalent // Nonpolar covalent
+            BondType::Covalent // Includes both polar and nonpolar covalent
         }
     }
 
@@ -568,14 +566,14 @@ impl MolecularField {
                 };
 
                 match group {
-                    1 | 2 => group as u32,
+                    1 | 2 => group,
                     13 => 3,
                     14 => 4,
                     15 => 5,
                     16 => 6,
                     17 => 7,
                     18 => 0, // Noble gas
-                    _ => (group % 8) as u32,
+                    _ => group % 8,
                 }
             }
         }
@@ -748,6 +746,7 @@ impl Default for MolecularField {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::Density;
 
     fn create_test_atom(element: Element, id: u64) -> Atom {
         Atom {

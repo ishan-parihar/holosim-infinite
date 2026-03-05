@@ -8,16 +8,17 @@
 //! → white dwarf / neutron star / black hole. Their radiation determines
 //! habitability."
 
-use crate::holographic::field_address::Vector3;
 
 // ============================================================================
 // Constants
 // ============================================================================
 
+#[allow(dead_code)]
 const SOLAR_MASS: f64 = 1.989e30; // kg
 const SOLAR_RADIUS: f64 = 6.957e8; // m
 const SOLAR_LUMINOSITY: f64 = 3.828e26; // W
 const STEFAN_BOLTZMANN: f64 = 5.670374e-8; // W/(m²·K⁴)
+#[allow(dead_code)]
 const GRAVITATIONAL_CONSTANT: f64 = 6.674e-11; // m³/(kg·s²)
 const SOLAR_TEMPERATURE: f64 = 5778.0; // K
 
@@ -162,7 +163,7 @@ impl RadiationSpectrum {
 
         let normalized_temp = (temperature / SOLAR_TEMPERATURE).ln_1p();
 
-        let uv = normalized_temp.max(0.0).min(0.4);
+        let uv = normalized_temp.clamp(0.0, 0.4);
         let vis = 0.4 * (1.0 - normalized_temp.abs()).max(0.0);
         let ir = 1.0 - uv - vis;
 
@@ -237,7 +238,7 @@ impl Star {
         let luminosity = Self::mass_to_luminosity(mass);
         let radius = Self::mass_to_radius(mass);
         let temperature = Self::luminosity_to_temperature(luminosity, radius);
-        let lifetime = Self::mass_to_lifetime(mass);
+        let _lifetime = Self::mass_to_lifetime(mass);
 
         // Create radiation spectrum
         let luminosity_watts = luminosity * SOLAR_LUMINOSITY;

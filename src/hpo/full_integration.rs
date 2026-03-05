@@ -31,7 +31,6 @@
 //! - Cross-phase integration metrics
 //! - Performance optimization for large entity counts
 
-use super::archetype_matter::NUM_ARCHETYPES;
 use super::complexity_emergence::ComplexityPhase;
 use super::field_state::{FieldNodeData, Float};
 use super::spatial_field::Position3D;
@@ -257,7 +256,9 @@ pub struct FullIntegration {
     statistics: IntegrationStatistics,
     pipeline: UnifiedPipeline,
     // Feedback accumulators
+    #[allow(dead_code)]
     matter_influence_accumulator: Vec<MatterFieldInfluence>,
+    #[allow(dead_code)]
     entity_influence_accumulator: Vec<EntityEnvironmentInfluence>,
     // Performance tracking
     phase_timings: Vec<(String, u64)>,

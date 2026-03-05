@@ -771,7 +771,7 @@ impl EmergenceManager {
 
         let criticality = complexity * (1.0 - coherence_distance * 2.0);
 
-        criticality.max(0.0).min(1.0)
+        criticality.clamp(0.0, 1.0)
     }
 
     /// Calculate environment emergence level
@@ -801,8 +801,6 @@ impl EmergenceManager {
 
         emergence.min(1.0)
     }
-
-    /// Calculate planetary formation
 
     /// Calculate planetary formation
     ///

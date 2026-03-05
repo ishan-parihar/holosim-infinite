@@ -525,7 +525,7 @@ impl QuantumField {
             .amplitudes
             .get(&position_hash)
             .copied()
-            .ok_or_else(|| QuantumFieldError::StateNotFound(position_hash))?;
+            .ok_or(QuantumFieldError::StateNotFound(position_hash))?;
 
         // Collapse to the measured amplitude (simplified)
         let collapsed = Complex::new(amplitude.norm(), 0.0);
@@ -555,7 +555,7 @@ impl QuantumField {
         self.amplitudes
             .get(&position_hash)
             .copied()
-            .ok_or_else(|| QuantumFieldError::StateNotFound(position_hash))
+            .ok_or(QuantumFieldError::StateNotFound(position_hash))
     }
 
     /// Extract attractor fields from the quantum field
@@ -677,7 +677,6 @@ impl std::error::Error for QuantumFieldError {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::types::Density;
 
     #[test]
     fn test_spin_value() {

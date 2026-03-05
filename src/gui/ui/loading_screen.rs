@@ -5,7 +5,6 @@
 //!
 //! From GUI_IMPLEMENTATION_ROADMAP.md: "Loading screens"
 
-use std::collections::HashMap;
 
 /// Loading stage with progress tracking
 #[derive(Debug, Clone)]

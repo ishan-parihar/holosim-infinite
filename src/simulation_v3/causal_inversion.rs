@@ -49,10 +49,10 @@
 //! incorrect simulation behavior.
 
 use crate::compression::mera_network::MeraNetwork;
-use crate::entity_layer7::layer7::{EntityId, EntityType, SubSubLogos};
-use crate::holographic::field_address::{HolographicAddress, ScaleLevel, Vector3};
+use crate::entity_layer7::layer7::EntityId;
+
 use crate::holographic::mera_integration::MeraIntegration;
-use crate::holographic::observer_driven_field::{FieldOfView, Observer, ObserverId, ObserverType};
+use crate::holographic::observer_driven_field::{Observer, ObserverId};
 use crate::intelligent_infinity::IntelligentInfinity;
 use crate::simulation_v3::holographic_field::HolographicFieldManager;
 use crate::simulation_v3::observer_registry::{
@@ -63,40 +63,27 @@ use crate::types::Float;
 // Phase 2: Quantum field integration
 use crate::holographic::complex_vectors::ComplexArchetype;
 use crate::holographic::holographic_field::{HolographicField, InvolutionLayer};
-use crate::quantum::free_will_collapse::{
-    ChoiceBasedCollapse, QuantumCollapseContext, QuantumCollapseResult,
-};
+use crate::quantum::free_will_collapse::{ChoiceBasedCollapse, QuantumCollapseContext};
 use crate::quantum::quantum_field::{
     LightLoveRatio, QuantumField, QuantumFieldConfig, QuantumStateSignature,
 };
 
 // Phase 2 P1: Atom formation from quantum collapse
-use crate::chemistry::bonding::{
-    calculate_archetype_compatibility, BondOrder, BondType, ChemicalBond,
-};
+use crate::chemistry::bonding::{calculate_archetype_compatibility, ChemicalBond};
 use crate::chemistry::element_attractor::{ElementAttractor, PeriodicTable};
-use crate::chemistry::molecular_geometry::{GeometryType, MolecularGeometry};
+use crate::chemistry::molecular_geometry::MolecularGeometry;
 use crate::consciousness::free_will::PolarityPreference;
 use crate::holographic::universal_template::SpectrumConfiguration;
-use crate::matter::particle::{Coordinate3D, Particle, Vector3D};
-use crate::particle::archetype_properties::ParticleProperties;
+use crate::matter::particle::{Coordinate3D, Vector3D};
 
 // Phase 3 P2: Embodied body integration
-use crate::biology::organism_lifecycle::{
-    BodyPlan, BodySymmetry, DietType, LocomotionType, SocialStructure,
-};
-use crate::simulation_v3::embodied_body::{
-    BodyEnvironment, DeathCause, EmbodiedBody, SensoryField, SurvivalStatus,
-};
+use crate::simulation_v3::embodied_body::{BodyEnvironment, EmbodiedBody, SurvivalStatus};
 
 // Phase 4: Living environment integration
-use crate::cosmos::planetary_formation::Planet;
-use crate::simulation_v3::living_environment::{
-    EntitySpatialPosition, LivingEnvironment, LivingEnvironmentConfig,
-};
+use crate::simulation_v3::living_environment::{EntitySpatialPosition, LivingEnvironment};
 
 // Phase 5: Consciousness Processor Integration
-use crate::simulation_v3::consciousness_processor::{ConsciousnessOutput, ConsciousnessProcessor};
+use crate::simulation_v3::consciousness_processor::ConsciousnessProcessor;
 
 // Phase 6: Social Processor Integration
 use crate::simulation_v3::social_processor::{SocialOutput, SocialProcessor};
@@ -106,7 +93,7 @@ use crate::simulation_v3::social_processor::{SocialOutput, SocialProcessor};
 // "Transform Free Will, Love, and Light from entity attributes to unified field dynamics"
 // The Unified Field Equation: ∂ψ/∂t = FreeWill(ψ) + Love(ψ) + Light(ψ)
 use crate::holographic_foundation::distortions::{
-    CoherencePeak, DistortionStatistics, FieldState, UnifiedFieldConfig, UnifiedFieldEquation,
+    CoherencePeak, DistortionStatistics, FieldState, UnifiedFieldEquation,
 };
 
 // Phase 3: Involution Flow - Causal Chain
@@ -114,9 +101,8 @@ use crate::holographic_foundation::distortions::{
 // "Implement top-down causal flow from Intelligent Infinity through the Logos hierarchy to entities"
 // The Causal Chain: IntelligentInfinity → LOGOS → SubLogos → SubSubLogos → Entity
 use crate::holographic_foundation::involution::{
-    CosmicHierarchy, EntityManifestation, EntitySeed, FieldConfiguration, GalacticLogosConfig,
-    HierarchyLevel, HierarchyPath, InvolutionFlow, PlanetaryLogosConfig, PrimaryLogosConfig,
-    PropagationResult, SolarLogosConfig,
+    CosmicHierarchy, EntityManifestation, EntitySeed, InvolutionFlow, PrimaryLogosConfig,
+    PropagationResult,
 };
 
 // Phase 4: Evolution Feedback - Bottom-up Causal Flow
@@ -125,8 +111,7 @@ use crate::holographic_foundation::involution::{
 // The Bidirectional Flow: Top-Down (Involution) ↔ Bottom-Up (Evolution)
 use crate::holographic_foundation::evolution::{
     CollectiveInfluence, DecisionFeedback, DecisionType, DensityProgression, EntityDecision,
-    EvolutionFeedbackConfig, FieldPerturbation, KarmicEncoding, KarmicPattern, ProgressionEvent,
-    SpectrumShift,
+    EvolutionFeedbackConfig, FieldPerturbation, KarmicEncoding,
 };
 
 // Phase 10: Intelligent Infinity as Active Source
@@ -136,10 +121,7 @@ use crate::holographic_foundation::evolution::{
 // - Entity decisions feed back to II
 // - Teleological pull affects entity evolution
 // - Resonance tracking operational
-use crate::holographic_foundation::intelligent_infinity::{
-    ActiveFeedbackLoop, ArchitecturalResonance, EntityExperience, FeedbackAnalysis,
-    IntelligentInfinitySource, SourceEmission, TeleologicalPull, UnityGradient,
-};
+use crate::holographic_foundation::intelligent_infinity::IntelligentInfinitySource;
 
 // Phase 11: Higher Density Mechanics
 // From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 11:
@@ -150,9 +132,8 @@ use crate::holographic_foundation::intelligent_infinity::{
 // - Integrate 8th density source merger
 // - Density transition triggers from evolution
 use crate::simulation_v3::density_mechanics::{
-    Density, DensityMechanics, EighthDensityMechanics, FifthDensityMechanics,
-    FirstDensityMechanics, FourthDensityMechanics, SecondDensityMechanics, SeventhDensityMechanics,
-    SixthDensityMechanics, ThirdDensityMechanics,
+    EighthDensityMechanics, FifthDensityMechanics, FourthDensityMechanics,
+    SeventhDensityMechanics, SixthDensityMechanics,
 };
 
 // Phase 12: Gateway Mechanics and Resonance
@@ -382,7 +363,7 @@ impl QuantumEvolutionResult {
 /// 4. Entity manifestation (new entities created)
 /// 5. Entity updates (existing entities modified)
 /// 6. Observer decompression (rendering prepared)
-
+///
 /// Result of evolution feedback processing.
 ///
 /// From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 4:
@@ -1217,6 +1198,7 @@ pub struct CausalInversionRunner {
     ii_source: IntelligentInfinitySource,
 
     /// Holographic field manager (the distributor).
+    #[allow(dead_code)] // TODO: Integrate with tick() for field evolution
     field: HolographicFieldManager,
 
     /// Active entities in the simulation.
@@ -1251,6 +1233,7 @@ pub struct CausalInversionRunner {
     choice_based_collapse: ChoiceBasedCollapse,
 
     /// Holographic field source for quantum field.
+    #[allow(dead_code)] // TODO: Use for quantum field re-initialization
     holographic_source: Arc<HolographicField>,
 
     // Phase 2 P1: Atom formation from quantum collapse
@@ -1360,6 +1343,7 @@ pub struct CausalInversionRunner {
 
     /// Pending field perturbations from decisions
     /// Accumulated during tick, applied to field at end
+    #[allow(dead_code)] // TODO: Integrate with tick() for bottom-up feedback
     pending_perturbations: Vec<FieldPerturbation>,
 
     /// Decisions made this tick (for statistics)
@@ -1405,8 +1389,8 @@ impl CausalInversionRunner {
                 amplitude: 0.0,
                 phase: 0.0,
             }; 22];
-            for i in 0..22 {
-                a[i] = ComplexArchetype {
+            for (i, item) in a.iter_mut().enumerate() {
+                *item = ComplexArchetype {
                     amplitude: 0.5,
                     phase: (i as Float) * std::f64::consts::PI / 11.0,
                 };
@@ -1559,8 +1543,10 @@ impl CausalInversionRunner {
 
     /// Execute a single causal tick.
     pub fn tick(&mut self, dt: Float) -> CausalTickResult {
-        let mut result = CausalTickResult::default();
-        result.tick_timestamp = self.current_time;
+        let mut result = CausalTickResult {
+            tick_timestamp: self.current_time,
+            ..Default::default()
+        };
 
         // PHASE 0: Involution Flow - Top-Down Causal Propagation
         // From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 3:
@@ -2063,7 +2049,7 @@ impl CausalInversionRunner {
         for decision in decisions.iter().take(10) {
             entity_decisions
                 .entry(decision.entity_id)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(decision);
         }
         for (entity_id, entity_decs) in entity_decisions {
@@ -2085,7 +2071,7 @@ impl CausalInversionRunner {
     /// From HOLOSIM_INFINITE_V6_R&D_REFACTOR_ROADMAP.md Phase 4:
     /// "Feedback propagation through hierarchy"
     /// "Collective evolution shapes local cosmic conditions"
-    fn propagate_feedback_to_hierarchy(&mut self, perturbation: &FieldPerturbation) {
+    fn propagate_feedback_to_hierarchy(&mut self, _perturbation: &FieldPerturbation) {
         // Entity decisions influence planetary logos (local cosmic conditions)
         // This is a subtle, slow process - decisions accumulate over time
         let feedback_strength = 0.0001; // Very small influence per decision
@@ -2105,7 +2091,7 @@ impl CausalInversionRunner {
         if avg_density > 3.0 {
             // Entities progressing to higher densities can thin the veil
             // This is an emergent property of collective evolution
-            let thinning = feedback_strength * (avg_density - 3.0) * sto_polarity.abs();
+            let _thinning = feedback_strength * (avg_density - 3.0) * sto_polarity.abs();
             // Note: We would modify planetary_logoi here, but it's behind Vec
             // The influence is tracked in density_progression for now
         }
@@ -2271,7 +2257,7 @@ impl CausalInversionRunner {
         let avg_density_level = avg_density.floor() as usize;
 
         match avg_density_level {
-            0 | 1 | 2 | 3 => {
+            0..=3 => {
                 // 1st-3rd density: handled by base entity mechanics
                 // 4th density is starting to form
                 fourth_active = true;
@@ -2536,7 +2522,7 @@ impl CausalInversionRunner {
         };
 
         // Phase 5: Calculate archetype 22 activation from consciousness processors
-        let archetype_22_activation = if active_count > 0 {
+        let _archetype_22_activation = if active_count > 0 {
             // Average of choice activity from consciousness
             avg_consciousness * 0.5 + 0.5
         } else {
@@ -2633,26 +2619,26 @@ impl CausalInversionRunner {
 
         // Principal quantum number n affects overall activation
         let n_factor = signature.n as Float / 7.0;
-        for i in 0..22 {
-            activation[i] = (activation[i] + n_factor * 0.3).min(1.0);
+        for item in &mut activation {
+            *item = (*item + n_factor * 0.3).min(1.0);
         }
 
         // Angular momentum l affects Mind archetypes (A1-A7)
         let l_factor = signature.l as Float / 3.0;
-        for i in 0..7 {
-            activation[i] = (activation[i] + l_factor * 0.2).min(1.0);
+        for item in &mut activation[0..7] {
+            *item = (*item + l_factor * 0.2).min(1.0);
         }
 
         // Magnetic quantum number m affects Body archetypes (A8-A14)
         let m_factor = (signature.m.abs() as Float) / 4.0;
-        for i in 7..14 {
-            activation[i] = (activation[i] + m_factor * 0.15).min(1.0);
+        for item in &mut activation[7..14] {
+            *item = (*item + m_factor * 0.15).min(1.0);
         }
 
         // Spin affects Spirit archetypes (A15-A21)
         let s_factor = if signature.spin_up { 0.6 } else { 0.4 };
-        for i in 14..21 {
-            activation[i] = (activation[i] + s_factor * 0.1).min(1.0);
+        for item in &mut activation[14..21] {
+            *item = (*item + s_factor * 0.1).min(1.0);
         }
 
         // Choice (A22) from position hash
@@ -2744,7 +2730,7 @@ impl CausalInversionRunner {
             .map(|a| {
                 (
                     a.id,
-                    a.position.clone(),
+                    a.position,
                     a.element.clone(),
                     a.archetype_activation,
                 )
@@ -3133,6 +3119,7 @@ impl CausalInversionRunner {
     ///
     /// # Returns
     /// A BodyEnvironment for the body to experience
+    #[allow(dead_code)] // TODO: Use for body environment creation in entity spawning
     fn create_body_environment(&self) -> BodyEnvironment {
         // Phase 4: Use living environment for default
         // This provides Earth-like defaults when no position is available
@@ -3149,6 +3136,7 @@ impl CausalInversionRunner {
     ///
     /// # Returns
     /// A BodyEnvironment derived from planet systems at that position
+    #[allow(dead_code)] // TODO: Use for position-aware body environment in entity tick
     fn create_body_environment_for_position(
         &mut self,
         position: &EntitySpatialPosition,
@@ -3235,28 +3223,28 @@ impl CausalInversionRunner {
         match potential.suggested_type {
             PotentialEntityType::Individual => {
                 // Individuals have balanced archetypes with spirit emphasis
-                for i in 14..21 {
-                    activation[i] = (base + energy_factor * 0.3).min(1.0);
+                for item in &mut activation[14..21] {
+                    *item = (base + energy_factor * 0.3).min(1.0);
                 }
             }
             PotentialEntityType::Collective => {
                 // Collectives have mind and body emphasis
-                for i in 0..14 {
-                    activation[i] = (base + location_factor * 0.2).min(1.0);
+                for item in &mut activation[0..14] {
+                    *item = (base + location_factor * 0.2).min(1.0);
                 }
             }
             PotentialEntityType::Environmental => {
                 // Environmental entities have body emphasis (physical structures)
-                for i in 7..14 {
-                    activation[i] = (base + energy_factor * 0.4).min(1.0);
+                for item in &mut activation[7..14] {
+                    *item = (base + energy_factor * 0.4).min(1.0);
                 }
             }
         }
 
         // Add time-based variation to ensure uniqueness
         let time_factor = (current_time * 0.1).sin() * 0.1;
-        for i in 0..22 {
-            activation[i] = (activation[i] + time_factor).clamp(0.0, 1.0);
+        for item in &mut activation {
+            *item = (*item + time_factor).clamp(0.0, 1.0);
         }
 
         // Choice (A22) from potential ID
@@ -3319,7 +3307,7 @@ impl CausalInversionRunner {
                     // Map polarity to decision type
                     let decision_type = Self::map_polarity_to_decision_type(
                         choice_result.choice.sto_alignment,
-                        output.behavior_type.clone(),
+                        output.behavior_type,
                     );
 
                     // Get entity position from body (use a default position since SensoryField doesn't have center)
@@ -3341,7 +3329,7 @@ impl CausalInversionRunner {
             if let Some(action) = &output.action {
                 processor.execute_action(
                     action,
-                    &mut self.bodies.write().unwrap().get_mut(entity_id).unwrap(),
+                    self.bodies.write().unwrap().get_mut(entity_id).unwrap(),
                 );
             }
         }
@@ -3377,7 +3365,7 @@ impl CausalInversionRunner {
                 BehaviorType::Seeking => DecisionType::Growth,
                 BehaviorType::Loving => DecisionType::Connection,
                 BehaviorType::Avoiding => DecisionType::Isolation,
-                BehaviorType::Seeking | BehaviorType::Reflecting => DecisionType::Learning,
+                BehaviorType::Reflecting => DecisionType::Learning,
                 BehaviorType::Creative => DecisionType::Expression,
                 BehaviorType::Neutral | BehaviorType::Resting => DecisionType::Reception,
                 BehaviorType::Survival => DecisionType::Growth,
@@ -3625,11 +3613,7 @@ impl CausalInversionRunner {
         }
 
         // 9. Check Social → Harvest connection
-        if self.social_processor.harvest_engine.pending_harvests() > 0 {
-            result.mark_layer_validated("social_to_harvest");
-        } else {
-            result.mark_layer_validated("social_to_harvest");
-        }
+        result.mark_layer_validated("social_to_harvest");
 
         // 10. Check Observer connection
         if self.config.enable_observer_decompression {
@@ -3737,7 +3721,7 @@ impl CausalInversionRunner {
 
         // Check atoms → molecules flow
         let atoms = self.atoms.read().unwrap();
-        if atoms.len() > 0 && result.molecules_formed == 0 {
+        if !atoms.is_empty() && result.molecules_formed == 0 {
             // May be normal if atoms are too far apart
             validation.mark_layer_validated("atoms_molecules_flow");
         } else {
@@ -3784,10 +3768,12 @@ impl CausalInversionRunner {
         validation
     }
 }
-#[cfg(test)]
 
+#[cfg(test)]
 mod tests {
     use super::*;
+    use crate::matter::particle::Coordinate3D;
+    use crate::chemistry::bonding::{BondType, BondOrder};
 
     #[test]
     fn test_causal_inversion_config_default() {
@@ -3863,7 +3849,7 @@ mod tests {
 
         // All values should be between 0 and 1
         for &a in &activation {
-            assert!(a >= 0.0 && a <= 1.0);
+            assert!((0.0..=1.0).contains(&a));
         }
     }
 
@@ -3876,8 +3862,7 @@ mod tests {
         assert!(result.phase_timings.contains_key("quantum_collapse"));
         assert!(result.phase_timings.contains_key("atom_formation"));
 
-        // atoms_manifested should be tracked
-        assert!(result.atoms_manifested >= 0);
+        // atoms_manifested is usize, always >= 0
     }
 
     // Phase 2 P2: Molecule Formation Tests
@@ -3947,8 +3932,7 @@ mod tests {
         // Phase 6 (molecule formation) should be present
         assert!(result.phase_timings.contains_key("molecule_formation"));
 
-        // molecules_formed should be tracked
-        assert!(result.molecules_formed >= 0);
+        // molecules_formed is usize, always >= 0
     }
 
     #[test]
@@ -3968,9 +3952,7 @@ mod tests {
         let result = runner.tick(0.1);
 
         // Body statistics should be present in the result
-        assert!(result.bodies_ticked >= 0);
-        assert!(result.bodies_created >= 0);
-        assert!(result.bodies_died >= 0);
+        // bodies_ticked, bodies_created, bodies_died are usize, always >= 0
         assert!(result.average_health >= 0.0 && result.average_health <= 1.0);
         assert!(result.average_energy >= 0.0 && result.average_energy <= 1.0);
     }
@@ -4010,7 +3992,7 @@ mod tests {
 
         // All values should be between 0 and 1
         for &a in &activation {
-            assert!(a >= 0.0 && a <= 1.0);
+            assert!((0.0..=1.0).contains(&a));
         }
 
         // Individual entities should have spirit emphasis (archetypes 15-21)
@@ -4035,7 +4017,7 @@ mod tests {
 
         // All values should be between 0 and 1
         for &a in &activation {
-            assert!(a >= 0.0 && a <= 1.0);
+            assert!((0.0..=1.0).contains(&a));
         }
     }
 
@@ -4151,7 +4133,7 @@ mod tests {
         // Environment stats should be updated
         let stats = runner.living_environment().stats();
         assert!(stats.avg_temperature > 0.0);
-        assert!(stats.entity_count >= 0);
+        // entity_count is usize, always >= 0
     }
 
     #[test]
@@ -4199,12 +4181,7 @@ mod tests {
         // Phase 10C (social processing) should be present
         assert!(result.phase_timings.contains_key("social_processing"));
 
-        // Social statistics should be populated (may be 0 if no entities)
-        assert!(result.interactions_processed >= 0);
-        assert!(result.relationships_formed >= 0);
-        assert!(result.groups_active >= 0);
-        assert!(result.smcs_active >= 0);
-        assert!(result.entities_harvested >= 0);
+        // Social statistics are all usize, always >= 0
     }
 
     #[test]
@@ -4228,14 +4205,11 @@ mod tests {
         }
 
         // After ticks, social processor should be accessible
-        let relationship_count = runner.relationship_count();
-        let group_count = runner.social_group_count();
-        let smc_count = runner.smc_count();
+        let _relationship_count = runner.relationship_count();
+        let _group_count = runner.social_group_count();
+        let _smc_count = runner.smc_count();
 
-        // All should be valid counts (even if 0)
-        assert!(relationship_count >= 0);
-        assert!(group_count >= 0);
-        assert!(smc_count >= 0);
+        // All counts are usize, always >= 0
     }
 
     // Phase 1: Unified Field Equation Integration Tests
@@ -4247,10 +4221,8 @@ mod tests {
         let runner = CausalInversionRunner::with_defaults();
 
         // Should have unified field with statistics
-        let stats = runner.unified_field_statistics();
-        assert!(stats.free_will_applications >= 0);
-        assert!(stats.love_applications >= 0);
-        assert!(stats.light_propagations >= 0);
+        let _stats = runner.unified_field_statistics();
+        // All counts are usize, always >= 0
     }
 
     #[test]
@@ -4259,7 +4231,7 @@ mod tests {
 
         // Field state should have valid initial values
         let coherence = runner.field_coherence();
-        assert!(coherence >= 0.0 && coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&coherence));
     }
 
     #[test]
@@ -4284,7 +4256,7 @@ mod tests {
         let mut runner = CausalInversionRunner::with_defaults();
 
         // Get initial coherence
-        let initial_coherence = runner.field_coherence();
+        let _initial_coherence = runner.field_coherence();
 
         // Run multiple ticks
         for _ in 0..10 {
@@ -4293,7 +4265,7 @@ mod tests {
 
         // Coherence should have evolved (changed or stayed similar)
         let final_coherence = runner.field_coherence();
-        assert!(final_coherence >= 0.0 && final_coherence <= 1.0);
+        assert!((0.0..=1.0).contains(&final_coherence));
     }
 
     #[test]
@@ -4307,8 +4279,8 @@ mod tests {
 
         // Coherence peaks should be trackable
         let peaks = runner.coherence_peaks();
-        // Peaks may or may not exist depending on field evolution
-        assert!(peaks.len() >= 0);
+        // Peaks may or may not exist depending on field evolution (len() >= 0 is always true)
+        let _ = peaks.len();
     }
 
     #[test]
@@ -4353,7 +4325,7 @@ mod tests {
 
         // With high correlation, consecutive values should be more similar
         // (not purely random)
-        assert!(results.iter().all(|&c| c >= 0.0 && c <= 1.0));
+        assert!(results.iter().all(|&c| (0.0..=1.0).contains(&c)));
     }
 
     #[test]
@@ -4428,15 +4400,14 @@ mod tests {
         let mut runner = CausalInversionRunner::with_defaults();
 
         // Initial state
-        let initial_propagation = runner.last_propagation().clone();
+        let _initial_propagation = runner.last_propagation().clone();
 
         // Tick to trigger involution flow propagation
-        let result = runner.tick(0.1);
+        let _result = runner.tick(0.1);
 
         // After tick, involution flow should have propagated
         // Either propagation happened or was already complete
-        assert!(result.hierarchy_depth >= 0);
-        assert!(result.levels_propagated >= 0);
+        // hierarchy_depth and levels_propagated are usize, always >= 0
     }
 
     #[test]
@@ -4446,7 +4417,7 @@ mod tests {
 
         // Hierarchy depth should be populated
         // Depth 4 = Primary + Galactic + Solar + Planetary
-        assert!(result.hierarchy_depth >= 0);
+        // hierarchy_depth is usize, always >= 0
         assert!(result.hierarchy_depth <= 4);
     }
 
@@ -4456,8 +4427,8 @@ mod tests {
         let result = runner.tick(0.1);
 
         // Propagation complete should be a boolean
-        // After first tick, propagation should complete or be in progress
-        assert!(result.propagation_complete || !result.propagation_complete);
+        // Just verify it returns a boolean
+        let _ = result.propagation_complete;
     }
 
     #[test]
@@ -4472,10 +4443,10 @@ mod tests {
     #[test]
     fn test_entity_seeds_available_in_tick_result() {
         let mut runner = CausalInversionRunner::with_defaults();
-        let result = runner.tick(0.1);
+        let _result = runner.tick(0.1);
 
         // Entity seeds available should be tracked
-        assert!(result.entity_seeds_available >= 0);
+        // entity_seeds_available is usize, always >= 0
     }
 
     #[test]
@@ -4515,8 +4486,9 @@ mod tests {
         let propagation = runner.last_propagation();
 
         // Propagation result should have valid fields
-        assert!(propagation.success == propagation.success); // bool is valid
-        assert!(propagation.depth() >= 0);
+        let _ = propagation.success; // bool is valid
+        // depth() returns usize which is always >= 0
+        let _ = propagation.depth();
     }
 
     // Phase 4: Evolution Feedback - Bottom-up Causal Flow Tests
@@ -4527,11 +4499,11 @@ mod tests {
     fn test_evolution_feedback_components_exist() {
         let runner = CausalInversionRunner::with_defaults();
 
-        // Should have all evolution feedback components
-        assert!(runner.decision_feedback().get_history().len() >= 0);
-        assert!(runner.density_progression().entity_count() >= 0);
-        assert!(runner.collective_influence().total_entity_count() >= 0);
-        assert!(runner.karmic_encoding().pattern_count() >= 0);
+        // Should have all evolution feedback components (len() >= 0 and count() >= 0 are always true)
+        let _ = runner.decision_feedback().get_history().len();
+        let _ = runner.density_progression().entity_count();
+        let _ = runner.collective_influence().total_entity_count();
+        let _ = runner.karmic_encoding().pattern_count();
     }
 
     #[test]
@@ -4540,11 +4512,8 @@ mod tests {
         let result = runner.tick(0.1);
 
         // Evolution feedback statistics should be present
-        assert!(result.decisions_processed >= 0);
-        assert!(result.field_perturbations >= 0);
-        assert!(result.density_shifts >= 0);
+        // decisions_processed, field_perturbations, density_shifts, karmic_patterns_encoded are usize, always >= 0
         assert!(result.collective_influence >= 0.0);
-        assert!(result.karmic_patterns_encoded >= 0);
     }
 
     #[test]
@@ -4616,7 +4585,7 @@ mod tests {
 
         // Collective influence should have valid polarity balance
         let polarity = runner.collective_influence().polarity_balance();
-        assert!(polarity >= -1.0 && polarity <= 1.0);
+        assert!((-1.0..=1.0).contains(&polarity));
     }
 
     #[test]
@@ -4624,10 +4593,8 @@ mod tests {
         let runner = CausalInversionRunner::with_defaults();
 
         // Should be able to get karmic statistics
-        let stats = runner.karmic_encoding().statistics();
-        assert!(stats.total_created >= 0);
-        assert!(stats.total_resolved >= 0);
-        assert!(stats.currently_active >= 0);
+        let _stats = runner.karmic_encoding().statistics();
+        // total_created, total_resolved, currently_active are usize, always >= 0
     }
 
     #[test]
@@ -4641,10 +4608,6 @@ mod tests {
         assert!(result.phase_timings.contains_key("involution_propagation"));
         assert!(result.phase_timings.contains_key("evolution_feedback"));
 
-        // Hierarchy depth should be set (top-down)
-        assert!(result.hierarchy_depth >= 0);
-
-        // Decisions processed should be tracked (bottom-up)
-        assert!(result.decisions_processed >= 0);
+        // hierarchy_depth and decisions_processed are usize, always >= 0
     }
 }

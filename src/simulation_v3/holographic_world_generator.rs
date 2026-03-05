@@ -84,9 +84,8 @@ impl HolographicBlueprint {
     pub fn compute_resonance_at_point(&self, position: [Float; 3]) -> Float {
         let distance_from_center =
             (position[0].powi(2) + position[1].powi(2) + position[2].powi(2)).sqrt();
-        let resonance =
-            (self.holographic_completeness / (1.0 + distance_from_center * 0.01)).max(0.1);
-        resonance
+        
+        (self.holographic_completeness / (1.0 + distance_from_center * 0.01)).max(0.1)
     }
 
     pub fn compute_interference_at_point(&self, position: [Float; 3]) -> Float {
@@ -117,8 +116,7 @@ impl HolographicBlueprint {
             Density::Seventh => spectrum_pos.powi(3),
             Density::Eighth => spectrum_pos.powi(4),
         }
-        .min(1.0)
-        .max(0.0)
+        .clamp(0.0, 1.0)
     }
 }
 
@@ -262,7 +260,7 @@ impl HolographicWorld {
     pub fn new(world_id: WorldId, blueprint: HolographicBlueprint) -> Self {
         HolographicWorld {
             world_id,
-            spectrum_configuration: blueprint.base_spectrum_configuration.clone(),
+            spectrum_configuration: blueprint.base_spectrum_configuration,
             regions: HashMap::new(),
             scale_worlds: HashMap::new(),
             world_memory: HolographicMemorySystem::new(),
@@ -381,7 +379,7 @@ impl HolographicWorldGenerator {
         world: &mut HolographicWorld,
         blueprint: &HolographicBlueprint,
     ) -> Result<(), WorldGeneratorError> {
-        world.spectrum_configuration = blueprint.base_spectrum_configuration.clone();
+        world.spectrum_configuration = blueprint.base_spectrum_configuration;
         Ok(())
     }
 
@@ -476,7 +474,7 @@ impl HolographicWorldGenerator {
             let mut region =
                 WorldRegion::new(region_id, DensityRegionType::from_density(*density), bounds);
             region.density_affinity = *density;
-            region.spectrum_configuration = blueprint.base_spectrum_configuration.clone();
+            region.spectrum_configuration = blueprint.base_spectrum_configuration;
             region.holographic_signature = blueprint.blueprint_signature.clone();
 
             world.add_region(region)?;
@@ -529,8 +527,8 @@ impl HolographicWorldGenerator {
         self.statistics.worlds_generated += 1;
         self.statistics.total_regions_created += 8;
 
-        let total_time = self.statistics.average_unfolding_time.as_nanos() as u128
-            + unfolding_time.as_nanos() as u128;
+        let total_time = self.statistics.average_unfolding_time.as_nanos()
+            + unfolding_time.as_nanos();
         self.statistics.average_unfolding_time =
             Duration::from_nanos((total_time / self.statistics.worlds_generated as u128) as u64);
     }
@@ -545,16 +543,14 @@ impl HolographicWorldGenerator {
         total_stages: u32,
     ) -> UnfoldingProgress {
         let progress = current_stage as Float / total_stages as Float * 100.0;
-        let stage_names = vec![
-            "Blueprint Initialization",
+        let stage_names = ["Blueprint Initialization",
             "Spectrum Configuration",
             "Observer Collapse",
             "Scale Unfolding",
             "Density Region Creation",
             "Entity Generation",
             "Memory Integration",
-            "Finalization",
-        ];
+            "Finalization"];
 
         let stage_name = stage_names
             .get(current_stage as usize)
@@ -611,7 +607,7 @@ mod tests {
         blueprint.base_archetypical_pattern[0] = 1.0;
 
         let interference = blueprint.compute_interference_at_point([1.0, 0.0, 0.0]);
-        assert!(interference >= -1.0 && interference <= 1.0);
+        assert!((-1.0..=1.0).contains(&interference));
     }
 
     #[test]
@@ -782,7 +778,7 @@ mod tests {
 
         let mut world = generator.unfold(blueprint.clone(), None).unwrap();
         world.evolve(Duration::from_secs(100));
-        let evolved_age = world.world_age;
+        let _evolved_age = world.world_age;
 
         let result = generator.regenerate_world(&mut world);
         assert!(result.is_ok());

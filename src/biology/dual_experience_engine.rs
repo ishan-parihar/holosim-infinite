@@ -255,14 +255,14 @@ impl DualExperienceEngine {
     pub fn get_modality(&mut self, entity_id: u64) -> &mut ExperienceModality {
         self.entity_modalities
             .entry(entity_id)
-            .or_insert_with(ExperienceModality::default)
+            .or_default()
     }
 
     pub fn get_qualitative_experience(&self, entity_id: u64) -> QualitativeExperience {
         self.entity_modalities
             .get(&entity_id)
             .map(|m| m.to_qualitative())
-            .unwrap_or_else(QualitativeExperience::default)
+            .unwrap_or_default()
     }
 
     pub fn update_entity(

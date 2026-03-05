@@ -241,8 +241,7 @@ impl ChoiceOperator {
 
         (base_effectiveness + capacity_boost + vibrational_boost + experience_boost
             - constraint_penalty)
-            .max(0.0)
-            .min(1.0)
+            .clamp(0.0, 1.0)
     }
 
     /// Select non-deterministically (the profound mystery)
@@ -365,8 +364,7 @@ impl ChoiceOperator {
         let bias_modifier = possibility.polarity_bias * 0.3;
 
         (base_alignment + preference_modifier + bias_modifier)
-            .max(-1.0)
-            .min(1.0)
+            .clamp(-1.0, 1.0)
     }
 
     /// Calculate choice quality

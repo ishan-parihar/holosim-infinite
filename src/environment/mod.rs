@@ -35,7 +35,6 @@ pub use unified_gaia::*;
 // ENVIRONMENT TYPES
 // ============================================================================
 
-use std::collections::HashMap;
 
 /// Unique planet identifier
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]

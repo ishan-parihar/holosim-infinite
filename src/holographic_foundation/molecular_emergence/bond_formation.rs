@@ -14,7 +14,6 @@
 //! They emerge from the INTERFERENCE between archetype patterns of the bonding atoms.
 
 use crate::types::Float;
-use std::collections::HashMap;
 
 use super::super::archetype_profile::NUM_ARCHETYPES;
 use super::super::atomic_emergence::{ElementAttractorField, ElementIdentity};
@@ -354,6 +353,7 @@ impl BondFormationResult {
 pub struct BondFormation {
     min_similarity_threshold: Float,
     max_bond_distance: Float,
+    #[allow(dead_code)]
     enable_resonance: bool,
     formation_history: Vec<BondFormationResult>,
 }
@@ -570,12 +570,13 @@ mod tests {
 
     #[test]
     fn test_can_form_bond() {
-        let mut formation = BondFormation::new();
+        let formation = BondFormation::new();
         let h = ElementAttractorField::hydrogen();
         let o = ElementAttractorField::oxygen();
 
         let can_form = formation.can_form_bond(&h, &o);
-        assert!(can_form || !can_form);
+        // Just verify it returns a boolean
+        let _ = can_form;
     }
 
     #[test]
@@ -621,7 +622,7 @@ mod tests {
         let bond = ArchetypeBond::new(&h, &o, pos);
         let polarity = bond.polarity();
 
-        assert!(polarity >= 0.0 && polarity <= 1.0);
+        assert!((0.0..=1.0).contains(&polarity));
     }
 
     #[test]

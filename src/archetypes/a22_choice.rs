@@ -61,9 +61,7 @@ impl ChoiceArchetype {
     pub fn new() -> Self {
         let lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::ChoicePolarity);
 
-        let tarot = TarotCorrelation::new(format!(
-            "The Fool (0 or XXII): Fundamental choice of polarity, faith, harvestability"
-        ));
+        let tarot = TarotCorrelation::new("The Fool (0 or XXII): Fundamental choice of polarity, faith, harvestability".to_string());
 
         let developmental_position = DevelopmentalPosition::new_with_octant_rung(Octant::O1, 6);
 
@@ -190,32 +188,32 @@ impl ChoiceArchetype {
 
     /// Update polarization strength
     pub fn update_polarization_strength(&mut self, value: Float) {
-        self.polarization_strength = value.max(0.0).min(1.0);
+        self.polarization_strength = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
         self.polarity = self.determine_polarity();
     }
 
     /// Update faith
     pub fn update_faith(&mut self, value: Float) {
-        self.faith = value.max(0.0).min(1.0);
+        self.faith = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Update harvestability
     pub fn update_harvestability(&mut self, value: Float) {
-        self.harvestability = value.max(0.0).min(1.0);
+        self.harvestability = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Update unification
     pub fn update_unification(&mut self, value: Float) {
-        self.unification = value.max(0.0).min(1.0);
+        self.unification = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Update service-to-others orientation
     pub fn update_service_to_others(&mut self, value: Float) {
-        self.service_to_others = value.max(0.0).min(1.0);
+        self.service_to_others = value.clamp(0.0, 1.0);
         self.polarization_strength = self.calculate_polarization_strength();
         self.lambda.value = self.calculate_lambda_from_state();
         self.polarity = self.determine_polarity();
@@ -223,7 +221,7 @@ impl ChoiceArchetype {
 
     /// Update service-to-self orientation
     pub fn update_service_to_self(&mut self, value: Float) {
-        self.service_to_self = value.max(0.0).min(1.0);
+        self.service_to_self = value.clamp(0.0, 1.0);
         self.polarization_strength = self.calculate_polarization_strength();
         self.lambda.value = self.calculate_lambda_from_state();
         self.polarity = self.determine_polarity();
@@ -231,14 +229,14 @@ impl ChoiceArchetype {
 
     /// Update polarization choice
     pub fn update_polarization_choice(&mut self, value: Float) {
-        self.polarization_choice = value.max(0.0).min(1.0);
+        self.polarization_choice = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Update all polarization metrics
     pub fn update_polarization_metrics(&mut self, sto: Float, sts: Float) {
-        self.service_to_others = sto.max(0.0).min(1.0);
-        self.service_to_self = sts.max(0.0).min(1.0);
+        self.service_to_others = sto.clamp(0.0, 1.0);
+        self.service_to_self = sts.clamp(0.0, 1.0);
         self.polarization_strength = self.calculate_polarization_strength();
         self.harvestability = self.calculate_harvestability();
         self.unification = self.calculate_unification();
@@ -457,7 +455,7 @@ impl ArchetypeTrait for ChoiceArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn update_lambda(&mut self, value: Float) {
@@ -508,11 +506,13 @@ mod tests {
     use crate::archetypes::common::{ArchetypeComplex, ArchetypeRole};
 
     // Mock archetype for testing paired relationships
+    #[allow(dead_code)]
     struct MockArchetype {
         lambda: LambdaMeasurement,
         tarot: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockArchetype {
         fn new(lambda_value: Float) -> Self {
             MockArchetype {
@@ -581,7 +581,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {

@@ -198,11 +198,7 @@ impl HolographicMemory {
         // Find the most similar full experience
         let similar = self.retrieve_similar(partial, 1);
 
-        if let Some(result) = similar.first() {
-            Some(result.experience.clone())
-        } else {
-            None
-        }
+        similar.first().map(|result| result.experience.clone())
     }
 
     /// Get memory statistics
@@ -420,7 +416,7 @@ mod tests {
         let similar = memory.retrieve_similar(&query, 3);
 
         assert!(similar.len() <= 3);
-        assert!(similar.len() > 0);
+        assert!(!similar.is_empty());
 
         // Results should be sorted by similarity (descending)
         for i in 1..similar.len() {

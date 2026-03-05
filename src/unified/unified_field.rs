@@ -2,7 +2,6 @@
 
 use crate::hpo::field_state::HolographicFieldState;
 use crate::spectrum::larson_framework::SpectrumRatio;
-use std::sync::Arc;
 
 /// The Unified Field - primary reality structure
 #[derive(Debug, Clone)]
@@ -23,15 +22,15 @@ impl UnifiedField {
         }
     }
 
-    pub fn sample_coherence(&self, position: [f64; 3]) -> f64 {
+    pub fn sample_coherence(&self, _position: [f64; 3]) -> f64 {
         self.holographic_state.root.field_data.coherence
     }
 
-    pub fn sample_energy(&self, position: [f64; 3]) -> f64 {
+    pub fn sample_energy(&self, _position: [f64; 3]) -> f64 {
         self.holographic_state.root.field_data.energy
     }
 
-    pub fn get_archetypes(&self, position: [f64; 3]) -> [f64; 22] {
+    pub fn get_archetypes(&self, _position: [f64; 3]) -> [f64; 22] {
         [0.5; 22]
     }
 

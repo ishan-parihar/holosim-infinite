@@ -4,9 +4,7 @@
 //! Each density has 7 sub-densities (e.g., D4.1 to D4.7) for finer granularity
 //! in tracking entity progression through the evolutionary journey.
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::Float;
 
 /// Sub-density level (1-7) within a density
@@ -16,7 +14,7 @@ pub struct SubDensity(u8);
 impl SubDensity {
     /// Create a new sub-density (1-7)
     pub fn new(level: u8) -> Option<Self> {
-        if level >= 1 && level <= 7 {
+        if (1..=7).contains(&level) {
             Some(SubDensity(level))
         } else {
             None
@@ -135,7 +133,7 @@ pub struct EncodedSubDensity(u8);
 impl EncodedSubDensity {
     /// Encode a density and sub-density level
     pub fn encode(density: Density, sub_level: u8) -> Option<Self> {
-        if sub_level >= 1 && sub_level <= 7 {
+        if (1..=7).contains(&sub_level) {
             Some(EncodedSubDensity(density.as_u8() * 10 + sub_level))
         } else {
             None
@@ -147,7 +145,7 @@ impl EncodedSubDensity {
         let density_value = encoded / 10;
         let sub_level = encoded % 10;
 
-        if sub_level >= 1 && sub_level <= 7 {
+        if (1..=7).contains(&sub_level) {
             if let Some(density) = Density::from_u8(density_value) {
                 if let Some(sub_density) = SubDensity::new(sub_level) {
                     return Some((density, sub_density));
@@ -403,13 +401,13 @@ impl SubDensitySystem {
             }
 
             // Check if already at maximum
-            if current.sub_level().map_or(false, |sd| sd.is_last()) {
+            if current.sub_level().is_some_and(|sd| sd.is_last()) {
                 return SubDensityTransitionResult::AlreadyAtMaximum { current };
             }
 
             // Perform transition
             if let Some(prog) = self.progressions.get_mut(&entity_id) {
-                if let Some(_) = prog.advance() {
+                if prog.advance().is_some() {
                     return SubDensityTransitionResult::Success {
                         from: current,
                         to: prog.current,
@@ -466,7 +464,7 @@ impl SubDensitySystem {
     pub fn is_ready_for_next_density(&self, entity_id: u64) -> bool {
         self.progressions
             .get(&entity_id)
-            .map_or(false, |p| p.ready_for_next_density())
+            .is_some_and(|p| p.ready_for_next_density())
     }
 
     /// Update time spent in current sub-density
@@ -518,6 +516,7 @@ impl Default for SubDensitySystem {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::Density2SubLevel;
 
     #[test]
     fn test_sub_density_creation() {
@@ -669,7 +668,7 @@ mod tests {
         let mut prog = SubDensityProgression::new(Density::Fourth).unwrap();
         let new_current = prog.advance().unwrap();
         assert_eq!(new_current.value(), 42);
-        assert_eq!(prog.stages_completed[0], true);
+        assert!(prog.stages_completed[0]);
     }
 
     #[test]

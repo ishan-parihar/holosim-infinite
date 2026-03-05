@@ -9,9 +9,7 @@
 // - Supports Hardcoded, Holographic, and Hybrid modes
 
 use crate::energy_fields::Vector3;
-use crate::matter::particle::Nucleus;
-use crate::matter::particle::Vector3D;
-use crate::matter::{Atom, Coordinate3D, Particle};
+use crate::matter::{Atom, Particle};
 use crate::physics::PhysicsMode;
 use crate::physics_derivation::initialize_global_physics_system;
 use crate::solar_system::{PhysicsConstants, PlanetaryBiases, SolarSystemConstraints};
@@ -602,7 +600,8 @@ impl Default for PhysicsEngine {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::matter::particle::ParticleType;
+    use crate::matter::particle::{Coordinate3D, Nucleus};
+    use crate::template::Vector3D;
 
     #[test]
     fn test_physics_engine_creation() {
@@ -842,9 +841,7 @@ mod tests {
     fn test_physics_engine_initialize_dual_mode() {
         // Initialize dual-mode physics system through PhysicsEngine
         PhysicsEngine::initialize_dual_mode_physics(PhysicsMode::Hardcoded, 0.5);
-
-        // Verify initialization succeeded
-        assert!(true);
+        // Test passes if initialization succeeds
     }
 
     #[test]

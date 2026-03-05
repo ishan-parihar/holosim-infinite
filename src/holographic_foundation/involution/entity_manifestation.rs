@@ -4,12 +4,11 @@
 //! "Entity manifestation from hierarchy parameters
 //!  Entity properties derive from position in hierarchy"
 
-use super::cosmic_hierarchy::{CosmicHierarchy, HierarchyPath};
+use super::cosmic_hierarchy::CosmicHierarchy;
 use super::logos_config::{ManifestationParameters, PlanetaryLogosConfig};
 use super::propagation::{FieldConfiguration, InvolutionFlow};
 use super::HierarchyLevel;
 use crate::holographic_foundation::distortions::FieldState;
-use crate::holographic_foundation::spectrum::SpectrumState;
 use crate::types::Float;
 
 #[derive(Debug, Clone)]
@@ -135,6 +134,9 @@ impl EntitySeed {
     }
 }
 
+/// Statistics tracking for entity manifestation events
+/// TODO: Planned for integration with simulation statistics reporting
+#[allow(dead_code)]
 #[derive(Debug, Clone, Default)]
 pub struct ManifestationStatistics {
     pub total_manifested: u64,
@@ -142,6 +144,7 @@ pub struct ManifestationStatistics {
     pub average_coherence: Float,
 }
 
+#[allow(dead_code)]
 impl ManifestationStatistics {
     pub fn new() -> Self {
         Self::default()

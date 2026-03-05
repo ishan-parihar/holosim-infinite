@@ -429,7 +429,7 @@ impl TimeController {
     }
 
     /// Update the controller
-    pub fn update(&mut self, delta_time: f64) {
+    pub fn update(&mut self, _delta_time: f64) {
         // Handle step-through mode
         if self.step_through && self.steps_remaining > 0 {
             self.steps_remaining -= 1;

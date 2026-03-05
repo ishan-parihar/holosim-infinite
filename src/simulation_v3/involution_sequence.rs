@@ -991,8 +991,8 @@ impl InvolutionSequenceRunner {
         let mut organism_ids = Vec::new();
 
         // Assign individual entities to the first Solar Logos for simplicity
-        let parent_solar_logos_id = solar_logos_ids.get(0).cloned();
-        let environment_id = planet_ids.get(0).cloned();
+        let parent_solar_logos_id = solar_logos_ids.first().cloned();
+        let environment_id = planet_ids.first().cloned();
 
         // Create 80 Quantum particles (1st Density)
         for i in 0..80 {
@@ -1398,9 +1398,7 @@ impl InvolutionSequenceRunner {
 // - involution_evolution: Ongoing simultaneous involution-evolution (CONTINUOUS process)
 // ============================================================================
 
-use crate::evolution_density_octave::density_octave::{
-    Density, Density1SubLevel, Density2SubLevel,
-};
+use crate::evolution_density_octave::density_octave::Density;
 use crate::types::{Float, HolonID};
 use std::collections::HashMap;
 
@@ -1925,6 +1923,7 @@ impl DensityExt for Density {
 #[cfg(test)]
 mod involution_evolution_tests {
     use super::*;
+    use crate::evolution_density_octave::density_octave::{Density1SubLevel, Density2SubLevel};
 
     // -------------------------------------------------------------------------
     // FlowDirection Tests

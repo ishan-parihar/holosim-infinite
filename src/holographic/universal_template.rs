@@ -59,11 +59,11 @@ impl TemplateConfig {
         }
     }
 
-    /// Create a default configuration
-    pub fn default() -> Self {
+    /// Create an initial configuration
+    pub fn initial() -> Self {
         Self {
             spectrum: SpectrumConfiguration::balanced(),
-            archetype_activation: ArchetypeActivationProfile::default(),
+            archetype_activation: ArchetypeActivationProfile::initial(),
             density: Density::First(
                 crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
             ),
@@ -163,7 +163,7 @@ impl SpectrumConfiguration {
 /// From HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md:
 /// "Store 22 archetype coefficients instead of full patterns"
 /// "100x compression (88 bytes vs thousands of floats)"
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ArchetypeActivationProfile {
     /// Activation coefficients for all 22 archetypes (0.0 to 1.0)
     ///
@@ -182,8 +182,8 @@ impl ArchetypeActivationProfile {
         }
     }
 
-    /// Create a default activation profile (all archetypes at baseline)
-    pub fn default() -> Self {
+    /// Create an initial activation profile (all archetypes at baseline)
+    pub fn initial() -> Self {
         Self {
             coefficients: [0.5; 22],
         }
@@ -191,7 +191,7 @@ impl ArchetypeActivationProfile {
 
     /// Get the activation level for a specific archetype
     pub fn get_activation(&self, archetype_number: usize) -> Option<f64> {
-        if archetype_number >= 1 && archetype_number <= 22 {
+        if (1..=22).contains(&archetype_number) {
             Some(self.coefficients[archetype_number - 1])
         } else {
             None
@@ -200,7 +200,7 @@ impl ArchetypeActivationProfile {
 
     /// Set the activation level for a specific archetype
     pub fn set_activation(&mut self, archetype_number: usize, activation: f64) {
-        if archetype_number >= 1 && archetype_number <= 22 {
+        if (1..=22).contains(&archetype_number) {
             self.coefficients[archetype_number - 1] = activation.clamp(0.0, 1.0);
         }
     }
@@ -309,8 +309,8 @@ impl ArchetypicalInterference {
         }
     }
 
-    /// Create a default interference result
-    pub fn default() -> Self {
+    /// Create an initial interference result
+    pub fn initial() -> Self {
         Self {
             constructive_nodes: vec![],
             destructive_nodes: vec![],
@@ -343,10 +343,10 @@ impl PossibilitySpace {
         }
     }
 
-    /// Create a default possibility space
-    pub fn default() -> Self {
+    /// Create an initial possibility space
+    pub fn initial() -> Self {
         Self {
-            possibilities: vec![Possibility::default()],
+            possibilities: vec![Possibility::initial()],
             weights: vec![1.0],
         }
     }
@@ -394,8 +394,8 @@ impl Possibility {
         }
     }
 
-    /// Create a default possibility
-    pub fn default() -> Self {
+    /// Create an initial possibility
+    pub fn initial() -> Self {
         Self {
             id: "default".to_string(),
             description: "Default possibility".to_string(),
@@ -431,10 +431,10 @@ impl Choice {
         }
     }
 
-    /// Create a default choice
-    pub fn default() -> Self {
+    /// Create an initial choice
+    pub fn initial() -> Self {
         Self {
-            selected_possibility: Possibility::default(),
+            selected_possibility: Possibility::initial(),
             timestamp: 0.0,
             resonance: 0.5,
         }
@@ -467,8 +467,8 @@ impl ActualizedState {
         }
     }
 
-    /// Create a default actualized state
-    pub fn default() -> Self {
+    /// Create an initial actualized state
+    pub fn initial() -> Self {
         Self {
             configuration: vec![0.5],
             coherence: 0.5,
@@ -645,7 +645,7 @@ impl<T> UniversalTemplate<T> {
     /// "exercise_free_will() (applies to all component types)"
     pub fn exercise_free_will(&self, possibility_space: &PossibilitySpace) -> Choice {
         if possibility_space.possibilities.is_empty() {
-            return Choice::default();
+            return Choice::initial();
         }
 
         // Use Free Will seed to make deterministic non-deterministic choice
@@ -722,7 +722,7 @@ impl<T> UniversalTemplate<T> {
         let interference = self.compute_archetype_interference();
 
         // Free will choice
-        let choice = self.exercise_free_will(&PossibilitySpace::default());
+        let choice = self.exercise_free_will(&PossibilitySpace::initial());
 
         // Component-specific evolution (just data, not logic)
         self.evolve_component(interference, choice, dt);
@@ -933,14 +933,14 @@ mod tests {
 
     #[test]
     fn test_archetype_activation_profile_default() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         assert_eq!(profile.coefficients.len(), 22);
         assert!(profile.coefficients.iter().all(|c| *c == 0.5));
     }
 
     #[test]
     fn test_archetype_activation_get_set() {
-        let mut profile = ArchetypeActivationProfile::default();
+        let mut profile = ArchetypeActivationProfile::initial();
 
         profile.set_activation(1, 0.8);
         assert_eq!(profile.get_activation(1), Some(0.8));
@@ -948,14 +948,14 @@ mod tests {
 
     #[test]
     fn test_archetype_activation_invalid() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         assert_eq!(profile.get_activation(0), None);
         assert_eq!(profile.get_activation(23), None);
     }
 
     #[test]
     fn test_archetype_complexes() {
-        let mut profile = ArchetypeActivationProfile::default();
+        let mut profile = ArchetypeActivationProfile::initial();
 
         for i in 1..=22 {
             profile.set_activation(i, (i as f64) / 22.0);
@@ -976,7 +976,7 @@ mod tests {
 
     #[test]
     fn test_archetype_coherence() {
-        let profile = ArchetypeActivationProfile::default();
+        let profile = ArchetypeActivationProfile::initial();
         let coherence = profile.coherence();
         assert!(coherence >= 0.0);
         assert!(coherence <= 1.0);
@@ -985,7 +985,7 @@ mod tests {
 
     #[test]
     fn test_possibility_space_creation() {
-        let possibilities = vec![Possibility::default()];
+        let possibilities = vec![Possibility::initial()];
         let weights = vec![1.0];
 
         let space = PossibilitySpace::new(possibilities, weights);
@@ -996,9 +996,9 @@ mod tests {
     #[test]
     fn test_possibility_space_normalize() {
         let possibilities = vec![
-            Possibility::default(),
-            Possibility::default(),
-            Possibility::default(),
+            Possibility::initial(),
+            Possibility::initial(),
+            Possibility::initial(),
         ];
         let weights = vec![1.0, 1.0, 1.0];
 
@@ -1014,7 +1014,7 @@ mod tests {
     fn test_universal_template_creation() {
         let field = Arc::new(create_test_holographic_field());
         let spectrum = SpectrumConfiguration::balanced();
-        let archetype_activation = ArchetypeActivationProfile::default();
+        let archetype_activation = ArchetypeActivationProfile::initial();
         let density = Density::First(
             crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
         );
@@ -1037,7 +1037,7 @@ mod tests {
     #[test]
     fn test_universal_template_from_config() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let template =
             UniversalTemplate::from_config(field.clone(), config, "test_data".to_string());
@@ -1048,7 +1048,7 @@ mod tests {
     #[test]
     fn test_universal_template_evolve_spectrum() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let mut template = UniversalTemplate::from_config(field, config, "test_data".to_string());
         template.evolve_spectrum(0.1);
@@ -1059,7 +1059,7 @@ mod tests {
     #[test]
     fn test_universal_template_process_archetypes() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let template = UniversalTemplate::from_config(field, config, "test_data".to_string());
         let interference = template.process_archetypes();
@@ -1071,11 +1071,11 @@ mod tests {
     #[test]
     fn test_universal_template_exercise_free_will() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let template = UniversalTemplate::from_config(field, config, "test_data".to_string());
 
-        let possibility = Possibility::default();
+        let possibility = Possibility::initial();
         let space = PossibilitySpace::new(vec![possibility], vec![1.0]);
 
         let choice = template.exercise_free_will(&space);
@@ -1085,11 +1085,11 @@ mod tests {
     #[test]
     fn test_universal_template_collapse_possibility() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let template = UniversalTemplate::from_config(field, config, "test_data".to_string());
 
-        let possibility = Possibility::default();
+        let possibility = Possibility::initial();
         let state = template.collapse_possibility(&possibility);
 
         assert!(state.coherence >= 0.0);
@@ -1106,7 +1106,7 @@ mod tests {
 
     #[test]
     fn test_template_key_from_config() {
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
         let key = TemplateKey::from_config(&config);
 
         assert_eq!(key.density, 1);

@@ -626,7 +626,7 @@ mod tests {
         attractor.receive_feedback(feedback);
         attractor.adjust_strength();
 
-        let adjusted_strength = attractor.current_strength;
+        let _adjusted_strength = attractor.current_strength;
         assert!(attractor.feedback_count() > 0);
 
         // Reset

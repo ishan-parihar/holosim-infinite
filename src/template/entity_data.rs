@@ -59,7 +59,7 @@ use crate::spectrum::archetypical_mind::ArchetypicalMind;
 // Polarization progress
 use crate::polarization::PolarizationProgress;
 // Common types
-use crate::types::{Density, Float, Polarity};
+use crate::types::{Float, Polarity};
 
 /// Entity-specific data for UniversalTemplate
 ///
@@ -370,8 +370,6 @@ pub type Entity = crate::holographic::universal_template::UniversalTemplate<Enti
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::evolution_density_octave::density_octave::Density;
-    use crate::holographic::universal_template::{SpectrumConfiguration, TemplateConfig};
 
     #[test]
     fn test_entity_data_creation() {
@@ -582,7 +580,7 @@ impl super::entity_behavior::EntityBehavior for Entity {
     // =========================================================================
 
     fn polarization(&self) -> Option<Polarity> {
-        use crate::polarization::{PolarityDirection, PolarizationState};
+        use crate::polarization::PolarizationState;
 
         match self.component_data.polarization.state {
             PolarizationState::Unpolarized => None,

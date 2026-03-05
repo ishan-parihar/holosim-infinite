@@ -1116,18 +1116,15 @@ impl Matter {
 
     /// Update matter (LEGACY - for backward compatibility)
     pub fn update(&mut self, dt: Float) {
-        match self {
-            Matter::Particle(p) => {
-                p.update_position(dt);
-            }
-            _ => {}
+        if let Matter::Particle(p) = self {
+            p.update_position(dt);
         }
     }
 
     /// From energy fields (LEGACY - for backward compatibility)
     pub fn from_energy_fields() -> Self {
         // Create a simple hydrogen atom from energy fields
-        let proton = Particle {
+        let _proton = Particle {
             id: 0,
             archetype_activation: [0.0; 22],
             mass: 1.6726219e-27,
@@ -1730,8 +1727,9 @@ mod tests {
 
         // All properties should be derived
         assert!(particle.mass > 0.0);
-        assert!(particle.charge != 0.0 || true);
-        assert!(particle.spin != 0.0 || true);
+        // charge and spin may be zero for some particles
+        let _ = particle.charge;
+        let _ = particle.spin;
         assert!(particle.lifetime.is_none() || particle.lifetime.unwrap() > 0.0);
 
         // Wavefunction should be normalized
@@ -1780,9 +1778,7 @@ mod tests {
         // 5. No deprecated ParticleType enum - properties emerge dynamically
         let type_name = particle.get_particle_type_name();
         assert!(!type_name.is_empty());
-
-        // All validation passed
-        assert!(true);
+        // Test passes if all validations succeed
     }
 
     // ============================================================================
@@ -1899,9 +1895,7 @@ mod tests {
         let _momentum = particle.momentum();
         let _density = particle.probability_density();
         let _type_name = particle.get_particle_type_name();
-
-        // All should succeed without panic
-        assert!(true);
+        // Test passes if all methods succeed without panic
     }
 
     #[test]
@@ -1924,8 +1918,6 @@ mod tests {
     fn test_phase4_physics_engine_initialization() {
         // Initialize dual-mode physics system through PhysicsEngine
         PhysicsEngine::initialize_dual_mode_physics(PhysicsMode::Hardcoded, 0.5);
-
-        // Verify initialization succeeded
-        assert!(true);
+        // Test passes if initialization succeeds
     }
 }

@@ -11,7 +11,7 @@
 //! Species evolve through selection, not just description.
 
 use crate::biology::organism_lifecycle::{
-    BodyPlan, Organism, OrganismEnvironment, OrganismManager,
+    BodyPlan, OrganismManager,
 };
 use crate::holographic::field_address::HolographicAddress;
 use rand::Rng;
@@ -314,7 +314,7 @@ impl EvolutionEngine {
     /// Main tick - population dynamics, selection, speciation
     pub fn tick(&mut self, environment: &PopulationEnvironment, dt: f64) {
         // Phase 1: Population growth/decline
-        for (species_id, population) in self.populations.iter_mut() {
+        for (_species_id, population) in self.populations.iter_mut() {
             population.grow(dt, environment);
         }
 
@@ -471,7 +471,7 @@ impl EvolutionEngine {
         for (species_id, population) in &self.populations {
             // Sample organisms to create based on population
             let sample_size = (population.count as f64 * 0.01) as usize; // 1% sample
-            let sample_size = sample_size.max(1).min(100);
+            let sample_size = sample_size.clamp(1, 100);
 
             if let Some(species) = self.species.get(species_id) {
                 let current_count = organism_manager

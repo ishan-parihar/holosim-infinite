@@ -19,7 +19,6 @@
 
 use crate::types::Float;
 use std::collections::HashMap;
-use std::fmt;
 
 /// Archetype basis - 22 orthogonal vectors
 ///
@@ -62,8 +61,7 @@ impl ArchetypeBasis {
                 vec[i % dimension] = 1.0;
 
                 // Orthogonalize against previous vectors
-                for j in 0..i {
-                    let prev = &basis[j];
+                for prev in basis.iter().take(i) {
                     let dot = vec
                         .iter()
                         .zip(prev.iter())
@@ -73,8 +71,8 @@ impl ArchetypeBasis {
                         let prev_norm_sq: Float = prev.iter().map(|&v| v * v).sum();
                         if prev_norm_sq > 1e-10 {
                             let scale = dot / prev_norm_sq;
-                            for k in 0..dimension {
-                                vec[k] -= scale * prev[k];
+                            for (vec_k, &prev_k) in vec.iter_mut().zip(prev.iter()) {
+                                *vec_k -= scale * prev_k;
                             }
                         }
                     }
@@ -111,34 +109,34 @@ impl ArchetypeBasis {
         // Each archetype has a unique pattern of activations
 
         // Mind complex (Archetypes 1-7)
-        for i in 0..7 {
-            basis[i][i] = 1.0;
+        for (i, basis_i) in basis.iter_mut().enumerate().take(7) {
+            basis_i[i] = 1.0;
             // Add some cross-correlation within the complex
-            for j in 0..7 {
+            for (j, basis_ij) in basis_i.iter_mut().enumerate().take(7) {
                 if i != j {
-                    basis[i][j] = 0.3;
+                    *basis_ij = 0.3;
                 }
             }
         }
 
         // Body complex (Archetypes 8-14)
-        for i in 7..14 {
-            basis[i][i] = 1.0;
+        for (i, basis_i) in basis.iter_mut().enumerate().skip(7).take(7) {
+            basis_i[i] = 1.0;
             // Add some cross-correlation within the complex
-            for j in 7..14 {
+            for (j, basis_ij) in basis_i.iter_mut().enumerate().skip(7).take(7) {
                 if i != j {
-                    basis[i][j] = 0.3;
+                    *basis_ij = 0.3;
                 }
             }
         }
 
         // Spirit complex (Archetypes 15-21)
-        for i in 14..21 {
-            basis[i][i] = 1.0;
+        for (i, basis_i) in basis.iter_mut().enumerate().skip(14).take(7) {
+            basis_i[i] = 1.0;
             // Add some cross-correlation within the complex
-            for j in 14..21 {
+            for (j, basis_ij) in basis_i.iter_mut().enumerate().skip(14).take(7) {
                 if i != j {
-                    basis[i][j] = 0.3;
+                    *basis_ij = 0.3;
                 }
             }
         }
@@ -146,17 +144,19 @@ impl ArchetypeBasis {
         // The Choice (Archetype 22)
         basis[21][21] = 1.0;
         // Archetype 22 has influence on all complexes
-        for i in 0..21 {
-            basis[21][i] = 0.2;
-            basis[i][21] = 0.2;
+        for elem in basis[21].iter_mut().take(21) {
+            *elem = 0.2;
+        }
+        for basis_i in basis.iter_mut().take(21) {
+            basis_i[21] = 0.2;
         }
 
         // Normalize all vectors
-        for i in 0..22 {
-            let norm_sq: Float = basis[i].iter().map(|&v| v * v).sum();
+        for basis_i in &mut basis {
+            let norm_sq: Float = basis_i.iter().map(|&v| v * v).sum();
             if norm_sq > 1e-10 {
                 let norm = norm_sq.sqrt();
-                for v in basis[i].iter_mut() {
+                for v in basis_i.iter_mut() {
                     *v /= norm;
                 }
             }
@@ -167,7 +167,7 @@ impl ArchetypeBasis {
 
     /// Get a basis vector by archetype number (1-22)
     pub fn get_basis_vector(&self, archetype_number: usize) -> Option<&Vec<Float>> {
-        if archetype_number >= 1 && archetype_number <= 22 {
+        if (1..=22).contains(&archetype_number) {
             Some(&self.basis[archetype_number - 1])
         } else {
             None
@@ -692,7 +692,6 @@ mod tests {
     }
 
     #[test]
-    #[test]
     fn test_interference_cache_store_get() {
         let mut cache = ArchetypicalInterferenceCache::new(100);
         let coefficients = [0.5; 22];
@@ -759,9 +758,11 @@ mod tests {
 
     #[test]
     fn test_cache_stats_hit_rate() {
-        let mut stats = CacheStats::default();
-        stats.hits = 90;
-        stats.misses = 10;
+        let stats = CacheStats {
+            hits: 90,
+            misses: 10,
+            ..Default::default()
+        };
 
         assert_eq!(stats.hit_rate(), 0.9);
     }

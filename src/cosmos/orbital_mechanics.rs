@@ -120,7 +120,7 @@ impl OrbitalElements {
 
         // Vis-viva equation: v² = GM(2/r - 1/a)
         let v_squared = GRAVITATIONAL_CONSTANT * SOLAR_MASS * (2.0 / r - 1.0 / a);
-        (v_squared.sqrt() / 1000.0) // Convert to km/s
+        v_squared.sqrt() / 1000.0 // Convert to km/s
     }
 
     /// Update true anomaly by a time step
@@ -175,7 +175,7 @@ impl Orbit {
         let theta = self.elements.true_anomaly;
         let i = self.elements.inclination;
         let omega = self.elements.argument_of_periapsis;
-        let Omega = self.elements.longitude_of_ascending_node;
+        let omega_upper = self.elements.longitude_of_ascending_node;
 
         // Position in orbital plane
         let x_orbital = r * theta.cos();
@@ -184,16 +184,16 @@ impl Orbit {
         // Transform to 3D space
         let cos_omega = omega.cos();
         let sin_omega = omega.sin();
-        let cos_Omega = Omega.cos();
-        let sin_Omega = Omega.sin();
+        let cos_omega_upper = omega_upper.cos();
+        let sin_omega_upper = omega_upper.sin();
         let cos_i = i.cos();
         let sin_i = i.sin();
 
-        let x = (cos_Omega * cos_omega - sin_Omega * sin_omega * cos_i) * x_orbital
-            + (-cos_Omega * sin_omega - sin_Omega * cos_omega * cos_i) * y_orbital;
+        let x = (cos_omega_upper * cos_omega - sin_omega_upper * sin_omega * cos_i) * x_orbital
+            + (-cos_omega_upper * sin_omega - sin_omega_upper * cos_omega * cos_i) * y_orbital;
 
-        let y = (sin_Omega * cos_omega + cos_Omega * sin_omega * cos_i) * x_orbital
-            + (-sin_Omega * sin_omega + cos_Omega * cos_omega * cos_i) * y_orbital;
+        let y = (sin_omega_upper * cos_omega + cos_omega_upper * sin_omega * cos_i) * x_orbital
+            + (-sin_omega_upper * sin_omega + cos_omega_upper * cos_omega * cos_i) * y_orbital;
 
         let z = (sin_omega * sin_i) * x_orbital + (cos_omega * sin_i) * y_orbital;
 

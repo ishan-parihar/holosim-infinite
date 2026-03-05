@@ -534,7 +534,7 @@ impl HolographicSeed {
         // Each archetype contains metadata about its relationship to the whole
 
         // Create fractal references - one for each archetype
-        let fractal_references = Arc::new(std::array::from_fn(|i| FractalReference::new(i)));
+        let fractal_references = Arc::new(std::array::from_fn(FractalReference::new));
 
         // Create the final seed with fractal references
         HolographicSeed {
@@ -616,7 +616,7 @@ impl HolographicSeed {
         let physics_constraints = Arc::new(SolarSystemConstraints::default());
 
         // 5. Initialize fractal-holographic references
-        let fractal_references = Arc::new(std::array::from_fn(|i| FractalReference::new(i)));
+        let fractal_references = Arc::new(std::array::from_fn(FractalReference::new));
 
         HolographicSeed {
             free_will,
@@ -1127,11 +1127,11 @@ mod tests {
 
         // Calculate similarity for archetype 0
         let similarity0 = seed.calculate_part_whole_similarity(0);
-        assert!(similarity0 >= 0.0 && similarity0 <= 1.0);
+        assert!((0.0..=1.0).contains(&similarity0));
 
         // Calculate similarity for archetype 10
         let similarity10 = seed.calculate_part_whole_similarity(10);
-        assert!(similarity10 >= 0.0 && similarity10 <= 1.0);
+        assert!((0.0..=1.0).contains(&similarity10));
 
         // Invalid index should return 0.0
         let invalid = seed.calculate_part_whole_similarity(22);
@@ -1144,7 +1144,7 @@ mod tests {
 
         // Calculate self-similarity
         let similarity = seed.get_self_similarity();
-        assert!(similarity >= 0.0 && similarity <= 1.0);
+        assert!((0.0..=1.0).contains(&similarity));
 
         // Self-similarity should be high for holographic seed
         assert!(similarity > 0.5);

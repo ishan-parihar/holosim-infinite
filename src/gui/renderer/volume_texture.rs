@@ -318,7 +318,7 @@ impl FieldVolumeData {
 
                     // Sample from field state
                     if let Some((coherence, amplitude, phase)) =
-                        Self::sample_field_at(&field_state, &pos)
+                        Self::sample_field_at(field_state, &pos)
                     {
                         data.coherence[idx] = coherence;
                         data.amplitude[idx] = amplitude;
@@ -409,7 +409,7 @@ impl FieldVolumeData {
                     ((p.clamp(0.0, std::f32::consts::TAU as Float)
                         / std::f32::consts::TAU as Float)
                         * 255.0) as u8,
-                    ((*d).min(7) * 32) as u8, // Encode density in 3 bits
+                    ((*d).min(7) * 32), // Encode density in 3 bits
                 ]
             })
             .collect()

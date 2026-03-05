@@ -19,16 +19,10 @@
 //! - Density progression: Entities progress within their density, not change density
 //! - Polarity: STO (Service-to-Others) vs STS (Service-to-Self) as fundamental choice
 
-use crate::consciousness::free_will::{
-    ChoiceRecord, FreeWillKernel, FreeWillStatistics, PolarityPreference,
-};
-use crate::consciousness::kernel::{ConsciousnessKernel, ConsciousnessSignal};
-use crate::consciousness::possibility_space::{OutcomeType, PossibilitySpace};
-use crate::evolution_density_octave::density_octave::{
-    Density, DensityCharacteristics, DensityOctave,
-};
-use crate::polarization::{PolarityDirection as PolDir, PolarizationProgress, PolarizationState};
-use crate::types::Polarity;
+use crate::consciousness::free_will::{ChoiceRecord, FreeWillStatistics};
+use crate::consciousness::kernel::ConsciousnessKernel;
+use crate::evolution_density_octave::density_octave::Density;
+use crate::polarization::{PolarizationProgress, PolarizationState};
 use egui::{Color32, Painter, Pos2, Rect, Stroke, Vec2};
 
 /// Visualization types using f32 as specified
@@ -264,9 +258,9 @@ impl FreeWillVisualizer {
         );
 
         // Capacity arc (full circle represents 1.0)
-        let capacity = stats.capacity as f64;
-        let activation = stats.activation_level as f64;
-        let consciousness = stats.consciousness_level as f64;
+        let capacity = stats.capacity;
+        let activation = stats.activation_level;
+        let consciousness = stats.consciousness_level;
 
         // Draw capacity arc (outer ring)
         Self::draw_arc(
@@ -539,7 +533,7 @@ impl TeleologicalPullView {
 
             for i in (1..=5).rev() {
                 let radius = max_radius * (i as Float / 5.0);
-                let alpha = (30 + (i as u8) * 40) as u8;
+                let alpha = 30 + (i as u8) * 40;
 
                 // Color based on density level
                 let color = match attractor.density_level {
@@ -722,11 +716,11 @@ impl Default for CausalInversionView {
 
         // Higher densities influence lower densities (top-down)
         // Fill in the influence matrix: influence_matrix[from][to]
-        for from in 0..8 {
-            for to in 0..8 {
+        for (from, row) in influence_matrix.iter_mut().enumerate() {
+            for (to, cell) in row.iter_mut().enumerate() {
                 if from > to {
                     // Higher density influences lower density
-                    influence_matrix[from][to] = ((from - to) as Float) * 0.3;
+                    *cell = ((from - to) as Float) * 0.3;
                 }
             }
         }
@@ -1038,7 +1032,7 @@ impl DensityTransitionView {
                 Vec2::new(segment_width - 2.0, bar_height),
             );
 
-            let color = CausalInversionView::density_color((i + 1) as u8);
+            let color = CausalInversionView::density_color(i + 1);
 
             // Highlight current density
             if i + 1 == self.current_density {
@@ -1412,7 +1406,7 @@ impl ConsciousnessVisualization {
     /// Update with consciousness kernel data
     pub fn update_with_kernel(&mut self, kernel: &ConsciousnessKernel, density: Density) {
         // Update free will statistics
-        let stats = kernel.free_will.get_statistics();
+        let _stats = kernel.free_will.get_statistics();
 
         // Update density transition view
         self.density.update(
@@ -1450,7 +1444,7 @@ impl ConsciousnessVisualization {
 
                     ui.add_space(10.0);
 
-                    let capacity_rect = Rect::from_min_size(
+                    let _capacity_rect = Rect::from_min_size(
                         Pos2::new(rect.min.x, weights_rect.max.y + 10.0),
                         Vec2::new(150.0, 150.0),
                     );

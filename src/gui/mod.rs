@@ -488,9 +488,9 @@ mod tests {
         assert_eq!(config.max_time_rate, 500.0);
         assert_eq!(config.min_zoom, 1.0e-10);
         assert_eq!(config.max_zoom, 1.0e20);
-        assert_eq!(config.enable_focus_dilation, false);
+        assert!(!config.enable_focus_dilation);
         assert_eq!(config.msaa_samples, 8);
-        assert_eq!(config.enable_vsync, false);
+        assert!(!config.enable_vsync);
     }
 }
 pub mod observation_bridge;

@@ -706,7 +706,7 @@ mod tests {
     #[test]
     fn test_cellular_entity() {
         let seed = HolographicSeed::new_from_source();
-        let mut cell = MultiScaleCell::new(1, CellType::Eukaryotic, seed);
+        let cell = MultiScaleCell::new(1, CellType::Eukaryotic, seed);
 
         assert_eq!(cell.get_scale(), EntityScale::Cellular);
         assert!(cell.contains_holographic_whole());

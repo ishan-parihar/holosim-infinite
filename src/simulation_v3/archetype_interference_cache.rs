@@ -384,7 +384,7 @@ impl ArchetypeInterferenceCache {
 
         let mut quantized = [0u8; NUM_ARCHETYPES];
         for (i, &coeff) in coefficients.iter().enumerate() {
-            let normalized = coeff.max(0.0).min(1.0);
+            let normalized = coeff.clamp(0.0, 1.0);
             // Use rounding instead of truncation for better quantization accuracy
             quantized[i] = (normalized * (QUANTIZATION_LEVELS - 1) as Float).round() as u8;
         }
@@ -401,20 +401,22 @@ impl ArchetypeInterferenceCache {
         profile: &ArchetypeActivationProfile,
     ) -> ArchetypicalInterference {
         let coefficients = profile.coefficients();
-        let mut pattern = vec![0.0; self.pattern_dimension];
-
-        for i in 0..self.pattern_dimension {
-            let mut value = 0.0;
-            for (j, &coeff) in coefficients.iter().enumerate() {
-                let freq = (j + 1) as Float;
-                let phase = (j * 7) as Float;
-                let angle = 2.0 * std::f64::consts::PI * freq * (i as Float)
-                    / (self.pattern_dimension as Float)
-                    + phase;
-                value += coeff * angle.sin();
-            }
-            pattern[i] = value;
-        }
+        let pattern: Vec<Float> = (0..self.pattern_dimension)
+            .map(|i| {
+                coefficients
+                    .iter()
+                    .enumerate()
+                    .map(|(j, &coeff)| {
+                        let freq = (j + 1) as Float;
+                        let phase = (j * 7) as Float;
+                        let angle = 2.0 * std::f64::consts::PI * freq * (i as Float)
+                            / (self.pattern_dimension as Float)
+                            + phase;
+                        coeff * angle.sin()
+                    })
+                    .sum()
+            })
+            .collect();
 
         ArchetypicalInterference::new(pattern)
     }
@@ -592,7 +594,7 @@ mod tests {
 
     #[test]
     fn test_archetype_cache_quantization() {
-        let mut cache = ArchetypeInterferenceCache::with_default_dimension(100);
+        let cache = ArchetypeInterferenceCache::with_default_dimension(100);
         let mut profile = create_test_profile();
         profile.set(0, 0.5).unwrap();
         let key1 = cache.quantize_key(&profile);
@@ -730,7 +732,7 @@ mod tests {
         let pattern = vec![0.0, 1.0, 0.0, -1.0];
         let interference = ArchetypicalInterference::new(pattern);
         let phase = interference.phase();
-        assert!(phase >= -std::f64::consts::PI && phase <= std::f64::consts::PI);
+        assert!((-std::f64::consts::PI..=std::f64::consts::PI).contains(&phase));
     }
 
     #[test]

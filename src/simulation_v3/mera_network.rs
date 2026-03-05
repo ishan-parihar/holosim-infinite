@@ -295,8 +295,8 @@ impl FieldView {
         }
     }
 
-    /// Create a default field view
-    pub fn default() -> Self {
+    /// Create an initial field view
+    pub fn initial() -> Self {
         FieldView {
             position: [0.0, 0.0, 0.0],
             data: FieldNodeData::default(),
@@ -308,7 +308,7 @@ impl FieldView {
 
 impl Default for FieldView {
     fn default() -> Self {
-        Self::default()
+        Self::initial()
     }
 }
 
@@ -434,7 +434,7 @@ impl MeraField {
                 i,
             );
 
-            current_resolution = (current_resolution + 1) / 2;
+            current_resolution = current_resolution.div_ceil(2);
         }
 
         Ok(())
@@ -489,7 +489,7 @@ impl MeraField {
 
             layer.data = FieldNodeData::new(values, [layer_scale; 3], i);
 
-            current_resolution = (current_resolution + 1) / 2;
+            current_resolution = current_resolution.div_ceil(2);
         }
 
         Ok(())
@@ -507,6 +507,7 @@ impl MeraField {
     /// # Returns
     ///
     /// Disentangled field
+    #[allow(dead_code)]
     fn disentangle(&self, field: &HolographicField) -> Result<HolographicField, MeraError> {
         // Simplified: remove high-frequency components
         // In real implementation, use disentangler tensors
@@ -525,6 +526,7 @@ impl MeraField {
     /// # Returns
     ///
     /// Coarsened field
+    #[allow(dead_code)]
     fn coarsen(&self, field: &HolographicField) -> Result<HolographicField, MeraError> {
         // Simplified: downsample by factor of 2
         // In real implementation, use coarse-grainer tensors
@@ -540,7 +542,8 @@ impl MeraField {
     /// # Returns
     ///
     /// Extracted node data
-    fn extract_node_data(&self, field: &HolographicField) -> Result<FieldNodeData, MeraError> {
+    #[allow(dead_code)]
+    fn extract_node_data(&self, _field: &HolographicField) -> Result<FieldNodeData, MeraError> {
         // Simplified: extract representative node
         // In real implementation, would extract actual field data at this scale
         Ok(FieldNodeData::new(vec![0.5; 256], [1.0 / 32.0; 3], 0))
@@ -586,7 +589,7 @@ impl MeraField {
         if let Some(coarsest) = self.layers.last() {
             FieldView::new(position, coarsest.data.clone(), ScaleLevel::Coarsest)
         } else {
-            FieldView::default()
+            FieldView::initial()
         }
     }
 
@@ -807,17 +810,14 @@ impl PredictiveCache {
     pub fn prefetch(&mut self, positions: &[[Float; 3]], scale: ScaleLevel, field: &MeraField) {
         for position in positions {
             let key = CacheKey::new(*position, scale, 10.0);
-            if !self.cache.contains_key(&key) {
+            self.cache.entry(key).or_insert_with(|| {
                 let view = field.query(*position, scale);
-                self.cache.insert(
-                    key,
-                    CachedFieldView {
+                CachedFieldView {
                         view,
                         timestamp: 0,
                         access_count: 0,
-                    },
-                );
-            }
+                    }
+            });
         }
     }
 
@@ -859,7 +859,7 @@ impl PredictiveCache {
 impl Tensor {
     /// Create a new tensor with the given shape and fill with zeros
     pub fn new(shape: Vec<usize>) -> Result<Self, MeraError> {
-        if shape.is_empty() || shape.iter().any(|&dim| dim == 0) {
+        if shape.is_empty() || shape.contains(&0) {
             return Err(MeraError::InvalidTensorShape(shape));
         }
 
@@ -1108,7 +1108,7 @@ impl Tensor {
             return Err(MeraError::InvalidTensorShape(self.shape.clone()));
         }
 
-        let new_shape: Vec<usize> = self.shape.iter().map(|&dim| (dim + 1) / 2).collect();
+        let new_shape: Vec<usize> = self.shape.iter().map(|&dim| dim.div_ceil(2)).collect();
 
         let mut result = Tensor::new(new_shape.clone())?;
 
@@ -1326,7 +1326,7 @@ impl MeraLayer {
     }
 
     /// Refine data from coarser scale
-    pub fn refine(&self, coarse: &Tensor, query: &MeraQuery) -> Result<Tensor, MeraError> {
+    pub fn refine(&self, coarse: &Tensor, _query: &MeraQuery) -> Result<Tensor, MeraError> {
         if self.coarse_grainers.is_empty() {
             return Ok(coarse.clone());
         }
@@ -1544,7 +1544,7 @@ impl MeraNetwork {
         let mut result = self.layers[query.scale_level].data.clone();
 
         for layer in self.layers[0..query.scale_level].iter().rev() {
-            if let Some(ref coeffs) = layer.wavelet_coeffs {
+            if let Some(ref _coeffs) = layer.wavelet_coeffs {
                 let decompressed = layer.apply_wavelet_decompression()?;
                 result = decompressed;
             }

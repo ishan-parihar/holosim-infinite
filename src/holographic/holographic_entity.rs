@@ -151,10 +151,12 @@ impl MindView {
     /// A Mind view of the encoding
     pub fn from_encoding(encoding: &HolographicEncoding) -> Self {
         // Extract Mind Complex activations (archetypes 1-7)
-        let mut mind_activations = [0.0; 7];
-        for i in 0..7 {
-            mind_activations[i] = encoding.archetype_complex_vectors[i].amplitude();
-        }
+        let mind_activations: [Float; 7] = encoding.archetype_complex_vectors[0..7]
+            .iter()
+            .map(|v| v.amplitude())
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 7]);
 
         // Calculate processing coherence
         let coherence = encoding.phase_coherence();
@@ -218,10 +220,12 @@ impl BodyView {
     /// A Body view of the encoding
     pub fn from_encoding(encoding: &HolographicEncoding) -> Self {
         // Extract Body Complex activations (archetypes 8-14)
-        let mut body_activations = [0.0; 7];
-        for i in 0..7 {
-            body_activations[i] = encoding.archetype_complex_vectors[i + 7].amplitude();
-        }
+        let body_activations: [Float; 7] = encoding.archetype_complex_vectors[7..14]
+            .iter()
+            .map(|v| v.amplitude())
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 7]);
 
         // Calculate material density
         let density: Float = body_activations.iter().sum::<Float>() / 7.0;
@@ -285,10 +289,12 @@ impl SpiritView {
     /// A Spirit view of the encoding
     pub fn from_encoding(encoding: &HolographicEncoding) -> Self {
         // Extract Spirit Complex activations (archetypes 15-21)
-        let mut spirit_activations = [0.0; 7];
-        for i in 0..7 {
-            spirit_activations[i] = encoding.archetype_complex_vectors[i + 14].amplitude();
-        }
+        let spirit_activations: [Float; 7] = encoding.archetype_complex_vectors[14..21]
+            .iter()
+            .map(|v| v.amplitude())
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([0.0; 7]);
 
         // Calculate source resonance
         let resonance: Float = spirit_activations.iter().sum::<Float>() / 7.0;
@@ -363,7 +369,7 @@ impl HolographicEntity {
     pub fn new(archetypes: [ComplexArchetype; 22]) -> Self {
         // Create holographic encoding
         let encoding = HolographicEncoding::new(
-            archetypes.clone(),
+            archetypes,
             InvolutionLayer::Red.spatial_frequency(), // Start at Red
         );
 
@@ -744,7 +750,7 @@ mod tests {
 
         entity.add_experience(experience.clone());
 
-        let retrieved = entity.retrieve_memory(experience);
+        let _retrieved = entity.retrieve_memory(experience);
         // Should retrieve similar memories
     }
 

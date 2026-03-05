@@ -36,11 +36,8 @@ use crate::holographic::universal_template::{
     ArchetypeActivationProfile, SpectrumConfiguration, UniversalTemplate,
 };
 use crate::holographic::HolographicField;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
+use std::hash::Hasher;
 use std::sync::Arc;
-
-use super::entity_behavior::EntityBehavior;
 use super::entity_data::{Entity, EntityData};
 
 /// Adapter for SubSubLogos to work with UniversalTemplate
@@ -59,7 +56,7 @@ pub struct SubSubLogosAdapter {
 impl SubSubLogosAdapter {
     /// Create a new SubSubLogosAdapter from an Entity
     pub fn new(entity: Entity) -> Self {
-        let current_density = entity.density.clone();
+        let current_density = entity.density;
         Self {
             entity,
             current_density,
@@ -132,7 +129,7 @@ pub fn convert_subsublogos_to_entity(
     let archetype_activation = ArchetypeActivationProfile::new(archetype_activations);
 
     // Get density from SubSubLogos
-    let density = subsublogos.current_density.clone();
+    let density = subsublogos.current_density;
 
     // Generate free will seed from entity ID
     let free_will_seed = generate_free_will_seed(&subsublogos.entity_id);
@@ -194,7 +191,7 @@ pub fn convert_subsublogos_to_entity(
 /// This function converts an Entity back to SubSubLogos for backward compatibility.
 pub fn convert_entity_to_subsublogos(entity: Entity) -> SubSubLogos {
     let data = entity.component_data;
-    let current_density = entity.density.clone();
+    let current_density = entity.density;
 
     SubSubLogos {
         entity_id: data.entity_id,
@@ -556,6 +553,7 @@ mod tests {
     use crate::holographic::universal_template::{
         FromConfig, SpectrumConfiguration, TemplateConfig,
     };
+    use crate::template::entity_behavior::EntityBehavior;
 
     fn create_test_holographic_field() -> HolographicField {
         let archetypes = {
@@ -591,8 +589,8 @@ mod tests {
 
     #[test]
     fn test_from_config() {
-        let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let _field = Arc::new(create_test_holographic_field());
+        let config = TemplateConfig::initial();
 
         let entity_data = EntityData::from_config(&config);
 
@@ -604,7 +602,7 @@ mod tests {
     #[test]
     fn test_subsublogos_adapter_creation() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let entity = UniversalTemplate::from_config(
             field,
@@ -622,7 +620,7 @@ mod tests {
     #[test]
     fn test_subsublogos_adapter_evolution_clock() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let entity = UniversalTemplate::from_config(
             field,
@@ -643,7 +641,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_identity() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let entity = UniversalTemplate::from_config(
             field,
@@ -662,7 +660,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_composition() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let mut entity = UniversalTemplate::from_config(
             field,
@@ -692,7 +690,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_hierarchy() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let mut entity = UniversalTemplate::from_config(
             field,
@@ -728,7 +726,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_evolution() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let mut entity = UniversalTemplate::from_config(
             field,
@@ -752,7 +750,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_archetype() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let mut entity = UniversalTemplate::from_config(
             field,
@@ -779,7 +777,7 @@ mod tests {
     #[test]
     fn test_entity_behavior_spectrum() {
         let field = Arc::new(create_test_holographic_field());
-        let config = TemplateConfig::default();
+        let config = TemplateConfig::initial();
 
         let entity = UniversalTemplate::from_config(
             field,
@@ -795,7 +793,7 @@ mod tests {
         assert!(ratio > 0.0);
 
         let transparency = entity.veil_transparency();
-        assert!(transparency >= 0.0 && transparency <= 1.0);
+        assert!((0.0..=1.0).contains(&transparency));
     }
 
     #[test]
@@ -803,7 +801,6 @@ mod tests {
         use crate::holographic::field_address::HolographicAddress;
         use crate::holographic::holographic_field::ExtractedEntityPotential;
         use crate::holographic::universal_template::ArchetypeActivationProfile;
-        use crate::spectrum::larson_framework::SpectrumRatio;
 
         let field = Arc::new(create_test_holographic_field());
 

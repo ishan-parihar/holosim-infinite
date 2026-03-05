@@ -10,7 +10,7 @@ use crate::archetypes::common::{
     FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
     LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
 };
-use crate::types::{Float, Octant, Polarity, Rung};
+use crate::types::{Float, Polarity, Rung};
 
 /// Catalyst of Mind Archetype - Input friction for Mind complex
 #[derive(Debug, Clone)]
@@ -37,6 +37,12 @@ pub struct CatalystMindArchetype {
     pub polarization_potential: Float,
     pub current_polarization: Float,
     pub processing_efficiency: Float,
+}
+
+impl Default for CatalystMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl CatalystMindArchetype {
@@ -175,7 +181,7 @@ impl CatalystArchetypeTrait for CatalystMindArchetype {
         }
     }
 
-    fn set_activation_level(&mut self, rung: Rung, level: Float) {
+    fn set_activation_level(&mut self, _rung: Rung, level: Float) {
         self.lambda_measurement.value = level;
     }
 
@@ -234,11 +240,11 @@ impl CatalystArchetypeTrait for CatalystMindArchetype {
         self.catalyst_inflow = 0.0;
     }
 
-    fn add_flow(&mut self, rung: Rung, flow: Float) {
+    fn add_flow(&mut self, _rung: Rung, flow: Float) {
         self.catalyst_inflow += flow;
     }
 
-    fn get_flow(&self, rung: Rung) -> Float {
+    fn get_flow(&self, _rung: Rung) -> Float {
         self.catalyst_inflow
     }
 }
@@ -248,7 +254,7 @@ impl ArchetypeTrait for CatalystMindArchetype {
         self.role
     }
 
-    fn process(&mut self, catalyst: Float, position: DevelopmentalPosition) {
+    fn process(&mut self, catalyst: Float, _position: DevelopmentalPosition) {
         // Process catalyst based on developmental position
         self.lambda_measurement.value += catalyst * 0.1;
         if self.lambda_measurement.value > 1.0 {

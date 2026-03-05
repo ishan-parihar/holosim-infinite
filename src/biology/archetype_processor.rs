@@ -6,15 +6,11 @@
 //! From V4 Roadmap Phase 5: "Archetype-Driven Consciousness Engine"
 //! Gap #12 resolution: "Archetype system not driving entity behavior"
 
-use crate::archetypes::{
-    ArchetypeChoice, ArchetypeSystem, CatalystMindArchetype, ChoiceArchetype,
-    ExperienceMindArchetype, GreaterCycleResult, LesserCycleResult, SignificatorMindArchetype,
-};
-use crate::consciousness::free_will::{ChoiceRecord, ConsciousSelection, FreeWillKernel};
+use crate::archetypes::ArchetypeSystem;
+use crate::consciousness::free_will::FreeWillKernel;
 use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
 use crate::types::Float;
 use rand::Rng;
-use std::collections::HashMap;
 
 // ============================================================================
 // Archetype Activation State
@@ -247,6 +243,7 @@ pub struct EntityArchetypeProcessor {
 }
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct CatalystRecord {
     catalyst: CatalystEvent,
     processed_at: Float,
@@ -394,7 +391,9 @@ impl EntityArchetypeProcessor {
         self.lesser_cycle.stage = (self.lesser_cycle.stage + 1) % 4;
         self.lesser_cycle.accumulated_input += catalyst.intensity;
 
-        let output = match self.lesser_cycle.stage {
+        
+
+        match self.lesser_cycle.stage {
             0 => {
                 // Matrix (A1) - capacity for mind
                 let matrix_value = self.activations.mind[0];
@@ -435,9 +434,7 @@ impl EntityArchetypeProcessor {
                     transformation_needed: false,
                 }
             }
-        };
-
-        output
+        }
     }
 
     /// Run the Greater Cycle: Significator(A5) -> Choice(A22) -> Transformation(A6) -> GreatWay(A7)
@@ -448,7 +445,9 @@ impl EntityArchetypeProcessor {
     ) -> GreaterCycleOutput {
         self.greater_cycle.stage = (self.greater_cycle.stage + 1) % 4;
 
-        let output = match self.greater_cycle.stage {
+        
+
+        match self.greater_cycle.stage {
             0 => {
                 // Significator (A5) - identifies what the catalyst means
                 let sig_value = self.activations.mind[4];
@@ -490,9 +489,7 @@ impl EntityArchetypeProcessor {
                     transformation_triggered: false,
                 }
             }
-        };
-
-        output
+        }
     }
 
     /// Process body complex archetypes (A8-A14)
@@ -548,7 +545,7 @@ impl EntityArchetypeProcessor {
         if has_free_will {
             // Free will adds non-deterministic element
             let randomness: Float = rng.gen();
-            choice_power = choice_power * (0.7 + randomness * 0.3);
+            choice_power *= 0.7 + randomness * 0.3;
         }
 
         ChoiceOutput {
@@ -760,6 +757,7 @@ impl EntityArchetypeProcessor {
 
 /// Output from lesser cycle processing
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct LesserCycleOutput {
     processed: Float,
     wisdom_generated: Float,
@@ -776,6 +774,7 @@ struct GreaterCycleOutput {
 
 /// Output from choice processing
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 struct ChoiceOutput {
     integration_level: Float,
     wisdom_required: Float,

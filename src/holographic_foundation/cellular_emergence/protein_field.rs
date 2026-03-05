@@ -13,10 +13,8 @@
 //! - Quaternary structure is multi-protein field coherence
 
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
-use crate::holographic_foundation::atomic_emergence::ElementAttractorField;
 use crate::holographic_foundation::field_state::Position3D;
 use crate::types::Float;
-use std::collections::HashMap;
 
 pub const NUM_AMINO_ACIDS: usize = 20;
 
@@ -177,7 +175,7 @@ impl AminoAcid {
         let idx = self.to_index() as usize;
 
         affinity[0] = 0.5 + (idx as Float / 20.0 - 0.5) * 0.3;
-        affinity[7] = 0.5 + (hydro / 5.0).max(-0.3).min(0.3);
+        affinity[7] = 0.5 + (hydro / 5.0).clamp(-0.3, 0.3);
         affinity[14] = 0.5 + ((idx % 7) as Float / 7.0 - 0.5) * 0.4;
 
         affinity
@@ -207,6 +205,7 @@ pub struct AminoAcidField {
     amino_acid: AminoAcid,
     position: Position3D,
     archetype_affinity: [Float; NUM_ARCHETYPES],
+    #[allow(dead_code)]
     local_field_strength: Float,
 }
 
@@ -310,12 +309,13 @@ impl ProteinStructure {
                 let mut avg_pattern = [0.0; NUM_ARCHETYPES];
                 for j in i..window_end {
                     let aff = self.amino_acids[j].archetype_affinity();
-                    for k in 0..NUM_ARCHETYPES {
-                        avg_pattern[k] += aff[k];
+                    for (avg_k, &aff_k) in avg_pattern.iter_mut().zip(aff.iter()) {
+                        *avg_k += aff_k;
                     }
                 }
-                for k in 0..NUM_ARCHETYPES {
-                    avg_pattern[k] /= (window_end - i) as Float;
+                let divisor = (window_end - i) as Float;
+                for item in &mut avg_pattern {
+                    *item /= divisor;
                 }
 
                 let ss = SecondaryStructure::from_archetype_pattern(&avg_pattern);
@@ -451,16 +451,16 @@ impl ProteinManifestation {
         let mut archetype_pattern = [0.5; NUM_ARCHETYPES];
         for aa in structure.amino_acids() {
             let aff = aa.archetype_affinity();
-            for i in 0..NUM_ARCHETYPES {
-                archetype_pattern[i] += aff[i];
+            for (pattern_i, &aff_i) in archetype_pattern.iter_mut().zip(aff.iter()) {
+                *pattern_i += aff_i;
             }
         }
         let len = structure.len().max(1) as Float;
-        for i in 0..NUM_ARCHETYPES {
-            archetype_pattern[i] /= len;
+        for item in &mut archetype_pattern {
+            *item /= len;
         }
 
-        let folding_coherence = (-structure.field_energy() / len).min(1.0).max(0.0);
+        let folding_coherence = (-structure.field_energy() / len).clamp(0.0, 1.0);
 
         Self {
             id: ProteinId::new(
@@ -509,6 +509,12 @@ impl ProteinManifestation {
 pub struct ProteinFoldingField {
     proteins: Vec<ProteinManifestation>,
     total_coherence: Float,
+}
+
+impl Default for ProteinFoldingField {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ProteinFoldingField {
@@ -570,7 +576,7 @@ mod tests {
         for i in 1..=20 {
             if let Some(aa) = AminoAcid::from_index(i) {
                 let hydro = aa.hydrophobicity();
-                assert!(hydro >= -5.0 && hydro <= 5.0);
+                assert!((-5.0..=5.0).contains(&hydro));
             }
         }
     }
@@ -654,7 +660,7 @@ mod tests {
             if let Some(aa) = AminoAcid::from_index(i) {
                 let aff = aa.archetype_affinity();
                 for &val in aff.iter() {
-                    assert!(val >= 0.0 && val <= 1.0);
+                    assert!((0.0..=1.0).contains(&val));
                 }
             }
         }

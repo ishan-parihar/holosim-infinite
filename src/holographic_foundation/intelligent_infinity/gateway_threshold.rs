@@ -402,7 +402,7 @@ impl GatewayThreshold {
         self.resonance.improve_weakest(boost);
     }
 
-    pub fn attempt_opening(&mut self, current_time: Float) -> bool {
+    pub fn attempt_opening(&mut self, _current_time: Float) -> bool {
         let resonance_boost = 0.05 * (1.0 + self.maintenance_effort);
         self.resonance.improve_weakest(resonance_boost);
 
@@ -624,7 +624,7 @@ mod tests {
     #[test]
     fn test_gateway_threshold_strengthen() {
         let mut gt = GatewayThreshold::new(1);
-        let before = gt.resonance.total_resonance;
+        let _before = gt.resonance.total_resonance;
         gt.strengthen_gateway(0.5);
         assert!(gt.maintenance_effort > 0.0);
     }

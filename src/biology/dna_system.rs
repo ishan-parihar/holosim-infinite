@@ -9,7 +9,7 @@
 // pre-existing holographic blueprint encoded as spectrum configurations"
 
 use crate::entity_layer7::dna_encoding::{
-    DNAPattern, GeneticBase, ProteinPattern as DnaProteinPattern, RNAPattern,
+    DNAPattern, GeneticBase,
 };
 use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::types::Float;
@@ -207,7 +207,7 @@ impl DNA {
     /// Generate DNA sequence from genes
     fn generate_sequence(genes: &[Gene]) -> Vec<NucleotideBase> {
         let mut sequence = Vec::new();
-        for gene in genes {
+        for _gene in genes {
             // Each gene is represented by 3 nucleotide bases (codon)
             sequence.push(NucleotideBase::Adenine);
             sequence.push(NucleotideBase::Cytosine);
@@ -493,6 +493,7 @@ pub enum EpigeneticMarkerType {
 /// Spectrum Encoder - Converts blueprint to DNA
 #[derive(Debug, Clone)]
 struct SpectrumEncoder {
+    #[allow(dead_code)]
     encoding_resolution: usize,
 }
 
@@ -514,6 +515,7 @@ impl SpectrumEncoder {
 /// Protein Synthesizer - Converts DNA to proteins
 #[derive(Debug, Clone)]
 struct ProteinSynthesizer {
+    #[allow(dead_code)]
     synthesis_speed: Float,
 }
 
@@ -528,7 +530,7 @@ impl ProteinSynthesizer {
         let mut proteins = Vec::new();
         let mut rng = rand::thread_rng();
 
-        for (i, gene) in dna.genes.iter().enumerate() {
+        for gene in &dna.genes {
             // Only synthesize expressed genes above threshold
             if let Some(expr) = dna.get_gene_expression(&gene.gene_id) {
                 if expr.is_active && expr.expression_level >= config.expression_threshold {
@@ -544,7 +546,7 @@ impl ProteinSynthesizer {
         proteins
     }
 
-    fn synthesize_protein(&self, gene: &Gene, dna: &DNA) -> Protein {
+    fn synthesize_protein(&self, gene: &Gene, _dna: &DNA) -> Protein {
         let amino_sequence = self.generate_amino_sequence(gene);
         let structure = ProteinStructure {
             primary: amino_sequence.clone(),
@@ -577,6 +579,7 @@ impl ProteinSynthesizer {
 /// Mutation Detector - Identifies DNA mutations
 #[derive(Debug, Clone)]
 struct MutationDetector {
+    #[allow(dead_code)]
     sensitivity: Float,
 }
 
@@ -615,6 +618,7 @@ impl MutationDetector {
 /// DNA Repair - Fixes mutations
 #[derive(Debug, Clone)]
 struct DnaRepair {
+    #[allow(dead_code)]
     repair_capacity: Float,
 }
 
@@ -651,7 +655,7 @@ impl DnaRepair {
         }
 
         let new_integrity = 1.0 - (unrepaired as Float / dna.sequence.len() as Float);
-        let repair_success = if dna.sequence.len() > 0 {
+        let repair_success = if !dna.sequence.is_empty() {
             repaired as Float / (repaired + unrepaired) as Float
         } else {
             1.0
@@ -673,8 +677,8 @@ impl DnaRepair {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entity_layer7::{EvolutionaryStage, IndividualSpectrumConfiguration};
-    use crate::spectrum::{ArchetypicalMind, ArchetypicalSystemType, SpectrumRatio, SpectrumSide};
+    use crate::entity_layer7::IndividualSpectrumConfiguration;
+    use crate::spectrum::SpectrumRatio;
 
     #[test]
     fn test_dna_system_creation() {
@@ -787,7 +791,7 @@ mod tests {
         );
 
         let mut dna = DNA::from_blueprint(dna_pattern);
-        let original_integrity = dna.integrity();
+        let _original_integrity = dna.integrity();
 
         let repair_result = dna_system.repair_mutation(&mut dna);
         assert!(repair_result.new_integrity <= 1.0);

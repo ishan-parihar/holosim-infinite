@@ -1,8 +1,7 @@
-use crate::archetypes::archetype_traits::GreatWayArchetypeTrait;
 use crate::archetypes::common::{
     ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    FunctionalPair, HealthStatus, HolonicLevel, LambdaMeasurement,
+    LambdaMeasurementType, SigmaAxis, TarotCorrelation,
 };
 use crate::types::{Float, Octant, Polarity, Rung};
 use std::collections::HashMap;
@@ -107,7 +106,7 @@ impl ArchetypeTrait for GreatWaySpiritArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn lambda(&self) -> &LambdaMeasurement {
@@ -169,14 +168,14 @@ impl GreatWaySpiritArchetype {
     /// - Developmental Position: Octant O1, Rung R6 (Transpersonal, Indigo)
     pub fn new() -> Self {
         let initial_lambda = 0.65;
-        let healthy_min = 0.5;
-        let healthy_max = 0.8;
+        let _healthy_min = 0.5;
+        let _healthy_max = 0.8;
 
         GreatWaySpiritArchetype {
             archetype_id: 21,
             active: true,
             lambda: LambdaMeasurement::new(initial_lambda, LambdaMeasurementType::GreatWayClarity),
-            tarot_correlation: TarotCorrelation::new(format!("The World (XXI): Completion, wholeness, integration, contact with intelligent infinity")),
+            tarot_correlation: TarotCorrelation::new("The World (XXI): Completion, wholeness, integration, contact with intelligent infinity".to_string()),
             intelligent_infinity_contact: 0.65,
             logos_energy: 0.65,
             logos_heals: 0.65,
@@ -224,13 +223,11 @@ impl GreatWaySpiritArchetype {
 
     /// Calculates Logos energy based on its five functions
     pub fn calculate_logos_energy(&self) -> Float {
-        let functions = vec![
-            self.logos_heals,
+        let functions = [self.logos_heals,
             self.logos_builds,
             self.logos_removes,
             self.logos_destroys,
-            self.logos_transforms,
-        ];
+            self.logos_transforms];
         let sum: Float = functions.iter().sum();
         sum / functions.len() as Float
     }
@@ -299,78 +296,78 @@ impl GreatWaySpiritArchetype {
 
     /// Updates intelligent infinity contact
     pub fn update_intelligent_infinity_contact(&mut self, value: Float) {
-        self.intelligent_infinity_contact = value.max(0.0).min(1.0);
+        self.intelligent_infinity_contact = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos energy
     pub fn update_logos_energy(&mut self, value: Float) {
-        self.logos_energy = value.max(0.0).min(1.0);
+        self.logos_energy = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos heals function
     pub fn update_logos_heals(&mut self, value: Float) {
-        self.logos_heals = value.max(0.0).min(1.0);
+        self.logos_heals = value.clamp(0.0, 1.0);
         self.logos_energy = self.calculate_logos_energy();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos builds function
     pub fn update_logos_builds(&mut self, value: Float) {
-        self.logos_builds = value.max(0.0).min(1.0);
+        self.logos_builds = value.clamp(0.0, 1.0);
         self.logos_energy = self.calculate_logos_energy();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos removes function
     pub fn update_logos_removes(&mut self, value: Float) {
-        self.logos_removes = value.max(0.0).min(1.0);
+        self.logos_removes = value.clamp(0.0, 1.0);
         self.logos_energy = self.calculate_logos_energy();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos destroys function
     pub fn update_logos_destroys(&mut self, value: Float) {
-        self.logos_destroys = value.max(0.0).min(1.0);
+        self.logos_destroys = value.clamp(0.0, 1.0);
         self.logos_energy = self.calculate_logos_energy();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates Logos transforms function
     pub fn update_logos_transforms(&mut self, value: Float) {
-        self.logos_transforms = value.max(0.0).min(1.0);
+        self.logos_transforms = value.clamp(0.0, 1.0);
         self.logos_energy = self.calculate_logos_energy();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates unspeakable joy
     pub fn update_unspeakable_joy(&mut self, value: Float) {
-        self.unspeakable_joy = value.max(0.0).min(1.0);
+        self.unspeakable_joy = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates cycle completion
     pub fn update_cycle_completion(&mut self, value: Float) {
-        self.cycle_completion = value.max(0.0).min(1.0);
+        self.cycle_completion = value.clamp(0.0, 1.0);
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates veil transcendence
     pub fn update_veil_transcendence(&mut self, value: Float) {
-        self.veil_transcendence = value.max(0.0).min(1.0);
+        self.veil_transcendence = value.clamp(0.0, 1.0);
         self.intelligent_infinity_contact = self.calculate_intelligent_infinity_contact();
         self.lambda.value = self.calculate_lambda_from_state();
     }
 
     /// Updates environment drawing from time/space
     pub fn update_environment_time_space(&mut self, value: Float) {
-        self.environment_time_space = value.max(0.0).min(1.0);
+        self.environment_time_space = value.clamp(0.0, 1.0);
     }
 
     /// Updates difference from Significator
     pub fn update_significator_difference(&mut self, value: Float) {
-        self.significator_difference = value.max(0.0).min(1.0);
+        self.significator_difference = value.clamp(0.0, 1.0);
         self.veil_transcendence = self.calculate_veil_transcendence();
         self.lambda.value = self.calculate_lambda_from_state();
     }
@@ -630,7 +627,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {

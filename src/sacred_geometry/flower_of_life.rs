@@ -176,19 +176,19 @@ impl FlowerPattern {
 
     /// Generate standard Flower of Life
     fn generate_standard(&mut self, layers: usize) {
-        let mut flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, layers);
+        let flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, layers);
         self.circles = flower.circles().to_vec();
     }
 
     /// Generate Seed of Life (center circle + 6 surrounding circles)
     fn generate_seed_of_life(&mut self) {
-        let mut flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, 1);
+        let flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, 1);
         self.circles = flower.circles().to_vec();
     }
 
     /// Generate Fruit of Life (Seed of Life + additional circles)
     fn generate_fruit_of_life(&mut self) {
-        let mut flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, 2);
+        let flower = FlowerOfLife::new(self.center.0, self.center.1, self.radius, 2);
         self.circles = flower.circles().to_vec();
 
         // Add 13 additional circles for complete Fruit of Life

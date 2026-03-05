@@ -2,11 +2,10 @@
 // Living Entity - Identity Agent for Spirit Complex
 // The living entity which either radiates or absorbs love and light of One Infinite Creator
 
-use crate::archetypes::archetype_traits::SignificatorArchetypeTrait;
 use crate::archetypes::common::{
-    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, Developmental, DevelopmentalPosition,
-    FunctionalPair, HealthStatus, Holonic, HolonicLevel, LambdaMeasurable, LambdaMeasurement,
-    LambdaMeasurementType, Paired, SigmaAxis, TarotCorrelation,
+    ArchetypeComplex, ArchetypeRole, ArchetypeTrait, DevelopmentalPosition, FunctionalPair,
+    HealthStatus, HolonicLevel, LambdaMeasurement, LambdaMeasurementType, SigmaAxis,
+    TarotCorrelation,
 };
 use crate::types::{Float, Octant, Polarity, Rung};
 use std::collections::HashMap;
@@ -51,15 +50,19 @@ pub struct SignificatorSpiritArchetype {
     pub polarity: Polarity,
 }
 
+impl Default for SignificatorSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SignificatorSpiritArchetype {
     pub fn new() -> Self {
         // Healthy initial values for Significator of Spirit
         // Lambda: 0.65 (within healthy range 0.5-0.8)
         let lambda = LambdaMeasurement::new(0.65, LambdaMeasurementType::SignificatorCoherence);
 
-        let tarot = TarotCorrelation::new(format!(
-            "The Sun (XIX): Illumination, vitality, success, joy, spiritual enlightenment"
-        ));
+        let tarot = TarotCorrelation::new("The Sun (XIX): Illumination, vitality, success, joy, spiritual enlightenment".to_string());
 
         let developmental_position = DevelopmentalPosition::new_with_octant_rung(Octant::O1, 4);
 
@@ -140,19 +143,19 @@ impl SignificatorSpiritArchetype {
 
     /// Update living entity sense
     pub fn update_living_entity_sense(&mut self, value: Float) {
-        self.living_entity_sense = value.max(0.0).min(1.0);
+        self.living_entity_sense = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update flux rate
     pub fn update_flux_rate(&mut self, value: Float) {
-        self.flux_rate = value.max(0.0).min(1.0);
+        self.flux_rate = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update radiation/absorption balance
     pub fn update_radiation_absorption_balance(&mut self, value: Float) {
-        self.radiation_absorption_balance = value.max(-1.0).min(1.0);
+        self.radiation_absorption_balance = value.clamp(-1.0, 1.0);
         // Update polarity based on radiation/absorption
         if value > 0.3 {
             self.polarity = Polarity::STO;
@@ -166,25 +169,25 @@ impl SignificatorSpiritArchetype {
 
     /// Update power measurement
     pub fn update_power_measurement(&mut self, value: Float) {
-        self.power_measurement = value.max(0.0).min(1.0);
+        self.power_measurement = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update identity coherence
     pub fn update_identity_coherence(&mut self, value: Float) {
-        self.identity_coherence = value.max(0.0).min(1.0);
+        self.identity_coherence = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update veil influence
     pub fn update_veil_influence(&mut self, value: Float) {
-        self.veil_influence = value.max(0.0).min(1.0);
+        self.veil_influence = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
     /// Update polarity manifestation
     pub fn update_polarity_manifestation(&mut self, value: Float) {
-        self.polarity_manifestation = value.max(0.0).min(1.0);
+        self.polarity_manifestation = value.clamp(0.0, 1.0);
         self.recalculate_lambda();
     }
 
@@ -196,7 +199,7 @@ impl SignificatorSpiritArchetype {
 
         // Weighted average of all components
         let new_lambda = (flux_score * 0.4) + (power_score * 0.3) + (living_entity_score * 0.3);
-        self.lambda.value = new_lambda.max(0.0).min(1.0);
+        self.lambda.value = new_lambda.clamp(0.0, 1.0);
 
         // Update integration capacity
         self.integration_capacity = self.calculate_integration_capacity_from_state();
@@ -326,7 +329,7 @@ impl ArchetypeTrait for SignificatorSpiritArchetype {
     }
 
     fn tarot_correlation(&self) -> TarotCorrelation {
-        self.tarot_correlation().clone()
+        self.tarot_correlation.clone()
     }
 
     fn update_lambda(&mut self, delta: Float) {
@@ -449,7 +452,7 @@ mod tests {
         }
 
         fn tarot_correlation(&self) -> TarotCorrelation {
-            self.tarot_correlation().clone()
+            self.tarot.clone()
         }
 
         fn update_lambda(&mut self, value: Float) {

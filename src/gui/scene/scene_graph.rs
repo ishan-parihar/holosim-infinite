@@ -1,6 +1,5 @@
 use crate::entity_layer7::layer7::EntityId;
-use crate::gui::camera::Camera2D;
-use nalgebra_glm::{rotation, scaling, translation, Mat4, Quat, Vec3};
+use nalgebra_glm::{scaling, translation, Mat4, Quat, Vec3};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
 
@@ -8,6 +7,12 @@ static NODE_ID_COUNTER: AtomicU64 = AtomicU64::new(1);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct NodeId(u64);
+
+impl Default for NodeId {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl NodeId {
     pub fn new() -> Self {
@@ -62,7 +67,7 @@ impl Transform {
         }
     }
 
-    pub fn look_at(eye: Vec3, target: Vec3, up: Vec3) -> Self {
+    pub fn look_at(eye: Vec3, _target: Vec3, _up: Vec3) -> Self {
         Self {
             position: eye,
             rotation: Quat::identity(),

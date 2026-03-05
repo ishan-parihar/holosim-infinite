@@ -399,7 +399,7 @@ impl PerformanceOptimizer {
         let mut entities = Vec::new();
 
         for (&entity_id, &schedule) in &self.update_schedule {
-            if frame % schedule == 0 {
+            if frame.is_multiple_of(schedule) {
                 entities.push(entity_id);
             }
 

@@ -227,7 +227,7 @@ impl MolecularInterferencePattern {
                 // Check if this is a local minimum
                 // Must be lower than neighbors in both theta and phi directions
                 if current < prev_t && current < next_t && current < prev_p && current < next_p {
-                    let (theta, phi) = self.indices_to_angles(t, p);
+                    let (_theta, phi) = self.indices_to_angles(t, p);
                     minima.push(Angle::from_radians(phi)); // Use phi angle for 2D analysis
                 }
             }
@@ -253,7 +253,7 @@ impl MolecularInterferencePattern {
 
                 // Check if this is a local maximum
                 if current > prev_t && current > next_t && current > prev_p && current > next_p {
-                    let (theta, phi) = self.indices_to_angles(t, p);
+                    let (_theta, phi) = self.indices_to_angles(t, p);
                     maxima.push(Angle::from_radians(phi));
                 }
             }
@@ -276,7 +276,7 @@ impl MolecularInterferencePattern {
 ///
 /// These geometries emerge from interference patterns in the holographic field,
 /// matching VSEPR theory predictions.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum GeometryType {
     /// Single atom (no bonds)
     Point,
@@ -285,6 +285,7 @@ pub enum GeometryType {
     /// Trigonal planar (120°)
     TrigonalPlanar,
     /// Tetrahedral (109.5°)
+    #[default]
     Tetrahedral,
     /// Trigonal pyramidal (~107°, like NH₃)
     TrigonalPyramidal,
@@ -379,12 +380,6 @@ impl GeometryType {
         } else {
             angles.iter().sum::<Float>() / angles.len() as Float
         }
-    }
-}
-
-impl Default for GeometryType {
-    fn default() -> Self {
-        GeometryType::Tetrahedral
     }
 }
 
@@ -596,11 +591,7 @@ impl FieldDerivedGeometry {
             // Default tetrahedral for mean around 109.5
             GeometryType::Tetrahedral
         } else if (mean_angle - 90.0).abs() < 10.0 {
-            if angle_variance < 0.05 {
-                GeometryType::Octahedral
-            } else {
-                GeometryType::Octahedral
-            }
+            GeometryType::Octahedral
         } else if (mean_angle - 100.0).abs() < 20.0 {
             // Mixed angles (90° and 120°)
             GeometryType::TrigonalBipyramidal
@@ -621,7 +612,7 @@ impl FieldDerivedGeometry {
     }
 
     /// Compute atom directions from interference minima
-    fn compute_atom_directions(minima: &[Angle], geometry_type: GeometryType) -> Vec<Vector3> {
+    fn compute_atom_directions(_minima: &[Angle], geometry_type: GeometryType) -> Vec<Vector3> {
         let n = geometry_type.coordination_number();
         if n == 0 {
             return vec![];
@@ -926,7 +917,7 @@ pub enum DomainType {
 
 /// Predict molecular geometry from electron domains (legacy VSEPR)
 pub fn predict_geometry(electron_domains: usize, lone_pairs: usize) -> Option<MolecularGeometry> {
-    let bonding_pairs = electron_domains - lone_pairs;
+    let _bonding_pairs = electron_domains - lone_pairs;
 
     match (electron_domains, lone_pairs) {
         (2, 0) => Some(MolecularGeometry::Linear),

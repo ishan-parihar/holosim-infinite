@@ -7,11 +7,9 @@
 //! with resonance metrics, group distributions, and coherence indicators.
 
 use crate::gui::visualization::collective_viz::{
-    BehaviorPattern, CollectiveGroup, CollectiveLevel, CollectiveMetrics, CollectiveVisualizer,
-    ResonanceType,
+    CollectiveGroup, CollectiveLevel, CollectiveMetrics, CollectiveVisualizer, ResonanceType,
 };
-use egui::{Color32, Stroke, Ui, Vec2};
-use std::collections::HashMap;
+use egui::{Color32, Ui, Vec2};
 
 /// Collective dashboard configuration
 pub struct CollectiveDashboard {
@@ -314,7 +312,7 @@ impl CollectiveDashboard {
         &mut self,
         ui: &mut Ui,
         group: &CollectiveGroup,
-        visualizer: &CollectiveVisualizer,
+        _visualizer: &CollectiveVisualizer,
     ) {
         ui.horizontal(|ui| {
             // Level color

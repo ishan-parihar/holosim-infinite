@@ -254,12 +254,11 @@ impl MindAspect {
 
     /// Get all Mind archetype states
     pub fn get_all_states(&self) -> [ArchetypeState; 7] {
-        let mut states = [ArchetypeState::Latent; 7];
-        for i in 0..7 {
-            if let Some(state) = self.unified_structure.get_state(i) {
-                states[i] = state;
-            }
-        }
+        let states: [ArchetypeState; 7] = (0..7)
+            .map(|i| self.unified_structure.get_state(i).unwrap_or(ArchetypeState::Latent))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([ArchetypeState::Latent; 7]);
         states
     }
 
@@ -421,12 +420,11 @@ impl BodyAspect {
 
     /// Get all Body archetype states
     pub fn get_all_states(&self) -> [ArchetypeState; 7] {
-        let mut states = [ArchetypeState::Latent; 7];
-        for i in 0..7 {
-            if let Some(state) = self.unified_structure.get_state(7 + i) {
-                states[i] = state;
-            }
-        }
+        let states: [ArchetypeState; 7] = (0..7)
+            .map(|i| self.unified_structure.get_state(7 + i).unwrap_or(ArchetypeState::Latent))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([ArchetypeState::Latent; 7]);
         states
     }
 
@@ -458,19 +456,9 @@ impl BodyAspect {
 
         // Up-pouring is primarily driven by survival instincts (Red/Orange rays)
         // and physical experience
-        let survival_drive = if let Some(activation) = self.unified_structure.get_activation(20) {
-            // A20 is Red Ray - survival
-            activation
-        } else {
-            0.0
-        };
+        let survival_drive = self.unified_structure.get_activation(20).unwrap_or(0.0);
 
-        let self_awareness = if let Some(activation) = self.unified_structure.get_activation(13) {
-            // A13 is Orange Ray - self-awareness
-            activation
-        } else {
-            0.0
-        };
+        let self_awareness = self.unified_structure.get_activation(13).unwrap_or(0.0);
 
         // Up-pouring combines survival drive, self-awareness, and overall activation
         let up_pouring = (survival_drive * 0.5) + (self_awareness * 0.3) + (activation * 0.2);
@@ -557,12 +545,11 @@ impl SpiritAspect {
 
     /// Get all Spirit archetype states
     pub fn get_all_states(&self) -> [ArchetypeState; 7] {
-        let mut states = [ArchetypeState::Latent; 7];
-        for i in 0..7 {
-            if let Some(state) = self.unified_structure.get_state(14 + i) {
-                states[i] = state;
-            }
-        }
+        let states: [ArchetypeState; 7] = (0..7)
+            .map(|i| self.unified_structure.get_state(14 + i).unwrap_or(ArchetypeState::Latent))
+            .collect::<Vec<_>>()
+            .try_into()
+            .unwrap_or([ArchetypeState::Latent; 7]);
         states
     }
 
@@ -594,20 +581,9 @@ impl SpiritAspect {
 
         // In-pouring is primarily driven by connection to Source (Violet/Indigo rays)
         // and spiritual wisdom
-        let unity_awareness = if let Some(activation) = self.unified_structure.get_activation(0) {
-            // A0 is Violet Ray - unity/intelligent infinity
-            activation
-        } else {
-            0.0
-        };
+        let unity_awareness = self.unified_structure.get_activation(0).unwrap_or(0.0);
 
-        let divinity_connection = if let Some(activation) = self.unified_structure.get_activation(6)
-        {
-            // A6 is Indigo Ray - connection to divinity
-            activation
-        } else {
-            0.0
-        };
+        let divinity_connection = self.unified_structure.get_activation(6).unwrap_or(0.0);
 
         // In-pouring combines unity awareness, divinity connection, and overall activation
         let in_pouring = (unity_awareness * 0.5) + (divinity_connection * 0.3) + (activation * 0.2);

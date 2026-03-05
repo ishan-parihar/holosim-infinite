@@ -205,6 +205,7 @@ pub struct FractalCache {
     /// Cache entries organized by scale level
     cache: Vec<HashMap<FractalCacheKey, FractalCacheEntry>>,
     /// MERA network for decompression
+    #[allow(dead_code)]
     mera_reference: Option<()>,
     /// Statistics
     hits: u64,
@@ -340,7 +341,7 @@ impl FractalCache {
                 if let Some(key) = self.cache[level]
                     .iter()
                     .min_by_key(|(_, v)| v.last_access)
-                    .map(|(k, _)| k.clone())
+                    .map(|(k, _)| *k)
                 {
                     self.cache[level].remove(&key);
                 }
@@ -350,7 +351,7 @@ impl FractalCache {
                 if let Some(key) = self.cache[level]
                     .iter()
                     .min_by_key(|(_, v)| v.access_count)
-                    .map(|(k, _)| k.clone())
+                    .map(|(k, _)| *k)
                 {
                     self.cache[level].remove(&key);
                 }
@@ -360,7 +361,7 @@ impl FractalCache {
                 if let Some(key) = self.cache[level]
                     .iter()
                     .min_by_key(|(_, v)| v.last_access)
-                    .map(|(k, _)| k.clone())
+                    .map(|(k, _)| *k)
                 {
                     self.cache[level].remove(&key);
                 }

@@ -434,12 +434,13 @@ mod tests {
 mod phase9_integration_tests {
     use super::*;
     use crate::holographic_foundation::field_state::Position3D;
+    use std::f64::consts::FRAC_1_SQRT_2;
 
     #[test]
     fn test_phase9_field_primary_paradigm() {
         let field_pos = Position3D::new(
-            EARTH_RADIUS_KM * 1000.0 * 0.7071,
-            EARTH_RADIUS_KM * 1000.0 * 0.7071,
+            EARTH_RADIUS_KM * 1000.0 * FRAC_1_SQRT_2,
+            EARTH_RADIUS_KM * 1000.0 * FRAC_1_SQRT_2,
             0.0,
         );
         let unified = UnifiedPosition::from_field(field_pos, 0.85);

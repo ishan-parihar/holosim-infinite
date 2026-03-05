@@ -80,10 +80,10 @@ impl LesserCyclePipeline {
         let mut pipeline = ComputationalPipeline::new("Lesser Cycle Pipeline".to_string());
 
         // Add the 4 archetype operations in sequence
-        pipeline.add_operation(Box::new(MatrixOperation::default()));
-        pipeline.add_operation(Box::new(PotentiatorOperation::default()));
-        pipeline.add_operation(Box::new(CatalystOperation::default()));
-        pipeline.add_operation(Box::new(ExperienceOperation::default()));
+        pipeline.add_operation(Box::new(MatrixOperation::initial()));
+        pipeline.add_operation(Box::new(PotentiatorOperation::initial()));
+        pipeline.add_operation(Box::new(CatalystOperation::initial()));
+        pipeline.add_operation(Box::new(ExperienceOperation::initial()));
 
         Self {
             pipeline,
@@ -244,7 +244,6 @@ impl fmt::Display for LesserCyclePipeline {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::archetypes::computational_operations::ConsciousnessOutput;
 
     #[test]
     fn test_lesser_cycle_pipeline_creation() {
@@ -259,7 +258,7 @@ mod tests {
         let mut pipeline = LesserCyclePipeline::new();
 
         let catalyst = Catalyst::mind(0.7);
-        let input = pipeline.process_catalyst(catalyst, 0.8);
+        let _input = pipeline.process_catalyst(catalyst, 0.8);
 
         assert_eq!(pipeline.statistics.total_inputs, 1);
         assert_eq!(pipeline.statistics.successful_processing, 1);
@@ -273,7 +272,7 @@ mod tests {
         // Process multiple catalysts
         for i in 0..10 {
             let catalyst = Catalyst::mind(0.5 + (i as Float * 0.05));
-            let input = pipeline.process_catalyst(catalyst, 0.6 + (i as Float * 0.03));
+            let _input = pipeline.process_catalyst(catalyst, 0.6 + (i as Float * 0.03));
         }
 
         assert_eq!(pipeline.statistics.total_inputs, 10);
@@ -288,7 +287,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         let efficiency = pipeline.calculate_efficiency();
@@ -304,7 +303,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         let wisdom_rate = pipeline.calculate_wisdom_extraction_rate();
@@ -320,7 +319,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         let transformation_rate = pipeline.calculate_transformation_rate();
@@ -336,7 +335,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         let stats = pipeline.get_statistics();
@@ -353,7 +352,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         // Reset statistics
@@ -371,7 +370,7 @@ mod tests {
         // Process some catalysts
         for _ in 0..5 {
             let catalyst = Catalyst::mind(0.7);
-            let input = pipeline.process_catalyst(catalyst, 0.8);
+            let _input = pipeline.process_catalyst(catalyst, 0.8);
         }
 
         let report = pipeline.get_report();

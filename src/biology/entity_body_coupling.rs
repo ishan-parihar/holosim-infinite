@@ -11,12 +11,9 @@
 //! Gap #3 resolution: entities have ACTUAL biological bodies.
 
 use crate::biology::cell_engine::{CellEngine, CellEnvironment};
-use crate::biology::evolution_engine::{EvolutionEngine, SpeciesId};
-use crate::biology::organism_lifecycle::{
-    BodyPlan, Organism, OrganismEnvironment, OrganismManager,
-};
+use crate::biology::evolution_engine::EvolutionEngine;
+use crate::biology::organism_lifecycle::{Organism, OrganismEnvironment, OrganismManager};
 use crate::holographic::field_address::HolographicAddress;
-use rand::Rng;
 use std::collections::HashMap;
 
 // Placeholder for PhysicsExperience - will be used from cosmos
@@ -31,6 +28,12 @@ pub struct PhysicsExperience {
 #[derive(Debug, Clone)]
 pub struct ArchetypeProcessor {
     pub polarity: f64,
+}
+
+impl Default for ArchetypeProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl ArchetypeProcessor {
@@ -270,7 +273,7 @@ impl EmbodiedEntity {
         let experience = self.nervous_system.process(physics, organism.health);
 
         // 2. Consciousness processes through archetype cycle
-        let processed = self.consciousness.process_catalyst(&experience);
+        self.consciousness.process_catalyst(&experience);
 
         // 3. Update energy centers based on experience
         for center in &mut self.energy_centers {
@@ -381,7 +384,7 @@ impl BioSimulation {
     }
 
     /// Create an embodied entity
-    pub fn create_embodied_entity(&mut self, mut position: HolographicAddress) -> u64 {
+    pub fn create_embodied_entity(&mut self, position: HolographicAddress) -> u64 {
         // Create a human body
         let pos_clone = position.clone();
         let organism_id = self.organisms.create_human(pos_clone);
@@ -463,8 +466,9 @@ mod tests {
 
     #[test]
     fn test_bio_simulation() {
-        let mut sim = BioSimulation::new();
-        assert!(sim.cells.total_cells() >= 0);
+        let sim = BioSimulation::new();
+        // total_cells() returns usize which is always >= 0
+        let _ = sim.cells.total_cells();
     }
 
     #[test]
