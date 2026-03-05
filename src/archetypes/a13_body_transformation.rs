@@ -67,6 +67,12 @@ pub struct TransformationBodyArchetype {
     pub can_modify_tolerance: bool,
 }
 
+impl Default for TransformationBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TransformationBodyArchetype {
     /// Create a new Transformation of Body archetype with healthy initial values
     pub fn new() -> Self {

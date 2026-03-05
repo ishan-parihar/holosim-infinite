@@ -79,6 +79,12 @@ pub struct TransformationSpiritArchetype {
     pub can_modify_tolerance: bool,
 }
 
+impl Default for TransformationSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TransformationSpiritArchetype {
     /// Create a new Transformation of Spirit archetype with healthy initial values
     pub fn new() -> Self {

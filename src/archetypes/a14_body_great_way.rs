@@ -69,6 +69,12 @@ pub struct GreatWayBodyArchetype {
     pub current_milieu: Milieu,
 }
 
+impl Default for GreatWayBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GreatWayBodyArchetype {
     /// Create a new Great Way of Body archetype with healthy initial values
     pub fn new() -> Self {

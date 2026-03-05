@@ -673,8 +673,8 @@ mod tests {
                 amplitude: 0.0,
                 phase: 0.0,
             }; 22];
-            for i in 0..22 {
-                a[i] = ComplexArchetype {
+            for (i, item) in a.iter_mut().enumerate() {
+                *item = ComplexArchetype {
                     amplitude: 0.5,
                     phase: (i as Float) * std::f64::consts::PI / 11.0,
                 };

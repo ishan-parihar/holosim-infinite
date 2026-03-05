@@ -385,6 +385,12 @@ pub struct MeraNetwork {
     pub stats: CompressionStats,
 }
 
+impl Default for MeraNetwork {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MeraNetwork {
     /// Create a new MERA network
     ///

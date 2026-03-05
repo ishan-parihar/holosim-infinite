@@ -353,6 +353,12 @@ pub struct Nucleus {
     pub chromatin_state: ChromatinState,
 }
 
+impl Default for Nucleus {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Nucleus {
     /// Create a new nucleus
     pub fn new() -> Self {
@@ -382,6 +388,12 @@ pub struct Mitochondrion {
 
     /// Energy production rate
     pub production_rate: Float,
+}
+
+impl Default for Mitochondrion {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Mitochondrion {
@@ -436,6 +448,12 @@ pub struct Cytoskeleton {
 
     /// Intermediate filaments
     pub intermediate_filaments: Float,
+}
+
+impl Default for Cytoskeleton {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl Cytoskeleton {

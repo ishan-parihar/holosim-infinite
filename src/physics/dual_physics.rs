@@ -169,6 +169,12 @@ impl ParticleProperties {
 #[derive(Debug, Clone)]
 pub struct HardcodedPhysicsEngine;
 
+impl Default for HardcodedPhysicsEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HardcodedPhysicsEngine {
     /// Create new hardcoded physics engine
     pub fn new() -> Self {

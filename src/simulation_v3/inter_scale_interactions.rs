@@ -210,6 +210,12 @@ pub struct InterScaleInteractionManager {
     pub current_timestamp: u64,
 }
 
+impl Default for InterScaleInteractionManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InterScaleInteractionManager {
     /// Create a new inter-scale interaction manager
     pub fn new() -> Self {

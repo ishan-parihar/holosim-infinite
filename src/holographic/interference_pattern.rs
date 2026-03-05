@@ -426,10 +426,10 @@ mod tests {
     fn create_test_archetypes() -> [ComplexVector; 22] {
         let mut archetypes = [ComplexVector::default(); 22];
 
-        for i in 0..22 {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
             let amplitude = 0.5 + (i as Float / 22.0) * 0.5;
             let phase = (i as Float / 22.0) * 2.0 * std::f64::consts::PI as Float;
-            archetypes[i] = ComplexVector::from_amplitude_phase(amplitude, phase);
+            *archetype = ComplexVector::from_amplitude_phase(amplitude, phase);
         }
 
         archetypes

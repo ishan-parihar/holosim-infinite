@@ -448,6 +448,12 @@ struct SpectrumConfiguration {
     description: String,
 }
 
+impl Default for SpectrumVisualizer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SpectrumVisualizer {
     /// Create a new spectrum visualizer
     pub fn new() -> Self {
@@ -1640,69 +1646,6 @@ impl RealTimeDashboard {
         bar.push(']');
 
         bar
-    }
-}
-
-// ============================================================================
-// TESTS
-// ============================================================================
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::simulation_v3::involution_sequence::InvolutionResult;
-    use std::time::Duration;
-
-    #[test]
-    fn test_involution_visualizer_creation() {
-        let involution_result = InvolutionResult {
-            entities: Vec::new(),
-            attractor_fields: Vec::new(),
-            stage_transitions: Vec::new(),
-            execution_time: Duration::ZERO,
-        };
-        let visualizer = InvolutionSequenceVisualizer::new(involution_result);
-        let output = visualizer.generate_complete_visualization();
-        assert!(output.contains("INVOLUTION SEQUENCE VISUALIZATION"));
-    }
-
-    #[test]
-    fn test_spectrum_visualizer_creation() {
-        let visualizer = SpectrumVisualizer::new();
-        let output = visualizer.generate_spectrum_visualization();
-        assert!(output.contains("SPECTRUM CONFIGURATION VISUALIZATION"));
-    }
-
-    #[test]
-    fn test_evolution_visualizer_creation() {
-        let stats = SimulationStatistics::default();
-        let visualizer = EvolutionVisualizer::new(stats);
-        let output = visualizer.generate_evolution_visualization();
-        assert!(output.contains("DENSITY OCTAVE EVOLUTION VISUALIZATION"));
-    }
-
-    #[test]
-    fn test_holographic_visualizer_creation() {
-        let stats = SimulationStatistics::default();
-        let visualizer = HolographicVisualizer::new(stats);
-        let output = visualizer.generate_holographic_visualization();
-        assert!(output.contains("HOLOGRAPHIC PRINCIPLE VISUALIZATION"));
-    }
-
-    #[test]
-    fn test_realtime_dashboard_creation() {
-        let stats = SimulationStatistics::default();
-        let dashboard = RealTimeDashboard::new(stats);
-        let output = dashboard.generate_dashboard();
-        assert!(output.contains("REAL-TIME SIMULATION DASHBOARD"));
-    }
-
-    #[test]
-    fn test_spectrum_access_visualizer_creation() {
-        let stats = SimulationStatistics::default();
-        let visualizer = SpectrumAccessVisualizer::new(stats);
-        let output = visualizer.generate_spectrum_access_visualization();
-        assert!(output.contains("SPECTRUM ACCESS DISTRIBUTION VISUALIZATION"));
     }
 }
 
@@ -2941,5 +2884,68 @@ impl CollectiveDynamicsVisualizer {
         output.push_str("  \"Self-organization from complex interactions\"\n\n");
 
         output
+    }
+}
+
+// ============================================================================
+// TESTS
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::simulation_v3::involution_sequence::InvolutionResult;
+    use std::time::Duration;
+
+    #[test]
+    fn test_involution_visualizer_creation() {
+        let involution_result = InvolutionResult {
+            entities: Vec::new(),
+            attractor_fields: Vec::new(),
+            stage_transitions: Vec::new(),
+            execution_time: Duration::ZERO,
+        };
+        let visualizer = InvolutionSequenceVisualizer::new(involution_result);
+        let output = visualizer.generate_complete_visualization();
+        assert!(output.contains("INVOLUTION SEQUENCE VISUALIZATION"));
+    }
+
+    #[test]
+    fn test_spectrum_visualizer_creation() {
+        let visualizer = SpectrumVisualizer::new();
+        let output = visualizer.generate_spectrum_visualization();
+        assert!(output.contains("SPECTRUM CONFIGURATION VISUALIZATION"));
+    }
+
+    #[test]
+    fn test_evolution_visualizer_creation() {
+        let stats = SimulationStatistics::default();
+        let visualizer = EvolutionVisualizer::new(stats);
+        let output = visualizer.generate_evolution_visualization();
+        assert!(output.contains("DENSITY OCTAVE EVOLUTION VISUALIZATION"));
+    }
+
+    #[test]
+    fn test_holographic_visualizer_creation() {
+        let stats = SimulationStatistics::default();
+        let visualizer = HolographicVisualizer::new(stats);
+        let output = visualizer.generate_holographic_visualization();
+        assert!(output.contains("HOLOGRAPHIC PRINCIPLE VISUALIZATION"));
+    }
+
+    #[test]
+    fn test_realtime_dashboard_creation() {
+        let stats = SimulationStatistics::default();
+        let dashboard = RealTimeDashboard::new(stats);
+        let output = dashboard.generate_dashboard();
+        assert!(output.contains("REAL-TIME SIMULATION DASHBOARD"));
+    }
+
+    #[test]
+    fn test_spectrum_access_visualizer_creation() {
+        let stats = SimulationStatistics::default();
+        let visualizer = SpectrumAccessVisualizer::new(stats);
+        let output = visualizer.generate_spectrum_access_visualization();
+        assert!(output.contains("SPECTRUM ACCESS DISTRIBUTION VISUALIZATION"));
     }
 }

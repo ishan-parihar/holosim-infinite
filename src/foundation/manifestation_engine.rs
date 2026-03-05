@@ -866,7 +866,7 @@ mod tests {
         let engine = ManifestationEngine::new();
 
         // Thresholds should decrease as density increases
-        let thresholds = vec![
+        let thresholds = [
             engine.compute_threshold(Density::First),
             engine.compute_threshold(Density::Second),
             engine.compute_threshold(Density::Third),

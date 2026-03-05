@@ -198,6 +198,12 @@ pub struct Archetype22 {
     pub strength: f64,
 }
 
+impl Default for Archetype22 {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Archetype22 {
     /// Create a new Archetype 22 (The Choice)
     ///

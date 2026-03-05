@@ -259,6 +259,12 @@ pub struct ProgressionStatistics {
     pub unpolarized_count: u64,
 }
 
+impl Default for IndividualProgressionManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl IndividualProgressionManager {
     /// Create a new individual progression manager
     pub fn new() -> Self {
@@ -716,6 +722,12 @@ impl EntityProgressionState {
     }
 }
 
+impl Default for EntityPolarizationState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EntityPolarizationState {
     /// Create a new polarization state
     pub fn new() -> Self {
@@ -728,6 +740,12 @@ impl EntityPolarizationState {
             harvest_ready: false,
             current_polarity: Some(EntityPolarity::Unpolarized),
         }
+    }
+}
+
+impl Default for ProgressionStatistics {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

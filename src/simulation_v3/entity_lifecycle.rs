@@ -307,6 +307,12 @@ pub struct PolarizationDistribution {
     pub avg_sts_score: Float,
 }
 
+impl Default for EntityLifecycleManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EntityLifecycleManager {
     /// Create a new EntityLifecycleManager
     ///

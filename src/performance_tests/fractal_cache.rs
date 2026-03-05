@@ -50,6 +50,12 @@ impl FractalData {
     }
 }
 
+impl Default for FractalCacheEntry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FractalCacheEntry {
     pub fn new() -> Self {
         FractalCacheEntry {
@@ -199,12 +205,12 @@ mod tests {
         // Test insertion
         let key = FractalCacheKey::new(1, 3);
         let entry = FractalCacheEntry::new();
-        cache.insert(key.clone(), entry);
+        cache.insert(key, entry);
 
         assert_eq!(cache.current_entries, 1);
 
         // Test retrieval
-        let result = cache.get(&key);
+        let result = cache.get(&FractalCacheKey::new(1, 3));
         assert!(result.is_some());
     }
 

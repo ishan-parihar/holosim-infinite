@@ -83,6 +83,12 @@ pub struct PackedRays {
     pub violet_ray: PackedRay,
 }
 
+impl Default for PackedRays {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PackedRays {
     /// Creates a new PackedRays structure with all higher rays packed
     pub fn new() -> Self {

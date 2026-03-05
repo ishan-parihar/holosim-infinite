@@ -82,6 +82,12 @@ pub enum DeepMindAttitude {
     Undecided,
 }
 
+impl Default for TransformationMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TransformationMindArchetype {
     /// Create a new Transformation archetype with default values
     pub fn new() -> Self {

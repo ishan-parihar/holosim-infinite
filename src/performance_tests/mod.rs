@@ -207,7 +207,7 @@ impl BenchmarkResult {
         let mean_nanos: u128 = nanos.iter().sum::<u128>() / iterations as u128;
 
         // Calculate median (p50)
-        let median_nanos = if iterations % 2 == 0 {
+        let median_nanos = if iterations.is_multiple_of(2) {
             (nanos[iterations / 2 - 1] + nanos[iterations / 2]) / 2
         } else {
             nanos[iterations / 2]

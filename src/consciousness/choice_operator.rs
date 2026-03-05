@@ -141,6 +141,12 @@ pub enum ConstraintType {
     Karmic,
 }
 
+impl Default for ChoiceOperator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChoiceOperator {
     /// Create a new choice operator
     pub fn new() -> Self {

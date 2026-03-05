@@ -57,6 +57,12 @@ pub struct SignificatorBodyArchetype {
     pub polarization: crate::types::Polarity,
 }
 
+impl Default for SignificatorBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SignificatorBodyArchetype {
     /// Create a new Significator of Body archetype with healthy initial values
     pub fn new() -> Self {

@@ -1,3 +1,4 @@
+#[allow(clippy::module_inception)]
 pub mod camera;
 pub mod camera_extended;
 pub mod controls;

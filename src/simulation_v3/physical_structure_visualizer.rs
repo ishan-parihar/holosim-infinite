@@ -113,9 +113,9 @@ impl PhysicalStructureVisualizer {
         ));
 
         output.push_str(&format!(
-            "{}    Type: {} | Density: {} | Sub-Level: {} | Components: {}\n",
+            "{}    Type: {:?} | Density: {} | Sub-Level: {} | Components: {}\n",
             indent,
-            format!("{:?}", structure.structure_type),
+            structure.structure_type,
             structure.density_level,
             structure.sub_level,
             structure.component_count()

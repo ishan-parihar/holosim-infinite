@@ -927,8 +927,8 @@ mod tests {
 
         let varied_signature = {
             let mut sig = [0.0; 22];
-            for i in 0..22 {
-                sig[i] = (i as Float) / 22.0;
+            for (i, item) in sig.iter_mut().enumerate() {
+                *item = (i as Float) / 22.0;
             }
             sig
         };

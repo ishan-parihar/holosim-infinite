@@ -3045,6 +3045,12 @@ pub struct VibrationalState {
     pub kinetic_energy: f64,
 }
 
+impl Default for VibrationalState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VibrationalState {
     /// Create a new vibrational state with default values
     pub fn new() -> Self {

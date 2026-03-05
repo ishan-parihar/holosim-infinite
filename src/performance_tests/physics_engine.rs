@@ -259,7 +259,7 @@ mod tests {
 
     #[test]
     fn test_all_interaction_types() {
-        let interaction_types = vec![
+        let interaction_types = [
             InteractionType::Gravitational,
             InteractionType::Electromagnetic,
             InteractionType::QuantumEntanglement,
@@ -273,7 +273,7 @@ mod tests {
 
     #[test]
     fn test_all_physics_modes() {
-        let modes = vec![
+        let modes = [
             HolographicPhysicsMode::SpaceTime,
             HolographicPhysicsMode::TimeSpace,
             HolographicPhysicsMode::Quantum,

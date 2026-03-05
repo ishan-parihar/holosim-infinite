@@ -2289,6 +2289,21 @@ impl Default for ObserverEffectSyncSystem {
     }
 }
 
+impl Default for ObservationRecord {
+    fn default() -> Self {
+        Self {
+            observation_id: generate_observation_id(),
+            entity_id: 0,
+            observer_id: PeerId(0),
+            observation_type: ObservationType::DirectObservation,
+            observed_state: CollapsedState::default(),
+            previous_state: SuperpositionState::default(),
+            observation_timestamp: current_timestamp(),
+            observation_duration: 0.0,
+        }
+    }
+}
+
 // ============================================================================
 // Unit Tests
 // ============================================================================
@@ -2649,20 +2664,5 @@ mod tests {
     fn test_error_display() {
         let err = ObserverEffectSyncError::ObservationFailed("Test error".to_string());
         assert_eq!(err.to_string(), "Observation failed: Test error");
-    }
-}
-
-impl Default for ObservationRecord {
-    fn default() -> Self {
-        Self {
-            observation_id: generate_observation_id(),
-            entity_id: 0,
-            observer_id: PeerId(0),
-            observation_type: ObservationType::DirectObservation,
-            observed_state: CollapsedState::default(),
-            previous_state: SuperpositionState::default(),
-            observation_timestamp: current_timestamp(),
-            observation_duration: 0.0,
-        }
     }
 }

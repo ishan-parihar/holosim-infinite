@@ -502,7 +502,7 @@ mod tests {
     fn test_emergence_template_calculate_resonance() {
         let template = EmergenceTemplate::new("test", PatternCategory::Atomic)
             .with_field_configuration(vec![1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
-        let resonance = template.calculate_resonance(&vec![1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
+        let resonance = template.calculate_resonance(&[1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
         assert!((resonance - 1.0).abs() < 0.001);
     }
 

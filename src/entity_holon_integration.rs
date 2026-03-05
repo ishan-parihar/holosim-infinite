@@ -47,6 +47,12 @@ pub struct EntityHolonIntegration {
     holon_to_entity: HashMap<HolonID, usize>,
 }
 
+impl Default for EntityHolonIntegration {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EntityHolonIntegration {
     /// Create a new Entity-Holon Integration system
     pub fn new() -> Self {

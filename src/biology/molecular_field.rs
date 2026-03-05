@@ -580,6 +580,7 @@ impl MolecularField {
     }
 
     /// Form molecules from atoms
+    #[allow(clippy::needless_range_loop)]
     pub fn form_molecules(&mut self) -> Vec<Molecule> {
         let mut new_molecules = Vec::new();
         let mut used = vec![false; self.atoms.len()];

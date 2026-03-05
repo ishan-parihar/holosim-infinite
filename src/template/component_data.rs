@@ -899,8 +899,8 @@ mod tests {
     #[test]
     fn test_derive_galaxy_type() {
         let mut mind_dominant = [0.3; 22];
-        for i in 0..7 {
-            mind_dominant[i] = 0.9;
+        for item in mind_dominant.iter_mut().take(7) {
+            *item = 0.9;
         }
         assert_eq!(
             GalaxyData::derive_galaxy_type(&mind_dominant),
@@ -908,8 +908,8 @@ mod tests {
         );
 
         let mut spirit_dominant = [0.3; 22];
-        for i in 14..21 {
-            spirit_dominant[i] = 0.9;
+        for item in spirit_dominant.iter_mut().skip(14).take(7) {
+            *item = 0.9;
         }
         assert_eq!(
             GalaxyData::derive_galaxy_type(&spirit_dominant),
@@ -928,20 +928,20 @@ mod tests {
     #[test]
     fn test_derive_cell_type() {
         let mut spirit_dominant = [0.3; 22];
-        for i in 14..21 {
-            spirit_dominant[i] = 0.9;
+        for item in spirit_dominant.iter_mut().skip(14).take(7) {
+            *item = 0.9;
         }
         assert_eq!(CellData::derive_cell_type(&spirit_dominant), CellType::Stem);
 
         let mut mind_dominant = [0.3; 22];
-        for i in 0..7 {
-            mind_dominant[i] = 0.9;
+        for item in mind_dominant.iter_mut().take(7) {
+            *item = 0.9;
         }
         assert_eq!(CellData::derive_cell_type(&mind_dominant), CellType::Nerve);
 
         let mut body_dominant = [0.3; 22];
-        for i in 7..14 {
-            body_dominant[i] = 0.9;
+        for item in body_dominant.iter_mut().skip(7).take(7) {
+            *item = 0.9;
         }
         assert_eq!(CellData::derive_cell_type(&body_dominant), CellType::Muscle);
     }

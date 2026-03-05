@@ -920,7 +920,7 @@ mod tests {
             &self.lambda
         }
         fn update_lambda(&mut self, value: Float) {
-            self.lambda.value = value.max(0.0).min(1.0);
+            self.lambda.value = value.clamp(0.0, 1.0);
         }
         fn tarot_correlation(&self) -> TarotCorrelation {
             TarotCorrelation::new("Test".to_string())

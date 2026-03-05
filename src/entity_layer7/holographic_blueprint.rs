@@ -1277,6 +1277,12 @@ pub struct EnvironmentArchetypicalReflection {
     pub octave_reflection: Float,
 }
 
+impl Default for HolographicProperties {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HolographicProperties {
     /// Create new holographic properties system
     pub fn new() -> Self {

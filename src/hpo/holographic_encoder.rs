@@ -278,7 +278,7 @@ impl EntityExtractor {
     }
 
     /// Enrich extracted entities with additional field data
-    fn enrich_entities(&self, field: &HolographicFieldState, entities: &mut Vec<ExtractedEntity>) {
+    fn enrich_entities(&self, field: &HolographicFieldState, entities: &mut [ExtractedEntity]) {
         for entity in entities.iter_mut() {
             // Get field data at entity position
             if let Some(node_data) = self.get_field_at(field, entity.position) {

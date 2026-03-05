@@ -56,6 +56,12 @@ pub struct CollectiveSystemManager {
     pub emergence_config: EmergenceConfig,
 }
 
+impl Default for CollectiveSystemManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CollectiveSystemManager {
     /// Create a new collective system manager
     pub fn new() -> Self {

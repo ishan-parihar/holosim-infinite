@@ -103,6 +103,12 @@ pub struct RecognitionStatistics {
     pub average_confidence: Float,
 }
 
+impl Default for PatternRecognizer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PatternRecognizer {
     /// Create a new pattern recognizer
     pub fn new() -> Self {
@@ -570,6 +576,12 @@ pub struct GenerationStatistics {
 
     /// Average confidence
     pub average_confidence: Float,
+}
+
+impl Default for HypothesisGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl HypothesisGenerator {

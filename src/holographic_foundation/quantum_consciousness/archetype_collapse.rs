@@ -185,6 +185,12 @@ pub struct ChoiceOperator {
     generation_count: usize,
 }
 
+impl Default for ChoiceOperator {
+    fn default() -> Self {
+        Self::from_entropy()
+    }
+}
+
 impl ChoiceOperator {
     pub fn new(context: CollapseContext) -> Self {
         Self {

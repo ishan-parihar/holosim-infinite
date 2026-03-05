@@ -93,6 +93,12 @@ pub struct MatrixBodyArchetype {
     pub integration_capacity: Float,
 }
 
+impl Default for MatrixBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MatrixBodyArchetype {
     /// Create a new Matrix of Body archetype
     pub fn new() -> Self {

@@ -803,7 +803,7 @@ mod tests {
         let geometry = FieldInterferenceGeometry::predict_water();
 
         assert_eq!(geometry.bonded_patterns.len(), 2);
-        assert!(geometry.bond_angles.len() >= 1);
+        assert!(!geometry.bond_angles.is_empty());
 
         // Water: field interference determines bonding positions
         // Algorithm produces angles that may vary based on archetype patterns

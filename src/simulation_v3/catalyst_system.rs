@@ -254,6 +254,12 @@ pub struct CatalystStatistics {
     pub total_consciousness_expansion: f64,
 }
 
+impl Default for CatalystManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CatalystManager {
     /// Create a new Catalyst Manager
     pub fn new() -> Self {

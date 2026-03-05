@@ -203,6 +203,12 @@ impl BiasWeights {
     }
 }
 
+impl Default for ExperienceMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ExperienceMindArchetype {
     /// Create a new Experience archetype with default healthy state
     pub fn new() -> Self {

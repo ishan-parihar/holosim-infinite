@@ -1567,6 +1567,15 @@ impl Default for PolarityFactions {
     }
 }
 
+// Helper trait for error conversion
+impl From<FactionError> for AdvancedGameMechanicsError {
+    fn from(error: FactionError) -> Self {
+        AdvancedGameMechanicsError::InvalidOperation(error.to_string())
+    }
+}
+
+// Note: FactionError::InvalidOperation variant helper methods removed - use From trait instead
+
 // ============================================================================
 // UNIT TESTS
 // ============================================================================
@@ -2781,12 +2790,3 @@ mod tests {
         assert_eq!(relationship, RelationshipType::Hostile);
     }
 }
-
-// Helper trait for error conversion
-impl From<FactionError> for AdvancedGameMechanicsError {
-    fn from(error: FactionError) -> Self {
-        AdvancedGameMechanicsError::InvalidOperation(error.to_string())
-    }
-}
-
-// Note: FactionError::InvalidOperation variant helper methods removed - use From trait instead

@@ -65,6 +65,12 @@ pub struct MultiScaleCamera {
     pub zoom_level: Float,
 }
 
+impl Default for MultiScaleCamera {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MultiScaleCamera {
     pub fn new() -> Self {
         MultiScaleCamera {
@@ -169,7 +175,7 @@ mod tests {
 
     #[test]
     fn test_all_scale_transitions() {
-        let scales = vec![
+        let scales = [
             ScaleLevel::Quantum,
             ScaleLevel::Cellular,
             ScaleLevel::Biological,

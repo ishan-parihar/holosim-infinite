@@ -643,13 +643,9 @@ mod tests {
         let peer2 = PeerId::new(1);
         let peer3 = PeerId::new(2);
 
-        // Clone
-        let peer1_clone = peer1.clone();
-        assert_eq!(peer1, peer1_clone);
-
-        // Copy
+        // Copy (PeerId is Copy)
         let peer1_copy = peer1;
-        assert_eq!(peer1_copy, peer1_clone);
+        assert_eq!(peer1_copy, peer1);
 
         // PartialEq
         assert_eq!(peer1, peer2);

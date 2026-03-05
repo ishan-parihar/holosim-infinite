@@ -608,10 +608,10 @@ mod tests {
 
         let inv = inverse_matrix(identity);
 
-        for i in 0..4 {
-            for j in 0..4 {
+        for (i, row) in inv.iter().enumerate() {
+            for (j, val) in row.iter().enumerate() {
                 let expected = if i == j { 1.0 } else { 0.0 };
-                assert!((inv[i][j] - expected).abs() < 0.0001);
+                assert!((*val - expected).abs() < 0.0001);
             }
         }
     }

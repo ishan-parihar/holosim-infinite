@@ -46,6 +46,12 @@ pub struct NaturalLawsGenerator {
     pub seed: u64,
 }
 
+impl Default for NaturalLawsGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NaturalLawsGenerator {
     /// Create a new natural laws generator with random archetypes
     pub fn new() -> Self {
@@ -502,6 +508,12 @@ pub struct OrganicRealityGenerator {
 
     /// Next reality ID
     next_reality_id: u64,
+}
+
+impl Default for OrganicRealityGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl OrganicRealityGenerator {

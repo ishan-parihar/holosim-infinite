@@ -127,6 +127,12 @@ pub struct PotentiatorBodyArchetype {
     pub resource_depth: Float,   // Depth of resources (0.0 - 1.0)
 }
 
+impl Default for PotentiatorBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PotentiatorBodyArchetype {
     /// Create a new Potentiator of Body archetype
     pub fn new() -> Self {

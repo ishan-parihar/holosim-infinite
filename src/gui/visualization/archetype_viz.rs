@@ -724,8 +724,8 @@ mod tests {
     fn test_complex_averages() {
         let mut activations = [0.5f32; NUM_ARCHETYPES];
         // Higher mind activation
-        for i in 0..7 {
-            activations[i] = 0.8;
+        for item in activations.iter_mut().take(7) {
+            *item = 0.8;
         }
 
         let profile = ArchetypeProfileData::new(activations);

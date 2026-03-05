@@ -1631,6 +1631,12 @@ pub struct InvolutionEvolutionEngine {
     pub balance_sensitivity: Float,
 }
 
+impl Default for InvolutionEvolutionEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl InvolutionEvolutionEngine {
     /// Create a new involution-evolution engine
     pub fn new() -> Self {

@@ -99,6 +99,12 @@ pub struct MatrixSpiritArchetype {
     pub structural_history: Vec<StructuralState>,
 }
 
+impl Default for MatrixSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MatrixSpiritArchetype {
     /// Create a new Matrix of Spirit archetype with healthy initial values
     pub fn new() -> Self {

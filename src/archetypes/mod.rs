@@ -175,6 +175,12 @@ pub struct ArchetypeSystem {
     pub choice: ChoiceArchetype, // A22: The Choice - Unifying Archetype
 }
 
+impl Default for ArchetypeSystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ArchetypeSystem {
     /// Create a new archetype system with initialized mind complex archetypes
     pub fn new() -> Self {

@@ -339,6 +339,12 @@ impl SoulStream {
     }
 }
 
+impl Default for LearningProgress {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LearningProgress {
     /// Create new learning progress
     pub fn new() -> Self {

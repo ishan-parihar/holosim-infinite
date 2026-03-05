@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_all_density_transitions() {
-        let densities = vec![
+        let densities = [
             DensityLevel::First,
             DensityLevel::Second,
             DensityLevel::Third,

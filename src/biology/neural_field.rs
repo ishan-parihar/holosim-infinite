@@ -935,6 +935,14 @@ impl Default for NeuralField {
     }
 }
 
+// Additional method for NeuralField
+impl NeuralField {
+    /// Get neuron IDs (for external access)
+    pub fn neuron_ids(&self) -> Vec<NeuronId> {
+        self.neurons.keys().cloned().collect()
+    }
+}
+
 // ============================================================================
 // UNIT TESTS
 // ============================================================================
@@ -1096,13 +1104,5 @@ mod tests {
 
         // Consciousness should be computed
         assert!(field.consciousness_level() >= 0.0);
-    }
-}
-
-// Additional method for NeuralField
-impl NeuralField {
-    /// Get neuron IDs (for external access)
-    pub fn neuron_ids(&self) -> Vec<NeuronId> {
-        self.neurons.keys().cloned().collect()
     }
 }

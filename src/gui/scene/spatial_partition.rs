@@ -307,6 +307,7 @@ impl FrustumCuller {
 
         // Extract frustum planes from view-projection matrix
         // Left, Right, Bottom, Top, Near, Far
+        #[allow(clippy::needless_range_loop)]
         for col in 0..4 {
             let row = view_projection.row(col);
             planes[0][col] = row[3] + row[0]; // Left

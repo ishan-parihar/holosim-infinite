@@ -938,7 +938,7 @@ mod tests {
         let body = EmbodiedBody::plant(entity_id, 1.0);
 
         assert!(body.is_alive());
-        assert!(body.organism.body_plan.has_nervous_system == false);
+        assert!(!body.organism.body_plan.has_nervous_system);
     }
 
     #[test]

@@ -90,6 +90,12 @@ pub struct SignificatorMindArchetype {
     pub will_strength: Float,
 }
 
+impl Default for SignificatorMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SignificatorMindArchetype {
     /// Create a new Significator archetype with default values
     pub fn new() -> Self {

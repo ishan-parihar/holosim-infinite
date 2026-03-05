@@ -159,7 +159,7 @@ impl LatencyMetric {
         sorted.sort_unstable();
 
         let count = sorted.len();
-        if count % 2 == 0 {
+        if count.is_multiple_of(2) {
             (sorted[count / 2 - 1] + sorted[count / 2]) / 2
         } else {
             sorted[count / 2]

@@ -2119,6 +2119,12 @@ pub struct ResonanceStatistics {
     pub no_resonance_count: usize,
 }
 
+impl Default for ResonanceTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ResonanceTracker {
     /// Create a new resonance tracker
     pub fn new() -> Self {
@@ -2207,6 +2213,12 @@ impl ResonanceTracker {
                 cluster_id += 1;
             }
         }
+    }
+}
+
+impl Default for NonLocalMatrix {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

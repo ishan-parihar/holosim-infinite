@@ -739,9 +739,9 @@ mod tests {
     fn test_archetypical_interference_dominant_frequency() {
         let n = 100;
         let mut pattern = vec![0.0; n];
-        for i in 0..n {
+        for (i, item) in pattern.iter_mut().enumerate() {
             let angle = 2.0 * std::f64::consts::PI * 3.0 * (i as Float) / (n as Float);
-            pattern[i] = angle.sin();
+            *item = angle.sin();
         }
         let interference = ArchetypicalInterference::new(pattern);
         let freq = interference.dominant_frequency();

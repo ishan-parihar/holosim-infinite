@@ -455,8 +455,8 @@ mod tests {
     #[test]
     fn test_derive_high_mind() {
         let mut archetype = [0.5; 22];
-        for i in 0..7 {
-            archetype[i] = 0.9;
+        for item in archetype.iter_mut().take(7) {
+            *item = 0.9;
         }
 
         let qn = ArchetypeToQuantumMapping::derive_quantum_numbers(&archetype);
@@ -467,8 +467,8 @@ mod tests {
     #[test]
     fn test_derive_high_spirit() {
         let mut archetype = [0.5; 22];
-        for i in 14..21 {
-            archetype[i] = 0.9;
+        for item in archetype.iter_mut().skip(14).take(7) {
+            *item = 0.9;
         }
 
         let qn = ArchetypeToQuantumMapping::derive_quantum_numbers(&archetype);
@@ -479,8 +479,8 @@ mod tests {
     #[test]
     fn test_derive_low_spirit() {
         let mut archetype = [0.5; 22];
-        for i in 14..21 {
-            archetype[i] = 0.1;
+        for item in archetype.iter_mut().skip(14).take(7) {
+            *item = 0.1;
         }
 
         let qn = ArchetypeToQuantumMapping::derive_quantum_numbers(&archetype);

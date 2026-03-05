@@ -637,7 +637,7 @@ mod tests {
         let peaks = field.detect_coherence_peaks(&states);
 
         // Should detect peaks above threshold
-        assert!(peaks.len() >= 1);
+        assert!(!peaks.is_empty());
         assert!(peaks[0].coherence >= 0.7);
     }
 

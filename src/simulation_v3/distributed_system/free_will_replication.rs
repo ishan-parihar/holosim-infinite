@@ -2109,7 +2109,7 @@ mod tests {
     #[test]
     fn test_choice_data_archetype() {
         let data = ChoiceData::ArchetypeData { archetype_id: 22 };
-        assert_eq!(matches!(data, ChoiceData::ArchetypeData { .. }), true);
+        assert!(matches!(data, ChoiceData::ArchetypeData { .. }));
     }
 
     #[test]
@@ -2117,7 +2117,7 @@ mod tests {
         let data = ChoiceData::PolarityData {
             polarity: InternalPolarity::STO,
         };
-        assert_eq!(matches!(data, ChoiceData::PolarityData { .. }), true);
+        assert!(matches!(data, ChoiceData::PolarityData { .. }));
     }
 
     // --------------------------------------------------------------------------

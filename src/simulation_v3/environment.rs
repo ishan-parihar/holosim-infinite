@@ -663,6 +663,12 @@ impl EnvironmentalInteractionManager {
     }
 }
 
+impl Default for EnvironmentalState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EnvironmentalState {
     /// Create a new environmental state
     pub fn new() -> Self {

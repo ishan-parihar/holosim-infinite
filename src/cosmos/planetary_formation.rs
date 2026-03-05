@@ -406,6 +406,124 @@ impl Planet {
 }
 
 // ============================================================================
+// Dynamic System Methods (Phase 3)
+// ============================================================================
+
+impl Planet {
+    /// Initialize energy flow system based on the host star
+    pub fn initialize_energy_flow(&mut self, star_luminosity: f64) {
+        if self.planet_type == PlanetType::Terrestrial {
+            let mut efs = EnergyFlowSystem::new();
+            efs.initialize(
+                star_luminosity,
+                self.orbital_radius,
+                self.albedo,
+                0.77, // Default Earth-like transmittance
+            );
+            efs.tick(1.0);
+            self.energy_flow = Some(efs);
+        }
+    }
+
+    /// Tick all dynamic planetary systems
+    pub fn tick_dynamic_systems(&mut self, solar_radiation: f64, dt: f64) {
+        // Calculate solar angle (simplified)
+        let solar_angle = (self.rotation_phase.sin() * self.axial_tilt.cos()).asin();
+
+        // Calculate season
+        let season = self.current_season;
+
+        // Tick atmosphere
+        if let Some(ref mut atm) = self.atmosphere {
+            atm.tick(solar_radiation, solar_angle, season, dt);
+        }
+
+        // Tick lithosphere
+        if let Some(ref mut litho) = self.lithosphere {
+            litho.tick(dt);
+        }
+
+        // Get values we need before borrowing hydrosphere mutably
+        let tidal_force = self.total_tidal_force();
+        let temperature = self
+            .atmosphere
+            .as_ref()
+            .map(|a| {
+                a.temperature_field.first()
+                    .map(|c| c.temperature)
+                    .unwrap_or(288.0)
+            })
+            .unwrap_or(288.0);
+
+        let precipitation = self
+            .atmosphere
+            .as_ref()
+            .map(|a| a.global_precipitation)
+            .unwrap_or(2.5);
+
+        // Tick hydrosphere
+        if let Some(ref mut hydro) = self.hydrosphere {
+            hydro.tick(temperature, precipitation, tidal_force, dt);
+        }
+
+        // Tick energy flow
+        if let Some(ref mut efs) = self.energy_flow {
+            efs.tick(1.0); // Seasonal factor
+        }
+    }
+
+    /// Get temperature at a location on the planet
+    pub fn temperature_at(&self, latitude: f64, longitude: f64) -> f64 {
+        self.atmosphere
+            .as_ref()
+            .map(|a| a.temperature_at(latitude, longitude))
+            .unwrap_or(288.0)
+    }
+
+    /// Get weather at a location
+    pub fn weather_at(&self, latitude: f64, longitude: f64) -> (f64, f64, f64) {
+        let precip = self
+            .atmosphere
+            .as_ref()
+            .map(|a| a.precipitation_at(latitude, longitude))
+            .unwrap_or(0.0);
+
+        let wind = self
+            .atmosphere
+            .as_ref()
+            .map(|a| {
+                let w = a.wind_at(latitude, longitude);
+                w.magnitude()
+            })
+            .unwrap_or(0.0);
+
+        let humidity = self
+            .atmosphere
+            .as_ref()
+            .map(|a| a.humidity_at(latitude, longitude))
+            .unwrap_or(0.5);
+
+        (precip, wind, humidity)
+    }
+
+    /// Get terrain at a location
+    pub fn terrain_at(&self, latitude: f64, longitude: f64) -> String {
+        self.lithosphere
+            .as_ref()
+            .map(|l| format!("{:?}", l.terrain_at(latitude, longitude)))
+            .unwrap_or_else(|| "Unknown".to_string())
+    }
+
+    /// Get habitability score for entities
+    pub fn habitability(&self) -> f64 {
+        self.energy_flow
+            .as_ref()
+            .map(|e| e.habitability_score())
+            .unwrap_or(0.0)
+    }
+}
+
+// ============================================================================
 // Unit Tests
 // ============================================================================
 
@@ -556,123 +674,5 @@ mod tests {
 
         earth.add_moon(Moon::luna());
         assert!(earth.total_tidal_force() > 0.0);
-    }
-}
-
-// ============================================================================
-// Dynamic System Methods (Phase 3)
-// ============================================================================
-
-impl Planet {
-    /// Initialize energy flow system based on the host star
-    pub fn initialize_energy_flow(&mut self, star_luminosity: f64) {
-        if self.planet_type == PlanetType::Terrestrial {
-            let mut efs = EnergyFlowSystem::new();
-            efs.initialize(
-                star_luminosity,
-                self.orbital_radius,
-                self.albedo,
-                0.77, // Default Earth-like transmittance
-            );
-            efs.tick(1.0);
-            self.energy_flow = Some(efs);
-        }
-    }
-
-    /// Tick all dynamic planetary systems
-    pub fn tick_dynamic_systems(&mut self, solar_radiation: f64, dt: f64) {
-        // Calculate solar angle (simplified)
-        let solar_angle = (self.rotation_phase.sin() * self.axial_tilt.cos()).asin();
-
-        // Calculate season
-        let season = self.current_season;
-
-        // Tick atmosphere
-        if let Some(ref mut atm) = self.atmosphere {
-            atm.tick(solar_radiation, solar_angle, season, dt);
-        }
-
-        // Tick lithosphere
-        if let Some(ref mut litho) = self.lithosphere {
-            litho.tick(dt);
-        }
-
-        // Get values we need before borrowing hydrosphere mutably
-        let tidal_force = self.total_tidal_force();
-        let temperature = self
-            .atmosphere
-            .as_ref()
-            .map(|a| {
-                a.temperature_field.first()
-                    .map(|c| c.temperature)
-                    .unwrap_or(288.0)
-            })
-            .unwrap_or(288.0);
-
-        let precipitation = self
-            .atmosphere
-            .as_ref()
-            .map(|a| a.global_precipitation)
-            .unwrap_or(2.5);
-
-        // Tick hydrosphere
-        if let Some(ref mut hydro) = self.hydrosphere {
-            hydro.tick(temperature, precipitation, tidal_force, dt);
-        }
-
-        // Tick energy flow
-        if let Some(ref mut efs) = self.energy_flow {
-            efs.tick(1.0); // Seasonal factor
-        }
-    }
-
-    /// Get temperature at a location on the planet
-    pub fn temperature_at(&self, latitude: f64, longitude: f64) -> f64 {
-        self.atmosphere
-            .as_ref()
-            .map(|a| a.temperature_at(latitude, longitude))
-            .unwrap_or(288.0)
-    }
-
-    /// Get weather at a location
-    pub fn weather_at(&self, latitude: f64, longitude: f64) -> (f64, f64, f64) {
-        let precip = self
-            .atmosphere
-            .as_ref()
-            .map(|a| a.precipitation_at(latitude, longitude))
-            .unwrap_or(0.0);
-
-        let wind = self
-            .atmosphere
-            .as_ref()
-            .map(|a| {
-                let w = a.wind_at(latitude, longitude);
-                w.magnitude()
-            })
-            .unwrap_or(0.0);
-
-        let humidity = self
-            .atmosphere
-            .as_ref()
-            .map(|a| a.humidity_at(latitude, longitude))
-            .unwrap_or(0.5);
-
-        (precip, wind, humidity)
-    }
-
-    /// Get terrain at a location
-    pub fn terrain_at(&self, latitude: f64, longitude: f64) -> String {
-        self.lithosphere
-            .as_ref()
-            .map(|l| format!("{:?}", l.terrain_at(latitude, longitude)))
-            .unwrap_or_else(|| "Unknown".to_string())
-    }
-
-    /// Get habitability score for entities
-    pub fn habitability(&self) -> f64 {
-        self.energy_flow
-            .as_ref()
-            .map(|e| e.habitability_score())
-            .unwrap_or(0.0)
     }
 }

@@ -593,6 +593,12 @@ pub struct HolographicContinuity {
     pub archetype_preserved: bool,
 }
 
+impl Default for HolographicContinuity {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HolographicContinuity {
     /// Create new holographic continuity
     pub fn new() -> Self {

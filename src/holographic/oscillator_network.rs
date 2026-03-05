@@ -435,8 +435,8 @@ mod tests {
             amplitude: 0.0,
             phase: 0.0,
         }; 22];
-        for i in 0..22 {
-            archetypes[i] = ComplexArchetype {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
+            *archetype = ComplexArchetype {
                 amplitude: (i as Float + 1.0) / 22.0, // 0.045 to 1.0
                 phase: (i as Float) * PI / 11.0,      // 0 to 2π
             };

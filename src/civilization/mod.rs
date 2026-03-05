@@ -1,4 +1,4 @@
-//! Civilization Module - Societies, cultures, populations
+//! Civilization Module
 //!
 //! This module implements the civilization layer between planets and individuals.
 //! It fills the gap in the simulation hierarchy:
@@ -17,6 +17,7 @@
 //! reaches sufficient density. The social memory complex is the
 //! collective consciousness of the civilization."
 
+#[allow(clippy::module_inception)]
 pub mod civilization;
 pub mod culture;
 pub mod population;

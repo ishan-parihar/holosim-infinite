@@ -512,7 +512,7 @@ mod tests {
         let state2 = QuantumStateSignature::new(1, 0, 0, false, 2);
         let shared = SharedSpectrum::balanced();
 
-        let link = EntanglementLink::new(state1.clone(), state2.clone(), shared, 0.8);
+        let link = EntanglementLink::new(state1, state2, shared, 0.8);
 
         assert!(link.involves(&state1));
         assert!(link.involves(&state2));
@@ -525,7 +525,7 @@ mod tests {
         let state2 = QuantumStateSignature::new(1, 0, 0, false, 2);
         let shared = SharedSpectrum::balanced();
 
-        let link = EntanglementLink::new(state1.clone(), state2.clone(), shared, 0.8);
+        let link = EntanglementLink::new(state1, state2, shared, 0.8);
 
         assert_eq!(link.other_state(&state1), Some(&state2));
         assert_eq!(link.other_state(&state2), Some(&state1));

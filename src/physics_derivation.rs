@@ -1147,16 +1147,16 @@ mod tests {
         let activation1 = proton_activation();
         let activation2 = proton_activation();
         let distance = 1.0e-10; // 0.1 nm
-        let G = derive_gravitational_constant(&default_activation());
+        let g = derive_gravitational_constant(&default_activation());
 
-        let force = derive_gravitational_force(&activation1, &activation2, distance, G);
+        let force = derive_gravitational_force(&activation1, &activation2, distance, g);
         assert!(
             force > 0.0,
             "Gravitational force should be positive (attractive)"
         );
 
         // Test with zero distance (should return 0)
-        let force_zero = derive_gravitational_force(&activation1, &activation2, 0.0, G);
+        let force_zero = derive_gravitational_force(&activation1, &activation2, 0.0, g);
         assert_eq!(force_zero, 0.0, "Force should be zero at zero distance");
     }
 
@@ -1211,14 +1211,14 @@ mod tests {
     #[test]
     fn test_derive_gravitational_constant() {
         let logos = default_activation();
-        let G = derive_gravitational_constant(&logos);
-        assert!(G > 0.0, "G should be positive");
-        assert!(G < 1.0e-10, "G should be ~6.7e-11");
+        let g = derive_gravitational_constant(&logos);
+        assert!(g > 0.0, "G should be positive");
+        assert!(g < 1.0e-10, "G should be ~6.7e-11");
 
         // Test with different activation
         let logos_low = [0.5; 22];
-        let G_low = derive_gravitational_constant(&logos_low);
-        assert!(G_low < G, "Lower activation should give lower G");
+        let g_low = derive_gravitational_constant(&logos_low);
+        assert!(g_low < g, "Lower activation should give lower G");
     }
 
     #[test]
@@ -1338,10 +1338,10 @@ mod tests {
         let activation1 = electron_activation();
         let activation2 = proton_activation();
         let distance = 1.0e-10;
-        let G = 6.674e-11;
+        let g = 6.674e-11;
         let k = 8.9875517923e9;
 
-        let _gravity = derive_gravitational_force(&activation1, &activation2, distance, G);
+        let _gravity = derive_gravitational_force(&activation1, &activation2, distance, g);
         let _em = derive_electromagnetic_force(&activation1, &activation2, distance, k);
         let _strong = derive_strong_force(&activation1, &activation2, distance);
         let _weak = derive_weak_force(&activation1, &activation2, distance);
@@ -1353,7 +1353,7 @@ mod tests {
         // Verify all constant derivation functions work
         let logos = default_activation();
 
-        let _G = derive_gravitational_constant(&logos);
+        let _g = derive_gravitational_constant(&logos);
         let _c = derive_speed_of_light(&logos);
         let _h = derive_planck_constant(&logos);
         let _e = derive_elementary_charge(&logos);
@@ -1388,9 +1388,9 @@ mod tests {
 
         // 2. Forces from archetypes: 100% implemented
         let activation2 = proton_activation();
-        let G = 6.674e-11;
+        let g = 6.674e-11;
         let k = 8.9875517923e9;
-        assert!(derive_gravitational_force(&activation, &activation2, 1.0e-10, G) >= 0.0);
+        assert!(derive_gravitational_force(&activation, &activation2, 1.0e-10, g) >= 0.0);
         assert!(derive_electromagnetic_force(&activation, &activation2, 1.0e-10, k) != 0.0);
         assert!(derive_strong_force(&activation, &activation2, 1.0e-15) >= 0.0);
         assert!(derive_weak_force(&activation, &activation2, 1.0e-18) >= 0.0);

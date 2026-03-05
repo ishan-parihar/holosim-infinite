@@ -5762,6 +5762,12 @@ pub enum ScalePhysicsError {
     FractalError(String),
 }
 
+impl Default for ScaleSpecificPhysics {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ScaleSpecificPhysics {
     /// Create a new scale-specific physics engine
     ///
@@ -6744,6 +6750,12 @@ impl ScaleSpecificPhysics {
     }
 }
 
+impl Default for StellarSimulation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StellarSimulation {
     /// Create a new stellar simulation
     pub fn new() -> Self {
@@ -7201,6 +7213,12 @@ impl Default for StellarEvolution {
     }
 }
 
+impl Default for GalacticSimulation {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GalacticSimulation {
     /// Create a new galactic simulation
     pub fn new() -> Self {
@@ -7604,6 +7622,12 @@ impl Default for DarkMatterDistribution {
             filaments: Vec::new(),
             density_map: vec![0.0; 1000],
         }
+    }
+}
+
+impl Default for CosmicSimulation {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -11998,7 +12022,7 @@ mod tests {
 
         // Simulate multiple scales
         let time_step = 0.01;
-        for scale in vec![
+        for scale in [
             ScaleLevel::Quantum,
             ScaleLevel::Cellular,
             ScaleLevel::Biological,
@@ -12249,7 +12273,7 @@ mod tests {
             let bottleneck = physics.identify_bottlenecks(&[benchmark]);
 
             // Bottleneck should be one of the components
-            let valid_bottlenecks = vec![
+            let valid_bottlenecks = [
                 "Encoding",
                 "Propagation",
                 "Coherence",
@@ -12416,7 +12440,7 @@ mod tests {
 
             // Run multiple benchmarks
             let mut benchmarks = Vec::new();
-            for scale in vec![
+            for scale in [
                 ScaleLevel::Quantum,
                 ScaleLevel::Cellular,
                 ScaleLevel::Biological,

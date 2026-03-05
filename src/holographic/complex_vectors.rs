@@ -189,10 +189,10 @@ pub fn test_archetypes() -> [ComplexArchetype; 22] {
     let mut archetypes = [ComplexArchetype::default(); 22];
 
     // Create test archetypes with varying amplitudes and phases
-    for i in 0..22 {
+    for (i, archetype) in archetypes.iter_mut().enumerate() {
         let amplitude = 0.5 + (i as Float / 22.0) * 0.5;
         let phase = (i as Float / 22.0) * 2.0 * std::f64::consts::PI as Float;
-        archetypes[i] = ComplexArchetype::new(amplitude, phase);
+        *archetype = ComplexArchetype::new(amplitude, phase);
     }
 
     archetypes

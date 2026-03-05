@@ -28,6 +28,12 @@ pub struct Milieu {
     pub stability_factor: Float,
 }
 
+impl Default for Milieu {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Milieu {
     /// Create a new default Milieu
     pub fn new() -> Self {
@@ -144,6 +150,12 @@ pub struct GreatWayMindArchetype {
 
     // Phase 7: Current milieu for Lesser Cycle
     pub current_milieu: Milieu,
+}
+
+impl Default for GreatWayMindArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl GreatWayMindArchetype {

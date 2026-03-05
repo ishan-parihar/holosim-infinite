@@ -145,6 +145,7 @@ impl FreeWillTerm {
         // From Phase 2 R&D: "Free Will: More deterministic in Time/Space, more chaotic in Space/Time"
         let spectrum_amplitude = self.calculate_spectrum_amplitude(state);
 
+        #[allow(clippy::needless_range_loop)]
         for density_idx in 0..NUM_DENSITY_BANDS {
             // Generate base random components
             let u1: f64 = self.rng.sample(uniform);
@@ -192,6 +193,7 @@ impl FreeWillTerm {
         }
 
         // Apply perturbations to density amplitudes
+        #[allow(clippy::needless_range_loop)]
         for density_idx in 0..NUM_DENSITY_BANDS {
             let current = &state.density_amplitudes[density_idx];
             let perturbed = DensityAmplitude::new(

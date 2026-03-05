@@ -774,6 +774,12 @@ impl CollectiveFreeWill {
     }
 }
 
+impl Default for CollectiveDynamicsManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CollectiveDynamicsManager {
     /// Create a new collective dynamics manager
     pub fn new() -> Self {
@@ -2156,10 +2162,7 @@ mod phase6_tests {
 
         // The method returns a boolean based on whether collective consciousness > average member consciousness * 1.1
         // We just verify it returns a valid boolean
-        assert!(
-            demonstrates_intelligence == true || demonstrates_intelligence == false,
-            "demonstrate_collective_intelligence should return a boolean"
-        );
+        let _ = demonstrates_intelligence;
     }
 
     #[test]

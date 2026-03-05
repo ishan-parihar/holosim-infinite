@@ -817,7 +817,7 @@ mod tests {
         mechanism
             .entity_veil_state
             .entry(entity_id)
-            .or_insert_with(VeilState::new)
+            .or_default()
             .add_piercing(0.1);
 
         let polarization = PolarizationState::sto(0.5);
@@ -836,7 +836,7 @@ mod tests {
         mechanism
             .entity_veil_state
             .entry(entity_id)
-            .or_insert_with(VeilState::new)
+            .or_default()
             .add_piercing(1.0);
 
         let polarization = PolarizationState::sto(1.0);
@@ -856,7 +856,7 @@ mod tests {
         mechanism
             .entity_veil_state
             .entry(entity_id)
-            .or_insert_with(VeilState::new)
+            .or_default()
             .add_piercing(0.4);
 
         let polarization = PolarizationState::sto(0.5);

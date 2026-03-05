@@ -251,7 +251,7 @@ impl BenchmarkSuiteResult {
         for result in &self.results {
             by_category
                 .entry(result.category)
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(result);
         }
 

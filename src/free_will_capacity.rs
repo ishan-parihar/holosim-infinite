@@ -56,6 +56,12 @@ pub struct Choice {
     pub timestamp: u64,
 }
 
+impl Default for Choice {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Choice {
     /// Creates a new choice with default values
     pub fn new() -> Self {

@@ -453,6 +453,12 @@ pub struct Logos {
     pub seed: u64,
 }
 
+impl Default for Logos {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Logos {
     /// Create a new Logos with default values
     pub fn new() -> Self {

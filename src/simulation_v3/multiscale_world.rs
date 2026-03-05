@@ -1055,16 +1055,14 @@ mod tests {
         let renderer = MultiScaleWorldRenderer::new(SpectrumRatio::new(1.0, 1.0));
 
         let quantum_features = renderer.get_scale_features(ScaleLevel::Quantum);
-        assert!(matches!(
-            quantum_features.unique_mechanics.quantum_mechanics,
-            Some(_)
-        ));
+        assert!(
+            quantum_features.unique_mechanics.quantum_mechanics.is_some()
+        );
 
         let galactic_features = renderer.get_scale_features(ScaleLevel::Galactic);
-        assert!(matches!(
-            galactic_features.unique_mechanics.galactic_mechanics,
-            Some(_)
-        ));
+        assert!(
+            galactic_features.unique_mechanics.galactic_mechanics.is_some()
+        );
     }
 
     #[test]

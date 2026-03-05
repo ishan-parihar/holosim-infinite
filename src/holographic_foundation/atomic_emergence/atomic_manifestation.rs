@@ -640,7 +640,7 @@ mod tests {
             y: 0.0,
             z: 0.0,
         };
-        let atom = AtomicManifestation::hydrogen(pos.clone());
+        let atom = AtomicManifestation::hydrogen(pos);
 
         assert_eq!(atom.atomic_number(), 1);
         assert_eq!(atom.symbol(), "H");

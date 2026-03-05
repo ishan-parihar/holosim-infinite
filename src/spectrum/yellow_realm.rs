@@ -58,6 +58,12 @@ pub struct FullAwareness {
     pub memory: Float,
 }
 
+impl Default for FullAwareness {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FullAwareness {
     /// Create new full awareness with maximum values
     pub fn new() -> Self {
@@ -87,6 +93,12 @@ pub struct LimitedAwareness {
     pub holographic_awareness: Float,
     /// Limited memory (karma limitation)
     pub memory: Float,
+}
+
+impl Default for LimitedAwareness {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl LimitedAwareness {
@@ -131,6 +143,12 @@ pub struct SeparationIllusion {
     pub unity_separation: Float,
     /// Illusion of death (fear of non-existence)
     pub death_illusion: Float,
+}
+
+impl Default for SeparationIllusion {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SeparationIllusion {

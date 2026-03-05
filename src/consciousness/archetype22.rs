@@ -155,6 +155,12 @@ pub enum FactorType {
     Spiritual,
 }
 
+impl Default for Archetype22 {
+    fn default() -> Self {
+        Self::new(IntelligentInfinity::new())
+    }
+}
+
 impl Archetype22 {
     /// Create a new Archetype 22 from IntelligentInfinity
     ///
@@ -476,6 +482,12 @@ impl Archetype22 {
     }
 }
 
+impl Default for ChoiceOperator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChoiceOperator {
     /// Create a new choice operator
     pub fn new() -> Self {
@@ -484,6 +496,12 @@ impl ChoiceOperator {
             possibility_capacity: 1.0,
             non_deterministic_capability: 1.0,
         }
+    }
+}
+
+impl Default for PolarityCreation {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

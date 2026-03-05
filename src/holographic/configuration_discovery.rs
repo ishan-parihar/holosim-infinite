@@ -443,8 +443,8 @@ mod tests {
             amplitude: 0.0,
             phase: 0.0,
         }; 22];
-        for i in 0..22 {
-            archetypes[i] = ComplexArchetype {
+        for (i, archetype) in archetypes.iter_mut().enumerate() {
+            *archetype = ComplexArchetype {
                 amplitude: (i as Float + 1.0) / 22.0, // 0.045 to 1.0
                 phase: (i as Float) * PI / 11.0,      // 0 to 2π
             };
@@ -548,7 +548,7 @@ mod tests {
             InvolutionLayer::Green,
             InvolutionLayer::Red,
         ] {
-            let field = HolographicField::new(layer, archetypes.clone());
+            let field = HolographicField::new(layer, archetypes);
             let configs = engine.discover_configurations(&field);
             all_configs.extend(configs);
         }
@@ -692,8 +692,8 @@ mod tests {
         let config_vector = ComplexVector::from_amplitude_phase(1.0, PI / 4.0);
 
         let mut encoding = [ComplexVector::default(); 22];
-        for i in 0..22 {
-            encoding[i] = ComplexVector::from_amplitude_phase(0.5, (i as Float) * PI / 11.0);
+        for (i, item) in encoding.iter_mut().enumerate() {
+            *item = ComplexVector::from_amplitude_phase(0.5, (i as Float) * PI / 11.0);
         }
 
         let cross_correlation = engine.calculate_cross_correlation(&config_vector, &encoding);

@@ -360,7 +360,7 @@ impl EnergyFlowSystem {
     }
 
     /// Distribute energy to entities based on requests
-    pub fn distribute_energy(&mut self, requests: &mut Vec<EnergyRequest>) -> EnergyFlowStats {
+    pub fn distribute_energy(&mut self, requests: &mut [EnergyRequest]) -> EnergyFlowStats {
         let mut stats = EnergyFlowStats {
             total_energy_flow: self.input_energy,
             ..Default::default()

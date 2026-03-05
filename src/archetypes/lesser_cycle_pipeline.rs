@@ -68,6 +68,12 @@ pub struct PipelineStatistics {
     pub average_efficiency: Float,
 }
 
+impl Default for LesserCyclePipeline {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LesserCyclePipeline {
     /// Create a new Lesser Cycle pipeline
     ///

@@ -106,8 +106,8 @@ impl DensityWithSubLevel {
     /// Get description
     pub fn description(&self) -> String {
         format!(
-            "{} - {} ({:.0}%)",
-            format!("{:?}", self.density),
+            "{:?} - {} ({:.0}%)",
+            self.density,
             self.sub_level.name(),
             self.progress * 100.0
         )

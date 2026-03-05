@@ -80,6 +80,12 @@ pub struct ExperienceBodyArchetype {
     pub bias_strength_evolution: Vec<Float>,
 }
 
+impl Default for ExperienceBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ExperienceBodyArchetype {
     /// Create a new Experience of Body archetype with healthy initial values
     pub fn new() -> Self {

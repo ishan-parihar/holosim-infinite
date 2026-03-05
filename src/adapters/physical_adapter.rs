@@ -1244,7 +1244,7 @@ mod tests {
         let entity = create_test_entity(1);
         let mut physical_entity = PhysicalEntity::from_entity(&entity);
 
-        let initial_position = physical_entity.position.clone();
+        let initial_position = physical_entity.position;
         physical_entity.velocity = Vector3D::new(1.0, 2.0, 3.0);
 
         physical_entity.update(1.0);

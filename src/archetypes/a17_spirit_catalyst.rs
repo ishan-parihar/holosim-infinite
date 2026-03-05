@@ -42,6 +42,12 @@ pub struct CatalystSpiritArchetype {
     pub description: String,
 }
 
+impl Default for CatalystSpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CatalystSpiritArchetype {
     /// Create a new Catalyst of Spirit archetype with healthy initial values
     pub fn new() -> Self {
@@ -443,7 +449,7 @@ mod tests {
             &self.lambda
         }
         fn update_lambda(&mut self, value: Float) {
-            self.lambda.value = value.max(0.0).min(1.0);
+            self.lambda.value = value.clamp(0.0, 1.0);
         }
         fn tarot_correlation(&self) -> TarotCorrelation {
             self.tarot.clone()

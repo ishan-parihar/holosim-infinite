@@ -367,53 +367,6 @@ impl EntityData {
 /// "pub type Entity = UniversalTemplate<EntityData>;"
 pub type Entity = crate::holographic::universal_template::UniversalTemplate<EntityData>;
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_entity_data_creation() {
-        let entity_id = EntityId::new("test-entity-1".to_string());
-        let entity_data = EntityData::new(entity_id.clone(), EntityType::Individual);
-
-        assert_eq!(entity_data.entity_id, entity_id);
-        assert_eq!(entity_data.entity_type, EntityType::Individual);
-        assert_eq!(entity_data.evolution_clock, 0.0);
-    }
-
-    #[test]
-    fn test_entity_data_evolution_clock() {
-        let entity_id = EntityId::new("test-entity-2".to_string());
-        let mut entity_data = EntityData::new(entity_id, EntityType::Individual);
-        entity_data.evolutionary_rate = 1.5;
-
-        entity_data.advance_evolution_clock(1.0);
-        assert_eq!(entity_data.evolution_clock, 1.5);
-
-        entity_data.advance_evolution_clock(2.0);
-        assert_eq!(entity_data.evolution_clock, 4.5);
-    }
-
-    #[test]
-    fn test_entity_data_backward_compatibility() {
-        let entity_id = EntityId::new("test-entity-3".to_string());
-        let mut entity_data = EntityData::new(entity_id, EntityType::Individual);
-
-        // Modify current state
-        entity_data.current_state.consciousness_level = 0.8;
-        entity_data.current_state.experience_accumulation = 100.0;
-        entity_data.current_state.learning_progress = 0.7;
-
-        // Update backward compatibility fields
-        entity_data.update_backward_compatibility_fields();
-
-        // Verify backward compatibility fields are updated
-        assert_eq!(entity_data.consciousness_level, 0.8);
-        assert_eq!(entity_data.experience_accumulation, 100.0);
-        assert_eq!(entity_data.learning_progress, 0.7);
-    }
-}
-
 // =============================================================================
 // IMPLEMENTATION OF TemplateComponent TRAIT
 // =============================================================================
@@ -621,5 +574,52 @@ impl super::entity_behavior::EntityBehavior for Entity {
 
     fn veil_transparency(&self) -> Float {
         self.spectrum.veil_transparency
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_entity_data_creation() {
+        let entity_id = EntityId::new("test-entity-1".to_string());
+        let entity_data = EntityData::new(entity_id.clone(), EntityType::Individual);
+
+        assert_eq!(entity_data.entity_id, entity_id);
+        assert_eq!(entity_data.entity_type, EntityType::Individual);
+        assert_eq!(entity_data.evolution_clock, 0.0);
+    }
+
+    #[test]
+    fn test_entity_data_evolution_clock() {
+        let entity_id = EntityId::new("test-entity-2".to_string());
+        let mut entity_data = EntityData::new(entity_id, EntityType::Individual);
+        entity_data.evolutionary_rate = 1.5;
+
+        entity_data.advance_evolution_clock(1.0);
+        assert_eq!(entity_data.evolution_clock, 1.5);
+
+        entity_data.advance_evolution_clock(2.0);
+        assert_eq!(entity_data.evolution_clock, 4.5);
+    }
+
+    #[test]
+    fn test_entity_data_backward_compatibility() {
+        let entity_id = EntityId::new("test-entity-3".to_string());
+        let mut entity_data = EntityData::new(entity_id, EntityType::Individual);
+
+        // Modify current state
+        entity_data.current_state.consciousness_level = 0.8;
+        entity_data.current_state.experience_accumulation = 100.0;
+        entity_data.current_state.learning_progress = 0.7;
+
+        // Update backward compatibility fields
+        entity_data.update_backward_compatibility_fields();
+
+        // Verify backward compatibility fields are updated
+        assert_eq!(entity_data.consciousness_level, 0.8);
+        assert_eq!(entity_data.experience_accumulation, 100.0);
+        assert_eq!(entity_data.learning_progress, 0.7);
     }
 }

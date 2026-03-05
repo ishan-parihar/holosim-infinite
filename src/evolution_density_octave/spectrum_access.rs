@@ -34,6 +34,12 @@ pub struct SpectrumAccessMechanism {
     pub evolutionary_trajectory: AccessTrajectory,
 }
 
+impl Default for SpectrumAccessMechanism {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SpectrumAccessMechanism {
     /// Create a new spectrum access mechanism starting at 3rd density
     pub fn new() -> Self {

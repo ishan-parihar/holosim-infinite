@@ -56,6 +56,12 @@ pub struct ChoiceArchetype {
     pub polarity: Polarity,
 }
 
+impl Default for ChoiceArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ChoiceArchetype {
     /// Create a new Choice archetype with healthy initial values
     pub fn new() -> Self {

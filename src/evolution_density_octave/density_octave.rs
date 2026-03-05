@@ -60,6 +60,12 @@ pub struct DensityOctave {
     pub attractor_fields: DensityAttractorFields,
 }
 
+impl Default for DensityOctave {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DensityOctave {
     /// Create a new density octave starting at 1st density (collective system)
     ///
@@ -575,6 +581,12 @@ pub struct SpiralLeap {
 
     /// Choice that triggered the leap
     pub choice: ArchetypeChoice,
+}
+
+impl Default for SpiralPattern {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SpiralPattern {

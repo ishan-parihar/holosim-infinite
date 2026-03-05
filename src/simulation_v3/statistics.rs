@@ -428,6 +428,12 @@ pub struct StatisticsTracker {
     pub step_times: Vec<Duration>,
 }
 
+impl Default for StatisticsTracker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl StatisticsTracker {
     /// Create a new statistics tracker
     pub fn new() -> Self {

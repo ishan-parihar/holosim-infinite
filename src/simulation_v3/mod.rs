@@ -265,15 +265,6 @@ pub use interactive_interface::{
     ScaleController, SimulationEvent,
 };
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_simulation_v3_module_exists() {
-        // Test that the module compiles and exports exist
-        // Test passes if module exists
-    }
-}
-
 // Advanced Game Mechanics (Phase 6, Week 93-96)
 pub use advanced_game_mechanics::{
     AdvancedGameMechanicsError, ArchetypeId, CatalystAmount, CombatId, FactionId, QuestId,
@@ -286,3 +277,12 @@ pub use distributed_system::{
     NetworkError, ObservationId, PeerId, Result as DistributedSystemResult, SessionId, UpdateId,
     Version,
 };
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_simulation_v3_module_exists() {
+        // Test that the module compiles and exports exist
+        // Test passes if module exists
+    }
+}

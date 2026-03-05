@@ -186,6 +186,12 @@ pub struct ConsciousnessState {
     pub love: Float,
 }
 
+impl Default for ConsciousnessState {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ConsciousnessState {
     /// Creates a new consciousness state
     pub fn new() -> Self {

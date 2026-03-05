@@ -483,8 +483,8 @@ mod tests {
                 amplitude: 0.0,
                 phase: 0.0,
             }; 22];
-            for i in 0..22 {
-                a[i] = ComplexArchetype {
+            for item in &mut a {
+                *item = ComplexArchetype {
                     amplitude: 0.5,
                     phase: 0.0,
                 };

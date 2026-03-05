@@ -46,7 +46,7 @@ impl BenchmarkRegistry {
         // Update category index
         self.by_category
             .entry(category)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(name);
     }
 
@@ -61,7 +61,7 @@ impl BenchmarkRegistry {
         // Update category index
         self.by_category
             .entry(category)
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(name);
     }
 

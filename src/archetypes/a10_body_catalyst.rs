@@ -33,6 +33,12 @@ pub struct CatalystBodyArchetype {
     pub polarity: Polarity,
 }
 
+impl Default for CatalystBodyArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CatalystBodyArchetype {
     /// Create a new Catalyst of Body archetype with healthy initial values
     pub fn new() -> Self {

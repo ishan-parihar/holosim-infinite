@@ -155,6 +155,12 @@ impl ArchetypeTrait for GreatWaySpiritArchetype {
     }
 }
 
+impl Default for GreatWaySpiritArchetype {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GreatWaySpiritArchetype {
     /// Creates a new Great Way of Spirit archetype with healthy initial values
     ///
