@@ -389,9 +389,9 @@ impl FieldChange {
 
             // If both modify only one aspect and they're different, they're compatible
             if self_count == 1 && other_count == 1 {
-                return !(self_changes[0] && other_changes[0])
-                    && !(self_changes[1] && other_changes[1])
-                    && !(self_changes[2] && other_changes[2]);
+                return !(self_changes[0] && other_changes[0]
+                    || self_changes[1] && other_changes[1]
+                    || self_changes[2] && other_changes[2]);
             }
         }
 

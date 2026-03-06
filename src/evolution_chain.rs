@@ -640,8 +640,7 @@ mod tests {
         let result = chain.process(catalyst);
 
         // Check for spiral leap
-        if result.spiral_leap.is_some() {
-            let leap = result.spiral_leap.as_ref().unwrap();
+        if let Some(leap) = &result.spiral_leap {
             assert!(leap.to_step > leap.from_step);
             assert!(leap.intensity > 0.8);
         }

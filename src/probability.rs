@@ -269,9 +269,9 @@ impl ProbabilitySpace {
 
     /// Collapse probability space to a specific outcome
     pub fn collapse(&mut self, choice: Option<usize>) -> Outcome {
-        if self.collapsed.is_some() {
+        if let Some(idx) = self.collapsed {
             // Already collapsed, return existing outcome
-            return self.outcomes[self.collapsed.unwrap()].clone();
+            return self.outcomes[idx].clone();
         }
 
         let selected = if let Some(choice_idx) = choice {

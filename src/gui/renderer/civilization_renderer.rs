@@ -443,6 +443,7 @@ impl CivilizationRenderer {
     }
 
     /// Update civilization data
+    #[allow(clippy::too_many_arguments)]
     pub fn update(
         &mut self,
         device: &wgpu::Device,

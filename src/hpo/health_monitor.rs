@@ -514,79 +514,77 @@ mod tests {
     fn test_filter_failures() {
         let monitor = HealthMonitor::new();
 
-        let mut results = Vec::new();
-
-        // Add healthy result
-        results.push(SimulationResult {
-            simulation_id: 1,
-            config: SimulationConfig::new(1),
-            completed: true,
-            steps_executed: 100,
-            final_coherence: 0.9,
-            average_coherence: 0.85,
-            coherence_history: (0..100).map(|i| 0.5 + i as Float * 0.001).collect(),
-            energy_conservation_error: 0.05,
-            entities_evolved: 10,
-            entities_harvested: 5,
-            emergence_metrics: EmergenceMetrics {
-                biological_score: 0.5,
-                noospheric_score: 0.5,
-                gaia_score: 0.5,
-                overall_score: 0.5,
+        // Add healthy result and failed result
+        let results = vec![
+            SimulationResult {
+                simulation_id: 1,
+                config: SimulationConfig::new(1),
+                completed: true,
+                steps_executed: 100,
+                final_coherence: 0.9,
+                average_coherence: 0.85,
+                coherence_history: (0..100).map(|i| 0.5 + i as Float * 0.001).collect(),
+                energy_conservation_error: 0.05,
+                entities_evolved: 10,
+                entities_harvested: 5,
+                emergence_metrics: EmergenceMetrics {
+                    biological_score: 0.5,
+                    noospheric_score: 0.5,
+                    gaia_score: 0.5,
+                    overall_score: 0.5,
+                },
+                stability_metrics: StabilityMetrics {
+                    coherence_stability: 0.8,
+                    energy_balance: 0.9,
+                    resilience: 0.7,
+                    overall_score: 0.8,
+                },
+                complexity_metrics: ComplexityMetrics {
+                    diversity_score: 0.6,
+                    integration_score: 0.7,
+                    depth_score: 0.5,
+                    overall_score: 0.6,
+                },
+                fitness_score: 0.7,
+                execution_time: 10.0,
+                failure: None,
+                metadata: std::collections::HashMap::new(),
             },
-            stability_metrics: StabilityMetrics {
-                coherence_stability: 0.8,
-                energy_balance: 0.9,
-                resilience: 0.7,
-                overall_score: 0.8,
+            SimulationResult {
+                simulation_id: 2,
+                config: SimulationConfig::new(2),
+                completed: false,
+                steps_executed: 50,
+                final_coherence: 0.6,
+                average_coherence: 0.65,
+                coherence_history: vec![0.6; 50],
+                energy_conservation_error: 0.15,
+                entities_evolved: 0,
+                entities_harvested: 0,
+                emergence_metrics: EmergenceMetrics {
+                    biological_score: 0.0,
+                    noospheric_score: 0.0,
+                    gaia_score: 0.0,
+                    overall_score: 0.0,
+                },
+                stability_metrics: StabilityMetrics {
+                    coherence_stability: 0.0,
+                    energy_balance: 0.0,
+                    resilience: 0.0,
+                    overall_score: 0.0,
+                },
+                complexity_metrics: ComplexityMetrics {
+                    diversity_score: 0.0,
+                    integration_score: 0.0,
+                    depth_score: 0.0,
+                    overall_score: 0.0,
+                },
+                fitness_score: 0.0,
+                execution_time: 5.0,
+                failure: Some(FailureType::CoherenceViolation(0.6)),
+                metadata: std::collections::HashMap::new(),
             },
-            complexity_metrics: ComplexityMetrics {
-                diversity_score: 0.6,
-                integration_score: 0.7,
-                depth_score: 0.5,
-                overall_score: 0.6,
-            },
-            fitness_score: 0.7,
-            execution_time: 10.0,
-            failure: None,
-            metadata: std::collections::HashMap::new(),
-        });
-
-        // Add failed result
-        results.push(SimulationResult {
-            simulation_id: 2,
-            config: SimulationConfig::new(2),
-            completed: false,
-            steps_executed: 50,
-            final_coherence: 0.6,
-            average_coherence: 0.65,
-            coherence_history: vec![0.6; 50],
-            energy_conservation_error: 0.15,
-            entities_evolved: 0,
-            entities_harvested: 0,
-            emergence_metrics: EmergenceMetrics {
-                biological_score: 0.0,
-                noospheric_score: 0.0,
-                gaia_score: 0.0,
-                overall_score: 0.0,
-            },
-            stability_metrics: StabilityMetrics {
-                coherence_stability: 0.0,
-                energy_balance: 0.0,
-                resilience: 0.0,
-                overall_score: 0.0,
-            },
-            complexity_metrics: ComplexityMetrics {
-                diversity_score: 0.0,
-                integration_score: 0.0,
-                depth_score: 0.0,
-                overall_score: 0.0,
-            },
-            fitness_score: 0.0,
-            execution_time: 5.0,
-            failure: Some(FailureType::CoherenceViolation(0.6)),
-            metadata: std::collections::HashMap::new(),
-        });
+        ];
 
         let (successful, failed) = monitor.filter_failures(results);
         assert_eq!(successful.len(), 1);

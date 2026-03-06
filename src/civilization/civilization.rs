@@ -98,7 +98,8 @@ impl TechnologyLevel {
             7 => TechnologyLevel::Galactic,
             8 => TechnologyLevel::Intergalactic,
             9 => TechnologyLevel::Dimensional,
-            10 | _ => TechnologyLevel::Infinite,
+            10 => TechnologyLevel::Infinite,
+            _ => TechnologyLevel::Infinite,
         }
     }
 

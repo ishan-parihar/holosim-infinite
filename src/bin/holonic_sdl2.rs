@@ -322,11 +322,14 @@ impl PerformanceTracker {
 // ============================================================================
 
 struct HolonicSdl2Gui {
+    #[allow(dead_code)]
     sdl_context: sdl2::Sdl,
+    #[allow(dead_code)]
     video_subsystem: sdl2::VideoSubsystem,
     window: sdl2::video::Window,
     event_pump: sdl2::EventPump,
 
+    #[allow(dead_code)]
     wgpu_instance: Instance,
     wgpu_surface: Surface<'static>,
     wgpu_device: Device,
@@ -342,6 +345,7 @@ struct HolonicSdl2Gui {
     collective_groups: Vec<CollectiveGroup>,
 
     perf_tracker: PerformanceTracker,
+    #[allow(dead_code)]
     last_frame_time: Instant,
 
     show_entity_viz: bool,
@@ -624,17 +628,18 @@ impl HolonicSdl2Gui {
                     }
 
                     Event::KeyDown {
-                        keycode, keymod, ..
+                        keycode: Some(keycode),
+                        keymod,
+                        ..
                     } => {
-                        if let Some(keycode) = keycode {
-                            key_events.push((keycode, keymod, true));
-                        }
+                        key_events.push((keycode, keymod, true));
                     }
 
-                    Event::KeyUp { keycode, .. } => {
-                        if let Some(keycode) = keycode {
-                            key_events.push((keycode, Mod::empty(), false));
-                        }
+                    Event::KeyUp {
+                        keycode: Some(keycode),
+                        ..
+                    } => {
+                        key_events.push((keycode, Mod::empty(), false));
                     }
 
                     Event::MouseMotion {

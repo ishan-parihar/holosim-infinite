@@ -483,12 +483,10 @@ mod tests {
                 amplitude: 0.0,
                 phase: 0.0,
             }; 22];
-            for item in &mut a {
-                *item = ComplexArchetype {
-                    amplitude: 0.5,
-                    phase: 0.0,
-                };
-            }
+            a.fill(ComplexArchetype {
+                amplitude: 0.5,
+                phase: 0.0,
+            });
             a
         };
         Arc::new(HolographicField::new(

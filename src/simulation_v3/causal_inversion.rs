@@ -3913,15 +3913,15 @@ mod tests {
     #[test]
     fn test_bond_distance_threshold() {
         // Verify the constant is defined
-        assert!(BOND_DISTANCE_THRESHOLD > 0.0);
-        assert!(BOND_DISTANCE_THRESHOLD < 1.0);
+        const { assert!(BOND_DISTANCE_THRESHOLD > 0.0); }
+        const { assert!(BOND_DISTANCE_THRESHOLD < 1.0); }
     }
 
     #[test]
     fn test_min_archetype_compatibility() {
         // Verify the constant is defined
-        assert!(MIN_ARCHETYPE_COMPATIBILITY > 0.0);
-        assert!(MIN_ARCHETYPE_COMPATIBILITY <= 1.0);
+        const { assert!(MIN_ARCHETYPE_COMPATIBILITY > 0.0); }
+        const { assert!(MIN_ARCHETYPE_COMPATIBILITY <= 1.0); }
     }
 
     #[test]
@@ -4379,11 +4379,10 @@ mod tests {
         // Should have galactic logoi (plural - it's a Vec)
         assert!(!hierarchy.galactic_logoi.is_empty());
         assert!(
-            hierarchy.galactic_logoi[0]
+            !hierarchy.galactic_logoi[0]
                 .archetype_selection
                 .primary_archetypes
-                .len()
-                > 0
+                .is_empty()
         );
 
         // Should have solar logoi (plural - it's a Vec)

@@ -22,6 +22,10 @@ use rand::Rng;
 use std::collections::HashMap;
 use std::time::Instant;
 
+/// Type aliases for cosmic web geometry
+type Point3D = (Float, Float, Float);
+type Edge = (Point3D, Point3D);
+
 /// Physical constants
 /// From COSMOLOGICAL-ARCHITECTURE.md: "Quantum mechanics transcends classical physics"
 pub const PLANCK_CONSTANT: Float = 1.0545718e-34; // ħ (reduced Planck constant, J·s)
@@ -5477,10 +5481,10 @@ pub struct LargeScaleStructure {
 #[derive(Debug, Clone)]
 pub struct CosmicWeb {
     /// Nodes (galaxy clusters)
-    nodes: Vec<(Float, Float, Float)>,
+    nodes: Vec<Point3D>,
 
     /// Edges (filaments)
-    edges: Vec<((Float, Float, Float), (Float, Float, Float))>,
+    edges: Vec<Edge>,
 
     /// Connectivity
     connectivity: Float,

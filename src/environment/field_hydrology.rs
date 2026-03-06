@@ -701,10 +701,7 @@ mod tests {
         );
 
         // Catalyst (A3) should be high for water's reactivity
-        assert!(
-            WATER_ARCHETYPE_SIGNATURE[2] > 0.5,
-            "Catalyst should be elevated for water"
-        );
+        const { assert!(WATER_ARCHETYPE_SIGNATURE[2] > 0.5, "Catalyst should be elevated for water"); }
     }
 
     #[test]

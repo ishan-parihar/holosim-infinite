@@ -729,12 +729,14 @@ mod tests {
     };
 
     // Mock archetype for testing paired relationships
+    #[allow(dead_code)]
     struct MockArchetypeA13 {
         archetype_id: u8,
         lambda: LambdaMeasurement,
         tarot_correlation: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockArchetypeA13 {
         fn new(id: u8, lambda_value: Float) -> Self {
             MockArchetypeA13 {

@@ -484,7 +484,191 @@ pub struct SubSubLogos {
     pub veil: VeilInfo,
 }
 
+// ============================================================================
+// BUILDER PATTERN
+// ============================================================================
+
+/// Builder for creating SubSubLogos entities
+///
+/// This builder pattern reduces the number of arguments to the constructor
+/// and provides a more ergonomic API for entity creation.
+///
+/// # Example
+///
+/// ```ignore
+/// let entity = SubSubLogos::builder(entity_id, EntityType::Individual)
+///     .parent_id(Some(parent_id))
+///     .spectrum_configuration(config)
+///     .build();
+/// ```
+pub struct SubSubLogosBuilder {
+    entity_id: EntityId,
+    entity_type: EntityType,
+    parent_id: Option<EntityId>,
+    composition: Vec<EntityId>,
+    environment_id: Option<EntityId>,
+    violet_realm: Option<VioletRealm>,
+    indigo_realm: Option<IndigoRealm>,
+    blue_realm: Option<BlueRealm>,
+    green_realm: Option<GreenRealm>,
+    yellow_realm: Option<YellowRealm>,
+    orange_realm: Option<OrangeRealm>,
+    red_realm: Option<RedRealm>,
+    spectrum_configuration: Option<IndividualSpectrumConfiguration>,
+}
+
+impl SubSubLogosBuilder {
+    /// Create a new builder with required fields
+    pub fn new(entity_id: EntityId, entity_type: EntityType) -> Self {
+        Self {
+            entity_id,
+            entity_type,
+            parent_id: None,
+            composition: Vec::new(),
+            environment_id: None,
+            violet_realm: None,
+            indigo_realm: None,
+            blue_realm: None,
+            green_realm: None,
+            yellow_realm: None,
+            orange_realm: None,
+            red_realm: None,
+            spectrum_configuration: None,
+        }
+    }
+
+    /// Set the parent entity ID
+    pub fn parent_id(mut self, parent_id: Option<EntityId>) -> Self {
+        self.parent_id = parent_id;
+        self
+    }
+
+    /// Set the composition (entities this entity is composed of)
+    pub fn composition(mut self, composition: Vec<EntityId>) -> Self {
+        self.composition = composition;
+        self
+    }
+
+    /// Set the environment ID
+    pub fn environment_id(mut self, environment_id: Option<EntityId>) -> Self {
+        self.environment_id = environment_id;
+        self
+    }
+
+    /// Set the violet realm
+    pub fn violet_realm(mut self, violet_realm: VioletRealm) -> Self {
+        self.violet_realm = Some(violet_realm);
+        self
+    }
+
+    /// Set the indigo realm
+    pub fn indigo_realm(mut self, indigo_realm: IndigoRealm) -> Self {
+        self.indigo_realm = Some(indigo_realm);
+        self
+    }
+
+    /// Set the blue realm
+    pub fn blue_realm(mut self, blue_realm: BlueRealm) -> Self {
+        self.blue_realm = Some(blue_realm);
+        self
+    }
+
+    /// Set the green realm
+    pub fn green_realm(mut self, green_realm: GreenRealm) -> Self {
+        self.green_realm = Some(green_realm);
+        self
+    }
+
+    /// Set the yellow realm
+    pub fn yellow_realm(mut self, yellow_realm: YellowRealm) -> Self {
+        self.yellow_realm = Some(yellow_realm);
+        self
+    }
+
+    /// Set the orange realm
+    pub fn orange_realm(mut self, orange_realm: OrangeRealm) -> Self {
+        self.orange_realm = Some(orange_realm);
+        self
+    }
+
+    /// Set the red realm
+    pub fn red_realm(mut self, red_realm: RedRealm) -> Self {
+        self.red_realm = Some(red_realm);
+        self
+    }
+
+    /// Set all realms at once (convenience method)
+    #[allow(clippy::too_many_arguments)]
+    pub fn realms(
+        mut self,
+        violet: VioletRealm,
+        indigo: IndigoRealm,
+        blue: BlueRealm,
+        green: GreenRealm,
+        yellow: YellowRealm,
+        orange: OrangeRealm,
+        red: RedRealm,
+    ) -> Self {
+        self.violet_realm = Some(violet);
+        self.indigo_realm = Some(indigo);
+        self.blue_realm = Some(blue);
+        self.green_realm = Some(green);
+        self.yellow_realm = Some(yellow);
+        self.orange_realm = Some(orange);
+        self.red_realm = Some(red);
+        self
+    }
+
+    /// Set the spectrum configuration
+    pub fn spectrum_configuration(mut self, config: IndividualSpectrumConfiguration) -> Self {
+        self.spectrum_configuration = Some(config);
+        self
+    }
+
+    /// Build the SubSubLogos entity
+    ///
+    /// Creates default realms if not provided.
+    #[allow(clippy::unwrap_or_default)]
+    pub fn build(self) -> SubSubLogos {
+        // Create default realms if not provided
+        let violet = self.violet_realm.unwrap_or_default();
+        let indigo = self.indigo_realm.unwrap_or_default();
+        let blue = self.blue_realm.unwrap_or_default();
+        let green = self.green_realm.unwrap_or_default();
+        let yellow = self.yellow_realm.unwrap_or_else(|| YellowRealm::new(green.clone()));
+        let orange = self.orange_realm.unwrap_or_else(|| OrangeRealm::new(yellow.clone()));
+        let red = self.red_realm.unwrap_or_else(|| RedRealm::new(orange.clone()));
+
+        // Create default spectrum configuration if not provided
+        let spectrum_config = self.spectrum_configuration.unwrap_or_else(|| {
+            let ratio = SpectrumRatio::new(1.5, SpectrumSide::SpaceTime);
+            IndividualSpectrumConfiguration::new(ratio)
+        });
+
+        SubSubLogos::new_internal(
+            self.entity_id,
+            self.entity_type,
+            self.parent_id,
+            self.composition,
+            self.environment_id,
+            violet,
+            indigo,
+            blue,
+            green,
+            yellow,
+            orange,
+            red,
+            spectrum_config,
+        )
+    }
+}
+
 impl SubSubLogos {
+    /// Create a builder for constructing a SubSubLogos entity
+    pub fn builder(entity_id: EntityId, entity_type: EntityType) -> SubSubLogosBuilder {
+        SubSubLogosBuilder::new(entity_id, entity_type)
+    }
+
     /// Create a new Sub-Sub-Logos entity
     ///
     /// This represents the birth of an entity that inherits
@@ -495,7 +679,47 @@ impl SubSubLogos {
     ///
     /// Phase 0 Refactor: Added composition and environment_id parameters to model
     /// hierarchical composition and entity-environment relationships.
+    ///
+    /// NOTE: Consider using the builder pattern (`SubSubLogos::builder()`) for
+    /// more ergonomic entity creation with sensible defaults.
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
+        entity_id: EntityId,
+        entity_type: EntityType,
+        parent_id: Option<EntityId>,
+        composition: Vec<EntityId>,
+        environment_id: Option<EntityId>,
+        violet_realm: VioletRealm,
+        indigo_realm: IndigoRealm,
+        blue_realm: BlueRealm,
+        green_realm: GreenRealm,
+        yellow_realm: YellowRealm,
+        orange_realm: OrangeRealm,
+        red_realm: RedRealm,
+        spectrum_configuration: IndividualSpectrumConfiguration,
+    ) -> Self {
+        Self::new_internal(
+            entity_id,
+            entity_type,
+            parent_id,
+            composition,
+            environment_id,
+            violet_realm,
+            indigo_realm,
+            blue_realm,
+            green_realm,
+            yellow_realm,
+            orange_realm,
+            red_realm,
+            spectrum_configuration,
+        )
+    }
+
+    /// Internal constructor for SubSubLogos entity
+    ///
+    /// This is the actual implementation used by both `new()` and the builder.
+    #[allow(clippy::too_many_arguments)]
+    fn new_internal(
         entity_id: EntityId,
         entity_type: EntityType,
         parent_id: Option<EntityId>,
@@ -1021,7 +1245,7 @@ impl SubSubLogos {
                         archetype_activation,
                         position,
                     );
-                    Matter::Particle(particle)
+                    Matter::Particle(Box::new(particle))
                 } else if consciousness < 0.5 {
                     // Atoms
                     let (protons, neutrons) = self.determine_atomic_properties();

@@ -562,11 +562,13 @@ mod tests {
     use super::*;
 
     // Mock archetype for testing paired relationships
+    #[allow(dead_code)]
     struct MockArchetype {
         lambda: LambdaMeasurement,
         tarot: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockArchetype {
         fn new(lambda_value: Float) -> Self {
             MockArchetype {

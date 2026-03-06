@@ -55,11 +55,9 @@ impl ArchetypeActivationState {
     /// Get all 22 activations as a flat array
     pub fn to_array(&self) -> [Float; 22] {
         let mut result = [0.0; 22];
-        for i in 0..7 {
-            result[i] = self.mind[i];
-            result[i + 7] = self.body[i];
-            result[i + 14] = self.spirit[i];
-        }
+        result[..7].copy_from_slice(&self.mind);
+        result[7..14].copy_from_slice(&self.body);
+        result[14..21].copy_from_slice(&self.spirit);
         result[21] = self.choice;
         result
     }

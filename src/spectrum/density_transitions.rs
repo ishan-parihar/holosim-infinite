@@ -18,6 +18,21 @@ use crate::evolution_density_octave::density_octave::{
 };
 use std::collections::HashMap;
 
+/// Parameters for checking transition readiness
+#[derive(Debug, Clone)]
+pub struct ReadinessCheckParams {
+    /// Entity coherence level
+    pub coherence: f64,
+    /// Experience points accumulated
+    pub experience: i64,
+    /// Polarity level
+    pub polarity: f64,
+    /// Number of lessons learned
+    pub lessons: i32,
+    /// Position on the spectrum
+    pub spectrum_position: f64,
+}
+
 /// Transition readiness assessment
 #[derive(Debug, Clone)]
 pub struct TransitionReadiness {
@@ -167,34 +182,30 @@ impl DensityTransitionSystem {
         &self,
         entity_id: u64,
         current_density: Density,
-        coherence: f64,
-        experience: i64,
-        polarity: f64,
-        _lessons: i32,
-        _spectrum_position: f64,
+        params: ReadinessCheckParams,
     ) -> TransitionReadiness {
         let mut requirements_met = Vec::new();
         let mut requirements_pending = Vec::new();
 
         // Check coherence
-        if coherence >= self.config.coherence_threshold {
-            requirements_met.push(TransitionRequirement::Coherence(coherence));
+        if params.coherence >= self.config.coherence_threshold {
+            requirements_met.push(TransitionRequirement::Coherence(params.coherence));
         } else {
-            requirements_pending.push(TransitionRequirement::Coherence(coherence));
+            requirements_pending.push(TransitionRequirement::Coherence(params.coherence));
         }
 
         // Check experience
-        if experience >= self.config.experience_threshold {
-            requirements_met.push(TransitionRequirement::Experience(experience));
+        if params.experience >= self.config.experience_threshold {
+            requirements_met.push(TransitionRequirement::Experience(params.experience));
         } else {
-            requirements_pending.push(TransitionRequirement::Experience(experience));
+            requirements_pending.push(TransitionRequirement::Experience(params.experience));
         }
 
         // Check polarity
-        if polarity >= self.config.polarity_threshold {
-            requirements_met.push(TransitionRequirement::Polarity(polarity));
+        if params.polarity >= self.config.polarity_threshold {
+            requirements_met.push(TransitionRequirement::Polarity(params.polarity));
         } else {
-            requirements_pending.push(TransitionRequirement::Polarity(polarity));
+            requirements_pending.push(TransitionRequirement::Polarity(params.polarity));
         }
 
         // Calculate readiness score
@@ -429,14 +440,18 @@ mod tests {
     fn test_transition_readiness() {
         let system = DensityTransitionSystem::new();
 
+        let params = ReadinessCheckParams {
+            coherence: 0.8,
+            experience: 1000,
+            polarity: 0.7,
+            lessons: 10,
+            spectrum_position: 0.5,
+        };
+
         let readiness = system.check_readiness(
             1,
             Density::First(Density1SubLevel::Quantum),
-            0.8,  // coherence
-            1000, // experience
-            0.7,  // polarity
-            10,   // lessons
-            0.5,  // spectrum position
+            params,
         );
 
         assert!(readiness.readiness_score >= 0.5);

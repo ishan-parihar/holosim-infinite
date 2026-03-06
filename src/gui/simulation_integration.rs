@@ -355,10 +355,13 @@ impl SimulationGuiIntegration {
     }
 }
 
+/// Type alias for simulation event subscriber callback
+type EventSubscriberCallback = Box<dyn Fn(&SimulationEvent) + Send + Sync>;
+
 /// Event bridge for real-time event streaming
 pub struct EventBridge {
     /// Event senders
-    subscribers: Vec<Box<dyn Fn(&SimulationEvent) + Send + Sync>>,
+    subscribers: Vec<EventSubscriberCallback>,
 }
 
 impl EventBridge {

@@ -1008,7 +1008,7 @@ pub enum RNABase {
 /// Matter enum (placeholder)
 #[derive(Debug, Clone)]
 pub enum Matter {
-    Particle(Particle),
+    Particle(Box<Particle>),
     Atom(Atom),
     Molecule(Molecule),
     Cell(Cell),
@@ -1049,7 +1049,7 @@ impl Matter {
     /// Get particles (LEGACY - for backward compatibility)
     pub fn particles(&self) -> Vec<&Particle> {
         match self {
-            Matter::Particle(p) => vec![p],
+            Matter::Particle(p) => vec![p.as_ref()],
             Matter::Atom(a) => {
                 let mut particles: Vec<&Particle> = vec![];
                 particles.extend(a.protons.iter());
@@ -1064,7 +1064,7 @@ impl Matter {
     /// Get particles mutably (LEGACY - for backward compatibility)
     pub fn particles_mut(&mut self) -> Vec<&mut Particle> {
         match self {
-            Matter::Particle(p) => vec![p],
+            Matter::Particle(p) => vec![p.as_mut()],
             Matter::Atom(a) => {
                 let mut particles: Vec<&mut Particle> = vec![];
                 particles.extend(a.protons.iter_mut());

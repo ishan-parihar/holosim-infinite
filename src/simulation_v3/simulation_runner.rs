@@ -3044,7 +3044,7 @@ mod tests {
             || runner
                 .causal_inversion_runner
                 .as_ref()
-                .map_or(false, |cir| cir.entity_count() > 0);
+                .is_some_and(|cir| cir.entity_count() > 0);
         assert!(
             entities_exist,
             "Entities should exist in either legacy or causal inversion mode"

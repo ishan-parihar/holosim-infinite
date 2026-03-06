@@ -17,6 +17,7 @@ impl Camera {
     /// * `start_position` - Starting camera position
     /// * `start_zoom` - Starting zoom level
     /// * `start_rotation` - Starting rotation angle
+    #[allow(clippy::too_many_arguments)]
     pub fn smooth_transition_to(
         &mut self,
         target_position: Vec3,

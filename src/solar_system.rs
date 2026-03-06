@@ -172,6 +172,7 @@ impl SolarSystemConstraints {
     /// Create a custom solar system configuration
     ///
     /// Phase 4: Updated to accept Logos' choices and optional holographic reference
+    #[allow(clippy::too_many_arguments)]
     pub fn custom(
         gravity: Float,
         electromagnetism: Float,

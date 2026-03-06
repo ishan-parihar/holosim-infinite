@@ -267,6 +267,7 @@ impl AttractorPattern {
     /// Create a new attractor pattern
     ///
     /// This is the basic constructor. For organic emergence, use emerge_from_archetypes().
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         attractor_id: AttractorID,
         resonance_frequency: Float,
@@ -885,6 +886,7 @@ mod tests {
     };
 
     // Mock archetype for testing
+    #[allow(dead_code)]
     struct MockArchetype {
         archetype_id: u8,
         lambda: LambdaMeasurement,

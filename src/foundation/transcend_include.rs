@@ -161,10 +161,10 @@ where
 ///
 /// // Build a chain: Violet -> Indigo -> Blue -> Green
 /// let layer = LayerBuilder::new()
-///     .add("Violet Data")   // Deepest (level 0)
-///     .add("Indigo Data")   // Level 1
-///     .add("Blue Data")     // Level 2
-///     .add("Green Data")    // Top (level 3)
+///     .push_layer("Violet Data")   // Deepest (level 0)
+///     .push_layer("Indigo Data")   // Level 1
+///     .push_layer("Blue Data")     // Level 2
+///     .push_layer("Green Data")    // Top (level 3)
 ///     .build();
 /// ```
 #[derive(Debug, Clone)]
@@ -316,9 +316,9 @@ impl<T> LayerBuilder<T> {
         Self { layers: Vec::new() }
     }
 
-    /// Add a layer (will be transcended by next)
+    /// Push a layer (will be transcended by next)
     /// First added = deepest (level 0), last added = top
-    pub fn add(mut self, data: T) -> Self {
+    pub fn push_layer(mut self, data: T) -> Self {
         self.layers.push(data);
         self
     }
@@ -487,9 +487,9 @@ mod tests {
     #[test]
     fn test_layer_get_all_data() {
         let layer = LayerBuilder::new()
-            .add("Violet")
-            .add("Indigo")
-            .add("Blue")
+            .push_layer("Violet")
+            .push_layer("Indigo")
+            .push_layer("Blue")
             .build();
 
         let all_data = layer.get_all_data();
@@ -502,9 +502,9 @@ mod tests {
     #[test]
     fn test_layer_get_layer_at_depth() {
         let layer = LayerBuilder::new()
-            .add("Violet")
-            .add("Indigo")
-            .add("Blue")
+            .push_layer("Violet")
+            .push_layer("Indigo")
+            .push_layer("Blue")
             .build();
 
         // depth 0 = top (Blue)
@@ -523,10 +523,10 @@ mod tests {
         assert_eq!(single.depth(), 1);
 
         let chain = LayerBuilder::new()
-            .add("L0")
-            .add("L1")
-            .add("L2")
-            .add("L3")
+            .push_layer("L0")
+            .push_layer("L1")
+            .push_layer("L2")
+            .push_layer("L3")
             .build();
         assert_eq!(chain.depth(), 4);
     }
@@ -534,9 +534,9 @@ mod tests {
     #[test]
     fn test_layer_for_each() {
         let layer = LayerBuilder::new()
-            .add("Violet")
-            .add("Indigo")
-            .add("Blue")
+            .push_layer("Violet")
+            .push_layer("Indigo")
+            .push_layer("Blue")
             .build();
 
         let mut visited = Vec::new();
@@ -553,7 +553,7 @@ mod tests {
 
     #[test]
     fn test_layer_contains_layer() {
-        let layer = LayerBuilder::new().add("L0").add("L1").add("L2").build();
+        let layer = LayerBuilder::new().push_layer("L0").push_layer("L1").push_layer("L2").build();
 
         assert!(layer.contains_layer(0));
         assert!(layer.contains_layer(1));
@@ -564,9 +564,9 @@ mod tests {
     #[test]
     fn test_layer_topmost_and_deepest() {
         let layer = LayerBuilder::new()
-            .add("Violet")
-            .add("Indigo")
-            .add("Blue")
+            .push_layer("Violet")
+            .push_layer("Indigo")
+            .push_layer("Blue")
             .build();
 
         assert_eq!(layer.topmost(), &"Blue");
@@ -595,7 +595,7 @@ mod tests {
 
     #[test]
     fn test_layer_builder_clone() {
-        let builder = LayerBuilder::new().add("A").add("B");
+        let builder = LayerBuilder::new().push_layer("A").push_layer("B");
 
         let cloned = builder.clone();
         let layer1 = builder.build();
@@ -611,7 +611,7 @@ mod tests {
         let expected_strengths = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8];
 
         for (level, &expected) in expected_strengths.iter().enumerate() {
-            let layer = LayerBuilder::new().add("Base").build();
+            let layer = LayerBuilder::new().push_layer("Base").build();
 
             // Manually create layer at specific level
             let mut current = layer;
@@ -631,10 +631,10 @@ mod tests {
     fn test_layer_holographic_principle() {
         // Each layer contains the whole - the holographic principle
         let layer = LayerBuilder::new()
-            .add("Violet Data")
-            .add("Indigo Data")
-            .add("Blue Data")
-            .add("Green Data")
+            .push_layer("Violet Data")
+            .push_layer("Indigo Data")
+            .push_layer("Blue Data")
+            .push_layer("Green Data")
             .build();
 
         // All data is accessible from top layer

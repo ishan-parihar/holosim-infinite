@@ -823,12 +823,7 @@ impl FractalCacheEntry {
 
     /// Get the finest populated level
     pub fn get_finest_level(&self) -> Option<usize> {
-        for level in 0..=7 {
-            if self.get_level(level).is_some() {
-                return Some(level);
-            }
-        }
-        None
+        (0..=7).find(|&level| self.get_level(level).is_some())
     }
 
     /// Get the coarsest populated level

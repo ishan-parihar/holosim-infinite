@@ -278,6 +278,9 @@ pub enum InputEvent {
     },
 }
 
+/// Type alias for input event callback
+type InputCallback = Box<dyn Fn(&InputEvent) + Send + Sync>;
+
 /// Input handler for unified input management
 pub struct InputHandler {
     /// Current key bindings
@@ -299,7 +302,7 @@ pub struct InputHandler {
     /// Current modifiers
     modifiers: Modifiers,
     /// Input callbacks
-    callbacks: HashMap<InputAction, Vec<Box<dyn Fn(&InputEvent) + Send + Sync>>>,
+    callbacks: HashMap<InputAction, Vec<InputCallback>>,
     /// Enable debug output
     debug_mode: bool,
 }

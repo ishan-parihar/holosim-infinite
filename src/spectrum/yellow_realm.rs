@@ -710,6 +710,7 @@ mod tests {
         field
     }
 
+    #[allow(dead_code)]
     fn create_test_archetype(id: usize, role: ArchetypeRole) -> Archetype {
         Archetype::new(
             id,

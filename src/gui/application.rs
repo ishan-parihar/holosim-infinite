@@ -2172,6 +2172,7 @@ impl GuiApplication {
                 ui.small("Press F1 to close this overlay");
             });
     }
+    #[allow(clippy::too_many_arguments)]
     fn build_default_docking_manager(
         entity_inspector_id: PanelId,
         collective_dashboard_id: PanelId,

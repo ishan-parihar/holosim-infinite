@@ -447,7 +447,7 @@ impl SceneGraph {
         }
 
         // Sort by render priority (descending)
-        objects.sort_by(|a, b| b.render_priority().cmp(&a.render_priority()));
+        objects.sort_by_key(|b| std::cmp::Reverse(b.render_priority()));
 
         objects
     }

@@ -1911,7 +1911,7 @@ mod phase6_tests {
         ];
 
         let mut entities = HashMap::new();
-        for (_i, id) in member_ids.iter().enumerate() {
+        for id in member_ids.iter() {
             // Create entities with similar consciousness levels (high resonance)
             let entity = create_test_entity(
                 id.uuid.clone(),

@@ -396,11 +396,13 @@ mod tests {
     use super::*;
 
     // Mock archetype for testing
+    #[allow(dead_code)]
     struct MockCatalystBody {
         lambda: LambdaMeasurement,
         tarot: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockCatalystBody {
         fn new() -> Self {
             Self {

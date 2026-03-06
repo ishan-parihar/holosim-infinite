@@ -1046,8 +1046,8 @@ mod tests {
 
     #[test]
     fn test_continuity_threshold() {
-        assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD > 0.0);
-        assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD <= 1.0);
+        const { assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD > 0.0); }
+        const { assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD <= 1.0); }
     }
 
     #[test]

@@ -82,7 +82,7 @@ pub enum AudioFormat {
 
 impl AudioFormat {
     /// Convert to SDL2_mixer format
-    fn to_sdl2_format(&self) -> u16 {
+    fn to_sdl2_format(self) -> u16 {
         match self {
             AudioFormat::U8 => AUDIO_U8,
             AudioFormat::S8 => AUDIO_S8,

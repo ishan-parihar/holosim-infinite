@@ -125,11 +125,14 @@ fn fs_main(input: VertexOutput) -> @location(0) vec4<f32> {
 }
 "#;
 
+/// Type alias for sphere geometry data (vertices, normals, uvs, indices)
+pub type SphereGeometry = (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<u32>);
+
 /// Sphere geometry generation
 pub fn generate_sphere_geometry(
     segments: u32,
     rings: u32,
-) -> (Vec<[f32; 3]>, Vec<[f32; 3]>, Vec<[f32; 2]>, Vec<u32>) {
+) -> SphereGeometry {
     use std::f32::consts::PI;
 
     let mut vertices: Vec<[f32; 3]> = Vec::new();

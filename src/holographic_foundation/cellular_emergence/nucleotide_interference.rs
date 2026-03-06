@@ -245,10 +245,6 @@ impl NucleotideSequence {
         Self::from_nucleotides(complement_nucs)
     }
 
-    pub fn to_string(&self) -> String {
-        self.nucleotides.iter().map(|n| n.symbol()).collect()
-    }
-
     pub fn total_interference(&self) -> Float {
         self.interference_pattern.iter().sum()
     }
@@ -258,6 +254,15 @@ impl NucleotideSequence {
             return 0.0;
         }
         self.total_interference() / self.interference_pattern.len() as Float
+    }
+}
+
+impl std::fmt::Display for NucleotideSequence {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for n in &self.nucleotides {
+            write!(f, "{}", n.symbol())?;
+        }
+        Ok(())
     }
 }
 

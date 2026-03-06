@@ -7,6 +7,11 @@
 
 use std::collections::HashMap;
 
+/// Type alias for tutorial progress callback
+type TutorialProgressCallback = Box<dyn Fn(&str, usize, usize) + Send>;
+/// Type alias for tutorial completion callback
+type TutorialCompletionCallback = Box<dyn Fn(&str) + Send>;
+
 /// A single step in the tutorial
 #[derive(Debug, Clone)]
 pub struct TutorialStep {
@@ -285,9 +290,9 @@ pub struct TutorialManager {
     /// Completed tutorial IDs
     completed_tutorials: Vec<String>,
     /// Tutorial progress callbacks
-    progress_callbacks: Vec<Box<dyn Fn(&str, usize, usize) + Send>>,
+    progress_callbacks: Vec<TutorialProgressCallback>,
     /// Completion callbacks
-    completion_callbacks: Vec<Box<dyn Fn(&str) + Send>>,
+    completion_callbacks: Vec<TutorialCompletionCallback>,
     /// Whether user has dismissed tutorials
     pub dismissed: bool,
 }

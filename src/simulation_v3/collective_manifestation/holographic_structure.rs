@@ -760,8 +760,8 @@ impl HolographicStructure {
     /// * `coherence` - New coherence value (0.0 to 1.0)
     pub fn update_stability(&mut self, coherence: Float) {
         // Stability follows sigmoid curve based on coherence
-        let sigmoid = |x: Float| 1.0 / (1.0 + (-5.0 * (x - 0.5)).exp());
-        self.stability = sigmoid(coherence.clamp(0.0, 1.0));
+        let clamped = coherence.clamp(0.0, 1.0);
+        self.stability = 1.0 / (1.0 + (-5.0 * (clamped - 0.5)).exp());
     }
 
     /// Get build completion percentage

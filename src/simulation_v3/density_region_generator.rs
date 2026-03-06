@@ -855,7 +855,7 @@ mod tests {
         ] {
             generator
                 .generate_region(density, bounds)
-                .expect(&format!("Failed to generate {:?} region", density));
+                .unwrap_or_else(|_| panic!("Failed to generate {:?} region", density));
         }
 
         assert_eq!(generator.regions.len(), 8);

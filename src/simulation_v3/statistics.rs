@@ -16,6 +16,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::time::Duration;
 
+/// Type alias for spectrum accumulator data used in statistics calculations
+/// (spectrum_ratios, space_time_access, time_space_access, count)
+type SpectrumAccumulator = (Vec<Float>, Vec<Float>, Vec<Float>, usize);
+
 // ============================================================================
 // SIMULATION STATISTICS
 // ============================================================================
@@ -466,6 +470,7 @@ impl StatisticsTracker {
     }
 
     /// Record evolution step
+    #[allow(clippy::too_many_arguments)]
     pub fn record_evolution_step(
         &mut self,
         step: u64,
@@ -869,8 +874,7 @@ impl StatisticsTracker {
         }
 
         // Calculate statistics by entity type
-        let mut by_type: HashMap<String, (Vec<Float>, Vec<Float>, Vec<Float>, usize)> =
-            HashMap::new();
+        let mut by_type: HashMap<String, SpectrumAccumulator> = HashMap::new();
 
         for i in 0..num_entities {
             let entity_type = entity_types[i].clone();
@@ -914,8 +918,7 @@ impl StatisticsTracker {
         }
 
         // Calculate statistics by scale
-        let mut by_scale: HashMap<String, (Vec<Float>, Vec<Float>, Vec<Float>, usize)> =
-            HashMap::new();
+        let mut by_scale: HashMap<String, SpectrumAccumulator> = HashMap::new();
 
         for i in 0..num_entities {
             let scale = scales[i].clone();

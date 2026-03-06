@@ -1695,7 +1695,7 @@ mod tests {
         assert_eq!(state_id.linear_index(), 342);
 
         let state_id = StateID::new(1, 2, 3).unwrap();
-        assert_eq!(state_id.linear_index(), 1 * 49 + 2 * 7 + 3);
+        assert_eq!(state_id.linear_index(), 49 + 2 * 7 + 3);
     }
 
     #[test]
@@ -2257,7 +2257,7 @@ mod tests {
         assert!(state1.is_some());
 
         // Drop the first reference before accessing again
-        drop(state1);
+        let _ = state1;
 
         let state2 = container.get_sub_sub_density(3, 2, 1);
         assert!(state2.is_some());

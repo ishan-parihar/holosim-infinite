@@ -249,6 +249,9 @@ impl FontConfig {
     }
 }
 
+/// Type alias for font configuration change callback
+type FontChangeCallback = Box<dyn Fn(&FontConfig) + Send>;
+
 /// Font configuration manager
 pub struct FontManager {
     /// Current configuration
@@ -256,7 +259,7 @@ pub struct FontManager {
     /// Available custom fonts
     custom_fonts: Vec<String>,
     /// Change callbacks
-    change_callbacks: Vec<Box<dyn Fn(&FontConfig) + Send>>,
+    change_callbacks: Vec<FontChangeCallback>,
 }
 
 impl Default for FontManager {

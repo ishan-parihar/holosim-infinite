@@ -1507,6 +1507,7 @@ impl EntityInvolutionEvolutionState {
     }
 
     /// Create a new entity state with custom values
+    #[allow(clippy::too_many_arguments)]
     pub fn with_values(
         entity_id: HolonID,
         density: Density,

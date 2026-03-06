@@ -477,18 +477,9 @@ impl EnergyFlowSystem {
     }
 
     /// Get energy for a specific entity (based on density and factors)
-    pub fn get_energy_for_entity(
-        &mut self,
-        entity_id: HolonID,
-        density: u8,
-        developmental_level: Float,
-        polarization_intensity: Float,
-        resonance: Float,
-        energy_need: Float,
-        free_will_capacity: Float,
-    ) -> Float {
+    pub fn get_energy_for_entity(&mut self, request: EnergyRequest) -> Float {
         // Determine which energy pool to use
-        let _source = match density {
+        let _source = match request.density {
             7 => EnergySource::CosmicLogos,
             6 => EnergySource::SubLogos,
             5 => EnergySource::Logos,
@@ -496,17 +487,6 @@ impl EnergyFlowSystem {
             1..=3 => EnergySource::PhysicalEntities,
             _ => EnergySource::PhysicalEntities,
         };
-
-        // Create energy request
-        let request = EnergyRequest::new(
-            entity_id,
-            density,
-            developmental_level,
-            polarization_intensity,
-            resonance,
-            energy_need,
-            free_will_capacity,
-        );
 
         // Distribute energy (single entity)
         let mut requests = vec![request];
@@ -721,7 +701,8 @@ mod tests {
     fn test_energy_flow_system_get_energy_for_entity() {
         let mut system = EnergyFlowSystem::new(10000.0);
 
-        let energy = system.get_energy_for_entity(1, 3, 0.8, 0.9, 0.7, 0.5, 0.8);
+        let request = EnergyRequest::new(1, 3, 0.8, 0.9, 0.7, 0.5, 0.8);
+        let energy = system.get_energy_for_entity(request);
 
         assert!(energy > 0.0);
     }

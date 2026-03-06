@@ -183,6 +183,7 @@ impl EntityVisualizer {
     }
 
     /// Convert entity to render data
+    #[allow(clippy::too_many_arguments)]
     pub fn entity_to_render_data(
         &self,
         _entity_id: &EntityId,

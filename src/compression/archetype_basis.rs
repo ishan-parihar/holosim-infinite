@@ -717,6 +717,8 @@ mod tests {
         assert_eq!(cache.stats.hits, 1);
         assert_eq!(pattern_value, 0.5);
     }
+
+    #[test]
     fn test_interference_cache_clear() {
         let mut cache = ArchetypicalInterferenceCache::new(100);
         let coefficients = [0.5; 22];

@@ -712,8 +712,7 @@ mod tests {
 
         let props = ParticleProperties::from_archetype_activation(&activation);
 
-        if props.lifetime.is_some() {
-            let lifetime = props.lifetime.unwrap();
+        if let Some(lifetime) = props.lifetime {
             assert!(lifetime > 0.0, "Lifetime should be positive");
         }
     }
@@ -747,6 +746,6 @@ mod tests {
         assert_eq!(props.charge, 0.0);
         assert_eq!(props.spin, 0.0);
         assert!(props.lifetime.is_none());
-        assert!(!props.resonance.is_some());
+        assert!(props.resonance.is_none());
     }
 }

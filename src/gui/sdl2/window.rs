@@ -135,7 +135,9 @@ impl Sdl2Window {
     /// This creates a new surface each time it's called. The caller is responsible
     /// for managing the surface lifecycle.
     ///
-    /// SAFETY: The returned surface is only valid as long as this window exists.
+    /// # Safety
+    ///
+    /// The returned surface is only valid as long as this window exists.
     /// Note: Due to SDL2's internal Rc usage, this must be called from the main thread
     /// and the surface cannot be sent to other threads.
     pub unsafe fn create_surface(

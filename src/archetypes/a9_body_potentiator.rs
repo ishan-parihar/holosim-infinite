@@ -931,10 +931,12 @@ mod tests {
 
         // Create a mock paired archetype for testing
         // In real implementation, this would be the actual A8 Body Matrix
+        #[allow(dead_code)]
         struct MockMatrix {
             lambda: LambdaMeasurement,
             tarot: TarotCorrelation,
         }
+        #[allow(dead_code)]
         impl MockMatrix {
             fn new() -> Self {
                 Self {

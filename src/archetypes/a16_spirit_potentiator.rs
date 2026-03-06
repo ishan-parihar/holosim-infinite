@@ -672,11 +672,13 @@ mod tests {
     use super::*;
 
     // Mock A15 Matrix of Spirit for testing paired relationships
+    #[allow(dead_code)]
     struct MockMatrixSpirit {
         lambda: LambdaMeasurement,
         tarot: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockMatrixSpirit {
         fn new(lambda_value: Float) -> Self {
             MockMatrixSpirit {

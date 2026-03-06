@@ -115,7 +115,7 @@ mod integration_tests {
         soul_stream.end_incarnation(incarnation_id, 0.7, vec!["lesson1".to_string()]);
 
         // Verify integration
-        let incarnation = soul_stream.incarnation_history.get(0).unwrap();
+        let incarnation = soul_stream.incarnation_history.first().unwrap();
         assert_eq!(incarnation.incarnation_id, incarnation_id);
         assert_eq!(incarnation.polarity_achieved, 0.7);
     }

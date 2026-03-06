@@ -328,6 +328,7 @@ impl EntityVisualizer {
     }
 
     /// Convert entity to visualization data
+    #[allow(clippy::too_many_arguments)]
     pub fn entity_to_visualization_data(
         &self,
         _entity_id: &EntityId,

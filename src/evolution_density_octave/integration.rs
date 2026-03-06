@@ -124,8 +124,8 @@ impl Layer7ToDensityBridge {
         if !self.check_entity_meets_requirements(entity, &requirements) {
             return Err(DensityTransitionError::RequirementsNotMet {
                 entity_id,
-                requirements: requirements.clone(),
-                current_state: entity.current_state.clone(),
+                requirements: Box::new(requirements.clone()),
+                current_state: Box::new(entity.current_state.clone()),
             });
         }
 
@@ -265,8 +265,8 @@ pub enum DensityTransitionError {
     EntityNotFound(EntityId),
     RequirementsNotMet {
         entity_id: EntityId,
-        requirements: DensityTransitionRequirements,
-        current_state: EntityState,
+        requirements: Box<DensityTransitionRequirements>,
+        current_state: Box<EntityState>,
     },
     NotReady {
         entity_id: EntityId,

@@ -248,11 +248,13 @@ mod tests {
     use super::*;
 
     // Mock archetype for testing
+    #[allow(dead_code)]
     struct MockExperienceBody {
         lambda: LambdaMeasurement,
         tarot: TarotCorrelation,
     }
 
+    #[allow(dead_code)]
     impl MockExperienceBody {
         fn new() -> Self {
             Self {

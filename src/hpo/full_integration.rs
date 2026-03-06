@@ -599,6 +599,7 @@ impl IntegrationBridge {
     }
 
     /// Process full integration step
+    #[allow(clippy::too_many_arguments)]
     pub fn step(
         &mut self,
         field_coherence: Float,

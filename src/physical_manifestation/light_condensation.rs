@@ -479,7 +479,7 @@ impl CondensationThreshold {
 #[derive(Debug, Clone)]
 pub enum CondensationResult {
     /// Successful condensation
-    Success(Particle),
+    Success(Box<Particle>),
 
     /// Failed condensation - energy too low
     EnergyTooLow(Float),
@@ -601,7 +601,7 @@ impl LightToMatterCondensationEngine {
         self.particles_created += 1;
         self.total_energy_condensed += energy;
 
-        CondensationResult::Success(particle)
+        CondensationResult::Success(Box::new(particle))
     }
 
     /// Extract archetype activation values from LightArchitecture

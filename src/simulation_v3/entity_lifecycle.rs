@@ -2355,8 +2355,8 @@ fn test_polarization_distribution() {
         // All entities start at First density
         use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel};
         let initial_density = match i {
-            0 | 1 | 2 => Density::First(Density1SubLevel::Quantum),
-            3 | 4 | 5 => Density::First(Density1SubLevel::Atomic),
+            0..=2 => Density::First(Density1SubLevel::Quantum),
+            3..=5 => Density::First(Density1SubLevel::Atomic),
             _ => Density::First(Density1SubLevel::Molecular),
         };
 

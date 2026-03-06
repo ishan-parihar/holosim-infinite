@@ -409,6 +409,9 @@ pub struct UiColors {
     pub selection: [f32; 4],
 }
 
+/// Type alias for theme change callback
+type ThemeChangeCallback = Box<dyn Fn(Theme, &ColorPalette) + Send>;
+
 /// Theme manager that handles theme switching and customization
 pub struct ThemeManager {
     /// Current active theme
@@ -418,7 +421,7 @@ pub struct ThemeManager {
     /// Custom themes storage
     custom_themes: HashMap<String, ColorPalette>,
     /// Theme change callbacks
-    change_callbacks: Vec<Box<dyn Fn(Theme, &ColorPalette) + Send>>,
+    change_callbacks: Vec<ThemeChangeCallback>,
     /// Whether to follow system theme
     follow_system: bool,
     /// Animation transition duration in seconds

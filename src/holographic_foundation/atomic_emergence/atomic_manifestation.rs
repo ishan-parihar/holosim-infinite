@@ -140,6 +140,18 @@ impl Default for ManifestationConditions {
     }
 }
 
+/// Configuration for atom manifestation events
+#[derive(Debug, Clone)]
+pub struct AtomManifestationConfig {
+    pub element: ElementIdentity,
+    pub position: Position3D,
+    pub manifestation_type: ManifestationType,
+    pub formation_energy: Float,
+    pub coherence: Float,
+    pub quantum_numbers: QuantumNumberSet,
+    pub archetype_vector: [Float; NUM_ARCHETYPES],
+}
+
 #[derive(Debug, Clone)]
 pub struct AtomFormationEvent {
     pub id: ManifestationId,
@@ -156,45 +168,37 @@ pub struct AtomFormationEvent {
 }
 
 impl AtomFormationEvent {
-    pub fn new(
-        element: ElementIdentity,
-        position: Position3D,
-        manifestation_type: ManifestationType,
-        formation_energy: Float,
-        coherence: Float,
-        quantum_numbers: QuantumNumberSet,
-        archetype_vector: [Float; NUM_ARCHETYPES],
-        timestamp: Float,
-    ) -> Self {
-        let stability = AttractorStability::from_coherence(coherence, element.is_noble_gas());
+    pub fn new(config: AtomManifestationConfig, timestamp: Float) -> Self {
+        let stability =
+            AttractorStability::from_coherence(config.coherence, config.element.is_noble_gas());
 
         Self {
             id: ManifestationId::new(rand_u64()),
-            element,
-            atomic_number: element.atomic_number(),
-            position,
-            manifestation_type,
-            formation_energy,
-            coherence_at_formation: coherence,
-            quantum_numbers,
-            archetype_vector,
+            element: config.element,
+            atomic_number: config.element.atomic_number(),
+            position: config.position,
+            manifestation_type: config.manifestation_type,
+            formation_energy: config.formation_energy,
+            coherence_at_formation: config.coherence,
+            quantum_numbers: config.quantum_numbers,
+            archetype_vector: config.archetype_vector,
             timestamp,
             stability,
         }
     }
 
     pub fn hydrogen(position: Position3D, coherence: Float, timestamp: Float) -> Self {
-        let config = FieldConfiguration::hydrogen_configuration();
-        Self::new(
-            ElementIdentity::Hydrogen,
+        let field_config = FieldConfiguration::hydrogen_configuration();
+        let config = AtomManifestationConfig {
+            element: ElementIdentity::Hydrogen,
             position,
-            ManifestationType::CompleteAtom,
-            13.6,
+            manifestation_type: ManifestationType::CompleteAtom,
+            formation_energy: 13.6,
             coherence,
-            config.quantum_numbers,
-            config.archetype_vector,
-            timestamp,
-        )
+            quantum_numbers: field_config.quantum_numbers,
+            archetype_vector: field_config.archetype_vector,
+        };
+        Self::new(config, timestamp)
     }
 
     pub fn is_stable(&self) -> bool {
@@ -407,16 +411,16 @@ impl AtomicManifestation {
         self.is_manifested = true;
         self.current_energy = self.element.formation_energy();
 
-        let event = AtomFormationEvent::new(
-            *self.element.identity(),
-            self.position,
-            ManifestationType::CompleteAtom,
-            self.current_energy,
-            self.element.configuration().coherence,
-            *self.element.quantum_numbers(),
-            self.element.configuration().archetype_vector,
-            timestamp,
-        );
+        let config = AtomManifestationConfig {
+            element: *self.element.identity(),
+            position: self.position,
+            manifestation_type: ManifestationType::CompleteAtom,
+            formation_energy: self.current_energy,
+            coherence: self.element.configuration().coherence,
+            quantum_numbers: *self.element.quantum_numbers(),
+            archetype_vector: self.element.configuration().archetype_vector,
+        };
+        let event = AtomFormationEvent::new(config, timestamp);
 
         self.formation_event = Some(event);
         self.generate_subatomic_components();

@@ -479,7 +479,7 @@ mod tests {
 
         soul_stream.end_incarnation(incarnation_id, 0.7, vec!["lesson1".to_string()]);
 
-        let incarnation = soul_stream.incarnation_history.get(0).unwrap();
+        let incarnation = soul_stream.incarnation_history.first().unwrap();
         assert_eq!(incarnation.polarity_achieved, 0.7);
         assert_eq!(incarnation.lessons_learned.len(), 1);
     }

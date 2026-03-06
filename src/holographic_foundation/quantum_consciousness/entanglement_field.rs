@@ -632,7 +632,7 @@ mod tests {
 
         field.create_entanglement(&node1, &node2, 0.0);
 
-        let stats = field.statistics();
+        let _stats = field.statistics();
         // total_entanglements is usize, always >= 0
     }
 }

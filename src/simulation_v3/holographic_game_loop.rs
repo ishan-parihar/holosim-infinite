@@ -589,7 +589,7 @@ mod tests {
             let result = game_loop.run_step(1.0);
             assert_eq!(result.step, i);
             assert_eq!(game_loop.current_step(), i);
-            assert_eq!(game_loop.current_time(), i as u64);
+            assert_eq!(game_loop.current_time(), i);
         }
     }
 }

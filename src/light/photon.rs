@@ -845,6 +845,7 @@ mod tests {
     }
 
     // Legacy test helper for backward compatibility
+    #[allow(dead_code)]
     fn create_test_light_architecture() -> LightArchitecture {
         let pattern = [ArchetypePatternBit::default(); 22];
         let encoding = ArchetypeEncoding {

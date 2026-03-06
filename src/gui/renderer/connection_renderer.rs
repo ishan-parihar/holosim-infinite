@@ -338,6 +338,7 @@ impl ConnectionRenderer {
     }
 
     /// Update structural + phase connections with a stage-aware intensity profile
+    #[allow(clippy::too_many_arguments)]
     pub fn update_connections_with_phase_network_profile(
         &mut self,
         queue: &wgpu::Queue,
@@ -361,6 +362,7 @@ impl ConnectionRenderer {
     }
 
     /// Update structural + phase connections with profile and neighborhood focus lens
+    #[allow(clippy::too_many_arguments)]
     pub fn update_connections_with_phase_network_profile_lens(
         &mut self,
         queue: &wgpu::Queue,
@@ -440,6 +442,7 @@ impl ConnectionRenderer {
     }
 
     /// Update field-derived structural + phase connections with profile and neighborhood focus lens
+    #[allow(clippy::too_many_arguments)]
     pub fn update_holo_connections_with_phase_network_profile_lens(
         &mut self,
         queue: &wgpu::Queue,
@@ -473,6 +476,7 @@ impl ConnectionRenderer {
     }
 
     /// Update camera matrix
+    #[allow(clippy::too_many_arguments)]
     pub fn update_camera(
         &mut self,
         queue: &wgpu::Queue,

@@ -87,10 +87,12 @@ impl Codon {
 
         sig
     }
+}
 
-    /// Get string representation
-    pub fn to_string(&self) -> String {
-        format!(
+impl std::fmt::Display for Codon {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
             "{}{}{}",
             self.0[0].code(),
             self.0[1].code(),

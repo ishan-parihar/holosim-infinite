@@ -489,8 +489,8 @@ mod tests {
 
     #[test]
     fn test_awakening_threshold_constant() {
-        assert!(AWAKENING_THRESHOLD > 0.0);
-        assert!(AWAKENING_THRESHOLD < 1.0);
+        const { assert!(AWAKENING_THRESHOLD > 0.0); }
+        const { assert!(AWAKENING_THRESHOLD < 1.0); }
         assert!((AWAKENING_THRESHOLD - 0.5).abs() < 0.001);
     }
 

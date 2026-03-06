@@ -29,6 +29,11 @@ use crate::gui::{Coordinate3D, ScreenPosition};
 use std::time::Instant;
 use winit::event::WindowEvent;
 
+/// Type alias for selection event callback
+type SelectionCallback = Box<dyn Fn(&EntityId) + Send + Sync>;
+/// Type alias for deselection event callback
+type DeselectionCallback = Box<dyn Fn() + Send + Sync>;
+
 /// Unified interaction system integrating all interaction components
 pub struct InteractionSystem {
     /// Raycaster for 3D picking
@@ -49,9 +54,9 @@ pub struct InteractionSystem {
     /// Current camera
     current_camera: Camera3D,
     /// Callbacks for selection events
-    selection_callbacks: Vec<Box<dyn Fn(&EntityId) + Send + Sync>>,
+    selection_callbacks: Vec<SelectionCallback>,
     /// Callbacks for deselection events
-    deselect_callbacks: Vec<Box<dyn Fn() + Send + Sync>>,
+    deselect_callbacks: Vec<DeselectionCallback>,
 }
 
 impl InteractionSystem {

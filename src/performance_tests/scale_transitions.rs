@@ -91,6 +91,7 @@ mod tests {
 
     /// Scale transition benchmark
     struct ScaleTransitionBenchmark {
+        #[allow(dead_code)]
         camera: MultiScaleCamera,
         from: ScaleLevel,
         to: ScaleLevel,

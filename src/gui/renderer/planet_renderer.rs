@@ -411,6 +411,7 @@ impl PlanetRenderer {
     }
 
     /// Update planet uniform
+    #[allow(clippy::too_many_arguments)]
     pub fn update_planet(
         &self,
         queue: &wgpu::Queue,

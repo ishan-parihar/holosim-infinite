@@ -234,30 +234,48 @@ pub struct TradeAgreement {
     pub trade_efficiency: Float,
 }
 
+/// Parameters for creating a new trade agreement
+///
+/// This struct groups the parameters needed to create a `TradeAgreement`,
+/// reducing the number of function arguments and improving code readability.
+#[derive(Debug, Clone)]
+pub struct TradeAgreementParams {
+    /// Unique identifier for this agreement
+    pub agreement_id: TradeId,
+    /// ID of the original offer
+    pub offer_id: TradeId,
+    /// Entity that accepted the offer
+    pub acceptor_id: EntityId,
+    /// Entity that created the original offer
+    pub offerer_id: EntityId,
+    /// Items transferred from offerer to acceptor
+    pub traded_items_from_offerer: Vec<ItemId>,
+    /// Items transferred from acceptor to offerer
+    pub traded_items_from_acceptor: Vec<ItemId>,
+    /// Resonance compatibility between the two entities (0.0-1.0)
+    pub resonance_compatibility: Float,
+    /// Time when the trade was completed
+    pub completion_time: Timestamp,
+}
+
 impl TradeAgreement {
-    /// Create a new trade agreement
-    pub fn new(
-        agreement_id: TradeId,
-        offer_id: TradeId,
-        acceptor_id: EntityId,
-        offerer_id: EntityId,
-        traded_items_from_offerer: Vec<ItemId>,
-        traded_items_from_acceptor: Vec<ItemId>,
-        resonance_compatibility: Float,
-        completion_time: Timestamp,
-    ) -> Self {
+    /// Create a new trade agreement from parameters
+    ///
+    /// # Arguments
+    /// * `params` - The trade agreement parameters
+    pub fn new(params: TradeAgreementParams) -> Self {
         // Trade efficiency is higher when resonance compatibility is higher
-        let trade_efficiency = 0.5 + resonance_compatibility * 0.5;
+        let trade_efficiency = 0.5 + params.resonance_compatibility * 0.5;
 
         Self {
-            agreement_id,
-            offer_id,
-            acceptor_id,
-            offerer_id,
-            traded_items_from_offerer,
-            traded_items_from_acceptor,
-            resonance_compatibility,
-            completion_time,
+            agreement_id: params.agreement_id,
+            offer_id: params.offer_id,
+            acceptor_id: params.acceptor_id,
+            offerer_id: params.offerer_id,
+            traded_items_from_offerer: params.traded_items_from_offerer,
+            traded_items_from_acceptor: params.traded_items_from_acceptor,
+            resonance_compatibility: params.resonance_compatibility,
+            completion_time: params.completion_time,
             trade_efficiency,
         }
     }
@@ -394,16 +412,16 @@ impl ResonanceExchange {
         }
 
         // Create the trade agreement
-        let agreement = TradeAgreement::new(
-            TradeId::new(offer.offer_id.as_u64() + 1000000), // Generate agreement ID from offer ID
-            offer.offer_id,
+        let agreement = TradeAgreement::new(TradeAgreementParams {
+            agreement_id: TradeId::new(offer.offer_id.as_u64() + 1000000), // Generate agreement ID from offer ID
+            offer_id: offer.offer_id,
             acceptor_id,
-            offer.offerer_id.clone(),
-            offer.offered_items.clone(),
-            offer.requested_items.clone(),
-            compatibility,
-            current_time,
-        );
+            offerer_id: offer.offerer_id.clone(),
+            traded_items_from_offerer: offer.offered_items.clone(),
+            traded_items_from_acceptor: offer.requested_items.clone(),
+            resonance_compatibility: compatibility,
+            completion_time: current_time,
+        });
 
         Ok(agreement)
     }
@@ -561,6 +579,7 @@ impl TradeMatcher {
     ///
     /// A counter-offer allows an entity to propose alternative terms
     /// while maintaining resonance compatibility.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_counter_offer(
         &self,
         original_offer: &TradeOffer,
@@ -1442,16 +1461,16 @@ mod tests {
         let offerer_id = EntityId::new("offerer-5".to_string());
         let acceptor_id = EntityId::new("acceptor-5".to_string());
         let entity_300 = EntityId::new("entity-300".to_string());
-        let agreement = TradeAgreement::new(
-            TradeId::new(1),
-            TradeId::new(2),
-            acceptor_id.clone(),
-            offerer_id.clone(),
-            vec![1u64],
-            vec![2u64],
-            0.85,
-            500.0,
-        );
+        let agreement = TradeAgreement::new(TradeAgreementParams {
+            agreement_id: TradeId::new(1),
+            offer_id: TradeId::new(2),
+            acceptor_id: acceptor_id.clone(),
+            offerer_id: offerer_id.clone(),
+            traded_items_from_offerer: vec![1u64],
+            traded_items_from_acceptor: vec![2u64],
+            resonance_compatibility: 0.85,
+            completion_time: 500.0,
+        });
 
         assert_eq!(agreement.agreement_id.as_u64(), 1);
         assert_eq!(agreement.offer_id.as_u64(), 2);
@@ -1468,29 +1487,29 @@ mod tests {
     fn test_trade_efficiency_calculation() {
         let offerer_id = EntityId::new("offerer-6a".to_string());
         let acceptor_id = EntityId::new("acceptor-6a".to_string());
-        let agreement_high = TradeAgreement::new(
-            TradeId::new(1),
-            TradeId::new(2),
-            acceptor_id.clone(),
-            offerer_id.clone(),
-            vec![],
-            vec![],
-            1.0, // Perfect compatibility
-            500.0,
-        );
+        let agreement_high = TradeAgreement::new(TradeAgreementParams {
+            agreement_id: TradeId::new(1),
+            offer_id: TradeId::new(2),
+            acceptor_id: acceptor_id.clone(),
+            offerer_id: offerer_id.clone(),
+            traded_items_from_offerer: vec![],
+            traded_items_from_acceptor: vec![],
+            resonance_compatibility: 1.0, // Perfect compatibility
+            completion_time: 500.0,
+        });
 
         let offerer_id2 = EntityId::new("offerer-6b".to_string());
         let acceptor_id2 = EntityId::new("acceptor-6b".to_string());
-        let agreement_low = TradeAgreement::new(
-            TradeId::new(2),
-            TradeId::new(3),
-            acceptor_id2.clone(),
-            offerer_id2.clone(),
-            vec![],
-            vec![],
-            0.0, // No compatibility
-            500.0,
-        );
+        let agreement_low = TradeAgreement::new(TradeAgreementParams {
+            agreement_id: TradeId::new(2),
+            offer_id: TradeId::new(3),
+            acceptor_id: acceptor_id2.clone(),
+            offerer_id: offerer_id2.clone(),
+            traded_items_from_offerer: vec![],
+            traded_items_from_acceptor: vec![],
+            resonance_compatibility: 0.0, // No compatibility
+            completion_time: 500.0,
+        });
 
         // Efficiency = 0.5 + compatibility * 0.5
         assert_eq!(agreement_high.trade_efficiency, 1.0);
@@ -2540,16 +2559,16 @@ mod tests {
 
     #[test]
     fn test_trade_agreement_getters() {
-        let agreement = TradeAgreement::new(
-            TradeId::new(1),
-            TradeId::new(2),
-            EntityId::new("acceptor-200".to_string()),
-            EntityId::new("offerer-100".to_string()),
-            vec![1u64, 2u64],
-            vec![3u64],
-            0.75,
-            500.0,
-        );
+        let agreement = TradeAgreement::new(TradeAgreementParams {
+            agreement_id: TradeId::new(1),
+            offer_id: TradeId::new(2),
+            acceptor_id: EntityId::new("acceptor-200".to_string()),
+            offerer_id: EntityId::new("offerer-100".to_string()),
+            traded_items_from_offerer: vec![1u64, 2u64],
+            traded_items_from_acceptor: vec![3u64],
+            resonance_compatibility: 0.75,
+            completion_time: 500.0,
+        });
 
         assert_eq!(agreement.total_items_exchanged(), 3);
         assert!(agreement.involves_entity(EntityId::new("offerer-100".to_string())));
