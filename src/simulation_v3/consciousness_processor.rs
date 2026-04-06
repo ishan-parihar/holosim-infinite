@@ -591,9 +591,9 @@ mod tests {
 
         // Create sensory field with various activations
         let sensory = SensoryField {
-            hunger: 0.8,        // Should generate Challenge catalyst
-            pain: 0.6,          // Should generate Health catalyst
-            threat_level: 0.6,  // Should generate Challenge catalyst
+            hunger: 0.8,           // Should generate Challenge catalyst
+            pain: 0.6,             // Should generate Health catalyst
+            threat_level: 0.6,     // Should generate Challenge catalyst
             heart_activation: 0.8, // Should generate Relationship catalyst
             ..Default::default()
         };

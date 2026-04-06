@@ -266,8 +266,7 @@ impl ResonanceFlow {
         if self.resonance_amount == 0.0 {
             return 0.0;
         }
-        (self.current_amount / self.resonance_amount)
-            .clamp(0.0, 1.0)
+        (self.current_amount / self.resonance_amount).clamp(0.0, 1.0)
     }
 }
 

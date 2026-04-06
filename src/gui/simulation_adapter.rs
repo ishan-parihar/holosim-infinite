@@ -83,6 +83,9 @@ pub struct SimulationRunnerAdapter {
 
     /// Cached simulation state for returning reference
     cached_state: crate::integrated_system::SimulationState,
+
+    /// Cached holographic field state for visualization
+    cached_field_state: crate::hpo::HolographicFieldState,
 }
 
 impl SimulationRunnerAdapter {
@@ -116,6 +119,7 @@ impl SimulationRunnerAdapter {
             total_entities_created: 0,
             initialized: false,
             cached_state: crate::integrated_system::SimulationState::default(),
+            cached_field_state: crate::hpo::HolographicFieldState::with_defaults(),
         }
     }
 
@@ -157,10 +161,7 @@ impl SimulationRunnerAdapter {
                 self.initialized = true;
             }
             Err(e) => {
-                eprintln!(
-                    "SimulationRunnerAdapter: Involution failed: {:?}",
-                    e
-                );
+                eprintln!("SimulationRunnerAdapter: Involution failed: {:?}", e);
             }
         }
     }
@@ -205,6 +206,13 @@ impl SimulationRunnerAdapter {
             emergence: crate::integrated_system::EmergenceState::default(),
             simulation_time: self.current_step() as Float,
         };
+
+        self.cached_field_state.time = self.current_step() as Float;
+        self.cached_field_state.average_coherence = self.calculate_coherence();
+        self.cached_field_state.total_energy = self.calculate_energy_balance();
+        self.cached_field_state.active_node_count = self.cached_entities.len().max(1);
+        self.cached_field_state.leaf_node_count = self.cached_entities.len().max(1);
+        self.cached_field_state.statistics.avg_magnitude = self.calculate_coherence();
     }
 
     /// Run simulation for multiple steps
@@ -285,19 +293,18 @@ impl SimulationRunnerAdapter {
 
     /// Get cosmic data for CosmosRenderer
     ///
-    /// Returns None until Phase 3 (Cosmos visualization) is implemented.
+    /// Delegates to get_cosmic_render_data() which extracts stellar systems,
+    /// planets, and cosmic web filaments from entity distribution.
     pub fn get_cosmic_data(&self) -> Option<CosmicRenderData> {
-        // TODO: Phase 3 - Extract from SimulationRunner -> CosmosEngine
-        // For now, return None until cosmos integration is complete
-        None
+        Some(self.get_cosmic_render_data())
     }
 
     /// Get planet data for PlanetRenderer
     ///
-    /// Returns None until Phase 4 (Planet visualization) is implemented.
-    pub fn get_planet_data(&self, _planet_id: u64) -> Option<PlanetRenderData> {
-        // TODO: Phase 4 - Extract from SimulationRunner -> LivingEnvironment -> Planet
-        None
+    /// Delegates to get_planet_render_data() which generates terrain,
+    /// water, cloud, storm, and settlement data from entity distribution.
+    pub fn get_planet_data(&self, planet_id: u64) -> Option<PlanetRenderData> {
+        Some(self.get_planet_render_data(planet_id))
     }
 
     /// Get civilization data for CivilizationRenderer
@@ -424,8 +431,6 @@ impl SimulationRunnerAdapter {
 
     /// Extract connection data from entity hierarchy
     fn extract_connections(&self) -> Vec<HierarchyConnection> {
-        
-
         let mut connections = Vec::new();
 
         // Generate connections from entity hierarchy
@@ -496,15 +501,10 @@ impl SimulationRunnerAdapter {
 
     /// Get the holographic field state for visualization
     ///
-    /// Returns None as this adapter uses SimulationRunner which has
-    /// a different field state representation. Will be implemented
-    /// when field visualization is connected.
-    pub fn get_holographic_field_state(
-        &self,
-    ) -> Option<&crate::hpo::HolographicFieldState> {
-        // TODO: Connect to SimulationRunner's field state
-        // The SimulationRunner has a HolographicFieldManager that has different state
-        None
+    /// Returns the cached field state derived from entity coherence,
+    /// energy, and distribution data.
+    pub fn get_holographic_field_state(&self) -> Option<&crate::hpo::HolographicFieldState> {
+        Some(&self.cached_field_state)
     }
 
     /// Get simulation state
@@ -625,7 +625,11 @@ impl SimulationRunnerAdapter {
     ///
     /// Returns entities that this entity is composed of.
     pub fn get_composition(&self, entity_id: &str) -> Vec<SubSubLogos> {
-        if let Some(entity) = self.raw_entities.values().find(|e| e.entity_id.uuid.as_str() == entity_id) {
+        if let Some(entity) = self
+            .raw_entities
+            .values()
+            .find(|e| e.entity_id.uuid.as_str() == entity_id)
+        {
             entity
                 .composition
                 .iter()
@@ -667,18 +671,17 @@ impl SimulationRunnerAdapter {
     ) -> Vec<SubSubLogos> {
         match (focus_entity_id, depth) {
             // Root level - show top-level entities (galaxies, galactic logoi)
-            (None, 0) => {
-                self.raw_entities
-                    .values()
-                    .filter(|e| {
-                        matches!(
-                            e.entity_type,
-                            crate::entity_layer7::layer7::EntityType::GalacticLogos
-                        ) || e.parent_id.is_none()
-                    })
-                    .cloned()
-                    .collect()
-            }
+            (None, 0) => self
+                .raw_entities
+                .values()
+                .filter(|e| {
+                    matches!(
+                        e.entity_type,
+                        crate::entity_layer7::layer7::EntityType::GalacticLogos
+                    ) || e.parent_id.is_none()
+                })
+                .cloned()
+                .collect(),
 
             // Inside an entity - show its children/composition
             (Some(focus_id), _) => {
@@ -694,7 +697,11 @@ impl SimulationRunnerAdapter {
                 result.extend(self.get_entities_in_environment(focus_id));
 
                 // Also include the focus entity itself (centered)
-                if let Some(focus) = self.raw_entities.values().find(|e| e.entity_id.uuid.as_str() == focus_id) {
+                if let Some(focus) = self
+                    .raw_entities
+                    .values()
+                    .find(|e| e.entity_id.uuid.as_str() == focus_id)
+                {
                     result.push(focus.clone());
                 }
 
@@ -709,7 +716,11 @@ impl SimulationRunnerAdapter {
     ///
     /// Returns information about an entity's position in the hierarchy.
     pub fn get_entity_hierarchy_info(&self, entity_id: &str) -> EntityHierarchyInfo {
-        if let Some(entity) = self.raw_entities.values().find(|e| e.entity_id.uuid.as_str() == entity_id) {
+        if let Some(entity) = self
+            .raw_entities
+            .values()
+            .find(|e| e.entity_id.uuid.as_str() == entity_id)
+        {
             let parent_name = entity
                 .parent_id
                 .as_ref()
@@ -732,7 +743,8 @@ impl SimulationRunnerAdapter {
                 children_count,
                 composition_count,
                 environment_name,
-                has_internal_structure: !entity.composition.is_empty() || !entity.children.is_empty(),
+                has_internal_structure: !entity.composition.is_empty()
+                    || !entity.children.is_empty(),
             }
         } else {
             EntityHierarchyInfo::default()
@@ -740,7 +752,10 @@ impl SimulationRunnerAdapter {
     }
 
     /// Get entity hierarchy info by EntityId
-    pub fn get_entity_hierarchy_info_by_id(&self, entity_id: &crate::entity_layer7::EntityId) -> EntityHierarchyInfo {
+    pub fn get_entity_hierarchy_info_by_id(
+        &self,
+        entity_id: &crate::entity_layer7::EntityId,
+    ) -> EntityHierarchyInfo {
         self.get_entity_hierarchy_info(entity_id.uuid.as_str())
     }
 
@@ -750,19 +765,25 @@ impl SimulationRunnerAdapter {
     /// - Direct children of the focus
     /// - In the composition of the focus
     /// - In the environment of the focus (if focus is an environment)
-    pub fn get_children_of_focus(&self, focus_entity_id: Option<&crate::entity_layer7::EntityId>) -> Vec<SubSubLogos> {
+    pub fn get_children_of_focus(
+        &self,
+        focus_entity_id: Option<&crate::entity_layer7::EntityId>,
+    ) -> Vec<SubSubLogos> {
         match focus_entity_id {
             None => {
                 // At root level - show all top-level entities (those without parents)
                 self.raw_entities
                     .values()
-                    .filter(|e| e.parent_id.is_none() && e.entity_type != crate::entity_layer7::layer7::EntityType::Individual)
+                    .filter(|e| {
+                        e.parent_id.is_none()
+                            && e.entity_type != crate::entity_layer7::layer7::EntityType::Individual
+                    })
                     .cloned()
                     .collect()
             }
             Some(focus_id) => {
                 let mut result = Vec::new();
-                
+
                 // Get the focus entity
                 if let Some(focus) = self.raw_entities.get(focus_id) {
                     // Add direct children
@@ -771,7 +792,7 @@ impl SimulationRunnerAdapter {
                             result.push(child.clone());
                         }
                     }
-                    
+
                     // Add composition entities
                     for comp_id in &focus.composition {
                         if let Some(comp) = self.raw_entities.get(comp_id) {
@@ -779,17 +800,18 @@ impl SimulationRunnerAdapter {
                         }
                     }
                 }
-                
+
                 // Also add entities that have this focus as their parent
                 for entity in self.raw_entities.values() {
                     if let Some(ref parent_id) = entity.parent_id {
                         if parent_id == focus_id
-                            && !result.iter().any(|e| e.entity_id == entity.entity_id) {
-                                result.push(entity.clone());
-                            }
+                            && !result.iter().any(|e| e.entity_id == entity.entity_id)
+                        {
+                            result.push(entity.clone());
+                        }
                     }
                 }
-                
+
                 result
             }
         }
@@ -802,15 +824,22 @@ impl SimulationRunnerAdapter {
 
     /// Get entity by ID string (convenience method)
     pub fn get_entity_by_uuid(&self, uuid: &str) -> Option<&SubSubLogos> {
-        self.raw_entities.values().find(|e| e.entity_id.uuid.as_str() == uuid)
+        self.raw_entities
+            .values()
+            .find(|e| e.entity_id.uuid.as_str() == uuid)
     }
 
     /// Get entity instances with hierarchical positioning
     ///
     /// Returns EntityInstance objects with positions calculated relative to the current focus.
-    pub fn get_hierarchical_entity_instances(&self, focus_entity_id: Option<&crate::entity_layer7::EntityId>, depth: usize) -> Vec<EntityInstance> {
-        let entities = self.get_entities_at_hierarchy_level(focus_entity_id.map(|id| id.uuid.as_str()), depth);
-        
+    pub fn get_hierarchical_entity_instances(
+        &self,
+        focus_entity_id: Option<&crate::entity_layer7::EntityId>,
+        depth: usize,
+    ) -> Vec<EntityInstance> {
+        let entities =
+            self.get_entities_at_hierarchy_level(focus_entity_id.map(|id| id.uuid.as_str()), depth);
+
         entities
             .iter()
             .enumerate()
@@ -923,8 +952,6 @@ impl SimulationRunnerAdapter {
     /// Entities with high consciousness become stars,
     /// entities in their vicinity become planets.
     fn generate_stellar_systems_from_entities(&self) -> Vec<StellarSystemData> {
-        
-
         let mut systems = Vec::new();
 
         // Find high-consciousness entities to use as stars
@@ -1047,8 +1074,16 @@ impl SimulationRunnerAdapter {
         // Use hierarchy connections as filaments - positions are stored directly
         for conn in &self.cached_connections {
             filaments.push(CosmicFilament {
-                start: [conn.from_position[0] as f64, conn.from_position[1] as f64, conn.from_position[2] as f64],
-                end: [conn.to_position[0] as f64, conn.to_position[1] as f64, conn.to_position[2] as f64],
+                start: [
+                    conn.from_position[0] as f64,
+                    conn.from_position[1] as f64,
+                    conn.from_position[2] as f64,
+                ],
+                end: [
+                    conn.to_position[0] as f64,
+                    conn.to_position[1] as f64,
+                    conn.to_position[2] as f64,
+                ],
                 density: conn.intensity as f64,
             });
 
@@ -1106,7 +1141,7 @@ impl SimulationRunnerAdapter {
                     uv: [0.5, 0.5],
                     planet_type: self.planet_type_to_u32(&planet.planet_type),
                     orbital_radius: planet.orbit_radius as f32,
-                    radius: 0.02, // Small planet size
+                    radius: 0.02,       // Small planet size
                     temperature: 288.0, // Earth-like temperature
                     _padding: [0.0],
                 });
@@ -1145,8 +1180,10 @@ impl SimulationRunnerAdapter {
                     let angle1 = (i as f32 / segments as f32) * std::f32::consts::TAU;
                     let _angle2 = ((i + 1) as f32 / segments as f32) * std::f32::consts::TAU;
 
-                    let x1 = system.star_position[0] as f32 + planet.orbit_radius as f32 * angle1.cos();
-                    let z1 = system.star_position[2] as f32 + planet.orbit_radius as f32 * angle1.sin();
+                    let x1 =
+                        system.star_position[0] as f32 + planet.orbit_radius as f32 * angle1.cos();
+                    let z1 =
+                        system.star_position[2] as f32 + planet.orbit_radius as f32 * angle1.sin();
                     let y1 = system.star_position[1] as f32;
 
                     vertices.push(OrbitVertex {
@@ -1163,7 +1200,9 @@ impl SimulationRunnerAdapter {
     }
 
     /// Get filament vertices for CosmosRenderer
-    pub fn get_filament_vertices(&self) -> Vec<crate::gui::renderer::cosmos_renderer::FilamentVertex> {
+    pub fn get_filament_vertices(
+        &self,
+    ) -> Vec<crate::gui::renderer::cosmos_renderer::FilamentVertex> {
         use crate::gui::renderer::cosmos_renderer::FilamentVertex;
 
         let cosmic_data = self.get_cosmic_render_data();
@@ -1236,7 +1275,8 @@ impl SimulationRunnerAdapter {
         }
 
         // Generate storms from high-intensity entities
-        let storms = self.cached_entities
+        let storms = self
+            .cached_entities
             .iter()
             .filter(|e| e.consciousness_level > 0.8)
             .take(10)
@@ -1248,14 +1288,20 @@ impl SimulationRunnerAdapter {
             .collect();
 
         // Generate settlements from mid-consciousness entities (civilizations)
-        let settlements = self.cached_entities
+        let settlements = self
+            .cached_entities
             .iter()
             .filter(|e| e.consciousness_level > 0.4 && e.consciousness_level < 0.7)
             .take(50)
             .map(|e| SettlementData {
                 position: (e.position[0] as f64, e.position[1] as f64),
                 population: (e.consciousness_level as f64 * 100000.0) as u64,
-                settlement_type: if e.consciousness_level > 0.6 { "City" } else { "Town" }.to_string(),
+                settlement_type: if e.consciousness_level > 0.6 {
+                    "City"
+                } else {
+                    "Town"
+                }
+                .to_string(),
             })
             .collect();
 
@@ -1270,7 +1316,9 @@ impl SimulationRunnerAdapter {
     }
 
     /// Get terrain vertices for PlanetRenderer
-    pub fn get_terrain_vertices(&self) -> Vec<crate::gui::renderer::planet_renderer::TerrainVertex> {
+    pub fn get_terrain_vertices(
+        &self,
+    ) -> Vec<crate::gui::renderer::planet_renderer::TerrainVertex> {
         use crate::gui::renderer::planet_renderer::TerrainVertex;
 
         let mut vertices = Vec::new();
@@ -1294,7 +1342,11 @@ impl SimulationRunnerAdapter {
                 let height = self.get_terrain_height_at(u, v);
 
                 vertices.push(TerrainVertex {
-                    position: [x * (1.0 + height * 0.02), y * (1.0 + height * 0.02), z * (1.0 + height * 0.02)],
+                    position: [
+                        x * (1.0 + height * 0.02),
+                        y * (1.0 + height * 0.02),
+                        z * (1.0 + height * 0.02),
+                    ],
                     normal: [x, y, z], // Simple outward normal
                     uv: [u, v],
                     plate_id: (lat % 7) as f32, // 7 tectonic plates
@@ -1459,7 +1511,9 @@ impl SimulationRunnerAdapter {
     }
 
     /// Get settlement vertices for PlanetRenderer
-    pub fn get_settlement_vertices(&self) -> Vec<crate::gui::renderer::planet_renderer::SettlementVertex> {
+    pub fn get_settlement_vertices(
+        &self,
+    ) -> Vec<crate::gui::renderer::planet_renderer::SettlementVertex> {
         use crate::gui::renderer::planet_renderer::SettlementVertex;
 
         self.cached_entities

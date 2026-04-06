@@ -443,7 +443,10 @@ impl FactionResonance {
             total_weight += weight;
             stability_sum += contribution.resonance_pattern.stability * weight;
 
-            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(contribution.resonance_pattern.pattern.iter()) {
+            for (combined_i, &pattern_i) in combined_pattern
+                .iter_mut()
+                .zip(contribution.resonance_pattern.pattern.iter())
+            {
                 *combined_i += pattern_i * weight;
             }
         }
@@ -457,7 +460,10 @@ impl FactionResonance {
 
         // Blend with base resonance (faction has its own identity)
         let blend_factor = 0.3; // 30% base, 70% member contributions
-        for (combined_i, &base_i) in combined_pattern.iter_mut().zip(self.base_resonance.pattern.iter()) {
+        for (combined_i, &base_i) in combined_pattern
+            .iter_mut()
+            .zip(self.base_resonance.pattern.iter())
+        {
             *combined_i = base_i * blend_factor + *combined_i * (1.0 - blend_factor);
         }
 

@@ -16,9 +16,7 @@
 //! 4. Holographic view generation
 //! 5. Field statistics and performance tracking
 
-use super::mera_network::{
-    Float, MeraDecompressionResult, MeraError, MeraNetwork, MeraQuery,
-};
+use super::mera_network::{Float, MeraDecompressionResult, MeraError, MeraNetwork, MeraQuery};
 use super::multiscale_camera::{PhysicsMode, ScaleLevel};
 use std::collections::HashMap;
 
@@ -305,8 +303,10 @@ impl MultiScaleField {
         // Decompress from MERA network
         let _mera_query = MeraQuery {
             scale_level: scale_index,
+            scale: crate::simulation_v3::mera_network::MeraScale::Quantum,
             region: None,
             precision: 1.0,
+            query_type: crate::simulation_v3::mera_network::QueryType::Spatial,
         };
 
         // Get a clone of the network data for decompression
@@ -429,7 +429,7 @@ impl MultiScaleField {
         let data_size = network_data.num_elements();
 
         // Create a temporary network for decompression
-        let mut temp_network = MeraNetwork::new(1);
+        let mut temp_network = MeraNetwork::new();
         temp_network
             .initialize(network_data)
             .map_err(MultiScaleFieldError::MeraError)?;

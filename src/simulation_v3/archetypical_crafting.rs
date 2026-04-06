@@ -53,7 +53,10 @@ impl CraftingInterferencePattern {
         let num_items = signatures.len() as Float;
 
         for signature in signatures {
-            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(signature.archetype_pattern.iter()) {
+            for (combined_i, &pattern_i) in combined_pattern
+                .iter_mut()
+                .zip(signature.archetype_pattern.iter())
+            {
                 *combined_i += pattern_i;
             }
         }

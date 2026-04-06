@@ -48,8 +48,8 @@
 //! Any other ordering violates the cosmological architecture and produces
 //! incorrect simulation behavior.
 
-use crate::compression::mera_network::MeraNetwork;
 use crate::entity_layer7::layer7::EntityId;
+use crate::simulation_v3::mera_network::MeraNetwork;
 
 use crate::holographic::mera_integration::MeraIntegration;
 use crate::holographic::observer_driven_field::{Observer, ObserverId};
@@ -132,8 +132,8 @@ use crate::holographic_foundation::intelligent_infinity::IntelligentInfinitySour
 // - Integrate 8th density source merger
 // - Density transition triggers from evolution
 use crate::simulation_v3::density_mechanics::{
-    EighthDensityMechanics, FifthDensityMechanics, FourthDensityMechanics,
-    SeventhDensityMechanics, SixthDensityMechanics,
+    EighthDensityMechanics, FifthDensityMechanics, FourthDensityMechanics, SeventhDensityMechanics,
+    SixthDensityMechanics,
 };
 
 // Phase 12: Gateway Mechanics and Resonance
@@ -2727,14 +2727,7 @@ impl CausalInversionRunner {
         // Collect atom data for bonding calculations
         let atom_data: Vec<(AtomId, Coordinate3D, ElementAttractor, [Float; 22])> = atoms
             .values()
-            .map(|a| {
-                (
-                    a.id,
-                    a.position,
-                    a.element.clone(),
-                    a.archetype_activation,
-                )
-            })
+            .map(|a| (a.id, a.position, a.element.clone(), a.archetype_activation))
             .collect();
 
         drop(atoms); // Release read lock before write operations
@@ -3772,8 +3765,8 @@ impl CausalInversionRunner {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::chemistry::bonding::{BondOrder, BondType};
     use crate::matter::particle::Coordinate3D;
-    use crate::chemistry::bonding::{BondType, BondOrder};
 
     #[test]
     fn test_causal_inversion_config_default() {
@@ -3913,15 +3906,23 @@ mod tests {
     #[test]
     fn test_bond_distance_threshold() {
         // Verify the constant is defined
-        const { assert!(BOND_DISTANCE_THRESHOLD > 0.0); }
-        const { assert!(BOND_DISTANCE_THRESHOLD < 1.0); }
+        const {
+            assert!(BOND_DISTANCE_THRESHOLD > 0.0);
+        }
+        const {
+            assert!(BOND_DISTANCE_THRESHOLD < 1.0);
+        }
     }
 
     #[test]
     fn test_min_archetype_compatibility() {
         // Verify the constant is defined
-        const { assert!(MIN_ARCHETYPE_COMPATIBILITY > 0.0); }
-        const { assert!(MIN_ARCHETYPE_COMPATIBILITY <= 1.0); }
+        const {
+            assert!(MIN_ARCHETYPE_COMPATIBILITY > 0.0);
+        }
+        const {
+            assert!(MIN_ARCHETYPE_COMPATIBILITY <= 1.0);
+        }
     }
 
     #[test]
@@ -4378,12 +4379,10 @@ mod tests {
 
         // Should have galactic logoi (plural - it's a Vec)
         assert!(!hierarchy.galactic_logoi.is_empty());
-        assert!(
-            !hierarchy.galactic_logoi[0]
-                .archetype_selection
-                .primary_archetypes
-                .is_empty()
-        );
+        assert!(!hierarchy.galactic_logoi[0]
+            .archetype_selection
+            .primary_archetypes
+            .is_empty());
 
         // Should have solar logoi (plural - it's a Vec)
         assert!(!hierarchy.solar_logoi.is_empty());
@@ -4486,7 +4485,7 @@ mod tests {
 
         // Propagation result should have valid fields
         let _ = propagation.success; // bool is valid
-        // depth() returns usize which is always >= 0
+                                     // depth() returns usize which is always >= 0
         let _ = propagation.depth();
     }
 

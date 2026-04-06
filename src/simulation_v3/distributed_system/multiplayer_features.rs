@@ -32,8 +32,7 @@ use std::fmt;
 // ============================================================================
 
 /// Unique identifier for a collective manifestation
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ManifestationId(pub u64);
 
 impl ManifestationId {
@@ -52,7 +51,6 @@ impl fmt::Display for ManifestationId {
     }
 }
 
-
 impl From<u64> for ManifestationId {
     fn from(id: u64) -> Self {
         ManifestationId(id)
@@ -70,8 +68,7 @@ pub type CatalystAmount = Float;
 // ============================================================================
 
 /// State of a collective manifestation
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ManifestationState {
     /// Gathering participants
     #[default]
@@ -98,10 +95,8 @@ impl fmt::Display for ManifestationState {
     }
 }
 
-
 /// Type of contribution to collective manifestation
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ContributionType {
     /// Direct resonance contribution
     #[default]
@@ -127,7 +122,6 @@ impl fmt::Display for ContributionType {
         }
     }
 }
-
 
 /// Player's contribution to collective manifestation
 #[derive(Debug, Clone, PartialEq)]
@@ -540,8 +534,7 @@ impl Default for DensityShare {
 }
 
 /// Type of density update
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DensityUpdateType {
     /// Entity added
     EntityAdded,
@@ -567,7 +560,6 @@ impl fmt::Display for DensityUpdateType {
         }
     }
 }
-
 
 /// Data for a density update
 #[derive(Debug, Clone, PartialEq)]
@@ -620,8 +612,7 @@ impl DensityUpdate {
 }
 
 /// Status of density synchronization
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SyncStatus {
     /// Synchronized
     #[default]
@@ -644,7 +635,6 @@ impl fmt::Display for SyncStatus {
         }
     }
 }
-
 
 /// Synchronizes density states across players
 #[derive(Debug, Clone, PartialEq)]
@@ -746,7 +736,9 @@ impl DensitySharing {
         densities: Vec<Density>,
     ) -> Result<(), MultiplayerFeaturesError> {
         for density in densities {
-            self.shared_densities.entry(density).or_insert_with(|| DensityShare::new(density));
+            self.shared_densities
+                .entry(density)
+                .or_insert_with(|| DensityShare::new(density));
         }
         Ok(())
     }
@@ -843,8 +835,7 @@ impl Default for DensitySharing {
 }
 
 /// Result of a synchronization operation
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct SyncResult {
     /// Whether the sync succeeded
     pub success: bool,
@@ -854,14 +845,12 @@ pub struct SyncResult {
     pub message: String,
 }
 
-
 // ============================================================================
 // Scale Sharing System
 // ============================================================================
 
 /// Scale level in the holographic universe
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ScaleLevel {
     /// Planck scale (10^-35 m)
     Quantum,
@@ -896,7 +885,6 @@ impl fmt::Display for ScaleLevel {
         }
     }
 }
-
 
 impl ScaleLevel {
     /// Get the magnitude order of this scale
@@ -1109,8 +1097,7 @@ impl Default for ScaleSynchronization {
 }
 
 /// Type of scale update
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ScaleUpdateType {
     /// Entity added
     EntityAdded,
@@ -1136,7 +1123,6 @@ impl fmt::Display for ScaleUpdateType {
         }
     }
 }
-
 
 /// Data for a scale update
 #[derive(Debug, Clone, PartialEq)]
@@ -1244,7 +1230,9 @@ impl ScaleSharing {
         scales: Vec<Scale>,
     ) -> Result<(), MultiplayerFeaturesError> {
         for scale in scales {
-            self.shared_scales.entry(scale).or_insert_with(|| ScaleShare::new(scale));
+            self.shared_scales
+                .entry(scale)
+                .or_insert_with(|| ScaleShare::new(scale));
         }
         Ok(())
     }
@@ -1474,8 +1462,7 @@ impl Default for CompressedMessage {
 }
 
 /// Batched message
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct BatchMessage {
     /// Messages in the batch
     pub messages: Vec<NetworkMessage>,
@@ -1484,7 +1471,6 @@ pub struct BatchMessage {
     /// Total size
     pub total_size: usize,
 }
-
 
 /// Bandwidth allocation
 #[derive(Debug, Clone, PartialEq)]

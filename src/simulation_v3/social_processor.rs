@@ -593,7 +593,10 @@ impl SocialProcessor {
     /// Number of entities harvested
     pub fn process_harvest(&mut self, entities: &[EntityId]) -> usize {
         // Check if harvest cycle is due
-        if !self.current_tick.is_multiple_of(self.harvest_engine.harvest_cycle_ticks) {
+        if !self
+            .current_tick
+            .is_multiple_of(self.harvest_engine.harvest_cycle_ticks)
+        {
             return 0;
         }
 

@@ -41,9 +41,7 @@ use crate::simulation_v3::advanced_game_mechanics::{
     ArchetypeComplex, ArchetypeId, CatalystAmount, Density, Polarity, QuestId, Timestamp,
 };
 use crate::simulation_v3::collective_manifestation::StructureType;
-use crate::simulation_v3::holographic_inventory::{
-    ArchetypicalItemSignature, ResonancePattern,
-};
+use crate::simulation_v3::holographic_inventory::{ArchetypicalItemSignature, ResonancePattern};
 use crate::types::Float;
 use std::collections::HashMap;
 

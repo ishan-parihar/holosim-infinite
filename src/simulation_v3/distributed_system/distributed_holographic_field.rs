@@ -362,10 +362,12 @@ impl FieldChange {
     /// Check if this change is compatible with another change
     pub fn is_compatible_with(&self, other: &FieldChange) -> bool {
         // Changes to different entities are compatible
-        if self.entity_id.is_some() && other.entity_id.is_some()
-            && self.entity_id != other.entity_id {
-                return true;
-            }
+        if self.entity_id.is_some()
+            && other.entity_id.is_some()
+            && self.entity_id != other.entity_id
+        {
+            return true;
+        }
 
         // Same entity modified concurrently - check if changes conflict
         if self.change_type == ChangeType::EntityModified

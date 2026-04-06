@@ -12,7 +12,7 @@
 use std::collections::HashMap;
 
 use super::field_address::{AddressRange, HolographicAddress, ScaleLevel, Vector3};
-use crate::compression::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
+use crate::simulation_v3::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
 
 /// Unique identifier for an observer in the field
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]

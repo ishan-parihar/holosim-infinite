@@ -451,8 +451,10 @@ impl GuiApplication {
                 )
             }
             Err(e) => {
-                eprintln!("⚠ Failed to initialize WGPU: {}", e);
-                eprintln!("Continuing without GPU rendering...");
+                eprintln!("⚠ WGPU initialization failed: {}", e);
+                eprintln!("  GPU rendering unavailable. Continuing with EGUI-only mode.");
+                eprintln!("  Entity 3D rendering will not be available, but UI panels will work.");
+                eprintln!("  Hint: Try running with WGPU_BACKEND=gl for OpenGL fallback.");
                 let none_view: Option<ViewSystem> = None;
                 (None, None, None, None, None, None, none_view, None)
             }
@@ -461,8 +463,12 @@ impl GuiApplication {
         // Phase B.1: Initialize field visual bridge (always, even without WGPU)
         let field_visual_bridge = FieldVisualBridge::new(VolumeDimensions::cube(64));
 
-        // Initialize camera
-        let camera = Camera2D::new(1920.0 / 1080.0);
+        // Initialize camera with zoom that shows entity cluster well
+        // Entities are positioned in roughly [-1.5, 1.5] world space.
+        // At zoom=1.0 orthographic: visible area is ~[-1.78,1.78] x [-1,1] for 16:9.
+        // Use zoom=0.7 to give comfortable margin around the entity cluster.
+        let mut camera = Camera2D::new(1920.0 / 1080.0);
+        camera.zoom = 0.7; // Zoomed out enough to see all entities
 
         // Initialize camera controls
         let camera_controls = CameraControls::new();
@@ -1811,6 +1817,18 @@ impl GuiApplication {
 
             // Phase 1: Render entities
             renderer.render(&mut render_pass);
+        }
+
+        // First-frame diagnostics
+        if self.frame_count == 1 {
+            println!("[DIAG] Camera: pos=({:.2}, {:.2}, {:.2}) zoom={:.2}",
+                self.camera.position.x, self.camera.position.y, self.camera.position.z, self.camera.zoom);
+            let proj = self.camera.projection_matrix();
+            let p: [[f32; 4]; 4] = proj.into();
+            println!("[DIAG] Projection: left={:.2} right={:.2} bottom={:.2} top={:.2}",
+                -1.0/p[0][0], 1.0/p[0][0], -1.0/p[1][1], 1.0/p[1][1]);
+            println!("[DIAG] Entities: {} holo, {} legacy, renderer count={}",
+                holo_entities.len(), legacy_entities.len(), renderer.current_instance_count());
         }
 
         self.render_stats.scene_render_ms = scene_render_start.elapsed().as_secs_f64() * 1000.0;

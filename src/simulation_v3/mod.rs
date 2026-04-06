@@ -181,7 +181,7 @@ pub use memory_profiler::{
 };
 pub use mera_network::{
     MeraCompressionResult, MeraDecompressionResult, MeraError, MeraLayer, MeraNetwork, MeraQuery,
-    MeraStatistics, Tensor, WaveletCoefficients,
+    MeraScale, MeraStatistics, QueryType, Tensor, WaveletCoefficients,
 };
 pub use multiscale_camera::{
     InterpolatedScale, InterpolatedScaleView, InterpolationMode, MultiScaleCamera, PhysicsMode,

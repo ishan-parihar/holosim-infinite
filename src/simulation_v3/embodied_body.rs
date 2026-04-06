@@ -29,8 +29,7 @@ use crate::types::Float;
 ///
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 3:
 /// "Bodies need survival, can die from starvation, trauma, disease"
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum SurvivalStatus {
     /// Body is healthy and functioning
     #[default]
@@ -40,7 +39,6 @@ pub enum SurvivalStatus {
     /// Body has died (includes cause of death)
     Dead(DeathCause),
 }
-
 
 impl SurvivalStatus {
     /// Check if the body is alive
@@ -785,7 +783,7 @@ mod tests {
 
         // Hostile environment should have lower habitability
         let hostile = BodyEnvironment {
-            temperature: 350.0, // Very hot
+            temperature: 350.0,       // Very hot
             water_availability: 0.05, // Almost no water
             ..Default::default()
         };

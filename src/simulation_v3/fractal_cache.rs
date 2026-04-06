@@ -723,9 +723,9 @@ impl FractalCache {
                         .as_ref()
                         .and_then(|k| self.entries.get(k).map(|e| e.last_access))
                         .unwrap_or(u64::MAX)
-                {
-                    furthest_key = Some(key.clone());
-                }
+            {
+                furthest_key = Some(key.clone());
+            }
         }
 
         if let Some(key) = furthest_key {

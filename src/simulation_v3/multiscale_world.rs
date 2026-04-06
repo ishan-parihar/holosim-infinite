@@ -1046,8 +1046,12 @@ mod tests {
 
     #[test]
     fn test_continuity_threshold() {
-        const { assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD > 0.0); }
-        const { assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD <= 1.0); }
+        const {
+            assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD > 0.0);
+        }
+        const {
+            assert!(HOLOGRAPHIC_CONTINUITY_THRESHOLD <= 1.0);
+        }
     }
 
     #[test]
@@ -1055,14 +1059,16 @@ mod tests {
         let renderer = MultiScaleWorldRenderer::new(SpectrumRatio::new(1.0, 1.0));
 
         let quantum_features = renderer.get_scale_features(ScaleLevel::Quantum);
-        assert!(
-            quantum_features.unique_mechanics.quantum_mechanics.is_some()
-        );
+        assert!(quantum_features
+            .unique_mechanics
+            .quantum_mechanics
+            .is_some());
 
         let galactic_features = renderer.get_scale_features(ScaleLevel::Galactic);
-        assert!(
-            galactic_features.unique_mechanics.galactic_mechanics.is_some()
-        );
+        assert!(galactic_features
+            .unique_mechanics
+            .galactic_mechanics
+            .is_some());
     }
 
     #[test]

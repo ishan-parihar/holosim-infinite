@@ -602,8 +602,8 @@ fn scale_to_string(scale: &ScaleLevel) -> &'static str {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::simulation_v3::mera_network::MeraNetwork;
     use std::sync::Arc;
-    use crate::compression::mera_network::MeraNetwork;
 
     fn create_test_registry() -> ObserverRegistry {
         let network = Arc::new(Mutex::new(MeraNetwork::new()));

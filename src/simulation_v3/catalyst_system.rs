@@ -19,6 +19,7 @@ use crate::consciousness::free_will::{ChoiceContext, FreeWillKernel, PolarityPre
 use crate::entity_layer7::layer7::EntityState;
 use crate::entity_layer7::layer7::{EntityId, EntityType};
 use crate::evolution_density_octave::density_octave::Density;
+use crate::types::Float;
 use rand::seq::SliceRandom;
 use rand::Rng;
 use std::collections::HashMap;
@@ -1091,6 +1092,39 @@ impl CatalystManager {
     // ========================================================================
     // PHASE 3: FREE WILL CHOICE IMPLEMENTATION
     // ========================================================================
+
+    pub fn scale_catalyst_intensity_by_spectrum(
+        &self,
+        base_intensity: Float,
+        spectrum_evolution_rate: Float,
+    ) -> Float {
+        let spectrum_modifier = 1.0 + spectrum_evolution_rate * 100.0;
+        (base_intensity * spectrum_modifier).clamp(0.0, 2.0)
+    }
+
+    pub fn calculate_spectrum_aware_catalyst_intensity(
+        &self,
+        entity: &crate::entity_layer7::SubSubLogos,
+        spectrum_position: Float,
+    ) -> Float {
+        let base_intensity = self.calculate_catalyst_intensity(entity);
+        let veil_proximity = 1.0 - (spectrum_position - 1.0).abs().min(1.0);
+        let veil_bonus = veil_proximity * 0.3;
+        (base_intensity + veil_bonus).clamp(0.0, 2.0)
+    }
+
+    pub fn is_high_evolution_catalyst_state(
+        &self,
+        spectrum_position: Float,
+        density: &Density,
+    ) -> bool {
+        let near_veil = (spectrum_position - 1.0).abs() < 0.3;
+        let high_density = matches!(
+            density,
+            Density::Fourth | Density::Fifth | Density::Sixth | Density::Seventh | Density::Eighth
+        );
+        near_veil && high_density
+    }
 }
 
 impl Default for CatalystStatistics {

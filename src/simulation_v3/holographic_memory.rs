@@ -95,7 +95,8 @@ impl HolographicSignature {
     }
 
     pub fn compute_similarity(&self, other: &HolographicSignature) -> Float {
-        let pattern_diff: Float = self.interference_pattern
+        let pattern_diff: Float = self
+            .interference_pattern
             .iter()
             .zip(other.interference_pattern.iter())
             .map(|(&a, &b)| (a - b).abs())
@@ -277,7 +278,10 @@ impl SoulStream {
         let mut resonance_sum = 0.0;
 
         for memory in &self.memory_entries {
-            for (sum_i, &pattern_i) in pattern_sum.iter_mut().zip(memory.holographic_signature.interference_pattern.iter()) {
+            for (sum_i, &pattern_i) in pattern_sum
+                .iter_mut()
+                .zip(memory.holographic_signature.interference_pattern.iter())
+            {
                 *sum_i += pattern_i;
             }
             coherence_sum += memory.holographic_signature.coherence_level;
@@ -286,7 +290,12 @@ impl SoulStream {
         }
 
         let count = self.memory_entries.len() as Float;
-        for (sig_i, &sum_i) in self.holographic_signature.interference_pattern.iter_mut().zip(pattern_sum.iter()) {
+        for (sig_i, &sum_i) in self
+            .holographic_signature
+            .interference_pattern
+            .iter_mut()
+            .zip(pattern_sum.iter())
+        {
             *sig_i = sum_i / count;
         }
         self.holographic_signature.coherence_level = coherence_sum / count;
@@ -320,8 +329,7 @@ impl SoulStream {
     }
 }
 
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct MemoryQuery {
     pub density: Option<Density>,
     pub memory_type: Option<MemoryType>,
@@ -331,7 +339,6 @@ pub struct MemoryQuery {
     pub reference_signature: Option<HolographicSignature>,
     pub limit: Option<usize>,
 }
-
 
 #[derive(Debug, Clone)]
 pub struct HolographicMemorySystem {

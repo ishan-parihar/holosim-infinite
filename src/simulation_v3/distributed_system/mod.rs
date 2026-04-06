@@ -59,8 +59,7 @@ pub mod observer_effect_sync;
 // ============================================================================
 
 /// Unique identifier for a peer in the distributed system
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PeerId(pub u64);
 
 impl PeerId {
@@ -81,7 +80,6 @@ impl fmt::Display for PeerId {
     }
 }
 
-
 impl From<u64> for PeerId {
     fn from(id: u64) -> Self {
         PeerId(id)
@@ -89,8 +87,7 @@ impl From<u64> for PeerId {
 }
 
 /// Unique identifier for a field state update
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct UpdateId(pub u64);
 
 impl UpdateId {
@@ -122,7 +119,6 @@ impl fmt::Display for UpdateId {
     }
 }
 
-
 impl From<u64> for UpdateId {
     fn from(id: u64) -> Self {
         UpdateId(id)
@@ -130,8 +126,7 @@ impl From<u64> for UpdateId {
 }
 
 /// Unique identifier for a free will choice
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ChoiceId(pub u64);
 
 impl ChoiceId {
@@ -157,7 +152,6 @@ impl fmt::Display for ChoiceId {
     }
 }
 
-
 impl From<u64> for ChoiceId {
     fn from(id: u64) -> Self {
         ChoiceId(id)
@@ -171,8 +165,7 @@ impl std::ops::AddAssign<u64> for ChoiceId {
 }
 
 /// Unique identifier for a quantum observation
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct ObservationId(pub u64);
 
 impl ObservationId {
@@ -193,7 +186,6 @@ impl fmt::Display for ObservationId {
     }
 }
 
-
 impl From<u64> for ObservationId {
     fn from(id: u64) -> Self {
         ObservationId(id)
@@ -201,8 +193,7 @@ impl From<u64> for ObservationId {
 }
 
 /// Unique identifier for a multiplayer session
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct SessionId(pub u64);
 
 impl SessionId {
@@ -235,7 +226,6 @@ impl fmt::Display for SessionId {
     }
 }
 
-
 impl From<u64> for SessionId {
     fn from(id: u64) -> Self {
         SessionId(id)
@@ -266,8 +256,7 @@ pub type Result<T> = std::result::Result<T, NetworkError>;
 // ============================================================================
 
 /// Connection status for a peer
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ConnectionStatus {
     /// Peer is disconnected
     #[default]
@@ -290,7 +279,6 @@ impl fmt::Display for ConnectionStatus {
         }
     }
 }
-
 
 /// Network error types
 #[derive(Debug, Clone, PartialEq)]
@@ -482,8 +470,7 @@ impl Default for NetworkConfigBuilder {
 }
 
 /// Message priority levels
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Default)]
 pub enum MessagePriority {
     /// Low priority - can be delayed or dropped
     Low = 0,
@@ -503,7 +490,6 @@ impl fmt::Display for MessagePriority {
         }
     }
 }
-
 
 impl From<u8> for MessagePriority {
     fn from(value: u8) -> Self {

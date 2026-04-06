@@ -739,7 +739,9 @@ impl MultiPartyTrade {
         let mut total_phase = 0.0;
 
         for resonance in self.participant_resonances.values() {
-            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(resonance.pattern.iter()) {
+            for (combined_i, &pattern_i) in
+                combined_pattern.iter_mut().zip(resonance.pattern.iter())
+            {
                 *combined_i += pattern_i;
             }
             total_stability += resonance.stability;

@@ -13,8 +13,8 @@ use std::sync::{Arc, Mutex};
 
 use super::field_address::{AddressRange, HolographicAddress, ScaleLevel, Vector3};
 use super::observer_driven_field::{DecompressedRegion, ObserverId};
-use crate::compression::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
-use crate::compression::tensor::Tensor;
+use crate::simulation_v3::mera_network::Tensor;
+use crate::simulation_v3::mera_network::{MeraNetwork, MeraQuery, MeraScale, QueryType};
 
 /// Integration layer between MERA network and observer system
 ///
@@ -97,11 +97,11 @@ impl MeraIntegration {
 
         let tensor = {
             let mut network = self.network.lock().ok()?;
-            network.decompress(&query)
+            network.decompress_tensor(&query)
         };
 
         // Cache the result
-        let size = tensor.shape.size() * std::mem::size_of::<f64>();
+        let size = tensor.shape.iter().product::<usize>() * std::mem::size_of::<f64>();
         self.ensure_cache_space(size);
 
         self.region_cache.insert(
@@ -220,7 +220,7 @@ impl MeraIntegration {
         };
 
         // Decompress, modify, recompress
-        let tensor = network.decompress(&query);
+        let tensor = network.decompress_tensor(&query);
 
         // Apply feedback perturbation
         let mut data = tensor.as_dense().to_vec();
@@ -230,7 +230,7 @@ impl MeraIntegration {
         }
 
         // Recompress (in full implementation, this would be incremental)
-        network.compress(tensor);
+        let _ = network.compress(tensor);
 
         true
     }

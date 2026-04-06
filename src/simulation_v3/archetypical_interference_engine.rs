@@ -498,7 +498,8 @@ impl ArchetypicalInterferenceEngine {
 
         if let Ok(collapsed) = self
             .observation_engine
-            .observe(observer_effect, interference.components_ref()) {
+            .observe(observer_effect, interference.components_ref())
+        {
             for (c, &state) in interference
                 .components
                 .iter_mut()
@@ -508,8 +509,7 @@ impl ArchetypicalInterferenceEngine {
             }
             interference.coherence =
                 InterferencePattern::compute_coherence(&interference.components);
-            interference.entropy =
-                InterferencePattern::compute_entropy(&interference.components);
+            interference.entropy = InterferencePattern::compute_entropy(&interference.components);
             interference.resonance =
                 InterferencePattern::compute_resonance(&interference.components);
         }

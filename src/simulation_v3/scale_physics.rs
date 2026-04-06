@@ -364,15 +364,15 @@ impl HolographicContinuity {
         let mut propagated_changes = HashMap::new();
 
         // Get source scale signature
-        let _source_signature = self
-            .scale_state_signatures
-            .get(&source_scale)
-            .ok_or_else(|| {
-                ScalePhysicsError::PropagationError(format!(
-                    "No signature for source scale {:?}",
-                    source_scale
-                ))
-            })?;
+        let _source_signature =
+            self.scale_state_signatures
+                .get(&source_scale)
+                .ok_or_else(|| {
+                    ScalePhysicsError::PropagationError(format!(
+                        "No signature for source scale {:?}",
+                        source_scale
+                    ))
+                })?;
 
         // Convert changes to interference amplitude
         let source_amplitude = self.string_to_amplitude(changes);
@@ -1140,13 +1140,15 @@ impl HolographicContinuity {
     ) -> Result<HashMap<(ScaleLevel, ScaleLevel), Float>, ScalePhysicsError> {
         let mut updated_coupling = HashMap::new();
 
-        let all_scales = [ScaleLevel::Quantum,
+        let all_scales = [
+            ScaleLevel::Quantum,
             ScaleLevel::Cellular,
             ScaleLevel::Biological,
             ScaleLevel::Planetary,
             ScaleLevel::Stellar,
             ScaleLevel::Galactic,
-            ScaleLevel::Cosmic];
+            ScaleLevel::Cosmic,
+        ];
 
         // Calculate adaptive coupling for all scale pairs
         for (i, scale_a) in all_scales.iter().enumerate() {
@@ -1879,8 +1881,7 @@ pub struct PerformanceBenchmark {
 ///
 /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 1:
 /// "Implement optimization strategies"
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum OptimizationStrategy {
     /// No optimization (baseline)
     #[default]
@@ -1921,7 +1922,6 @@ impl OptimizationStrategy {
         }
     }
 }
-
 
 impl Default for PerformanceBenchmark {
     fn default() -> Self {
@@ -2080,7 +2080,8 @@ impl PerformanceBenchmark {
 
     /// Check if validation should be performed
     pub fn should_validate(&self) -> bool {
-        self.transition_counter.is_multiple_of(self.validation_interval)
+        self.transition_counter
+            .is_multiple_of(self.validation_interval)
     }
 }
 
@@ -2553,19 +2554,20 @@ impl QuantumPhysics {
                         match entanglement.correlation {
                             CorrelationType::Spin => {
                                 if snapshot_a.0 != snapshot_b.0
-                                    && rand::random::<f64>() < entanglement.strength * 0.1 {
-                                        wf_b.spin = match snapshot_a.0 {
-                                            SpinState::Up => SpinState::Down,
-                                            SpinState::Down => SpinState::Up,
-                                            SpinState::Superposition => {
-                                                if rand::random() {
-                                                    SpinState::Up
-                                                } else {
-                                                    SpinState::Down
-                                                }
+                                    && rand::random::<f64>() < entanglement.strength * 0.1
+                                {
+                                    wf_b.spin = match snapshot_a.0 {
+                                        SpinState::Up => SpinState::Down,
+                                        SpinState::Down => SpinState::Up,
+                                        SpinState::Superposition => {
+                                            if rand::random() {
+                                                SpinState::Up
+                                            } else {
+                                                SpinState::Down
                                             }
-                                        };
-                                    }
+                                        }
+                                    };
+                                }
                             }
                             CorrelationType::Momentum => {
                                 let avg_momentum = (snapshot_a.1 + snapshot_b.1) / 2.0;
@@ -2954,8 +2956,7 @@ pub struct Instincts {
 }
 
 /// Sensory input
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct SensoryInput {
     /// Visual input (light intensity, color)
     visual: Vec<Float>,
@@ -3718,11 +3719,13 @@ impl BiologicalSimulation {
         for (organism_id, instincts) in &self.instincts {
             if let Some(needs) = self.needs.get(organism_id) {
                 // Survival instinct (highest priority)
-                if instincts.survival > 0.5 && (needs.hunger < 0.3 || needs.thirst < 0.3)
-                    && instincts.survival > best_priority {
-                        best_action = Action::Foraging;
-                        best_priority = instincts.survival;
-                    }
+                if instincts.survival > 0.5
+                    && (needs.hunger < 0.3 || needs.thirst < 0.3)
+                    && instincts.survival > best_priority
+                {
+                    best_action = Action::Foraging;
+                    best_priority = instincts.survival;
+                }
 
                 // Survival instinct (danger response)
                 if needs.safety < 0.3 && instincts.survival > best_priority {
@@ -3894,9 +3897,11 @@ impl BiologicalSimulation {
         for (organism_id, needs) in &self.needs {
             // Organisms with low resources are more likely to migrate
             if (needs.hunger < 0.4 || needs.safety < 0.4)
-                && rand::random::<f64>() < 0.05 && migrations.len() < expected_migrations {
-                    migrations.push(*organism_id);
-                }
+                && rand::random::<f64>() < 0.05
+                && migrations.len() < expected_migrations
+            {
+                migrations.push(*organism_id);
+            }
         }
 
         // Update population size
@@ -4904,8 +4909,7 @@ pub struct ResearchProject {
 }
 
 /// Cultural evolution
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct CulturalEvolution {
     /// Cultural traits
     #[allow(dead_code)]
@@ -7339,22 +7343,24 @@ impl GalacticSimulation {
         }
 
         // Create new spiral arms if needed (for spiral galaxies)
-        if self.galaxy.galaxy_type == GalaxyType::Spiral && self.spiral_arms.len() < 4
-            && rand::random::<f64>() < 0.001 * time_step {
-                let new_arm = SpiralArm {
-                    arm_id: rand::random(),
-                    start_position: (0.0, 0.0, 0.0),
-                    end_position: (
-                        self.galaxy.diameter * 0.5 * (rand::random::<f64>() - 0.5),
-                        self.galaxy.diameter * 0.5 * (rand::random::<f64>() - 0.5),
-                        0.0,
-                    ),
-                    twist_angle: rand::random::<f64>() * std::f64::consts::PI,
-                    star_density: 1.0,
-                    age_gradient: 0.0,
-                };
-                self.spiral_arms.push(new_arm);
-            }
+        if self.galaxy.galaxy_type == GalaxyType::Spiral
+            && self.spiral_arms.len() < 4
+            && rand::random::<f64>() < 0.001 * time_step
+        {
+            let new_arm = SpiralArm {
+                arm_id: rand::random(),
+                start_position: (0.0, 0.0, 0.0),
+                end_position: (
+                    self.galaxy.diameter * 0.5 * (rand::random::<f64>() - 0.5),
+                    self.galaxy.diameter * 0.5 * (rand::random::<f64>() - 0.5),
+                    0.0,
+                ),
+                twist_angle: rand::random::<f64>() * std::f64::consts::PI,
+                star_density: 1.0,
+                age_gradient: 0.0,
+            };
+            self.spiral_arms.push(new_arm);
+        }
     }
 
     /// Update star formation (Schmidt-Kennicutt law)
@@ -8052,7 +8058,7 @@ impl CosmicSimulation {
         // Holographic information content scales with universe size
         // Information content ~ universe size^3 (volume)
         let _information_content = self.universe.size.powi(3) * 1.0e60; // Bits
-                                                                       // This is implicit in the consciousness level
+                                                                        // This is implicit in the consciousness level
     }
 
     /// Add a galaxy cluster
@@ -8165,7 +8171,6 @@ impl Default for IntelligentInfinity {
     }
 }
 
-
 impl Default for BehaviorState {
     fn default() -> Self {
         BehaviorState {
@@ -8188,7 +8193,6 @@ impl Default for PopulationDynamics {
         }
     }
 }
-
 
 impl Default for Atmosphere {
     fn default() -> Self {
@@ -8639,9 +8643,8 @@ impl ScaleSpecificPhysics {
 
         // Calculate target achievement rates
         let transition_target_rate = self.performance_benchmark.success_rate();
-        let density_target_rate = 100.0
-            * (1.0 - self.performance_benchmark.average_time_ms / 100.0)
-                .clamp(0.0, 1.0);
+        let density_target_rate =
+            100.0 * (1.0 - self.performance_benchmark.average_time_ms / 100.0).clamp(0.0, 1.0);
 
         // Generate bottleneck analysis
         let bottleneck_analysis = self.identify_bottlenecks(&scale_benchmarks);
@@ -12184,306 +12187,306 @@ mod tests {
     // "Create comprehensive benchmarking system to measure performance of all scale simulations"
 
     /// Test scale simulation benchmarking
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Benchmark all 7 scales individually"
-        #[test]
-        fn test_scale_simulation_benchmark() {
-            let mut physics = ScaleSpecificPhysics::new();
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Benchmark all 7 scales individually"
+    #[test]
+    fn test_scale_simulation_benchmark() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-            // Benchmark quantum scale
+        // Benchmark quantum scale
+        let benchmark = physics
+            .benchmark_scale_simulation(ScaleLevel::Quantum, 100, 10)
+            .expect("Benchmark should succeed");
+
+        // Verify benchmark data
+        assert!(
+            benchmark.total_step_time_ms > 0.0,
+            "Total step time should be positive"
+        );
+        assert_eq!(benchmark.scale, ScaleLevel::Quantum);
+        assert_eq!(benchmark.entity_count, 100);
+        assert_eq!(benchmark.steps_measured, 10);
+
+        // Verify component times are non-negative
+        assert!(benchmark.encoding_time_ms >= 0.0);
+        assert!(benchmark.propagation_time_ms >= 0.0);
+        assert!(benchmark.coherence_time_ms >= 0.0);
+        assert!(benchmark.validation_time_ms >= 0.0);
+
+        // Verify holographic overhead
+        assert!(
+            benchmark.holographic_overhead_ms >= 0.0,
+            "Holographic overhead should be non-negative"
+        );
+
+        // Verify memory usage
+        assert!(
+            benchmark.memory_usage_bytes > 0,
+            "Memory usage should be positive"
+        );
+    }
+
+    /// Test benchmark all scales
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Benchmark all 7 scales individually"
+    #[test]
+    fn test_benchmark_all_scales() {
+        let mut physics = ScaleSpecificPhysics::new();
+
+        // Benchmark all scales
+        let scales = vec![
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+            ScaleLevel::Planetary,
+            ScaleLevel::Stellar,
+            ScaleLevel::Galactic,
+            ScaleLevel::Cosmic,
+        ];
+
+        for scale in scales {
             let benchmark = physics
-                .benchmark_scale_simulation(ScaleLevel::Quantum, 100, 10)
+                .benchmark_scale_simulation(scale, 100, 10)
                 .expect("Benchmark should succeed");
 
             // Verify benchmark data
             assert!(
                 benchmark.total_step_time_ms > 0.0,
-                "Total step time should be positive"
+                "Total step time should be positive for {:?}",
+                scale
             );
-            assert_eq!(benchmark.scale, ScaleLevel::Quantum);
+            assert_eq!(benchmark.scale, scale);
             assert_eq!(benchmark.entity_count, 100);
             assert_eq!(benchmark.steps_measured, 10);
-
-            // Verify component times are non-negative
-            assert!(benchmark.encoding_time_ms >= 0.0);
-            assert!(benchmark.propagation_time_ms >= 0.0);
-            assert!(benchmark.coherence_time_ms >= 0.0);
-            assert!(benchmark.validation_time_ms >= 0.0);
-
-            // Verify holographic overhead
-            assert!(
-                benchmark.holographic_overhead_ms >= 0.0,
-                "Holographic overhead should be non-negative"
-            );
-
-            // Verify memory usage
-            assert!(
-                benchmark.memory_usage_bytes > 0,
-                "Memory usage should be positive"
-            );
         }
+    }
 
-        /// Test benchmark all scales
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Benchmark all 7 scales individually"
-        #[test]
-        fn test_benchmark_all_scales() {
-            let mut physics = ScaleSpecificPhysics::new();
+    /// Test bottleneck identification
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Identify performance bottlenecks"
+    #[test]
+    fn test_bottleneck_identification() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-            // Benchmark all scales
-            let scales = vec![
-                ScaleLevel::Quantum,
-                ScaleLevel::Cellular,
-                ScaleLevel::Biological,
-                ScaleLevel::Planetary,
-                ScaleLevel::Stellar,
-                ScaleLevel::Galactic,
-                ScaleLevel::Cosmic,
-            ];
+        // Run benchmark
+        let benchmark = physics
+            .benchmark_scale_simulation(ScaleLevel::Cosmic, 1000, 100)
+            .expect("Benchmark should succeed");
 
-            for scale in scales {
-                let benchmark = physics
-                    .benchmark_scale_simulation(scale, 100, 10)
-                    .expect("Benchmark should succeed");
+        // Identify bottleneck
+        let bottleneck = physics.identify_bottlenecks(&[benchmark]);
 
-                // Verify benchmark data
-                assert!(
-                    benchmark.total_step_time_ms > 0.0,
-                    "Total step time should be positive for {:?}",
-                    scale
-                );
-                assert_eq!(benchmark.scale, scale);
-                assert_eq!(benchmark.entity_count, 100);
-                assert_eq!(benchmark.steps_measured, 10);
-            }
-        }
+        // Bottleneck should be one of the components
+        let valid_bottlenecks = [
+            "Encoding",
+            "Propagation",
+            "Coherence",
+            "Validation",
+            "Holographic Overhead",
+        ];
+        assert!(
+            valid_bottlenecks.contains(&bottleneck.primary_bottleneck.as_str()),
+            "Bottleneck should be valid: {:?}",
+            bottleneck
+        );
+    }
 
-        /// Test bottleneck identification
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Identify performance bottlenecks"
-        #[test]
-        fn test_bottleneck_identification() {
-            let mut physics = ScaleSpecificPhysics::new();
+    /// Test performance report generation
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Generate performance report"
+    #[test]
+    fn test_performance_report_generation() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-            // Run benchmark
+        // Generate report (method runs benchmarks internally)
+        let report = physics.generate_performance_report();
+
+        // Report should contain key metrics
+        assert!(report.is_ok(), "Report generation should succeed");
+        let report = report.unwrap();
+
+        // Verify report structure
+        assert!(!report.scale_benchmarks.is_empty());
+        assert!(report.average_step_time_ms > 0.0);
+        assert!(report.total_simulation_time_ms > 0.0);
+        assert!(report.total_entities > 0);
+    }
+
+    /// Test benchmark varying entity counts
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Test scaling with varying entity counts"
+    #[test]
+    fn test_benchmark_varying_entity_counts() {
+        let mut physics = ScaleSpecificPhysics::new();
+
+        // Test with different entity counts
+        let entity_counts = vec![10, 100, 500, 1000];
+
+        for entity_count in &entity_counts {
             let benchmark = physics
-                .benchmark_scale_simulation(ScaleLevel::Cosmic, 1000, 100)
+                .benchmark_scale_simulation(ScaleLevel::Quantum, *entity_count, 5)
                 .expect("Benchmark should succeed");
 
-            // Identify bottleneck
-            let bottleneck = physics.identify_bottlenecks(&[benchmark]);
-
-            // Bottleneck should be one of the components
-            let valid_bottlenecks = [
-                "Encoding",
-                "Propagation",
-                "Coherence",
-                "Validation",
-                "Holographic Overhead",
-            ];
-            assert!(
-                valid_bottlenecks.contains(&bottleneck.primary_bottleneck.as_str()),
-                "Bottleneck should be valid: {:?}",
-                bottleneck
-            );
-        }
-
-        /// Test performance report generation
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Generate performance report"
-        #[test]
-        fn test_performance_report_generation() {
-            let mut physics = ScaleSpecificPhysics::new();
-
-            // Generate report (method runs benchmarks internally)
-            let report = physics.generate_performance_report();
-
-            // Report should contain key metrics
-            assert!(report.is_ok(), "Report generation should succeed");
-            let report = report.unwrap();
-
-            // Verify report structure
-            assert!(!report.scale_benchmarks.is_empty());
-            assert!(report.average_step_time_ms > 0.0);
-            assert!(report.total_simulation_time_ms > 0.0);
-            assert!(report.total_entities > 0);
-        }
-
-        /// Test benchmark varying entity counts
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Test scaling with varying entity counts"
-        #[test]
-        fn test_benchmark_varying_entity_counts() {
-            let mut physics = ScaleSpecificPhysics::new();
-
-            // Test with different entity counts
-            let entity_counts = vec![10, 100, 500, 1000];
-
-            for entity_count in &entity_counts {
-                let benchmark = physics
-                    .benchmark_scale_simulation(ScaleLevel::Quantum, *entity_count, 5)
-                    .expect("Benchmark should succeed");
-
-                assert_eq!(benchmark.entity_count, *entity_count);
-                assert!(benchmark.total_step_time_ms > 0.0);
-            }
-        }
-
-        /// Test holographic continuity overhead benchmark
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Benchmark holographic continuity overhead"
-        #[test]
-        fn test_holographic_overhead_benchmark() {
-            let mut physics = ScaleSpecificPhysics::new();
-
-            let benchmark = physics
-                .benchmark_holographic_overhead(ScaleLevel::Quantum, 10)
-                .expect("Benchmark should succeed");
-            let avg_holographic_time =
-                benchmark.holographic_overhead_ms / benchmark.steps_measured as Float;
-            let overhead_percentage =
-                (benchmark.holographic_overhead_ms / benchmark.total_step_time_ms) * 100.0;
-
-            assert!(avg_holographic_time >= 0.0);
-            assert!(overhead_percentage >= 0.0);
-        }
-
-        /// Test cross-scale coupling performance benchmark
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Benchmark cross-scale coupling performance"
-        #[test]
-        fn test_cross_scale_coupling_benchmark() {
-            let mut physics = ScaleSpecificPhysics::new();
-
-            let benchmark = physics
-                .benchmark_cross_scale_coupling(ScaleLevel::Quantum, ScaleLevel::Cellular, 10)
-                .expect("Benchmark should succeed");
-
-            // Check benchmark structure
+            assert_eq!(benchmark.entity_count, *entity_count);
             assert!(benchmark.total_step_time_ms > 0.0);
-            assert!(benchmark.propagation_time_ms > 0.0);
-            assert!(benchmark.coherence_time_ms > 0.0);
-            assert_eq!(benchmark.steps_measured, 10);
         }
+    }
 
-        /// Test linear scaling verification
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Verify linear scaling of time complexity"
-        #[test]
-        fn test_linear_scaling_verification() {
-            let mut physics = ScaleSpecificPhysics::new();
+    /// Test holographic continuity overhead benchmark
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Benchmark holographic continuity overhead"
+    #[test]
+    fn test_holographic_overhead_benchmark() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-            // Test with increasing entity counts
-            let entity_counts = vec![10, 100, 1000];
-            let mut times = Vec::new();
+        let benchmark = physics
+            .benchmark_holographic_overhead(ScaleLevel::Quantum, 10)
+            .expect("Benchmark should succeed");
+        let avg_holographic_time =
+            benchmark.holographic_overhead_ms / benchmark.steps_measured as Float;
+        let overhead_percentage =
+            (benchmark.holographic_overhead_ms / benchmark.total_step_time_ms) * 100.0;
 
-            for entity_count in entity_counts {
-                let benchmark = physics
-                    .benchmark_scale_simulation(ScaleLevel::Quantum, entity_count, 10)
-                    .expect("Benchmark should succeed");
-                times.push(benchmark.total_step_time_ms);
-            }
+        assert!(avg_holographic_time >= 0.0);
+        assert!(overhead_percentage >= 0.0);
+    }
 
-            // Time should scale roughly linearly with entity count
-            // Allow for some overhead variance
-            let ratio_10_to_100 = times[1] / times[0];
-            let ratio_100_to_1000 = times[2] / times[1];
+    /// Test cross-scale coupling performance benchmark
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Benchmark cross-scale coupling performance"
+    #[test]
+    fn test_cross_scale_coupling_benchmark() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-            // Ratios should be close to 10 (linear scaling)
-            // Allow up to 3x variance due to holographic overhead
-            assert!((3.0..=30.0).contains(&ratio_10_to_100));
-            assert!((3.0..=30.0).contains(&ratio_100_to_1000));
-        }
+        let benchmark = physics
+            .benchmark_cross_scale_coupling(ScaleLevel::Quantum, ScaleLevel::Cellular, 10)
+            .expect("Benchmark should succeed");
 
-        /// Test performance targets achievement
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Verify performance targets are met"
-        #[test]
-        fn test_performance_targets_achievement() {
-            let mut physics = ScaleSpecificPhysics::new();
+        // Check benchmark structure
+        assert!(benchmark.total_step_time_ms > 0.0);
+        assert!(benchmark.propagation_time_ms > 0.0);
+        assert!(benchmark.coherence_time_ms > 0.0);
+        assert_eq!(benchmark.steps_measured, 10);
+    }
 
-            // Test target: < 10ms per step with 100 entities
+    /// Test linear scaling verification
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Verify linear scaling of time complexity"
+    #[test]
+    fn test_linear_scaling_verification() {
+        let mut physics = ScaleSpecificPhysics::new();
+
+        // Test with increasing entity counts
+        let entity_counts = vec![10, 100, 1000];
+        let mut times = Vec::new();
+
+        for entity_count in entity_counts {
             let benchmark = physics
-                .benchmark_scale_simulation(ScaleLevel::Quantum, 100, 100)
+                .benchmark_scale_simulation(ScaleLevel::Quantum, entity_count, 10)
                 .expect("Benchmark should succeed");
-
-            let avg_step_time = benchmark.total_step_time_ms / benchmark.steps_measured as Float;
-
-            assert!(
-                avg_step_time < 100.0,
-                "Average step time should be < 100ms: {}",
-                avg_step_time
-            );
-
-            // Holographic overhead should be < 50%
-            let overhead_percent =
-                (benchmark.holographic_overhead_ms / benchmark.total_step_time_ms) * 100.0;
-            assert!(
-                overhead_percent < 200.0,
-                "Holographic overhead should be < 200%: {}",
-                overhead_percent
-            );
+            times.push(benchmark.total_step_time_ms);
         }
 
-        /// Test benchmark summary
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Generate benchmark summary"
-        #[test]
-        fn test_benchmark_summary() {
-            let mut physics = ScaleSpecificPhysics::new();
+        // Time should scale roughly linearly with entity count
+        // Allow for some overhead variance
+        let ratio_10_to_100 = times[1] / times[0];
+        let ratio_100_to_1000 = times[2] / times[1];
 
-            // Run multiple benchmarks
-            let mut benchmarks = Vec::new();
-            for scale in [
-                ScaleLevel::Quantum,
-                ScaleLevel::Cellular,
-                ScaleLevel::Biological,
-            ] {
-                let benchmark = physics
-                    .benchmark_scale_simulation(scale, 100, 10)
-                    .expect("Benchmark should succeed");
-                benchmarks.push(benchmark);
-            }
+        // Ratios should be close to 10 (linear scaling)
+        // Allow up to 3x variance due to holographic overhead
+        assert!((3.0..=30.0).contains(&ratio_10_to_100));
+        assert!((3.0..=30.0).contains(&ratio_100_to_1000));
+    }
 
-            // Verify benchmark summaries individually
-            for benchmark in &benchmarks {
-                let summary = benchmark.summary();
-                assert!(!summary.is_empty());
-                assert!(summary.contains("ms"));
-            }
-        }
+    /// Test performance targets achievement
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Verify performance targets are met"
+    #[test]
+    fn test_performance_targets_achievement() {
+        let mut physics = ScaleSpecificPhysics::new();
 
-        /// Test bottleneck recommendations
-        ///
-        /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
-        /// "Provide recommendations for addressing bottlenecks"
-        #[test]
-        fn test_bottleneck_recommendations() {
-            let mut physics = ScaleSpecificPhysics::new();
+        // Test target: < 10ms per step with 100 entities
+        let benchmark = physics
+            .benchmark_scale_simulation(ScaleLevel::Quantum, 100, 100)
+            .expect("Benchmark should succeed");
 
-            // Run benchmark to find bottleneck
+        let avg_step_time = benchmark.total_step_time_ms / benchmark.steps_measured as Float;
+
+        assert!(
+            avg_step_time < 100.0,
+            "Average step time should be < 100ms: {}",
+            avg_step_time
+        );
+
+        // Holographic overhead should be < 50%
+        let overhead_percent =
+            (benchmark.holographic_overhead_ms / benchmark.total_step_time_ms) * 100.0;
+        assert!(
+            overhead_percent < 200.0,
+            "Holographic overhead should be < 200%: {}",
+            overhead_percent
+        );
+    }
+
+    /// Test benchmark summary
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Generate benchmark summary"
+    #[test]
+    fn test_benchmark_summary() {
+        let mut physics = ScaleSpecificPhysics::new();
+
+        // Run multiple benchmarks
+        let mut benchmarks = Vec::new();
+        for scale in [
+            ScaleLevel::Quantum,
+            ScaleLevel::Cellular,
+            ScaleLevel::Biological,
+        ] {
             let benchmark = physics
-                .benchmark_scale_simulation(ScaleLevel::Cosmic, 1000, 100)
+                .benchmark_scale_simulation(scale, 100, 10)
                 .expect("Benchmark should succeed");
-
-            let bottleneck = physics.identify_bottlenecks(&[benchmark]);
-
-            // Recommendations should be included in bottleneck analysis
-            assert!(!bottleneck.recommendations.is_empty());
-
-            // Each recommendation should be non-empty
-            for recommendation in &bottleneck.recommendations {
-                assert!(!recommendation.is_empty());
-            }
+            benchmarks.push(benchmark);
         }
-    } // End of tests module
+
+        // Verify benchmark summaries individually
+        for benchmark in &benchmarks {
+            let summary = benchmark.summary();
+            assert!(!summary.is_empty());
+            assert!(summary.contains("ms"));
+        }
+    }
+
+    /// Test bottleneck recommendations
+    ///
+    /// From MASTER_R&D_ROADMAP.md Phase 1 Week 6 Part 2:
+    /// "Provide recommendations for addressing bottlenecks"
+    #[test]
+    fn test_bottleneck_recommendations() {
+        let mut physics = ScaleSpecificPhysics::new();
+
+        // Run benchmark to find bottleneck
+        let benchmark = physics
+            .benchmark_scale_simulation(ScaleLevel::Cosmic, 1000, 100)
+            .expect("Benchmark should succeed");
+
+        let bottleneck = physics.identify_bottlenecks(&[benchmark]);
+
+        // Recommendations should be included in bottleneck analysis
+        assert!(!bottleneck.recommendations.is_empty());
+
+        // Each recommendation should be non-empty
+        for recommendation in &bottleneck.recommendations {
+            assert!(!recommendation.is_empty());
+        }
+    }
+} // End of tests module

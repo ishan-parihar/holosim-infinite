@@ -28,8 +28,7 @@ type SpectrumAccumulator = (Vec<Float>, Vec<Float>, Vec<Float>, usize);
 ///
 /// Tracks all aspects of the simulation including involution, evolution,
 /// holographic field, and physical manifestation.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[derive(Default)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SimulationStatistics {
     /// Involution phase statistics
     pub involution: InvolutionStatistics,
@@ -1052,7 +1051,6 @@ impl StatisticsTracker {
 // ============================================================================
 // DEFAULT IMPLEMENTATIONS
 // ============================================================================
-
 
 impl Default for InvolutionStatistics {
     fn default() -> Self {

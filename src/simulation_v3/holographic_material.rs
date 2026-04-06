@@ -49,8 +49,7 @@ pub const CHEMICAL_REACTIVITY_MAX: Float = 10.0;
 pub const BIOCOMPATIBILITY_MIN: Float = 0.0;
 pub const BIOCOMPATIBILITY_MAX: Float = 1.0;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct MaterialId(pub u64);
 
 impl MaterialId {
@@ -62,7 +61,6 @@ impl MaterialId {
         self.0
     }
 }
-
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct MaterialProperties {
@@ -116,8 +114,7 @@ pub struct HolographicMaterial {
     pub pressure: Float,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum MaterialPhase {
     #[default]
     Solid,
@@ -131,7 +128,6 @@ pub enum MaterialPhase {
     Holographic,
     Quantum,
 }
-
 
 #[derive(Debug, Clone)]
 pub struct ResonanceCache {
@@ -155,8 +151,7 @@ pub enum HolographicMaterialError {
     PropertyOutOfRange(String),
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct MaterialSystemStatistics {
     pub total_materials: usize,
     pub cache_hits: u64,
@@ -165,7 +160,6 @@ pub struct MaterialSystemStatistics {
     pub average_computation_time_ns: u64,
     pub materials_by_phase: HashMap<MaterialPhase, usize>,
 }
-
 
 pub struct HolographicMaterialSystem {
     materials: HashMap<MaterialId, HolographicMaterial>,
@@ -649,8 +643,9 @@ impl HolographicMaterialSystem {
     fn signature_hash(&self, signature: &[Float; 22]) -> u64 {
         let mut hash: u64 = 0;
         for (i, &value) in signature.iter().enumerate() {
-            let bits =
-                value.to_bits().wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15));
+            let bits = value
+                .to_bits()
+                .wrapping_add((i as u64).wrapping_mul(0x9e3779b97f4a7c15));
             hash = hash.wrapping_add(bits);
             hash = hash.wrapping_mul(0x100000001b3);
             hash ^= hash >> 31;

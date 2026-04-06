@@ -303,7 +303,7 @@ impl EntityInstance {
 
         // Size based on density level and consciousness level
         // Higher density + higher consciousness = larger visible size
-        let base_size = 0.02 + (density_level as f32 * 0.01);
+        let base_size = 0.04 + (density_level as f32 * 0.015);
         let size = base_size * (1.0 + consciousness_level * 0.5);
 
         let morphology_params = Self::morphology_from_activations(
@@ -402,7 +402,7 @@ impl EntityInstance {
             time_space_ratio,
         );
 
-        let base_size = 0.03 + (consciousness_level * 0.05);
+        let base_size = 0.06 + (consciousness_level * 0.06);
         let collective_bonus = if entity.in_collective { 0.02 } else { 0.0 };
         let size = (base_size + collective_bonus) * (1.0 + density_factor * 0.2);
 
@@ -474,7 +474,7 @@ impl EntityInstance {
             archetype_intensity: 0.5 + ((index % 10) as f32 * 0.05),
             // Entity properties
             entity_type: (index % 5) as u32,
-            size: 0.03 + ((index % 10) as f32 * 0.005),
+            size: 0.05 + ((index % 10) as f32 * 0.008),
             morphology_params: [
                 0.2 + ((index % 7) as f32 * 0.08).min(0.7),
                 0.25 + ((index % 5) as f32 * 0.12).min(0.6),
@@ -614,11 +614,11 @@ impl EntityInstance {
                 hash2 ^= (byte as u32) << shift;
             }
         }
-        
+
         // Use two independent hash values for angle and radial offset
         let angle_seed = (hash1 as f32 / u32::MAX as f32) * std::f32::consts::TAU;
         let radial_offset = (hash2 as f32 / u32::MAX as f32) * 0.3;
-        
+
         // Add entity type and density level for more variation
         let type_offset = (entity.entity_type as u8 as f32) * 0.15;
         let density_offset = match entity.current_density {
@@ -631,10 +631,14 @@ impl EntityInstance {
             crate::evolution_density_octave::density_octave::Density::Seventh => 0.6,
             crate::evolution_density_octave::density_octave::Density::Eighth => 0.7,
         };
-        
-        let radial = 0.1 + radial_offset + type_offset + (entity.spectrum_position as f32).clamp(0.0, 1.0) * 0.5;
-        let z = density_offset - 0.35 + ((entity.time_space_ratio - entity.space_time_ratio) as f32 * 0.05).clamp(-0.2, 0.2);
-        
+
+        let radial = 0.1
+            + radial_offset
+            + type_offset
+            + (entity.spectrum_position as f32).clamp(0.0, 1.0) * 0.5;
+        let z = density_offset - 0.35
+            + ((entity.time_space_ratio - entity.space_time_ratio) as f32 * 0.05).clamp(-0.2, 0.2);
+
         [radial * angle_seed.cos(), radial * angle_seed.sin(), z]
     }
 
@@ -669,7 +673,7 @@ impl EntityInstance {
         // Case 2: Check if this entity is a direct child of the focus
         if let Some(focus_id) = focus_entity_id {
             let _focus_id_str = focus_id.uuid.as_str();
-            
+
             // Check parent_id
             if let Some(ref parent_id) = entity.parent_id {
                 if parent_id == focus_id {
@@ -680,11 +684,12 @@ impl EntityInstance {
 
             // Check if we're in the composition of the focus
             // (for drilling into biological structures)
-            if entity_id_str.contains("quantum-") 
-                || entity_id_str.contains("atomic-") 
+            if entity_id_str.contains("quantum-")
+                || entity_id_str.contains("atomic-")
                 || entity_id_str.contains("molecular-")
                 || entity_id_str.contains("cellular-")
-                || entity_id_str.contains("organism-") {
+                || entity_id_str.contains("organism-")
+            {
                 // Check if this entity's parent chain leads to focus
                 if Self::is_descendant_of_by_id(entity, focus_id, all_entities) {
                     return Self::position_as_child(entity, depth);
@@ -736,7 +741,7 @@ impl EntityInstance {
 
         // Orbital angle from hash
         let angle = (hash1 as f32 / u32::MAX as f32) * std::f32::consts::TAU;
-        
+
         // Height variation from hash
         let height = ((hash2 as f32 / u32::MAX as f32) - 0.5) * 0.4 * scale;
 
@@ -757,7 +762,11 @@ impl EntityInstance {
                 let r = orbit_radius * 0.8;
                 // Add orbital inclination
                 let inclination = (hash2 as f32 / u32::MAX as f32) * 0.3;
-                (r * angle.cos(), r * angle.sin() * inclination.cos(), height + r * inclination.sin())
+                (
+                    r * angle.cos(),
+                    r * angle.sin() * inclination.cos(),
+                    height + r * inclination.sin(),
+                )
             }
             crate::entity_layer7::layer7::EntityType::Individual => {
                 // Individual entities: clustered within environment
@@ -766,7 +775,11 @@ impl EntityInstance {
             }
             crate::entity_layer7::layer7::EntityType::Collective => {
                 // Collectives: centered
-                (orbit_radius * 0.2 * angle.cos(), orbit_radius * 0.2 * angle.sin(), height)
+                (
+                    orbit_radius * 0.2 * angle.cos(),
+                    orbit_radius * 0.2 * angle.sin(),
+                    height,
+                )
             }
         };
 
@@ -845,7 +858,7 @@ impl EntityInstance {
     #[allow(dead_code)]
     fn position_as_ancestor_compat(_entity: &SubSubLogos) -> [f32; 3] {
         // Ancestors are positioned at the edges, faded
-        [10.0, 10.0, 0.0]  // Far corner, will be rendered faded
+        [10.0, 10.0, 0.0] // Far corner, will be rendered faded
     }
 }
 

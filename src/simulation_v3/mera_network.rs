@@ -38,6 +38,7 @@ pub type Float = f64;
 /// - Level 7: Coarsest representation (cosmic scale)
 ///
 /// Performance: Exponential reduction in storage, O(log n) decompression
+#[derive(Debug)]
 pub struct MeraNetwork {
     /// Hierarchical layers (0 = finest, N = coarsest)
     layers: Vec<MeraLayer>,
@@ -55,6 +56,7 @@ pub struct MeraNetwork {
 /// - Disentanglers: Remove redundant information from tensor data
 /// - Coarse-grainers: Combine similar representations
 /// - Data: Compressed representation at this scale
+#[derive(Debug, Clone)]
 pub struct MeraLayer {
     /// Layer level (0 = finest)
     pub level: usize,
@@ -106,14 +108,99 @@ pub struct WaveletCoefficients {
 /// Specifies what portion of the holographic field to decompress.
 #[derive(Debug, Clone)]
 pub struct MeraQuery {
+    /// Scale to decompress at
+    pub scale: MeraScale,
     /// Scale level to decompress (0 = finest, N = coarsest)
     pub scale_level: usize,
-
     /// Spatial region to decompress (optional)
     pub region: Option<(usize, usize, usize, usize)>,
-
     /// Required precision (0.0 = coarse, 1.0 = finest)
     pub precision: Float,
+    /// Query type
+    pub query_type: QueryType,
+}
+
+impl MeraQuery {
+    pub fn new(scale: MeraScale, query_type: QueryType) -> Self {
+        Self {
+            scale_level: scale.level(),
+            scale,
+            region: None,
+            precision: 1.0,
+            query_type,
+        }
+    }
+}
+
+/// Scale level in the MERA network (7 scales: quantum → cosmic)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum MeraScale {
+    Quantum,
+    Atomic,
+    Molecular,
+    Cellular,
+    Organism,
+    Planetary,
+    Cosmic,
+}
+
+impl MeraScale {
+    pub fn level(&self) -> usize {
+        match self {
+            MeraScale::Quantum => 0,
+            MeraScale::Atomic => 1,
+            MeraScale::Molecular => 2,
+            MeraScale::Cellular => 3,
+            MeraScale::Organism => 4,
+            MeraScale::Planetary => 5,
+            MeraScale::Cosmic => 6,
+        }
+    }
+    pub fn compression_factor(&self) -> usize {
+        2_usize.pow(self.level() as u32)
+    }
+    pub fn all_scales() -> Vec<MeraScale> {
+        vec![
+            MeraScale::Quantum,
+            MeraScale::Atomic,
+            MeraScale::Molecular,
+            MeraScale::Cellular,
+            MeraScale::Organism,
+            MeraScale::Planetary,
+            MeraScale::Cosmic,
+        ]
+    }
+    pub fn coarser(&self) -> Option<MeraScale> {
+        match self {
+            MeraScale::Quantum => Some(MeraScale::Atomic),
+            MeraScale::Atomic => Some(MeraScale::Molecular),
+            MeraScale::Molecular => Some(MeraScale::Cellular),
+            MeraScale::Cellular => Some(MeraScale::Organism),
+            MeraScale::Organism => Some(MeraScale::Planetary),
+            MeraScale::Planetary => Some(MeraScale::Cosmic),
+            MeraScale::Cosmic => None,
+        }
+    }
+    pub fn finer(&self) -> Option<MeraScale> {
+        match self {
+            MeraScale::Quantum => None,
+            MeraScale::Atomic => Some(MeraScale::Quantum),
+            MeraScale::Molecular => Some(MeraScale::Atomic),
+            MeraScale::Cellular => Some(MeraScale::Molecular),
+            MeraScale::Organism => Some(MeraScale::Cellular),
+            MeraScale::Planetary => Some(MeraScale::Organism),
+            MeraScale::Cosmic => Some(MeraScale::Planetary),
+        }
+    }
+}
+
+/// Type of MERA query
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum QueryType {
+    Spatial,
+    Entity,
+    Global,
+    Statistics,
 }
 
 /// Result of MERA compression
@@ -813,10 +900,10 @@ impl PredictiveCache {
             self.cache.entry(key).or_insert_with(|| {
                 let view = field.query(*position, scale);
                 CachedFieldView {
-                        view,
-                        timestamp: 0,
-                        access_count: 0,
-                    }
+                    view,
+                    timestamp: 0,
+                    access_count: 0,
+                }
             });
         }
     }
@@ -1259,6 +1346,16 @@ impl Tensor {
     pub fn std_dev(&self) -> Float {
         self.variance().sqrt()
     }
+
+    /// Return dense data slice (compatibility API)
+    pub fn as_dense(&self) -> &[Float] {
+        &self.data
+    }
+
+    /// Memory usage in bytes
+    pub fn memory_usage(&self) -> usize {
+        self.shape.iter().product::<usize>() * std::mem::size_of::<Float>()
+    }
 }
 
 impl Index<usize> for Tensor {
@@ -1446,8 +1543,13 @@ impl MeraLayer {
 }
 
 impl MeraNetwork {
-    /// Create a new MERA network with the specified number of levels
-    pub fn new(num_levels: usize) -> Self {
+    /// Create a new MERA network with default 7 levels
+    pub fn new() -> Self {
+        Self::with_levels(7)
+    }
+
+    /// Create with specified number of levels
+    pub fn with_levels(num_levels: usize) -> Self {
         MeraNetwork {
             layers: Vec::with_capacity(num_levels),
             num_levels,
@@ -1584,11 +1686,68 @@ impl MeraNetwork {
         self.layers.clear();
         self.stats = MeraStatistics::default();
     }
+
+    /// Decompress and return tensor directly (compatibility API)
+    pub fn decompress_tensor(&mut self, query: &MeraQuery) -> Tensor {
+        self.decompress(query)
+            .map(|r| r.data)
+            .unwrap_or_else(|_| Tensor {
+                shape: vec![1],
+                data: vec![0.0],
+            })
+    }
+
+    /// Initialize with default layers (compatibility API)
+    pub fn initialize_default(&mut self, initial_size: usize) {
+        self.layers.clear();
+        let mut current_size = initial_size;
+        for level in 0..self.num_levels {
+            let data = vec![0.0; current_size];
+            self.layers.push(MeraLayer::new(
+                level,
+                Tensor {
+                    shape: vec![current_size],
+                    data,
+                },
+            ));
+            current_size = current_size.div_ceil(2);
+        }
+    }
+
+    /// Generate tensors automatically (compatibility API)
+    pub fn generate_tensors(&mut self) {
+        for layer in &mut self.layers {
+            let data_size = layer.data.shape.iter().product::<usize>();
+            for _ in 0..3 {
+                let mut d = vec![0.0; data_size * data_size];
+                for i in 0..data_size {
+                    d[i * data_size + i] = 1.0;
+                }
+                layer.disentanglers.push(Tensor {
+                    shape: vec![data_size, data_size],
+                    data: d,
+                });
+            }
+            let next_size = data_size.div_ceil(2);
+            for _ in 0..2 {
+                let data = vec![0.0; data_size * next_size];
+                layer.coarse_grainers.push(Tensor {
+                    shape: vec![data_size, next_size],
+                    data,
+                });
+            }
+        }
+    }
+
+    /// Get total memory usage
+    pub fn memory_usage(&self) -> usize {
+        self.layers.iter().map(|l| l.data.memory_usage()).sum()
+    }
 }
 
 impl Default for MeraNetwork {
     fn default() -> Self {
-        Self::new(7)
+        Self::new()
     }
 }
 

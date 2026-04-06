@@ -909,7 +909,9 @@ mod memory_profiler_tests {
     #[test]
     fn test_traditional_vs_holographic_entity_size() {
         // Traditional should be much larger than holographic
-        const { assert!(TRADITIONAL_ENTITY_SIZE > HOLOGRAPHIC_ENTITY_SIZE); }
+        const {
+            assert!(TRADITIONAL_ENTITY_SIZE > HOLOGRAPHIC_ENTITY_SIZE);
+        }
 
         // Verify ratio
         let ratio = TRADITIONAL_ENTITY_SIZE as f64 / HOLOGRAPHIC_ENTITY_SIZE as f64;

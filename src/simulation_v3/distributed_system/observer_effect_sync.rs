@@ -8,9 +8,7 @@ use crate::simulation_v3::advanced_game_mechanics::ArchetypeId;
 use crate::simulation_v3::distributed_system::distributed_holographic_field::{
     Coordinate3D, ResonancePattern,
 };
-use crate::simulation_v3::distributed_system::{
-    FieldSignature, ObservationId, PeerId, Timestamp,
-};
+use crate::simulation_v3::distributed_system::{FieldSignature, ObservationId, PeerId, Timestamp};
 use crate::spectrum::larson_framework::SpectrumRatio;
 use crate::types::Density;
 use crate::types::Float;
@@ -744,8 +742,7 @@ impl Default for ObservationSummary {
 }
 
 /// Result of an observation operation
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct ObservationResult {
     pub observation_record: ObservationRecord,
     pub success: bool,
@@ -769,7 +766,6 @@ impl ObservationResult {
         }
     }
 }
-
 
 /// What a peer has observed
 #[derive(Debug, Clone, PartialEq)]

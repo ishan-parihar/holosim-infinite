@@ -656,7 +656,6 @@ impl LivingEnvironment {
         }
 
         // Derive from planet systems
-        
 
         match (&self.planet.lithosphere, &self.planet.hydrosphere) {
             (Some(litho), Some(hydro)) => {

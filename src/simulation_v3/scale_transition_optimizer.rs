@@ -360,7 +360,8 @@ impl ScaleTransitionOptimizer {
 
         let cache_entry = self.get_or_load_transition_data(&transition_key, position_log)?;
 
-        let scale_distance = (to_scale.index() as i32 - from_scale.index() as i32).unsigned_abs() as usize;
+        let scale_distance =
+            (to_scale.index() as i32 - from_scale.index() as i32).unsigned_abs() as usize;
         let total_steps = if self.progressive_refinement {
             scale_distance * 2
         } else {

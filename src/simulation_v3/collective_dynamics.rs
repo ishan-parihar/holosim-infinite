@@ -1790,32 +1790,75 @@ impl CollectiveDynamicsManager {
 
         total_consciousness / self.collective_behaviors.len() as Float
     }
+
+    pub fn update_spectrum_resonance(
+        &mut self,
+        collective_id: &EntityId,
+        member_spectrum_positions: &[Float],
+    ) {
+        let coherence = Self::calculate_spectrum_coherence(member_spectrum_positions);
+        if let Some(behavior) = self.collective_behaviors.get_mut(collective_id) {
+            let resonance_boost = coherence * 0.2;
+            behavior.collective_resonance =
+                (behavior.collective_resonance + resonance_boost).clamp(0.0, 1.0);
+        }
+    }
+
+    pub fn calculate_spectrum_coherence(positions: &[Float]) -> Float {
+        if positions.len() < 2 {
+            return 1.0;
+        }
+        let mean: Float = positions.iter().sum::<Float>() / positions.len() as Float;
+        let variance: Float =
+            positions.iter().map(|p| (p - mean).powi(2)).sum::<Float>() / positions.len() as Float;
+        let std_dev = variance.sqrt();
+        1.0 / (1.0 + std_dev)
+    }
+
+    pub fn get_collective_spectrum_statistics(
+        &self,
+        _collective_id: &EntityId,
+        member_spectrum_positions: &[Float],
+    ) -> CollectiveSpectrumStatistics {
+        let coherence = Self::calculate_spectrum_coherence(member_spectrum_positions);
+        let mean = if member_spectrum_positions.is_empty() {
+            0.0
+        } else {
+            member_spectrum_positions.iter().sum::<Float>()
+                / member_spectrum_positions.len() as Float
+        };
+        let near_veil_count = member_spectrum_positions
+            .iter()
+            .filter(|p| (**p - 1.0).abs() < 0.3)
+            .count();
+        CollectiveSpectrumStatistics {
+            coherence,
+            mean_position: mean,
+            member_count: member_spectrum_positions.len(),
+            near_veil_count,
+        }
+    }
 }
 /// Collective Resonance Statistics (Phase 6)
 ///
 /// Statistics about resonance within collectives.
 #[derive(Debug, Clone, Default)]
 pub struct CollectiveResonanceStatistics {
-    /// Total number of collectives
     pub total_collectives: usize,
-
-    /// Average collective resonance
     pub average_collective_resonance: Float,
-
-    /// Number of high resonance collectives (> 0.8)
     pub high_resonance_collectives: usize,
-
-    /// Number of medium resonance collectives (0.5 to 0.8)
     pub medium_resonance_collectives: usize,
-
-    /// Number of low resonance collectives (0.2 to 0.5)
     pub low_resonance_collectives: usize,
-
-    /// Number of no resonance collectives (< 0.2)
     pub no_resonance_collectives: usize,
-
-    /// Average members per collective
     pub average_members_per_collective: Float,
+}
+
+#[derive(Debug, Clone)]
+pub struct CollectiveSpectrumStatistics {
+    pub coherence: Float,
+    pub mean_position: Float,
+    pub member_count: usize,
+    pub near_veil_count: usize,
 }
 
 // ============================================================================

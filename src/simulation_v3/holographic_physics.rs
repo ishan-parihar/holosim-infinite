@@ -166,8 +166,7 @@ pub enum HolographicPhysicsError {
     ModeTransitionFailed(String),
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub struct PhysicsEngineStatistics {
     pub total_interactions_computed: u64,
     pub space_time_interactions: u64,
@@ -175,7 +174,6 @@ pub struct PhysicsEngineStatistics {
     pub quantum_interactions: u64,
     pub average_computation_time_ns: u64,
 }
-
 
 pub struct HolographicPhysicsEngine {
     current_mode: HolographicPhysicsMode,

@@ -21,8 +21,7 @@ use crate::types::Float;
 ///
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 8:
 /// "View from entity's perspective, collective view, or cosmic overview"
-#[derive(Debug, Clone, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, PartialEq, Default)]
 pub enum ObserverMode {
     /// View from entity's perspective
     EntityView { entity_id: EntityId },
@@ -35,7 +34,6 @@ pub enum ObserverMode {
     FreeCamera { position: [Float; 3] },
 }
 
-
 // ============================================================================
 // Scale Level
 // ============================================================================
@@ -44,8 +42,7 @@ pub enum ObserverMode {
 ///
 /// From HOLOSIM_INFINITE_REFACTOR_ROADMAP_V5.md Phase 8:
 /// "Multi-scale navigation from quantum to cosmic"
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub enum ScaleLevel {
     /// Quantum scale (10^-35 m) - Planck scale
     Quantum,
@@ -123,7 +120,6 @@ impl ScaleLevel {
         }
     }
 }
-
 
 // ============================================================================
 // Scale Controller
@@ -452,8 +448,7 @@ impl EventNarrator {
 // ============================================================================
 
 /// Inspector tab
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum InspectorTab {
     /// Physical body status
     #[default]
@@ -469,7 +464,6 @@ pub enum InspectorTab {
     /// Evolutionary trajectory
     EvolutionaryTrajectory,
 }
-
 
 impl InspectorTab {
     /// Get tab display name

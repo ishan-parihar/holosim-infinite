@@ -30,8 +30,47 @@ impl std::fmt::Debug for WgpuContext {
 impl WgpuContext {
     /// Initialize WGPU with a window
     pub async fn new(window: std::sync::Arc<Window>) -> Result<Self, String> {
+        let backend_order = [
+            (wgpu::Backends::VULKAN, "Vulkan"),
+            (wgpu::Backends::GL, "OpenGL"),
+            (wgpu::Backends::BROWSER_WEBGPU, "WebGPU"),
+            (wgpu::Backends::DX12, "DX12"),
+            (wgpu::Backends::METAL, "Metal"),
+            (wgpu::Backends::all(), "All backends"),
+        ];
+
+        let mut last_error = String::from("No backends attempted");
+
+        for (backends, name) in backend_order {
+            println!("  Trying WGPU backend: {}...", name);
+            match Self::try_init(window.clone(), backends, false).await {
+                Ok(ctx) => return Ok(ctx),
+                Err(e) => {
+                    last_error = e;
+                    eprintln!("    {} failed: {}", name, last_error);
+                }
+            }
+
+            if backends != wgpu::Backends::all() {
+                match Self::try_init(window.clone(), backends, true).await {
+                    Ok(ctx) => return Ok(ctx),
+                    Err(e) => {
+                        eprintln!("    {} (fallback) failed: {}", name, e);
+                    }
+                }
+            }
+        }
+
+        Err(format!("All WGPU backends failed. Last error: {}", last_error))
+    }
+
+    async fn try_init(
+        window: std::sync::Arc<Window>,
+        backends: wgpu::Backends,
+        force_fallback: bool,
+    ) -> Result<Self, String> {
         let instance = Instance::new(wgpu::InstanceDescriptor {
-            backends: wgpu::Backends::all(),
+            backends,
             ..Default::default()
         });
 
@@ -41,12 +80,23 @@ impl WgpuContext {
 
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
-                power_preference: wgpu::PowerPreference::HighPerformance,
+                power_preference: if force_fallback {
+                    wgpu::PowerPreference::None
+                } else {
+                    wgpu::PowerPreference::HighPerformance
+                },
                 compatible_surface: Some(&surface),
-                force_fallback_adapter: false,
+                force_fallback_adapter: force_fallback,
             })
             .await
-            .ok_or("Failed to find GPU adapter")?;
+            .ok_or("No adapter found")?;
+
+        let adapter_info = adapter.get_info();
+        if force_fallback {
+            println!("  Using fallback adapter: {} (type: {:?})", adapter_info.name, adapter_info.device_type);
+        } else {
+            println!("  Using adapter: {} (type: {:?})", adapter_info.name, adapter_info.device_type);
+        }
 
         let (device, queue) = adapter
             .request_device(

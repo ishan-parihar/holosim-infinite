@@ -155,7 +155,8 @@ impl CollectiveResonanceCalculator {
         let mut combined_phase = 0.0;
 
         for pattern in patterns {
-            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(pattern.pattern.iter()) {
+            for (combined_i, &pattern_i) in combined_pattern.iter_mut().zip(pattern.pattern.iter())
+            {
                 *combined_i += pattern_i;
             }
             combined_stability += pattern.stability;

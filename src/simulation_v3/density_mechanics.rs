@@ -567,9 +567,11 @@ impl Polarity {
     /// Check if two polarities are compatible
     /// STO and STS are incompatible, Balanced/Undecided is compatible with both
     pub fn is_compatible_with(&self, other: &Polarity) -> bool {
-        !matches!((self, other),
-            (Polarity::ServiceToOthers, Polarity::ServiceToSelf) |
-            (Polarity::ServiceToSelf, Polarity::ServiceToOthers))
+        !matches!(
+            (self, other),
+            (Polarity::ServiceToOthers, Polarity::ServiceToSelf)
+                | (Polarity::ServiceToSelf, Polarity::ServiceToOthers)
+        )
     }
 
     /// Calculate compatibility score between two polarities

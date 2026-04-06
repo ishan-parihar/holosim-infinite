@@ -350,7 +350,8 @@ impl ArchetypeBasis {
     ///
     /// This is the inverse operation of reconstruct()
     pub fn project(&self, pattern: &ArchetypicalPattern) -> ArchetypeActivationProfile {
-        let coefficients: [Float; NUM_ARCHETYPES] = self.basis
+        let coefficients: [Float; NUM_ARCHETYPES] = self
+            .basis
             .iter()
             .map(|basis_vector| {
                 let pattern_vector = ArchetypeVector::new(pattern.components().to_vec());

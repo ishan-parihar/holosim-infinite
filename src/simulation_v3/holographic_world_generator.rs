@@ -84,7 +84,7 @@ impl HolographicBlueprint {
     pub fn compute_resonance_at_point(&self, position: [Float; 3]) -> Float {
         let distance_from_center =
             (position[0].powi(2) + position[1].powi(2) + position[2].powi(2)).sqrt();
-        
+
         (self.holographic_completeness / (1.0 + distance_from_center * 0.01)).max(0.1)
     }
 
@@ -527,8 +527,8 @@ impl HolographicWorldGenerator {
         self.statistics.worlds_generated += 1;
         self.statistics.total_regions_created += 8;
 
-        let total_time = self.statistics.average_unfolding_time.as_nanos()
-            + unfolding_time.as_nanos();
+        let total_time =
+            self.statistics.average_unfolding_time.as_nanos() + unfolding_time.as_nanos();
         self.statistics.average_unfolding_time =
             Duration::from_nanos((total_time / self.statistics.worlds_generated as u128) as u64);
     }
@@ -543,14 +543,16 @@ impl HolographicWorldGenerator {
         total_stages: u32,
     ) -> UnfoldingProgress {
         let progress = current_stage as Float / total_stages as Float * 100.0;
-        let stage_names = ["Blueprint Initialization",
+        let stage_names = [
+            "Blueprint Initialization",
             "Spectrum Configuration",
             "Observer Collapse",
             "Scale Unfolding",
             "Density Region Creation",
             "Entity Generation",
             "Memory Integration",
-            "Finalization"];
+            "Finalization",
+        ];
 
         let stage_name = stage_names
             .get(current_stage as usize)
