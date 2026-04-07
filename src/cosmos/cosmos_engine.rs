@@ -515,7 +515,6 @@ mod tests {
         assert_eq!(engine.cosmic_age(), 0.0);
     }
 
-    #[ignore]
     #[test]
     fn test_cosmos_engine_genesis() {
         let field = Arc::new(ObserverDrivenField::new());

@@ -5,15 +5,12 @@
 //! and social (relationships, civilization).
 
 use crate::biology::{
-    CellEngine, ConsciousnessTickEngine, EvolutionEngine, OrganismManager,
-    ConsciousnessTickInput, ConsciousnessTickOutput, BodyExperience, 
-    EnvironmentExperience, SocialExperience,
+    BiologicalConfig, BiologyPipeline, BodyExperience, ConsciousnessTickEngine,
+    ConsciousnessTickInput, EnvironmentExperience, SocialExperience,
 };
 use crate::entity_layer7::EntityId;
 use crate::evolution_density_octave::density_octave::Density;
-use crate::social::{
-    SocialState, SocialTickContext, SocialTickResult,
-};
+use crate::social::{SocialState, SocialTickContext, SocialTickResult};
 use std::collections::HashMap;
 
 /// Configuration for the unified tick engine
@@ -21,19 +18,19 @@ use std::collections::HashMap;
 pub struct UnifiedTickConfig {
     /// Whether biology is enabled
     pub biology_enabled: bool,
-    
+
     /// Whether consciousness is enabled
     pub consciousness_enabled: bool,
-    
+
     /// Whether social systems are enabled
     pub social_enabled: bool,
-    
+
     /// Tick rate for biology (every N ticks)
     pub biology_tick_rate: u64,
-    
+
     /// Tick rate for social systems (every N ticks)
     pub social_tick_rate: u64,
-    
+
     /// Whether to run in debug mode
     pub debug_mode: bool,
 }
@@ -55,27 +52,24 @@ impl Default for UnifiedTickConfig {
 pub struct UnifiedTickEngine {
     /// Configuration
     config: UnifiedTickConfig,
-    
-    /// Cell engine - manages cellular biology
-    cell_engine: CellEngine,
-    
-    /// Evolution engine - manages species and populations
-    evolution_engine: EvolutionEngine,
-    
-    /// Organism manager - manages individual organisms
-    organism_manager: OrganismManager,
-    
+
+    /// Biology pipeline - molecules → cells → organisms → evolution
+    biology_pipeline: BiologyPipeline,
+
     /// Consciousness engine - manages entity consciousness
     consciousness_engine: ConsciousnessTickEngine,
-    
+
     /// Social state - manages relationships, civilization, SMC
     social_state: SocialState,
-    
+
     /// Global tick counter
     tick_count: u64,
-    
+
     /// Current global density
     global_density: Density,
+
+    /// Global archetype profile (updated during ticks)
+    archetype_profile: [f64; 22],
 }
 
 impl Default for UnifiedTickEngine {
@@ -89,73 +83,69 @@ impl UnifiedTickEngine {
     pub fn new() -> Self {
         UnifiedTickEngine {
             config: UnifiedTickConfig::default(),
-            cell_engine: CellEngine::new(),
-            evolution_engine: EvolutionEngine::new(),
-            organism_manager: OrganismManager::new(),
+            biology_pipeline: BiologyPipeline::new(),
             consciousness_engine: ConsciousnessTickEngine::new(),
             social_state: SocialState::new(),
             tick_count: 0,
             global_density: Density::Third,
+            archetype_profile: [0.5; 22],
         }
     }
-    
+
     /// Create with custom config
     pub fn with_config(config: UnifiedTickConfig) -> Self {
         UnifiedTickEngine {
             config,
-            cell_engine: CellEngine::new(),
-            evolution_engine: EvolutionEngine::new(),
-            organism_manager: OrganismManager::new(),
+            biology_pipeline: BiologyPipeline::with_config(BiologicalConfig::default()),
             consciousness_engine: ConsciousnessTickEngine::new(),
             social_state: SocialState::new(),
             tick_count: 0,
             global_density: Density::Third,
+            archetype_profile: [0.5; 22],
         }
     }
-    
+
     /// Process a unified tick for all systems
     pub fn tick(&mut self, entity_ids: &[EntityId]) -> UnifiedTickResult {
         self.tick_count += 1;
         let mut result = UnifiedTickResult::default();
-        
+
         // 1. Biology tick (every biology_tick_rate ticks)
         if self.config.biology_enabled && self.tick_count % self.config.biology_tick_rate == 0 {
             result.biology_result = self.process_biology_tick();
         }
-        
+
         // 2. Consciousness tick (every tick)
         if self.config.consciousness_enabled {
             result.consciousness_result = self.process_consciousness_tick(entity_ids);
         }
-        
+
         // 3. Social tick (every social_tick_rate ticks)
         if self.config.social_enabled && self.tick_count % self.config.social_tick_rate == 0 {
             result.social_result = self.process_social_tick(entity_ids);
         }
-        
+
         // Update global density based on simulation
         self.update_global_density();
-        
+
         result.tick_count = self.tick_count;
         result.global_density = self.global_density;
-        
+
         result
     }
-    
-    /// Process biology systems (simplified)
+
+    /// Process biology systems
     fn process_biology_tick(&mut self) -> BiologyTickResult {
-        let mut result = BiologyTickResult::default();
-        
-        // Simplified biology processing - in production, would call actual engine methods
-        // with proper environment parameters
-        
+        let result = self
+            .biology_pipeline
+            .tick(1.0, &self.global_density, &self.archetype_profile);
         result
     }
-    
+
     /// Process consciousness systems
     fn process_consciousness_tick(&mut self, entity_ids: &[EntityId]) -> ConsciousnessTickResult {
         let mut result = ConsciousnessTickResult::default();
-        
+
         // Build consciousness inputs for each entity
         let mut inputs = HashMap::new();
         for &entity_id in entity_ids {
@@ -183,15 +173,15 @@ impl UnifiedTickEngine {
             };
             inputs.insert(entity_id.as_u64(), input);
         }
-        
+
         // Process consciousness tick
         let outputs = self.consciousness_engine.tick(&inputs);
-        
+
         // Convert outputs
         result.entity_states = outputs;
         result
     }
-    
+
     /// Process social systems
     fn process_social_tick(&mut self, entity_ids: &[EntityId]) -> SocialTickResult {
         let context = SocialTickContext {
@@ -200,10 +190,10 @@ impl UnifiedTickEngine {
             global_density: self.global_density,
             ticks_since_harvest: self.tick_count % 1000,
         };
-        
+
         self.social_state.tick(&context)
     }
-    
+
     /// Update global density based on simulation state
     fn update_global_density(&mut self) {
         // Simplified: density increases with tick count
@@ -215,10 +205,14 @@ impl UnifiedTickEngine {
             _ => Density::Sixth,
         };
     }
-    
+
     /// Register a new entity with all systems
     pub fn register_entity(&mut self, entity_id: EntityId, density: u8, initial_st_ratio: f64) {
-        // Register with consciousness engine
+        self.biology_pipeline.register_entity(
+            entity_id.as_u64(),
+            density,
+            initial_st_ratio,
+        );
         self.consciousness_engine.register_entity(
             entity_id.as_u64(),
             density,
@@ -230,12 +224,13 @@ impl UnifiedTickEngine {
                 entity_id, density, initial_st_ratio);
         }
     }
-    
+    }
+
     /// Get current tick count
     pub fn tick_count(&self) -> u64 {
         self.tick_count
     }
-    
+
     /// Get current global density
     pub fn global_density(&self) -> Density {
         self.global_density
@@ -261,9 +256,9 @@ pub struct BiologyTickResult {
 
 impl BiologyTickResult {
     pub fn has_changes(&self) -> bool {
-        !self.evolution_changes.is_empty() || 
-        self.organism_updates.born > 0 ||
-        self.organism_updates.died > 0
+        !self.evolution_changes.is_empty()
+            || self.organism_updates.born > 0
+            || self.organism_updates.died > 0
     }
 }
 
@@ -318,10 +313,10 @@ mod unified_tick_tests {
     fn test_tick_increments() {
         let mut engine = UnifiedTickEngine::new();
         let entity_ids = vec![EntityId::new("test1".to_string())];
-        
+
         engine.tick(&entity_ids);
         assert_eq!(engine.tick_count(), 1);
-        
+
         engine.tick(&entity_ids);
         assert_eq!(engine.tick_count(), 2);
     }
@@ -330,7 +325,7 @@ mod unified_tick_tests {
     fn test_global_density_updates() {
         let mut engine = UnifiedTickEngine::new();
         let entity_ids = vec![EntityId::new("test1".to_string())];
-        
+
         // Initial tick
         engine.tick(&entity_ids);
         assert_eq!(engine.global_density(), Density::Third);

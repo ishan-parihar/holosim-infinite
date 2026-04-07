@@ -147,6 +147,9 @@ pub mod probability;
 pub mod scale_architecture;
 pub mod transformation_engine;
 
+// GPU Compute Subsystem
+pub mod gpu;
+
 // Adapters for compatibility
 pub mod adapters;
 

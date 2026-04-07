@@ -23,6 +23,7 @@ pub use crate::civilization::{CivilizationSummary, SettlementSummary};
 use crate::gui::renderer::entity_instance::EntityInstance;
 use crate::gui::renderer::hierarchy_connection::HierarchyConnection;
 use crate::hpo::{FieldVisualizationData, RenderableEntity, SimulationStatistics};
+use crate::simulation_v3::observation_layer::{EntityObservation, ObservationLayer, TerrainType};
 use crate::simulation_v3::simulation_runner::{SimulationParameters, SimulationRunner};
 use crate::types::Float;
 use std::collections::HashMap;
@@ -86,6 +87,15 @@ pub struct SimulationRunnerAdapter {
 
     /// Cached holographic field state for visualization
     cached_field_state: crate::hpo::HolographicFieldState,
+
+    /// Observation layer — translates simulation state into game-engine-consumable data
+    observation_layer: ObservationLayer,
+
+    /// Cached observations indexed by entity UUID string for GUI lookup
+    cached_observations: HashMap<String, EntityObservation>,
+
+    /// Recent simulation events for display
+    recent_events: Vec<crate::simulation_v3::observation_layer::SimulationEvent>,
 }
 
 impl SimulationRunnerAdapter {
@@ -120,6 +130,9 @@ impl SimulationRunnerAdapter {
             initialized: false,
             cached_state: crate::integrated_system::SimulationState::default(),
             cached_field_state: crate::hpo::HolographicFieldState::with_defaults(),
+            observation_layer: ObservationLayer::new(),
+            cached_observations: HashMap::new(),
+            recent_events: Vec::new(),
         }
     }
 
@@ -180,6 +193,9 @@ impl SimulationRunnerAdapter {
         // Note: Full evolution integration pending public step API in SimulationRunner
         self.last_update_step = self.last_update_step.saturating_add(1);
         self.is_running = true;
+
+        self.observation_layer.advance_tick();
+        self.update_observations();
 
         // Update cached state
         self.update_cached_state();
@@ -289,6 +305,28 @@ impl SimulationRunnerAdapter {
     /// Get raw SubSubLogos entities
     pub fn get_raw_entities(&self) -> &HashMap<crate::entity_layer7::EntityId, SubSubLogos> {
         &self.raw_entities
+    }
+
+    pub fn get_entity_observation(&self, entity_uuid: &str) -> Option<&EntityObservation> {
+        self.cached_observations.get(entity_uuid)
+    }
+
+    pub fn get_all_observations(&self) -> &HashMap<String, EntityObservation> {
+        &self.cached_observations
+    }
+
+    pub fn get_recent_events(&self) -> &[crate::simulation_v3::observation_layer::SimulationEvent] {
+        &self.recent_events
+    }
+
+    pub fn terrain_type_display(terrain: TerrainType) -> &'static str {
+        match terrain {
+            TerrainType::Quantum => "Quantum Realm",
+            TerrainType::Biological => "Biological Realm",
+            TerrainType::Planetary => "Planetary Realm",
+            TerrainType::Stellar => "Stellar Realm",
+            TerrainType::Cosmic => "Cosmic Realm",
+        }
     }
 
     /// Get cosmic data for CosmosRenderer
@@ -416,6 +454,63 @@ impl SimulationRunnerAdapter {
         self.cached_connections = self.extract_connections();
 
         self.last_update_step = current_step;
+    }
+
+    fn update_observations(&mut self) {
+        self.cached_observations.clear();
+
+        for (entity_id, entity) in &self.raw_entities {
+            let id_numeric = Self::entity_id_to_u64(entity_id);
+            let archetype_profile = entity.archetype_activations;
+            let spectrum_position = entity.spectrum_position;
+            let density = Self::density_to_u8(&entity.current_density);
+            let position = EntityInstance::position_from_entity(entity);
+            let velocity = [
+                entity.kinetic_energy * 0.01,
+                entity.kinetic_energy * 0.005,
+                entity.kinetic_energy * 0.008,
+            ];
+            let mass = entity.energy.max(0.1);
+            let energy = entity.energy.clamp(0.0, 1.0);
+            let coherence = entity.current_state.vibrational_state.coherence;
+
+            let observation = self.observation_layer.observe_entity(
+                id_numeric,
+                &archetype_profile,
+                spectrum_position,
+                density,
+                [position[0] as f64, position[1] as f64, position[2] as f64],
+                velocity,
+                mass,
+                energy,
+                coherence,
+            );
+
+            self.cached_observations
+                .insert(entity_id.uuid.clone(), observation);
+        }
+
+        self.recent_events = self.observation_layer.take_events();
+        if self.recent_events.len() > 50 {
+            self.recent_events = self.recent_events.split_off(self.recent_events.len() - 50);
+        }
+    }
+
+    fn density_to_u8(density: &crate::evolution_density_octave::density_octave::Density) -> u8 {
+        match density {
+            crate::evolution_density_octave::density_octave::Density::First(_) => 1,
+            crate::evolution_density_octave::density_octave::Density::Second(_) => 2,
+            crate::evolution_density_octave::density_octave::Density::Third => 3,
+            crate::evolution_density_octave::density_octave::Density::Fourth => 4,
+            crate::evolution_density_octave::density_octave::Density::Fifth => 5,
+            crate::evolution_density_octave::density_octave::Density::Sixth => 6,
+            crate::evolution_density_octave::density_octave::Density::Seventh => 7,
+            crate::evolution_density_octave::density_octave::Density::Eighth => 8,
+        }
+    }
+
+    fn entity_id_to_u64(entity_id: &crate::entity_layer7::EntityId) -> u64 {
+        entity_id.uuid.parse::<u64>().unwrap_or(0)
     }
 
     /// Extract entity instances from simulation

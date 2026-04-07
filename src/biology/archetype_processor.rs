@@ -389,8 +389,6 @@ impl EntityArchetypeProcessor {
         self.lesser_cycle.stage = (self.lesser_cycle.stage + 1) % 4;
         self.lesser_cycle.accumulated_input += catalyst.intensity;
 
-        
-
         match self.lesser_cycle.stage {
             0 => {
                 // Matrix (A1) - capacity for mind
@@ -442,8 +440,6 @@ impl EntityArchetypeProcessor {
         rng: &mut impl Rng,
     ) -> GreaterCycleOutput {
         self.greater_cycle.stage = (self.greater_cycle.stage + 1) % 4;
-
-        
 
         match self.greater_cycle.stage {
             0 => {

@@ -621,7 +621,6 @@ mod tests {
         assert!(!earth.is_daytime(0.0));
     }
 
-    #[ignore]
     #[test]
     fn test_seasons() {
         let addr = HolographicAddress::cosmic_origin();

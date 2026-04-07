@@ -56,9 +56,15 @@ pub mod dna_blueprint;
 // The CRITICAL bridge connecting molecular_field to cellular_emergence
 pub mod molecular_cellular_bridge;
 
+// Phase 5.3: Unified Biology Pipeline
+pub mod pipeline;
+
 // ============================================================================
 // RE-EXPORTS
 // ============================================================================
+
+// Phase 5.3: Pipeline exports
+pub use pipeline::{BiologyPipeline, BiologyStats, BiologyTickResult};
 
 // Phase 3 exports
 pub use cellular_emergence::{

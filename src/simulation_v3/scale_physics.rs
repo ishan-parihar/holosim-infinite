@@ -8,6 +8,7 @@
 //! "Each scale contains the whole (holographic principle)"
 //!
 //! This module implements:
+#![allow(dead_code)]
 //! 1. Quantum scale physics (probability-based)
 //! 2. Cellular scale simulation (DNA unfolding)
 //! 3. Biological scale simulation (needs/instincts)
@@ -2774,11 +2775,9 @@ pub struct CellularSimulation {
 #[derive(Debug, Clone)]
 pub struct DnaSequence {
     /// Cell ID
-    #[allow(dead_code)]
     cell_id: u64,
 
     /// Base pairs (A, T, C, G)
-    #[allow(dead_code)]
     base_pairs: Vec<BasePair>,
 
     /// Unfolding state (0.0 = fully folded, 1.0 = fully unfolded)
@@ -2801,11 +2800,9 @@ pub enum BasePair {
 #[derive(Debug, Clone)]
 pub struct Protein {
     /// Protein ID
-    #[allow(dead_code)]
     protein_id: u64,
 
     /// Amino acid sequence
-    #[allow(dead_code)]
     amino_acids: Vec<AminoAcid>,
 
     /// Folding state (0.0 = unfolded, 1.0 = fully folded)
@@ -2844,7 +2841,6 @@ pub enum AminoAcid {
 #[derive(Debug, Clone)]
 pub struct GeneExpression {
     /// Gene ID
-    #[allow(dead_code)]
     gene_id: u64,
 
     /// Expression level (0.0 = off, 1.0 = fully expressed)
@@ -2917,7 +2913,6 @@ pub struct BiologicalSimulation {
 #[derive(Debug, Clone)]
 pub struct Needs {
     /// Organism ID
-    #[allow(dead_code)]
     organism_id: u64,
 
     /// Hunger level (0.0 = starving, 1.0 = full)
@@ -2987,7 +2982,6 @@ pub struct BehaviorState {
     emotional_state: (Float, Float),
 
     /// Attention focus
-    #[allow(dead_code)]
     attention_focus: Option<u64>,
 }
 
@@ -4741,11 +4735,9 @@ pub struct PlanetarySimulation {
 #[derive(Debug, Clone)]
 pub struct Civilization {
     /// Civilization ID
-    #[allow(dead_code)]
     civilization_id: u64,
 
     /// Name
-    #[allow(dead_code)]
     name: String,
 
     /// Population
@@ -4798,7 +4790,6 @@ pub struct ResourceDeposit {
     resource_type: ResourceType,
 
     /// Location
-    #[allow(dead_code)]
     location: (Float, Float),
 
     /// Amount available
@@ -4808,7 +4799,6 @@ pub struct ResourceDeposit {
     extraction_rate: Float,
 
     /// Regeneration rate (if renewable)
-    #[allow(dead_code)]
     regeneration_rate: Float,
 }
 
@@ -4837,7 +4827,6 @@ pub struct TradeNetwork {
     routes: Vec<TradeRoute>,
 
     /// Trade balance
-    #[allow(dead_code)]
     trade_balance: HashMap<u64, Float>,
 }
 
@@ -4845,15 +4834,12 @@ pub struct TradeNetwork {
 #[derive(Debug, Clone)]
 pub struct TradeRoute {
     /// Source civilization
-    #[allow(dead_code)]
     source: u64,
 
     /// Destination civilization
-    #[allow(dead_code)]
     destination: u64,
 
     /// Goods traded
-    #[allow(dead_code)]
     goods: Vec<(ResourceType, Float)>,
 
     /// Route efficiency (0.0 = blocked, 1.0 = optimal)
@@ -4864,7 +4850,6 @@ pub struct TradeRoute {
 #[derive(Debug, Clone)]
 pub struct TechnologyLevel {
     /// Civilization ID
-    #[allow(dead_code)]
     civilization_id: u64,
 
     /// Technology categories
@@ -4893,18 +4878,15 @@ pub enum TechCategory {
 #[derive(Debug, Clone)]
 pub struct ResearchProject {
     /// Project name
-    #[allow(dead_code)]
     name: String,
 
     /// Category
-    #[allow(dead_code)]
     category: TechCategory,
 
     /// Progress (0.0 = not started, 1.0 = complete)
     progress: Float,
 
     /// Difficulty (0.0 = easy, 1.0 = impossible)
-    #[allow(dead_code)]
     difficulty: Float,
 }
 
@@ -4912,14 +4894,12 @@ pub struct ResearchProject {
 #[derive(Debug, Clone, Default)]
 pub struct CulturalEvolution {
     /// Cultural traits
-    #[allow(dead_code)]
     traits: HashMap<String, CulturalTrait>,
 
     /// Memes (ideas spreading through population)
     memes: Vec<Meme>,
 
     /// Art and expression
-    #[allow(dead_code)]
     art_expression: Vec<ArtWork>,
 }
 
@@ -4927,19 +4907,15 @@ pub struct CulturalEvolution {
 #[derive(Debug, Clone)]
 pub struct CulturalTrait {
     /// Trait name
-    #[allow(dead_code)]
     name: String,
 
     /// Prevalence (0.0 = rare, 1.0 = universal)
-    #[allow(dead_code)]
     prevalence: Float,
 
     /// Strength (0.0 = weak, 1.0 = dominant)
-    #[allow(dead_code)]
     strength: Float,
 
     /// Mutation rate
-    #[allow(dead_code)]
     mutation_rate: Float,
 }
 
@@ -4947,7 +4923,6 @@ pub struct CulturalTrait {
 #[derive(Debug, Clone)]
 pub struct Meme {
     /// Content
-    #[allow(dead_code)]
     content: String,
 
     /// Spread rate (0.0 = not spreading, 1.0 = viral)
@@ -4964,23 +4939,18 @@ pub struct Meme {
 #[derive(Debug, Clone)]
 pub struct ArtWork {
     /// Title
-    #[allow(dead_code)]
     title: String,
 
     /// Type
-    #[allow(dead_code)]
     art_type: ArtType,
 
     /// Creator ID
-    #[allow(dead_code)]
     creator_id: u64,
 
     /// Aesthetic value (0.0 = poor, 1.0 = masterpiece)
-    #[allow(dead_code)]
     aesthetic_value: Float,
 
     /// Cultural impact
-    #[allow(dead_code)]
     cultural_impact: Float,
 }
 
@@ -5047,7 +5017,6 @@ pub struct Star {
     age: Float,
 
     /// Position
-    #[allow(dead_code)]
     position: (Float, Float, Float),
 }
 
@@ -5076,7 +5045,6 @@ pub struct Planet {
     mass: Float,
 
     /// Radius (Earth radii)
-    #[allow(dead_code)]
     radius: Float,
 
     /// Orbital distance (AU)
@@ -5089,7 +5057,6 @@ pub struct Planet {
     eccentricity: Float,
 
     /// Type
-    #[allow(dead_code)]
     planet_type: PlanetType,
 
     /// Atmosphere
@@ -5110,7 +5077,6 @@ pub enum PlanetType {
 #[derive(Debug, Clone)]
 pub struct Atmosphere {
     /// Composition
-    #[allow(dead_code)]
     composition: HashMap<String, Float>,
 
     /// Pressure (atm)
@@ -5231,7 +5197,6 @@ pub struct GalacticSimulation {
 #[derive(Debug, Clone)]
 pub struct Galaxy {
     /// Galaxy ID
-    #[allow(dead_code)]
     galaxy_id: u64,
 
     /// Type
@@ -5267,15 +5232,12 @@ pub enum GalaxyType {
 #[derive(Debug, Clone)]
 pub struct SpiralArm {
     /// Arm ID
-    #[allow(dead_code)]
     arm_id: u64,
 
     /// Start position (galactic coordinates)
-    #[allow(dead_code)]
     start_position: (Float, Float, Float),
 
     /// End position
-    #[allow(dead_code)]
     end_position: (Float, Float, Float),
 
     /// Twist angle
@@ -5295,11 +5257,9 @@ pub struct StarFormationRegion {
     region_id: u64,
 
     /// Position
-    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Size
-    #[allow(dead_code)]
     size: Float,
 
     /// Gas density
@@ -5370,7 +5330,6 @@ pub struct DarkMatterHalo {
     radius: Float,
 
     /// Density profile
-    #[allow(dead_code)]
     density_profile: DensityProfile,
 }
 
@@ -5386,11 +5345,9 @@ pub enum DensityProfile {
 #[derive(Debug, Clone)]
 pub struct DarkMatterFilament {
     /// Start position
-    #[allow(dead_code)]
     start_position: (Float, Float, Float),
 
     /// End position
-    #[allow(dead_code)]
     end_position: (Float, Float, Float),
 
     /// Length
@@ -5434,7 +5391,6 @@ pub struct CosmicSimulation {
 #[derive(Debug, Clone)]
 pub struct Universe {
     /// Universe ID
-    #[allow(dead_code)]
     universe_id: u64,
 
     /// Age (billions of years)
@@ -5447,7 +5403,6 @@ pub struct Universe {
     expansion_rate: Float,
 
     /// Total mass
-    #[allow(dead_code)]
     total_mass: Float,
 
     /// Energy density
@@ -5498,7 +5453,6 @@ pub struct CosmicWeb {
 #[derive(Debug, Clone)]
 pub struct GalaxyCluster {
     /// Cluster ID
-    #[allow(dead_code)]
     cluster_id: u64,
 
     /// Number of galaxies
@@ -5508,7 +5462,6 @@ pub struct GalaxyCluster {
     mass: Float,
 
     /// Position
-    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Redshift
@@ -5519,11 +5472,9 @@ pub struct GalaxyCluster {
 #[derive(Debug, Clone)]
 pub struct CosmicVoid {
     /// Void ID
-    #[allow(dead_code)]
     void_id: u64,
 
     /// Position
-    #[allow(dead_code)]
     position: (Float, Float, Float),
 
     /// Radius
@@ -5537,7 +5488,6 @@ pub struct CosmicVoid {
 #[derive(Debug, Clone)]
 pub struct Supercluster {
     /// Supercluster ID
-    #[allow(dead_code)]
     supercluster_id: u64,
 
     /// Number of clusters
@@ -5547,7 +5497,6 @@ pub struct Supercluster {
     size: Float,
 
     /// Position
-    #[allow(dead_code)]
     position: (Float, Float, Float),
 }
 
@@ -5571,11 +5520,9 @@ pub struct CosmicBackground {
 #[derive(Debug, Clone)]
 pub struct DimensionalStructure {
     /// Active dimensions
-    #[allow(dead_code)]
     active_dimensions: usize,
 
     /// Compactified dimensions
-    #[allow(dead_code)]
     compactified_dimensions: usize,
 
     /// Dimensional tension
@@ -5592,7 +5539,6 @@ pub struct DimensionalStructure {
 #[derive(Debug, Clone)]
 pub struct Brane {
     /// Dimension
-    #[allow(dead_code)]
     dimension: usize,
 
     /// Tension
@@ -5615,7 +5561,6 @@ pub struct StringVibration {
     amplitude: Float,
 
     /// Particle type produced
-    #[allow(dead_code)]
     particle_type: String,
 }
 
@@ -6746,7 +6691,6 @@ impl ScaleSpecificPhysics {
     }
 
     /// Influence stellar simulation
-    #[allow(dead_code)]
     fn influence_stellar(
         &self,
         _stellar: &mut StellarSimulation,
@@ -7199,7 +7143,6 @@ impl StellarSimulation {
     }
 
     /// Influence galactic simulation
-    #[allow(dead_code)]
     fn influence_galactic(
         &self,
         _galactic: &mut GalacticSimulation,

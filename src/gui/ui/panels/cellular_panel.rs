@@ -17,8 +17,8 @@ use std::collections::HashMap;
 
 use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gui::visualization::cellular_viz::{
-    BlueprintRenderer, CellManifestationView, GaiaResonanceView,
-    GeneExpressionView, ProteinFoldingView,
+    BlueprintRenderer, CellManifestationView, GaiaResonanceView, GeneExpressionView,
+    ProteinFoldingView,
 };
 use crate::holographic_foundation::archetype_profile::ArchetypeActivationProfile;
 use crate::holographic_foundation::cellular_emergence::cell_manifestation::{
@@ -32,8 +32,7 @@ use crate::holographic_foundation::cellular_emergence::simultaneous_emergence::G
 use crate::holographic_foundation::field_state::{HolographicFieldState, Position3D};
 
 /// View mode for cellular panel tabs
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum CellularViewMode {
     /// Holographic blueprint for morphogenesis
     #[default]
@@ -47,7 +46,6 @@ pub enum CellularViewMode {
     /// Cellular/Gaia consciousness co-emergence
     GaiaResonance,
 }
-
 
 /// Cellular Panel for Phase C.4
 ///

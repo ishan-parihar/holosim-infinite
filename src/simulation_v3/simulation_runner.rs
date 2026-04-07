@@ -11,6 +11,8 @@
 //    HolographicFieldManager, and PhysicalAdapter
 
 use crate::adapters::physical_adapter::{PhysicalAdapter, PhysicalAdapterStatistics};
+use crate::biology::BiologicalConfig;
+use crate::biology::BiologyPipeline;
 use crate::entity_layer7::layer7::{EntityId, EntityType};
 use crate::physical_manifestation::consciousness_to_matter::ConsciousnessToMatterManager;
 use crate::physical_manifestation::{
@@ -101,6 +103,12 @@ pub struct SimulationParameters {
 
     /// Phase 0: Enable causal inversion mode (top-down causation)
     pub causal_inversion_mode: bool,
+
+    /// Phase 5: Enable biology simulation (cells → organisms → evolution)
+    pub biology_enabled: bool,
+
+    /// Phase 5: Biology system configuration
+    pub biology_config: BiologicalConfig,
 }
 
 impl Default for SimulationParameters {
@@ -120,7 +128,9 @@ impl Default for SimulationParameters {
             checkpoint_directory: None,
             max_checkpoints: None,
             causal_inversion_mode: true, // Phase 0: Causal inversion is now the default
-                                         // The old bottom-up path is deprecated and will be removed
+            // The old bottom-up path is deprecated and will be removed
+            biology_enabled: true,
+            biology_config: BiologicalConfig::default(),
         }
     }
 }
@@ -401,6 +411,9 @@ pub struct SimulationRunner {
 
     /// Phase 0: Causal inversion runner for top-down causation
     causal_inversion_runner: Option<CausalInversionRunner>,
+
+    /// Phase 5: Biology pipeline (molecules → cells → organisms → evolution)
+    biology_pipeline: Option<BiologyPipeline>,
 }
 
 impl SimulationRunner {
@@ -480,6 +493,15 @@ impl SimulationRunner {
             // Phase 0: Initialize causal inversion runner if enabled
             causal_inversion_runner: if parameters.causal_inversion_mode {
                 Some(CausalInversionRunner::new(CausalInversionConfig::default()))
+            } else {
+                None
+            },
+
+            // Phase 5: Initialize biology pipeline if enabled
+            biology_pipeline: if parameters.biology_enabled {
+                Some(BiologyPipeline::with_config(
+                    parameters.biology_config.clone(),
+                ))
             } else {
                 None
             },
@@ -1129,6 +1151,25 @@ impl SimulationRunner {
             self.consciousness_manager
                 .update_transitions(self.parameters.time_step_size);
 
+            // Phase 5: Tick biology pipeline (molecules → cells → organisms → evolution)
+            if self.biology_pipeline.is_some() {
+                let archetype_profile = self.compute_global_archetype_profile();
+                let current_density = self.compute_current_global_density();
+                if let Some(ref mut pipeline) = self.biology_pipeline {
+                    let bio_result = pipeline.tick(
+                        self.parameters.time_step_size,
+                        &current_density,
+                        &archetype_profile,
+                    );
+                    if step % 10 == 0 || step == self.parameters.num_steps - 1 {
+                        self.statistics_tracker
+                            .statistics
+                            .biology
+                            .update_from_tick(&bio_result);
+                    }
+                }
+            }
+
             // Phase 3: Record polarization distribution periodically
             if step % 10 == 0 {
                 self.record_polarization_distribution(step);
@@ -1478,6 +1519,64 @@ impl SimulationRunner {
                 resonance_cluster_count: holographic_stats.resonance_cluster_count,
                 average_cluster_size: 0.0, // Simplified
             };
+    }
+
+    fn compute_global_archetype_profile(&self) -> [Float; 22] {
+        if self.entities.is_empty() {
+            return [0.5; 22];
+        }
+        let mut profile = [0.0f64; 22];
+        for entity in self.entities.values() {
+            for i in 0..22 {
+                profile[i] += entity.archetype_activations[i];
+            }
+        }
+        let n = self.entities.len() as Float;
+        for i in 0..22 {
+            profile[i] /= n;
+        }
+        profile
+    }
+
+    fn compute_current_global_density(
+        &self,
+    ) -> crate::evolution_density_octave::density_octave::Density {
+        if self.entities.is_empty() {
+            return crate::evolution_density_octave::density_octave::Density::Third;
+        }
+        let mut counts: std::collections::HashMap<u8, usize> = std::collections::HashMap::new();
+        for entity in self.entities.values() {
+            let d = match entity.current_density {
+                crate::evolution_density_octave::density_octave::Density::First(_) => 1,
+                crate::evolution_density_octave::density_octave::Density::Second(_) => 2,
+                crate::evolution_density_octave::density_octave::Density::Third => 3,
+                crate::evolution_density_octave::density_octave::Density::Fourth => 4,
+                crate::evolution_density_octave::density_octave::Density::Fifth => 5,
+                crate::evolution_density_octave::density_octave::Density::Sixth => 6,
+                crate::evolution_density_octave::density_octave::Density::Seventh => 7,
+                crate::evolution_density_octave::density_octave::Density::Eighth => 8,
+            };
+            *counts.entry(d).or_insert(0) += 1;
+        }
+        let mode_density = counts
+            .into_iter()
+            .max_by_key(|(_, c)| *c)
+            .map(|(d, _)| d)
+            .unwrap_or(3);
+        match mode_density {
+            1 => crate::evolution_density_octave::density_octave::Density::First(
+                crate::evolution_density_octave::density_octave::Density1SubLevel::Quantum,
+            ),
+            2 => crate::evolution_density_octave::density_octave::Density::Second(
+                crate::evolution_density_octave::density_octave::Density2SubLevel::Cellular,
+            ),
+            3 => crate::evolution_density_octave::density_octave::Density::Third,
+            4 => crate::evolution_density_octave::density_octave::Density::Fourth,
+            5 => crate::evolution_density_octave::density_octave::Density::Fifth,
+            6 => crate::evolution_density_octave::density_octave::Density::Sixth,
+            7 => crate::evolution_density_octave::density_octave::Density::Seventh,
+            _ => crate::evolution_density_octave::density_octave::Density::Eighth,
+        }
     }
 
     /// Get current simulation time

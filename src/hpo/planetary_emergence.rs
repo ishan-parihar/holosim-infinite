@@ -1366,7 +1366,6 @@ mod tests {
         assert_eq!(planet.geology.plates.len(), 1);
     }
 
-    #[ignore]
     #[test]
     fn test_planetary_emergence() {
         let mut emergence = PlanetaryEmergence::with_defaults();

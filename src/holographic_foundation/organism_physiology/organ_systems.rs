@@ -173,8 +173,6 @@ impl OrganSystemType {
 pub struct NervousSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
-    #[allow(dead_code)]
-    signal_speed: Float,
     processing_capacity: Float,
 }
 
@@ -183,7 +181,6 @@ impl NervousSystem {
         Self {
             organs: HashMap::new(),
             coherence: 0.9,
-            signal_speed: 100.0,
             processing_capacity: 1.0,
         }
     }
@@ -228,8 +225,6 @@ impl Default for NervousSystem {
 pub struct CirculatorySystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
-    #[allow(dead_code)]
-    blood_volume: Float,
     cardiac_output: Float,
     distribution_efficiency: Float,
 }
@@ -239,7 +234,6 @@ impl CirculatorySystem {
         Self {
             organs: HashMap::new(),
             coherence: 0.9,
-            blood_volume: 5.0,
             cardiac_output: 5.0,
             distribution_efficiency: 0.85,
         }
@@ -290,8 +284,6 @@ impl Default for CirculatorySystem {
 pub struct RespiratorySystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
-    #[allow(dead_code)]
-    oxygen_uptake_rate: Float,
     gas_exchange_efficiency: Float,
 }
 
@@ -300,7 +292,6 @@ impl RespiratorySystem {
         Self {
             organs: HashMap::new(),
             coherence: 0.9,
-            oxygen_uptake_rate: 0.25,
             gas_exchange_efficiency: 0.9,
         }
     }
@@ -346,8 +337,6 @@ impl Default for RespiratorySystem {
 pub struct DigestiveSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
-    #[allow(dead_code)]
-    digestion_rate: Float,
     nutrient_absorption: Float,
 }
 
@@ -356,7 +345,6 @@ impl DigestiveSystem {
         Self {
             organs: HashMap::new(),
             coherence: 0.9,
-            digestion_rate: 0.1,
             nutrient_absorption: 0.85,
         }
     }
@@ -403,8 +391,6 @@ pub struct ImmuneSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
     defense_strength: Float,
-    #[allow(dead_code)]
-    response_time: Float,
 }
 
 impl ImmuneSystem {
@@ -413,7 +399,6 @@ impl ImmuneSystem {
             organs: HashMap::new(),
             coherence: 0.9,
             defense_strength: 0.85,
-            response_time: 0.5,
         }
     }
 
@@ -459,8 +444,6 @@ pub struct EndocrineSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
     hormone_balance: Float,
-    #[allow(dead_code)]
-    regulation_accuracy: Float,
 }
 
 impl EndocrineSystem {
@@ -469,7 +452,6 @@ impl EndocrineSystem {
             organs: HashMap::new(),
             coherence: 0.9,
             hormone_balance: 0.85,
-            regulation_accuracy: 0.9,
         }
     }
 
@@ -513,12 +495,6 @@ impl Default for EndocrineSystem {
 pub struct ReproductiveSystem {
     organs: HashMap<OrganId, Organ>,
     coherence: Float,
-    /// TODO: Planned for reproduction simulation mechanics
-    #[allow(dead_code)]
-    fertility: Float,
-    /// TODO: Planned for genetic inheritance simulation
-    #[allow(dead_code)]
-    genetic_integrity: Float,
 }
 
 impl ReproductiveSystem {
@@ -526,8 +502,6 @@ impl ReproductiveSystem {
         Self {
             organs: HashMap::new(),
             coherence: 0.9,
-            fertility: 0.8,
-            genetic_integrity: 0.95,
         }
     }
 

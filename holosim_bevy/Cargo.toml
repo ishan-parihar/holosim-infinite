@@ -1,0 +1,14 @@
+[package]
+name = "holosim_bevy"
+version = "0.1.0"
+edition = "2021"
+description = "Bevy ECS plugin for HoloSim Infinite simulation engine"
+license = "MIT"
+
+[dependencies]
+bevy = "0.18"
+holonic_realms = { path = ".." }
+
+[[example]]
+name = "colony_demo"
+path = "examples/colony_demo.rs"

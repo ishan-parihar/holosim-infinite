@@ -740,7 +740,6 @@ mod tests {
         assert!(integration.get_coherence() > 0.0);
     }
 
-    #[ignore]
     #[test]
     fn test_integration_bridge() {
         let mut bridge = IntegrationBridge::with_defaults();

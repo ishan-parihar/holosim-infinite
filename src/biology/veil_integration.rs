@@ -16,8 +16,7 @@ use std::collections::VecDeque;
 // ============================================================================
 
 /// What the veil allows through to conscious awareness
-#[derive(Debug, Clone)]
-#[derive(Default)]
+#[derive(Debug, Clone, Default)]
 pub struct FilteredPerception {
     /// What the entity consciously perceives
     pub conscious_perception: ConsciousPercept,
@@ -28,7 +27,6 @@ pub struct FilteredPerception {
     /// Thin spots where veil is permeable
     pub active_thin_spots: Vec<ThinSpotInsight>,
 }
-
 
 /// What reaches conscious awareness through the veil
 #[derive(Debug, Clone, Default)]
@@ -213,9 +211,11 @@ impl VeilIntegration {
     /// Create a new thin spot in the veil
     fn create_thin_spot(&mut self) {
         // Thin spots form at significant moments
-        let locations = [PiercingLocation::All,
+        let locations = [
+            PiercingLocation::All,
             PiercingLocation::Mind,
-            PiercingLocation::Spirit];
+            PiercingLocation::Spirit,
+        ];
 
         if let Some(loc) = locations.get(self.thin_spots.len() % locations.len()) {
             let thin_spot = ThinSpot::new(*loc, 0.3, 0.0);
@@ -433,10 +433,9 @@ mod tests {
         assert!(veil_6.get_opacity() < veil_3.get_opacity());
     }
 
-    #[ignore]
     #[test]
     fn test_perception_filtering() {
-        let mut veil = VeilIntegration::new(3);
+        let mut veil = VeilIntegration::new(5);
 
         let raw = RawPerception {
             items: vec![

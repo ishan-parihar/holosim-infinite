@@ -27,7 +27,6 @@ const SECONDS_PER_YEAR: f64 = 3.156e7;
 
 /// Mantle viscosity (Pa·s) - simplified
 /// Note: Used for mantle convection calculations
-#[allow(dead_code)]
 const MANTLE_VISCOSITY: f64 = 1.0e21;
 
 /// Heat flow constant
@@ -393,9 +392,6 @@ pub struct Lithosphere {
     pub erosion_map: ErosionMap,
     /// Internal heat (W)
     pub internal_heat: f64,
-    /// Next available plate ID
-    #[allow(dead_code)]
-    next_plate_id: u64,
     /// Next available volcano ID
     next_volcano_id: u64,
 }
@@ -498,7 +494,6 @@ impl Lithosphere {
                 cumulative: HashMap::new(),
             },
             internal_heat: 4.2e13, // ~42 TW
-            next_plate_id: next_id,
             next_volcano_id: 0,
         }
     }
@@ -628,10 +623,7 @@ impl Lithosphere {
                         };
 
                         interactions.push(BoundaryInteraction {
-                            plate_a_id: plate_a.id,
-                            plate_b_id: plate_b.id,
                             boundary_type,
-                            relative_velocity,
                             stress: magnitude * 0.1,
                         });
                     }
@@ -746,13 +738,7 @@ impl ConvectionCell {
 
 /// Information about a boundary interaction
 struct BoundaryInteraction {
-    #[allow(dead_code)]
-    plate_a_id: PlateId,
-    #[allow(dead_code)]
-    plate_b_id: PlateId,
     boundary_type: BoundaryType,
-    #[allow(dead_code)]
-    relative_velocity: Vector3,
     stress: f64,
 }
 
@@ -777,7 +763,6 @@ mod tests {
         assert_eq!(volcano.eruption_state, EruptionState::Dormant);
     }
 
-    #[ignore]
     #[test]
     fn test_terrain_classification() {
         let lithosphere = Lithosphere::new();

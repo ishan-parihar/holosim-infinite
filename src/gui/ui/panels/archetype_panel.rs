@@ -15,9 +15,9 @@
 use egui::{Color32, Context, Ui};
 
 use crate::gui::visualization::archetype_viz::{
-    get_archetype_color, get_complex_color, ArchetypeProfileData, ArchetypeRadarChart, InterferenceDisplay, PropertyDerivation, ARCHETYPE_NAMES,
-    ARCHETYPE_SHORT_NAMES, BODY_ARCHETYPES, CHOICE_ARCHETYPE, MIND_ARCHETYPES, NUM_ARCHETYPES,
-    SPIRIT_ARCHETYPES,
+    get_archetype_color, get_complex_color, ArchetypeProfileData, ArchetypeRadarChart,
+    InterferenceDisplay, PropertyDerivation, ARCHETYPE_NAMES, ARCHETYPE_SHORT_NAMES,
+    BODY_ARCHETYPES, CHOICE_ARCHETYPE, MIND_ARCHETYPES, NUM_ARCHETYPES, SPIRIT_ARCHETYPES,
 };
 
 use crate::entity_layer7::layer7::SubSubLogos;
@@ -354,7 +354,11 @@ impl ArchetypePanel {
                         .unwrap_or("None"),
                 )
                 .show_ui(ui, |ui| {
-                    for (i, name) in ARCHETYPE_SHORT_NAMES.iter().enumerate().take(NUM_ARCHETYPES) {
+                    for (i, name) in ARCHETYPE_SHORT_NAMES
+                        .iter()
+                        .enumerate()
+                        .take(NUM_ARCHETYPES)
+                    {
                         let selected = self.selected_archetype == Some(i);
                         if ui.selectable_label(selected, *name).clicked() {
                             self.selected_archetype = Some(i);
@@ -541,7 +545,13 @@ impl ArchetypePanel {
     ) {
         ui.label("Comparing profiles:");
 
-        for (i, (a1, a2)) in profile1.activations.iter().zip(profile2.activations.iter()).enumerate().take(NUM_ARCHETYPES) {
+        for (i, (a1, a2)) in profile1
+            .activations
+            .iter()
+            .zip(profile2.activations.iter())
+            .enumerate()
+            .take(NUM_ARCHETYPES)
+        {
             let diff = a1 - a2;
             if diff.abs() > 0.1 {
                 ui.horizontal(|ui| {

@@ -253,9 +253,7 @@ impl DualExperienceEngine {
     }
 
     pub fn get_modality(&mut self, entity_id: u64) -> &mut ExperienceModality {
-        self.entity_modalities
-            .entry(entity_id)
-            .or_default()
+        self.entity_modalities.entry(entity_id).or_default()
     }
 
     pub fn get_qualitative_experience(&self, entity_id: u64) -> QualitativeExperience {
@@ -281,18 +279,16 @@ impl DualExperienceEngine {
 mod tests {
     use super::*;
 
-    #[ignore]
     #[test]
     fn test_modality_creation() {
-        let modality = ExperienceModality::from_space_time_ratio(0.5);
+        let modality = ExperienceModality::from_space_time_ratio(2.0);
         assert!(modality.velocity < 1.0);
     }
 
-    #[ignore]
     #[test]
     fn test_dual_experience_engine() {
         let mut engine = DualExperienceEngine::new();
-        engine.register_entity(1, 0.5);
+        engine.register_entity(1, 2.0);
         let exp = engine.get_qualitative_experience(1);
         assert_eq!(exp.spectrum_position, SpectrumPosition::SpaceTime);
     }

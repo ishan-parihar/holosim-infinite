@@ -528,16 +528,11 @@ pub enum AwarenessType {
 
 /// Prokaryote Emerger
 #[derive(Debug, Clone)]
-struct ProkaryoteEmerger {
-    #[allow(dead_code)]
-    emergence_threshold: Float,
-}
+struct ProkaryoteEmerger;
 
 impl ProkaryoteEmerger {
     fn new() -> Self {
-        Self {
-            emergence_threshold: 0.5,
-        }
+        Self
     }
 
     fn emerge(
@@ -556,16 +551,11 @@ impl ProkaryoteEmerger {
 
 /// Eukaryote Emerger
 #[derive(Debug, Clone)]
-struct EukaryoteEmerger {
-    #[allow(dead_code)]
-    emergence_threshold: Float,
-}
+struct EukaryoteEmerger;
 
 impl EukaryoteEmerger {
     fn new() -> Self {
-        Self {
-            emergence_threshold: 0.7,
-        }
+        Self
     }
 
     fn emerge(
@@ -584,16 +574,11 @@ impl EukaryoteEmerger {
 
 /// Cell Divider
 #[derive(Debug, Clone)]
-struct CellDivider {
-    #[allow(dead_code)]
-    division_speed: Float,
-}
+struct CellDivider;
 
 impl CellDivider {
     fn new() -> Self {
-        Self {
-            division_speed: 0.8,
-        }
+        Self
     }
 
     fn divide(&self, cell: &Cell, config: &CellularEmergenceConfig) -> Vec<Cell> {
@@ -645,16 +630,11 @@ impl CellDivider {
 
 /// Cellular Consciousness Calculator
 #[derive(Debug, Clone)]
-struct CellularConsciousnessCalculator {
-    #[allow(dead_code)]
-    calculation_method: ConsciousnessMethod,
-}
+struct CellularConsciousnessCalculator;
 
 impl CellularConsciousnessCalculator {
     fn new() -> Self {
-        Self {
-            calculation_method: ConsciousnessMethod::Integrated,
-        }
+        Self
     }
 
     fn calculate(&self, cell: &Cell) -> CellularConsciousness {
@@ -685,16 +665,6 @@ impl CellularConsciousnessCalculator {
             memory_capacity,
         }
     }
-}
-
-/// Consciousness Calculation Method
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-enum ConsciousnessMethod {
-    Integrated,
-    EnergyBased,
-    DnaBased,
-    ComplexityBased,
 }
 
 // ============================================================================

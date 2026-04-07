@@ -815,7 +815,6 @@ mod tests {
         assert_eq!(dna.length, 100);
     }
 
-    #[ignore]
     #[test]
     fn test_cell_lifecycle() {
         let archetypes = [0.8; 22];

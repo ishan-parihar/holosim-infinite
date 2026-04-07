@@ -28,8 +28,7 @@ use crate::holographic_foundation::quantum_consciousness::wavefunction::QuantumW
 use crate::entity_layer7::layer7::SubSubLogos;
 
 /// View mode for quantum panel tabs
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum QuantumViewMode {
     /// Wavefunction probability cloud
     #[default]
@@ -43,7 +42,6 @@ pub enum QuantumViewMode {
     /// Observer effect (cache invalidation)
     ObserverEffect,
 }
-
 
 /// Quantum Panel for Phase C.1
 ///

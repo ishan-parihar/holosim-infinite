@@ -1925,7 +1925,7 @@ mod tests {
 
     #[test]
     fn test_mera_network_creation() {
-        let mera = MeraNetwork::new(7);
+        let mera = MeraNetwork::new();
         assert_eq!(mera.num_levels(), 0);
         assert_eq!(mera.num_levels, 7);
     }
@@ -1939,7 +1939,7 @@ mod tests {
 
     #[test]
     fn test_mera_initialize() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![4, 4], (0..16).map(|i| i as Float).collect()).unwrap();
         mera.initialize(data).unwrap();
 
@@ -1949,7 +1949,7 @@ mod tests {
 
     #[test]
     fn test_mera_build_hierarchy() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         mera.initialize(data).unwrap();
         mera.build_hierarchy().unwrap();
@@ -1962,7 +1962,7 @@ mod tests {
 
     #[test]
     fn test_mera_compress() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         let result = mera.compress(data).unwrap();
 
@@ -1974,15 +1974,17 @@ mod tests {
 
     #[test]
     fn test_mera_decompress() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let original =
             Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         mera.compress(original.clone()).unwrap();
 
         let query = MeraQuery {
+            scale: MeraScale::Quantum,
             scale_level: 0,
             region: None,
             precision: 1.0,
+            query_type: QueryType::Spatial,
         };
         let result = mera.decompress(&query).unwrap();
 
@@ -1992,7 +1994,7 @@ mod tests {
 
     #[test]
     fn test_mera_get_level() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         mera.compress(data).unwrap();
 
@@ -2009,7 +2011,7 @@ mod tests {
 
     #[test]
     fn test_mera_statistics() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         mera.compress(data).unwrap();
 
@@ -2021,7 +2023,7 @@ mod tests {
 
     #[test]
     fn test_mera_clear() {
-        let mut mera = MeraNetwork::new(3);
+        let mut mera = MeraNetwork::with_levels(3);
         let data = Tensor::from_data(vec![8, 8], (0..64).map(|i| i as Float).collect()).unwrap();
         mera.compress(data).unwrap();
         mera.clear();

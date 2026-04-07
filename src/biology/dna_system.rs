@@ -8,9 +8,7 @@
 // "DNA/RNA are not random evolutionary developments—they unfold from this
 // pre-existing holographic blueprint encoded as spectrum configurations"
 
-use crate::entity_layer7::dna_encoding::{
-    DNAPattern, GeneticBase,
-};
+use crate::entity_layer7::dna_encoding::{DNAPattern, GeneticBase};
 use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::types::Float;
 use rand::Rng;
@@ -492,16 +490,11 @@ pub enum EpigeneticMarkerType {
 
 /// Spectrum Encoder - Converts blueprint to DNA
 #[derive(Debug, Clone)]
-struct SpectrumEncoder {
-    #[allow(dead_code)]
-    encoding_resolution: usize,
-}
+struct SpectrumEncoder;
 
 impl SpectrumEncoder {
     fn new() -> Self {
-        Self {
-            encoding_resolution: 8,
-        }
+        Self
     }
 
     fn encode_blueprint(&self, blueprint: &HolographicBlueprint) -> DNA {
@@ -514,16 +507,11 @@ impl SpectrumEncoder {
 
 /// Protein Synthesizer - Converts DNA to proteins
 #[derive(Debug, Clone)]
-struct ProteinSynthesizer {
-    #[allow(dead_code)]
-    synthesis_speed: Float,
-}
+struct ProteinSynthesizer;
 
 impl ProteinSynthesizer {
     fn new() -> Self {
-        Self {
-            synthesis_speed: 0.8,
-        }
+        Self
     }
 
     fn synthesize(&self, dna: &DNA, config: &DnaSystemConfig) -> Vec<Protein> {
@@ -578,14 +566,11 @@ impl ProteinSynthesizer {
 
 /// Mutation Detector - Identifies DNA mutations
 #[derive(Debug, Clone)]
-struct MutationDetector {
-    #[allow(dead_code)]
-    sensitivity: Float,
-}
+struct MutationDetector;
 
 impl MutationDetector {
     fn new() -> Self {
-        Self { sensitivity: 0.9 }
+        Self
     }
 
     fn detect(&self, dna: &DNA, original_dna: &DNA) -> Vec<Mutation> {
@@ -617,16 +602,11 @@ impl MutationDetector {
 
 /// DNA Repair - Fixes mutations
 #[derive(Debug, Clone)]
-struct DnaRepair {
-    #[allow(dead_code)]
-    repair_capacity: Float,
-}
+struct DnaRepair;
 
 impl DnaRepair {
     fn new() -> Self {
-        Self {
-            repair_capacity: 0.95,
-        }
+        Self
     }
 
     fn repair(&self, dna: &mut DNA, config: &DnaSystemConfig) -> DnaRepairResult {

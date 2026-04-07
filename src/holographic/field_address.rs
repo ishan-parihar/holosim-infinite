@@ -1040,7 +1040,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_holographic_address_refine_multiple() {
         let origin = HolographicAddress::cosmic_origin();
         let mut current = origin;
@@ -1139,7 +1138,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_holographic_address_contains() {
         let parent = HolographicAddress::cosmic_origin();
         let child = parent.refine().unwrap();
@@ -1149,7 +1147,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_holographic_address_contains_different_branch() {
         let parent = HolographicAddress::cosmic_origin();
         let child1 = parent.refine().unwrap();
@@ -1323,7 +1320,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_roundtrip_coordinate3d() {
         let original = Coordinate3D::new(1e-10, 2e-10, 3e-10);
         let addr: HolographicAddress = original.into();

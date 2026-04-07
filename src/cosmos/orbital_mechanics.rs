@@ -361,7 +361,6 @@ mod tests {
         assert!((v_escape - 42.1).abs() < 1.0);
     }
 
-    #[ignore]
     #[test]
     fn test_sphere_of_influence() {
         // Earth's Hill sphere ≈ 0.01 AU
@@ -380,7 +379,6 @@ mod tests {
         assert!(roche > 15000.0); // ~15,000 km for Earth-Moon
     }
 
-    #[ignore]
     #[test]
     fn test_specific_orbital_energy() {
         // Earth's specific orbital energy ≈ -4.45e7 J/kg

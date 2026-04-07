@@ -178,7 +178,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_veil_can_pass_with_thin_spot() {
         let mut veil = Veil::new(Density::Third);
         veil.create_thin_spot(CatalystTrigger::DeepMeditation, 0.8);
@@ -191,7 +190,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_veil_filter_content() {
         let veil = Veil::new(Density::Third);
         let content = Content {
@@ -205,7 +203,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_veil_filter_content_blocked() {
         let veil = Veil::new(Density::Third);
         // First density has very low transparency

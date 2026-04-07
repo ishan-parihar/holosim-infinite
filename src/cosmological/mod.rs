@@ -149,14 +149,12 @@ impl Default for CosmologicalSystem {
 mod tests {
     use super::*;
 
-    #[ignore]
     #[test]
     fn test_cosmological_system_creation() {
         let system = initialize_cosmological_system();
         assert_eq!(system.violet.unity, 1.0);
     }
 
-    #[ignore]
     #[test]
     fn test_system_creates_entities() {
         let system = initialize_cosmological_system();

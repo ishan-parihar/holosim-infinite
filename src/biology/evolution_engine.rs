@@ -10,9 +10,7 @@
 //! From V4 Roadmap Phase 4: "Biological Simulation Engine"
 //! Species evolve through selection, not just description.
 
-use crate::biology::organism_lifecycle::{
-    BodyPlan, OrganismManager,
-};
+use crate::biology::organism_lifecycle::{BodyPlan, OrganismManager};
 use crate::holographic::field_address::HolographicAddress;
 use rand::Rng;
 use std::collections::HashMap;

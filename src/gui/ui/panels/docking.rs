@@ -12,8 +12,7 @@
 use std::collections::HashMap;
 
 /// Unique identifier for a dockable panel
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub struct PanelId(pub u64);
 
 impl PanelId {
@@ -23,10 +22,8 @@ impl PanelId {
     }
 }
 
-
 /// Docking areas where panels can be placed
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum DockArea {
     /// Left side panel
     Left,
@@ -42,7 +39,6 @@ pub enum DockArea {
     /// Floating panel (can be dragged anywhere)
     Floating,
 }
-
 
 impl DockArea {
     /// Get all available dock areas

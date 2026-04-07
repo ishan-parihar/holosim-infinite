@@ -500,7 +500,6 @@ mod tests {
         assert!(p_everest < 40000.0);
     }
 
-    #[ignore]
     #[test]
     fn test_compute_habitability() {
         // Ideal conditions

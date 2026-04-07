@@ -370,7 +370,6 @@ impl Default for MeraIntegrationBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::compression::TensorShape;
 
     fn create_test_network() -> Arc<Mutex<MeraNetwork>> {
         let mut network = MeraNetwork::new();
@@ -457,7 +456,7 @@ mod tests {
         let network = create_test_network();
         let integration = MeraIntegration::new(network);
 
-        let tensor = Tensor::zeros(TensorShape::vector(8));
+        let tensor = Tensor::new(vec![8]).unwrap();
         let peaks = integration.detect_peaks(&tensor, 0.5);
 
         // No peaks in zero tensor

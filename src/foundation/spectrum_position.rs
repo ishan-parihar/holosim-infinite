@@ -453,7 +453,6 @@ mod tests {
         assert!(phase2 < phase1);
     }
 
-    #[ignore]
     #[test]
     fn test_move_toward() {
         let mut pos1 = SpectrumPosition::with_id(1, 10.0, Density::Third, 0.0);
@@ -565,7 +564,6 @@ mod tests {
         assert_ne!(pos1.hash(), pos2.hash());
     }
 
-    #[ignore]
     #[test]
     fn test_veil_transparency_at_veil() {
         let pos = SpectrumPosition::at_veil(Density::Third, 0.0);
@@ -574,7 +572,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_veil_transparency_away_from_veil() {
         let pos = SpectrumPosition::space_time_dominant(Density::Third, 0.0);
         // Away from v=1.0, transparency should be > 0

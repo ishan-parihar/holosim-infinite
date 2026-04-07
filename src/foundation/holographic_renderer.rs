@@ -1066,7 +1066,6 @@ mod tests {
         assert_eq!(renderer.stats.total_frames, 0);
     }
 
-    #[ignore]
     #[test]
     fn test_manifested_entity_creation() {
         let potential = PotentialManifestation::new(0.8, 0.5, None, ScaleLevel::Molecular);
