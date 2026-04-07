@@ -32,6 +32,10 @@ pub mod entity_renderer;
 pub use entity_instance::EntityInstance;
 pub use entity_renderer::EntityRenderer;
 
+// Observable Entity Rendering
+pub mod observable_entity_renderer;
+pub use observable_entity_renderer::ObservableEntityRenderer;
+
 // Phase 4: Hierarchy visualization
 pub mod connection_renderer;
 pub mod hierarchy_connection;

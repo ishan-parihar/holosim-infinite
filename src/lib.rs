@@ -82,6 +82,9 @@ pub mod physics;
 pub mod physics_derivation;
 pub mod physics_engine;
 
+// Rapier3d Physics Integration (Phase 4.3)
+pub mod physics_rapier;
+
 // Quantum Mechanics (Phase 2.1: Light Manifestation)
 pub mod quantum;
 

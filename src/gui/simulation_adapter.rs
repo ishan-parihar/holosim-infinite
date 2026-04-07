@@ -17,6 +17,8 @@
 
 use crate::civilization::CivilizationManager;
 use crate::entity_layer7::layer7::SubSubLogos;
+use crate::gui::observable_properties::ObservableProperties;
+use crate::gui::observation_mapper::ObservationMapper;
 
 // Re-export civilization types for GUI use
 pub use crate::civilization::{CivilizationSummary, SettlementSummary};
@@ -584,6 +586,28 @@ impl SimulationRunnerAdapter {
     /// Returns a clone of the raw entity data for GUI rendering.
     pub fn entities(&self) -> Vec<SubSubLogos> {
         self.raw_entities.values().cloned().collect()
+    }
+
+    /// Get all entities as ObservableProperties for the rendering pipeline.
+    ///
+    /// This bridges the raw consciousness data (archetype activations, density,
+    /// spectrum position, polarization) into game-facing properties (position,
+    /// color, size, shape, behavior) via ObservationMapper.
+    pub fn get_observable_properties(&self) -> Vec<ObservableProperties> {
+        self.raw_entities
+            .values()
+            .enumerate()
+            .map(|(i, entity)| {
+                ObservationMapper::map(
+                    &entity.archetype_activations,
+                    entity.consciousness_level,
+                    Self::density_to_u8(&entity.current_density),
+                    entity.spectrum_position,
+                    entity.polarization.polarity_bias(),
+                    i,
+                )
+            })
+            .collect()
     }
 
     /// Get holographic simulation entities (field-derived)
@@ -1793,5 +1817,52 @@ mod tests {
         // Should have extracted some entities
         // The exact count depends on the involution process
         println!("Extracted {} entities", entities.len());
+    }
+
+    #[test]
+    fn test_get_observable_properties_returns_correct_count() {
+        let adapter = SimulationRunnerAdapter::new();
+        let props = adapter.get_observable_properties();
+        assert_eq!(props.len(), adapter.raw_entities.len());
+    }
+
+    #[test]
+    fn test_get_observable_properties_are_unique() {
+        let mut adapter = SimulationRunnerAdapter::new();
+        adapter.initialize();
+        let props = adapter.get_observable_properties();
+        assert!(!props.is_empty());
+        let all_at_origin = props.iter().all(|p| p.position == [0.0, 0.0]);
+        assert!(!all_at_origin, "Entities should have spread positions");
+        let all_default_color = props.iter().all(|p| p.color == [0.5, 0.5, 0.5]);
+        assert!(
+            !all_default_color,
+            "Entities should have unique archetype-based colors"
+        );
+    }
+
+    #[test]
+    fn test_get_observable_properties_valid_ranges() {
+        let mut adapter = SimulationRunnerAdapter::new();
+        adapter.initialize();
+        let props = adapter.get_observable_properties();
+        for p in &props {
+            assert!(
+                p.density >= 1 && p.density <= 8,
+                "Density {} out of range",
+                p.density
+            );
+            assert!(
+                p.glow >= 0.0 && p.glow <= 1.0,
+                "Glow {} out of range",
+                p.glow
+            );
+            assert!(p.size > 0.0, "Size should be positive");
+            assert!(
+                p.intelligence >= 0.0 && p.intelligence <= 1.0,
+                "Intelligence {} out of range",
+                p.intelligence
+            );
+        }
     }
 }

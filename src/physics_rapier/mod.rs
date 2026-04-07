@@ -8,6 +8,9 @@ use rapier3d_f64::prelude::{
 };
 use std::collections::HashMap;
 
+mod collision;
+mod forces;
+
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ColliderShape {
     Sphere { radius: Float },
