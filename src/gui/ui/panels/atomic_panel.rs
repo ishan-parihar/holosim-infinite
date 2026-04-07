@@ -36,8 +36,7 @@ use crate::holographic_foundation::quantum_consciousness::quantum_numbers::{
 };
 
 /// View mode for atomic panel tabs
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum AtomicViewMode {
     /// Orbital shell visualization
     #[default]
@@ -51,7 +50,6 @@ pub enum AtomicViewMode {
     /// Periodic table landscape
     PeriodicTable,
 }
-
 
 /// Atomic Panel for Phase C.2
 ///

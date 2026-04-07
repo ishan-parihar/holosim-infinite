@@ -887,7 +887,6 @@ mod tests {
         assert_eq!(signature.coherence, 1.0);
     }
 
-    #[ignore]
     #[test]
     fn test_field_signature_quantum_potential() {
         let signature =
@@ -968,7 +967,6 @@ mod tests {
         assert_eq!(potential.pattern, Some("Pattern".to_string()));
     }
 
-    #[ignore]
     #[test]
     fn test_potential_manifestation_probability() {
         let potential = PotentialManifestation::new(0.8, 0.5, None, ScaleLevel::Molecular);
@@ -1104,7 +1102,6 @@ mod tests {
         assert_eq!(observer.observation_count(), 1);
     }
 
-    #[ignore]
     #[test]
     fn test_observer_observe_no_collapse() {
         let mut observer = Observer::for_density(Density::First);
@@ -1120,7 +1117,6 @@ mod tests {
         // collapse_count may be 0 or 1 depending on conditions
     }
 
-    #[ignore]
     #[test]
     fn test_observer_collapse_possibility_space() {
         let mut observer = Observer::for_density(Density::Third);

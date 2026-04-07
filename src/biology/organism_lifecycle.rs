@@ -429,11 +429,14 @@ impl Organism {
         }
 
         // Ready to reproduce?
-        if self.is_mature && hunger < 0.2 && self.age > MATURITY_AGE * 1.5
-            && rand::thread_rng().gen::<f64>() < 0.01 {
-                self.behavior = BehaviorState::SeekingMate;
-                return;
-            }
+        if self.is_mature
+            && hunger < 0.2
+            && self.age > MATURITY_AGE * 1.5
+            && rand::thread_rng().gen::<f64>() < 0.01
+        {
+            self.behavior = BehaviorState::SeekingMate;
+            return;
+        }
 
         // Default: rest
         self.behavior = BehaviorState::Resting;

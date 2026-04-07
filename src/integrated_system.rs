@@ -11,7 +11,7 @@
 //! - Gaia Systems (Phase 4): Planetary consciousness, atmospheric dynamics
 //! - GUI System (Phase 5): Multi-scale visualization with time/space control
 
-use crate::biology::BiologicalConfig;
+use crate::biology::{BiologicalConfig, BiologyPipeline};
 use crate::entity_layer7::layer7::SubSubLogos;
 use crate::gaia::GaiaConfig;
 use crate::gui::GuiConfig;
@@ -59,6 +59,9 @@ pub struct IntegratedSystem {
 
     /// Enable holographic mode (field-first simulation)
     holographic_mode: bool,
+
+    /// Biology pipeline for real biological emergence
+    biology_pipeline: Option<BiologyPipeline>,
 }
 
 /// Simulation state for the integrated system
@@ -284,6 +287,7 @@ impl IntegratedSystem {
             entities: Vec::new(),
             holo_sim: None,
             holographic_mode: false,
+            biology_pipeline: Some(BiologyPipeline::with_config(BiologicalConfig::default())),
         }
     }
 
@@ -306,6 +310,7 @@ impl IntegratedSystem {
             entities: Vec::new(),
             holo_sim: None,
             holographic_mode: false,
+            biology_pipeline: Some(BiologyPipeline::with_config(BiologicalConfig::default())),
         }
     }
 
@@ -512,12 +517,31 @@ impl IntegratedSystem {
     fn update_emergence_metrics(&mut self) {
         let step = self.state.step as Float;
 
-        // Biological emergence (simplified model)
-        self.state.emergence.biological.cell_count = (step * 10.0) as usize;
-        self.state.emergence.biological.species_count = (step * 0.5) as usize;
-        self.state.emergence.biological.ecosystem_count = (step * 0.1) as usize;
-        self.state.emergence.biological.genetic_diversity = (step / 500.0).min(3.0);
-        self.state.emergence.biological.mutation_rate = self.biological_config.mutation_rate;
+        if let Some(ref mut pipeline) = self.biology_pipeline {
+            let archetype_profile = [0.5; 22];
+            let _bio_result = pipeline.tick(
+                1.0,
+                &crate::evolution_density_octave::density_octave::Density::Third,
+                &archetype_profile,
+            );
+            let stats = pipeline.stats();
+
+            self.state.emergence.biological.cell_count = stats.cell_count;
+            self.state.emergence.biological.species_count = stats.species_count;
+            self.state.emergence.biological.ecosystem_count = stats.species_count.saturating_sub(1);
+            self.state.emergence.biological.genetic_diversity = if stats.species_count > 0 {
+                (stats.species_count as Float).ln().max(0.0)
+            } else {
+                0.0
+            };
+            self.state.emergence.biological.mutation_rate = self.biological_config.mutation_rate;
+        } else {
+            self.state.emergence.biological.cell_count = (step * 10.0) as usize;
+            self.state.emergence.biological.species_count = (step * 0.5) as usize;
+            self.state.emergence.biological.ecosystem_count = (step * 0.1) as usize;
+            self.state.emergence.biological.genetic_diversity = (step / 500.0).min(3.0);
+            self.state.emergence.biological.mutation_rate = self.biological_config.mutation_rate;
+        }
 
         // Noospheric emergence (simplified model)
         if step > 100.0 {
@@ -539,7 +563,13 @@ impl IntegratedSystem {
             self.state.emergence.gaia.climate_stability = (0.75 + (step - 200.0) / 1800.0).min(1.0);
         }
 
-        self.state.entity_count = self.state.emergence.biological.cell_count;
+        self.state.entity_count = self
+            .state
+            .emergence
+            .biological
+            .cell_count
+            .max(self.state.emergence.biological.species_count)
+            .max(1);
     }
 
     /// Validate emergence across all systems
@@ -725,12 +755,16 @@ impl IntegratedSystem {
 
     /// Get field visualization data (coherence, veil, etc.)
     pub fn get_field_visualization(&self) -> Option<FieldVisualizationData> {
-        self.holo_sim.as_ref().map(|holo_sim| holo_sim.get_field_visualization())
+        self.holo_sim
+            .as_ref()
+            .map(|holo_sim| holo_sim.get_field_visualization())
     }
 
     /// Get holographic simulation statistics
     pub fn get_holo_statistics(&self) -> Option<crate::hpo::SimulationStatistics> {
-        self.holo_sim.as_ref().map(|holo_sim| holo_sim.get_statistics().clone())
+        self.holo_sim
+            .as_ref()
+            .map(|holo_sim| holo_sim.get_statistics().clone())
     }
 
     /// Get the holographic field state for real-time visualization

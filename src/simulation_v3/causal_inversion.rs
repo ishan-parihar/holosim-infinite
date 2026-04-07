@@ -1198,7 +1198,7 @@ pub struct CausalInversionRunner {
     ii_source: IntelligentInfinitySource,
 
     /// Holographic field manager (the distributor).
-    #[allow(dead_code)] // TODO: Integrate with tick() for field evolution
+    // TODO: Integrate with tick() for field evolution
     field: HolographicFieldManager,
 
     /// Active entities in the simulation.
@@ -1233,7 +1233,7 @@ pub struct CausalInversionRunner {
     choice_based_collapse: ChoiceBasedCollapse,
 
     /// Holographic field source for quantum field.
-    #[allow(dead_code)] // TODO: Use for quantum field re-initialization
+    // TODO: Use for quantum field re-initialization
     holographic_source: Arc<HolographicField>,
 
     // Phase 2 P1: Atom formation from quantum collapse
@@ -1343,7 +1343,7 @@ pub struct CausalInversionRunner {
 
     /// Pending field perturbations from decisions
     /// Accumulated during tick, applied to field at end
-    #[allow(dead_code)] // TODO: Integrate with tick() for bottom-up feedback
+    // TODO: Integrate with tick() for bottom-up feedback
     pending_perturbations: Vec<FieldPerturbation>,
 
     /// Decisions made this tick (for statistics)
@@ -3112,7 +3112,7 @@ impl CausalInversionRunner {
     ///
     /// # Returns
     /// A BodyEnvironment for the body to experience
-    #[allow(dead_code)] // TODO: Use for body environment creation in entity spawning
+    // TODO: Use for body environment creation in entity spawning
     fn create_body_environment(&self) -> BodyEnvironment {
         // Phase 4: Use living environment for default
         // This provides Earth-like defaults when no position is available
@@ -3129,7 +3129,7 @@ impl CausalInversionRunner {
     ///
     /// # Returns
     /// A BodyEnvironment derived from planet systems at that position
-    #[allow(dead_code)] // TODO: Use for position-aware body environment in entity tick
+    // TODO: Use for position-aware body environment in entity tick
     fn create_body_environment_for_position(
         &mut self,
         position: &EntitySpatialPosition,

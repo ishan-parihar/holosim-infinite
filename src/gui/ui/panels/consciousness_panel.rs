@@ -18,8 +18,7 @@ use crate::gui::visualization::consciousness_viz::{
 };
 
 /// View mode for consciousness panel tabs
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum ConsciousnessViewMode {
     /// Free Will Kernel visualization
     #[default]
@@ -31,7 +30,6 @@ pub enum ConsciousnessViewMode {
     /// Density Transition visualization
     DensityTransition,
 }
-
 
 /// Consciousness Panel for Phase D
 ///
@@ -928,7 +926,8 @@ mod tests {
         // Create a mock entity using the correct constructor
         // Use proper constructors for each realm type
         let violet = crate::foundation::violet_realm::VioletRealm::new();
-        let indigo = crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet.clone());
+        let indigo =
+            crate::foundation::indigo_realm::IntelligentInfinity::from_violet(violet.clone());
         let blue = crate::foundation::blue_realm::Logos::from_intelligent_infinity(indigo.clone());
         let mut green = crate::foundation::green_realm::LightLoveField::from_logos(blue.clone());
 

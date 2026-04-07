@@ -19,7 +19,8 @@
 //! 5. Components → Cell (organization)
 
 use crate::biology::dna_blueprint::{
-    AssemblyInstruction, BlueprintDNA, FoldingPattern, Nucleotide, ProteinBlueprint, ProteinType, SecondaryStructurePrediction, RNA,
+    AssemblyInstruction, BlueprintDNA, FoldingPattern, Nucleotide, ProteinBlueprint, ProteinType,
+    SecondaryStructurePrediction, RNA,
 };
 use crate::entity_layer7::holographic_blueprint::HolographicBlueprint;
 use crate::holographic::holographic_field::HolographicField;
@@ -1247,10 +1248,10 @@ impl std::error::Error for BridgeError {}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
     use crate::holographic::complex_vectors::ComplexArchetype;
     use crate::holographic::holographic_field::InvolutionLayer;
     use std::sync::Arc;
-    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
 
     fn create_test_field() -> Arc<HolographicField> {
         let archetypes: [ComplexArchetype; 22] = std::array::from_fn(|_| ComplexArchetype {
@@ -1578,11 +1579,11 @@ mod tests {
 #[cfg(test)]
 mod integration_tests {
     use super::*;
+    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
     use crate::holographic::complex_vectors::ComplexArchetype;
     use crate::holographic::holographic_field::InvolutionLayer;
-    use std::sync::Arc;
     use crate::types::Float;
-    use crate::biology::dna_blueprint::{AminoAcidCode, GeneId};
+    use std::sync::Arc;
 
     /// Create a test field with specific coherence characteristics
     fn create_coherent_field(layer: InvolutionLayer) -> Arc<HolographicField> {

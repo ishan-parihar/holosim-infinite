@@ -28,8 +28,7 @@ use crate::holographic_foundation::molecular_emergence::simultaneous_emergence::
 };
 
 /// View mode for molecular panel tabs
-#[derive(Debug, Clone, Copy, PartialEq)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum MolecularViewMode {
     /// Bond visualization from archetype interference
     #[default]
@@ -41,7 +40,6 @@ pub enum MolecularViewMode {
     /// Simultaneous molecular/planetary manifestation
     Manifestation,
 }
-
 
 /// Molecular Panel for Phase C.3
 ///

@@ -12,8 +12,7 @@ use super::archetype_processor::{
     EntityArchetypeProcessor, GrowthDirection,
 };
 use super::dual_experience_engine::{
-    DualExperienceEngine, GrowthPolarity as ExpGrowthPolarity,
-    QualitativeExperience,
+    DualExperienceEngine, GrowthPolarity as ExpGrowthPolarity, QualitativeExperience,
 };
 use super::veil_integration::{
     FilteredPerception, GrowthPolarity as VeilGrowthPolarity, RawPerceptItem, RawPerception,

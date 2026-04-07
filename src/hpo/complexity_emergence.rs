@@ -934,7 +934,6 @@ mod tests {
         assert_eq!(transition.get_phase(0.9), ComplexityPhase::Planetary);
     }
 
-    #[ignore]
     #[test]
     fn test_phase_transition_progress() {
         let transition = DensityPhaseTransition::with_defaults();
@@ -965,7 +964,6 @@ mod tests {
         // Test passes as placeholder
     }
 
-    #[ignore]
     #[test]
     fn test_complexity_emergence() {
         let mut emergence = ComplexityEmergence::with_defaults();

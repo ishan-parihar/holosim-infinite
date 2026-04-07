@@ -920,7 +920,6 @@ mod tests {
         );
     }
 
-    #[ignore]
     #[test]
     fn test_matter_emergence() {
         let mut emergence = MatterEmergence::with_defaults();
@@ -938,7 +937,6 @@ mod tests {
         assert!(particle.is_some());
     }
 
-    #[ignore]
     #[test]
     fn test_matter_update() {
         let mut emergence = MatterEmergence::with_defaults();

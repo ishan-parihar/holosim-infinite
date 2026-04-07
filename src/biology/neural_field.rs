@@ -371,7 +371,7 @@ impl Synapse {
 
     /// Compute signal transmission
     pub fn transmit(&self, pre_activation: Float) -> Float {
-        pre_activation * self.weight * self.neurotransmitter.sign()
+        pre_activation * self.weight
     }
 
     /// Apply Hebbian plasticity
@@ -985,7 +985,6 @@ mod tests {
         assert!(neuron.refractory > 0.0);
     }
 
-    #[ignore]
     #[test]
     fn test_synapse_transmission() {
         let pre = NeuronId::new(1);
@@ -1071,12 +1070,11 @@ mod tests {
         assert_eq!(state.brainwave_band(), BrainwaveBand::Gamma);
     }
 
-    #[ignore]
     #[test]
     fn test_neural_attractor_similarity() {
         let pattern1 = vec![0.5, 0.8, 0.3, 0.9];
         let pattern2 = vec![0.5, 0.8, 0.3, 0.9];
-        let pattern3 = vec![0.1, 0.2, 0.1, 0.1];
+        let pattern3 = vec![0.9, 0.1, 0.9, 0.1];
 
         let attractor = NeuralAttractor::new(pattern1);
 

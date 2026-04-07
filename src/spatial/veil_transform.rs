@@ -432,7 +432,6 @@ mod tests {
         assert_eq!(at.perception, PerceptionType::Transitional);
     }
 
-    #[ignore]
     #[test]
     fn test_density_access() {
         let mut veil = VeilTransform::new();

@@ -59,6 +59,71 @@ pub struct SimulationStatistics {
 
     /// Phase 7: Consciousness-to-matter statistics
     pub consciousness_to_matter: ConsciousnessToMatterStatistics,
+
+    /// Phase 5: Biology statistics (cells, organisms, evolution, molecules, neurons)
+    pub biology: BiologyStatistics,
+}
+
+/// Biology statistics — tracks emergent life metrics across the simulation.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct BiologyStatistics {
+    /// Number of biology ticks executed
+    pub ticks_executed: u64,
+    /// Current cell count
+    pub cell_count: usize,
+    /// Current organism count
+    pub organism_count: usize,
+    /// Current species count
+    pub species_count: usize,
+    /// Current molecule count
+    pub molecule_count: usize,
+    /// Current neuron count
+    pub neuron_count: usize,
+    /// Cumulative cell divisions
+    pub total_cell_divisions: usize,
+    /// Cumulative organism deaths
+    pub total_organism_deaths: usize,
+    /// Average cell health (0.0–1.0)
+    pub average_cell_health: Float,
+    /// Average organism health (0.0–1.0)
+    pub average_organism_health: Float,
+    /// Peak cell count observed during simulation
+    pub peak_cell_count: usize,
+    /// Peak organism count observed during simulation
+    pub peak_organism_count: usize,
+    /// Life emergence events (molecules → cells)
+    pub life_emergence_events: u64,
+}
+
+impl BiologyStatistics {
+    /// Update from a single BiologyTickResult snapshot.
+    pub fn update_from_tick(&mut self, tick: &crate::biology::BiologyTickResult) {
+        self.ticks_executed += 1;
+        self.cell_count = tick.cell_count;
+        self.organism_count = tick.organism_count;
+        self.species_count = tick.species_count;
+        self.molecule_count = tick.molecule_count;
+        self.neuron_count = tick.neuron_count;
+        self.total_cell_divisions += tick.cell_divisions;
+        self.total_organism_deaths += tick.organism_deaths;
+        self.average_cell_health = tick.average_cell_health;
+        self.average_organism_health = tick.average_organism_health;
+        self.peak_cell_count = self.peak_cell_count.max(tick.cell_count);
+        self.peak_organism_count = self.peak_organism_count.max(tick.organism_count);
+    }
+
+    /// Update from a BiologyStats snapshot.
+    pub fn update_from_stats(&mut self, stats: &crate::biology::BiologyStats) {
+        self.cell_count = stats.cell_count;
+        self.organism_count = stats.organism_count;
+        self.species_count = stats.species_count;
+        self.molecule_count = stats.molecule_count;
+        self.neuron_count = stats.neuron_count;
+        self.average_cell_health = stats.average_cell_health;
+        self.average_organism_health = stats.average_organism_health;
+        self.peak_cell_count = self.peak_cell_count.max(stats.cell_count);
+        self.peak_organism_count = self.peak_organism_count.max(stats.organism_count);
+    }
 }
 
 /// Involution phase statistics

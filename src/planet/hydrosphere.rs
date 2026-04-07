@@ -19,7 +19,6 @@ const SECONDS_PER_DAY: f64 = 86400.0;
 
 /// Earth's ocean volume (m³)
 /// Note: Used for global water budget calculations
-#[allow(dead_code)]
 const OCEAN_VOLUME: f64 = 1.332e18;
 
 /// Average ocean depth (m)
@@ -33,7 +32,6 @@ const BASE_EVAPORATION: f64 = 0.001;
 
 /// Snow line altitude (m)
 /// Note: Used for glacial formation calculations
-#[allow(dead_code)]
 const SNOW_LINE: f64 = 3000.0;
 
 // ============================================================================
@@ -380,15 +378,6 @@ pub struct Hydrosphere {
     pub depth_map: Vec<DepthCell>,
     /// Sea level relative to reference (m)
     pub sea_level: f64,
-    /// Next river ID (for dynamic river creation)
-    #[allow(dead_code)]
-    next_river_id: u64,
-    /// Next lake ID (for dynamic lake creation)
-    #[allow(dead_code)]
-    next_lake_id: u64,
-    /// Next glacier ID (for dynamic glacier creation)
-    #[allow(dead_code)]
-    next_glacier_id: u64,
 }
 
 impl Default for Hydrosphere {
@@ -435,13 +424,7 @@ impl Hydrosphere {
                 1.7e6,
                 (0.0, 3200.0),
             ),
-            Glacier::new(
-                1,
-                "Antarctic Ice Sheet",
-                (-80.0, 0.0),
-                1.4e7,
-                (0.0, 4500.0),
-            ),
+            Glacier::new(1, "Antarctic Ice Sheet", (-80.0, 0.0), 1.4e7, (0.0, 4500.0)),
             Glacier::new(
                 2,
                 "Himalayan Glaciers",
@@ -499,9 +482,6 @@ impl Hydrosphere {
             water_cycle: WaterCycle::new(),
             depth_map,
             sea_level: SEA_LEVEL,
-            next_river_id: 5,
-            next_lake_id: 4,
-            next_glacier_id: 3,
         }
     }
 

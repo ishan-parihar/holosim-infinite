@@ -325,14 +325,12 @@ pub fn build_cosmological_flow(num_entities: usize) -> Vec<Entity> {
 mod tests {
     use super::*;
 
-    #[ignore]
     #[test]
     fn test_cosmological_flow_creates_entities() {
         let entities = build_cosmological_flow(10);
         assert_eq!(entities.len(), 10);
     }
 
-    #[ignore]
     #[test]
     fn test_entity_contains_all_layers() {
         let entities = build_cosmological_flow(1);
@@ -343,7 +341,6 @@ mod tests {
         assert!(inheritance.indigo.is_aware());
     }
 
-    #[ignore]
     #[test]
     fn test_entity_density_progression() {
         let entities = build_cosmological_flow(1);

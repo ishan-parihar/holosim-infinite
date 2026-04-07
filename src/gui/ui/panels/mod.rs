@@ -28,6 +28,7 @@ pub mod emergence_dashboard;
 pub mod entity_inspector;
 pub mod entity_inspector_enhanced;
 pub mod molecular_panel;
+pub mod observation_panel;
 pub mod quantum_panel;
 pub mod spectrum_continuum_panel;
 pub mod spectrum_dashboard;
@@ -48,6 +49,7 @@ pub use emergence_dashboard::{
 pub use entity_inspector::EntityInspector;
 pub use entity_inspector_enhanced::EntityInspectorEnhanced;
 pub use molecular_panel::{MolecularPanel, MolecularViewMode};
+pub use observation_panel::ObservationPanel;
 pub use quantum_panel::{QuantumPanel, QuantumViewMode};
 pub use spectrum_continuum_panel::{SpectrumContinuumPanel, SpectrumRegion, SpectrumStatistics};
 pub use spectrum_dashboard::{SpectrumDashboard, SpectrumEntityData};

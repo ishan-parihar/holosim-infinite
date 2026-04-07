@@ -314,16 +314,11 @@ pub enum PlasticityType {
 
 /// Environment Sensor
 #[derive(Debug, Clone)]
-struct EnvironmentSensor {
-    #[allow(dead_code)]
-    sensing_resolution: Float,
-}
+struct EnvironmentSensor;
 
 impl EnvironmentSensor {
     fn new() -> Self {
-        Self {
-            sensing_resolution: 0.1,
-        }
+        Self
     }
 
     fn sense(&self, cell: &Cell, environment: &EnvironmentalConditions) -> EnvironmentalSignal {
@@ -541,16 +536,11 @@ impl GeneRegulator {
 
 /// Epigenetic Inheritor
 #[derive(Debug, Clone)]
-struct EpigeneticInheritor {
-    #[allow(dead_code)]
-    inheritance_threshold: Float,
-}
+struct EpigeneticInheritor;
 
 impl EpigeneticInheritor {
     fn new() -> Self {
-        Self {
-            inheritance_threshold: 0.5,
-        }
+        Self
     }
 
     fn inherit(&self, parent: &Cell, child: &mut Cell, config: &EpigeneticSystemConfig) {
@@ -596,16 +586,11 @@ impl EpigeneticInheritor {
 
 /// Plasticity Calculator
 #[derive(Debug, Clone)]
-struct PlasticityCalculator {
-    #[allow(dead_code)]
-    calculation_method: PlasticityMethod,
-}
+struct PlasticityCalculator;
 
 impl PlasticityCalculator {
     fn new() -> Self {
-        Self {
-            calculation_method: PlasticityMethod::Integrated,
-        }
+        Self
     }
 
     fn calculate(&self, cell: &Cell, config: &EpigeneticSystemConfig) -> DevelopmentalPlasticity {
@@ -680,16 +665,6 @@ impl PlasticityCalculator {
             variance.sqrt().min(1.0)
         }
     }
-}
-
-/// Plasticity Calculation Method
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
-enum PlasticityMethod {
-    Integrated,
-    EpigeneticBased,
-    ExpressionBased,
-    AdaptiveBased,
 }
 
 // ============================================================================

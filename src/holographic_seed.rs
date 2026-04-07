@@ -1170,7 +1170,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_update_part_whole_similarity() {
         // TODO: HolographicSeed is immutable ROM - update methods not supported
         // This test needs to be redesigned to test immutable seed behavior
@@ -1187,7 +1186,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_update_all_similarities() {
         // TODO: HolographicSeed is immutable ROM - update methods not supported
         // This test needs to be redesigned to test immutable seed behavior

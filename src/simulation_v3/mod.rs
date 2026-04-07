@@ -48,6 +48,7 @@ pub mod mera_network;
 pub mod multiscale_camera;
 pub mod multiscale_field;
 pub mod multiscale_world;
+pub mod observation_layer;
 pub mod observer_effect;
 pub mod observer_registry;
 pub mod persistence;
@@ -243,6 +244,12 @@ pub use causal_inversion::{
 
 // Observer Registry (Phase 1)
 pub use observer_registry::{CacheStats, ObserverRegistry, ObserverRegistryConfig};
+
+pub use observation_layer::{
+    BehavioralObservation, BiologyObservation, EntityObservation, EnvironmentalObservation,
+    EventType, GpuConnectionObservation, GpuFieldObservation, GpuResonanceObservation,
+    ObservationLayer, ObservationStatistics, PhysicalObservation, TerrainType,
+};
 
 // Embodied Body (Phase 3, P1)
 pub use embodied_body::{BodyEnvironment, DeathCause, EmbodiedBody, SensoryField, SurvivalStatus};

@@ -24,7 +24,6 @@ use super::multiscale_camera::{MultiScaleCamera, ScaleLevel};
 use super::multiscale_field::{HolographicView, MultiScaleField};
 use crate::types::Float;
 use std::collections::{HashMap, VecDeque};
-use std::time::Instant;
 
 /// Predictive Loader
 ///
@@ -95,24 +94,8 @@ pub struct PredictiveLoader {
 /// Stores a snapshot of player movement for pattern recognition.
 #[derive(Debug, Clone)]
 struct MovementSample {
-    /// Timestamp of this sample
-    #[allow(dead_code)]
-    timestamp: Instant,
-
-    /// Position (log10 of meters)
-    #[allow(dead_code)]
-    position: (Float, Float, Float),
-
     /// Velocity (log10 of meters per second)
     velocity: (Float, Float, Float),
-
-    /// Scale level
-    #[allow(dead_code)]
-    scale: ScaleLevel,
-
-    /// Scale transition progress (0.0 to 1.0)
-    #[allow(dead_code)]
-    scale_progress: Float,
 }
 
 /// Load Task
@@ -134,18 +117,6 @@ struct LoadTask {
 
     /// Load priority
     priority: LoadPriority,
-
-    /// Prediction confidence (0.0 to 1.0)
-    #[allow(dead_code)]
-    confidence: Float,
-
-    /// Expected frame when this data will be needed
-    #[allow(dead_code)]
-    expected_frame: usize,
-
-    /// Data type to load
-    #[allow(dead_code)]
-    data_type: u32,
 }
 
 /// Load Task ID
@@ -178,27 +149,7 @@ pub enum LoadPriority {
 ///
 /// Tracks progress of active load operations.
 #[derive(Debug, Clone)]
-struct LoadProgress {
-    /// Load task
-    #[allow(dead_code)]
-    task: LoadTask,
-
-    /// Start time
-    #[allow(dead_code)]
-    start_time: Instant,
-
-    /// Bytes loaded
-    #[allow(dead_code)]
-    bytes_loaded: usize,
-
-    /// Total bytes
-    #[allow(dead_code)]
-    total_bytes: usize,
-
-    /// Completion percentage (0.0 to 1.0)
-    #[allow(dead_code)]
-    progress: Float,
-}
+struct LoadProgress;
 
 /// Predictive Loader Statistics
 ///
@@ -345,15 +296,9 @@ impl PredictiveLoader {
         self.player_position = position;
         self.player_velocity = velocity;
 
-        let scale_progress = self.camera.transition_progress();
+        let _scale_progress = self.camera.transition_progress();
 
-        let sample = MovementSample {
-            timestamp: Instant::now(),
-            position,
-            velocity,
-            scale: self.camera.current_scale(),
-            scale_progress,
-        };
+        let sample = MovementSample { velocity };
 
         self.movement_history.push_back(sample);
 
@@ -416,9 +361,6 @@ impl PredictiveLoader {
                 position: prediction.position,
                 scale: prediction.scale,
                 priority,
-                confidence,
-                expected_frame: frame_offset,
-                data_type: 0,
             };
 
             self.next_load_id += 1;
@@ -470,7 +412,6 @@ impl PredictiveLoader {
             predictions.push(Prediction {
                 position: predicted_position,
                 scale: predicted_scale,
-                frame_offset: frame,
             });
         }
 
@@ -497,7 +438,6 @@ impl PredictiveLoader {
             predictions.push(Prediction {
                 position: predicted_position,
                 scale: predicted_scale,
-                frame_offset: frame,
             });
         }
 
@@ -713,8 +653,6 @@ impl PredictiveLoader {
 struct Prediction {
     position: (Float, Float, Float),
     scale: ScaleLevel,
-    #[allow(dead_code)]
-    frame_offset: usize,
 }
 
 #[cfg(test)]

@@ -278,8 +278,7 @@ impl LiveCell {
         let age_factor = 1.0 - (self.age / MAX_CELL_AGE).min(1.0);
         let damage_factor = 1.0 - self.damage;
 
-        self.health = (energy_factor * waste_factor * age_factor * damage_factor)
-            .clamp(0.0, 1.0);
+        self.health = (energy_factor * waste_factor * age_factor * damage_factor).clamp(0.0, 1.0);
     }
 
     /// Check if cell should divide

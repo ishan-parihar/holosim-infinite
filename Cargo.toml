@@ -25,6 +25,7 @@ lru = "0.16"
 uuid = { version = "1.0", features = ["v4"] }
 num_cpus = "1.16"
 num-complex = "0.4"
+rapier3d = "0.19"
 
 # GUI Dependencies - Using versions compatible with each other
 # egui-wgpu 0.27 uses wgpu 0.19 internally, so we use that
@@ -48,6 +49,7 @@ raw-window-handle = { version = "0.6" }
 [dev-dependencies]
 # Performance testing and benchmarking
 criterion = "0.5"
+rand_chacha = "0.3"
 # Test dependencies can be added here
 
 [profile.release]
@@ -58,6 +60,14 @@ codegen-units = 1
 [profile.dev]
 opt-level = 0
 # Binaries to keep
+
+[[bench]]
+name = "simulation_bench"
+harness = false
+
+[[bench]]
+name = "gpu_bench"
+harness = false
 
 [[bin]]
 name = "physical_manifestation_demo"
@@ -75,3 +85,7 @@ path = "src/holonic_gui_complete.rs"
 name = "holonic_sdl2"
 path = "src/bin/holonic_sdl2.rs"
 required-features = ["sdl2"]
+
+[[bin]]
+name = "mera_profiler"
+path = "src/bin/mera_profiler.rs"

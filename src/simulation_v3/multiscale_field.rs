@@ -519,6 +519,7 @@ impl Default for MultiScaleField {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::simulation_v3::{MeraScale, QueryType};
 
     #[test]
     fn test_multiscale_field_creation() {
@@ -715,9 +716,11 @@ mod tests {
     fn test_multiscale_field_error_invalid_scale_level() {
         let field = MultiScaleField::new();
         let query = MeraQuery {
+            scale: MeraScale::Cosmic,
             scale_level: 10,
             region: None,
             precision: 1.0,
+            query_type: QueryType::Spatial,
         };
 
         let result = field.decompress_level(10, &query);

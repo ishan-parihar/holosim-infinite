@@ -99,10 +99,6 @@ pub struct SacredGeometrySystem {
     /// Fibonacci sequence up to generation 50
     fibonacci: FibonacciSequence,
 
-    /// Golden ratio calculations
-    #[allow(dead_code)]
-    golden_ratio: GoldenProportion,
-
     /// Platonic solid structures
     platonic_solids: Vec<PlatonicStructure>,
 
@@ -119,25 +115,16 @@ pub struct SacredGeometrySystem {
 /// overtone patterns, and standing wave formations.
 #[derive(Debug, Clone)]
 pub struct HarmonicResonance {
-    /// Base frequency scale (Hz) - A=432Hz (sacred frequency)
-    /// Note: Used for future frequency-based resonance calculations
-    #[allow(dead_code)]
-    base_frequency_scale: Float,
-    /// Maximum overtones to consider
-    /// Note: Reserved for future overtone analysis features
-    #[allow(dead_code)]
-    max_overtones: usize,
-    /// Harmonic tolerance for matching
-    /// Note: Reserved for future harmonic matching algorithms
-    #[allow(dead_code)]
-    harmonic_tolerance: Float,
+    pub base_frequency_scale: f64,
+    pub max_overtones: usize,
+    pub harmonic_tolerance: f64,
 }
 
 impl HarmonicResonance {
     /// Create a new harmonic resonance system
     pub fn new() -> Self {
         HarmonicResonance {
-            base_frequency_scale: 432.0, // A=432Hz (sacred frequency)
+            base_frequency_scale: 432.0,
             max_overtones: 12,
             harmonic_tolerance: 0.01,
         }
@@ -186,7 +173,6 @@ impl SacredGeometrySystem {
     pub fn new() -> Self {
         SacredGeometrySystem {
             fibonacci: FibonacciSequence::new(50),
-            golden_ratio: GoldenProportion::default(),
             platonic_solids: Self::initialize_platonic_solids(),
             spirals: Vec::new(),
             harmonic_resonance: HarmonicResonance::new(),
@@ -443,7 +429,8 @@ impl SacredGeometrySystem {
                 // Icosahedron vertices involve the golden ratio
                 let phi = constants::GOLDEN_RATIO;
 
-                [(0.0, 1.0, phi),
+                [
+                    (0.0, 1.0, phi),
                     (0.0, 1.0, -phi),
                     (0.0, -1.0, phi),
                     (0.0, -1.0, -phi),
@@ -454,7 +441,8 @@ impl SacredGeometrySystem {
                     (phi, 0.0, 1.0),
                     (phi, 0.0, -1.0),
                     (-phi, 0.0, 1.0),
-                    (-phi, 0.0, -1.0)]
+                    (-phi, 0.0, -1.0),
+                ]
                 .iter()
                 .map(|&(x, y, z)| (x * scale, y * scale, z * scale))
                 .collect()

@@ -507,7 +507,6 @@ mod tests {
         assert_eq!(field.state.position_hash, 12345);
     }
 
-    #[ignore]
     #[test]
     fn test_electron_configuration() {
         let table = PeriodicTable::new();
@@ -531,7 +530,6 @@ mod tests {
         assert_eq!(table.electron_configuration(18), "1s2 2s2 2p6 3s2 3p6");
     }
 
-    #[ignore]
     #[test]
     fn test_orbital_filling_order() {
         let table = PeriodicTable::new();
@@ -632,7 +630,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_electron_configuration_comprehensive() {
         let table = PeriodicTable::new();
 

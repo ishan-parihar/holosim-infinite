@@ -1470,7 +1470,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_emergence_from_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1497,7 +1496,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_multiple_entities_emerge_from_same_seed() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -1528,7 +1526,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() and Entity::instantiate() are implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_vs_construction() {
         // TODO: Implement Entity::emerge_from() and Entity::instantiate() on SubSubLogos
         /*
@@ -1567,7 +1564,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_references_seed() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -1588,7 +1584,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_manifestation_localization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1610,7 +1605,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_manifestation_individualization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1634,7 +1628,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::instantiate() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_backward_compatibility_instantiate() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
@@ -1655,7 +1648,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_unfolding_from_pre_existing_whole() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -1678,7 +1670,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_is_not_construction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1700,7 +1691,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -1721,7 +1711,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_evolution_activates_potential() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1745,7 +1734,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_vs_evolution_distinction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1768,7 +1756,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1789,7 +1776,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_evolution_accumulates_activation() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1809,7 +1795,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_evolution_reads_rom_updates_ram() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1829,7 +1814,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1850,7 +1834,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1871,7 +1854,6 @@ mod emergence_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_emergence_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1901,7 +1883,6 @@ mod involution_evolution_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_evolution_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1923,7 +1904,6 @@ mod involution_evolution_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_evolution_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -1945,7 +1925,6 @@ mod involution_evolution_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_all_entities_share_same_seed_reference() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -1974,7 +1953,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from_seed() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_multiple_entities_emerge_from_same_seed() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -2005,7 +1983,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() and Entity::instantiate() methods on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_emergence_vs_construction() {
         // TODO: Implement Entity::emerge_from() and Entity::instantiate() on SubSubLogos
         /*
@@ -2045,7 +2022,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from_seed() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_entity_references_seed() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -2067,7 +2043,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_emergence_manifestation_localization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2090,7 +2065,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_emergence_manifestation_individualization() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2115,7 +2089,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::instantiate() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_backward_compatibility_instantiate() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
@@ -2137,7 +2110,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from_seed() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_emergence_unfolding_from_pre_existing_whole() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -2161,7 +2133,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_emergence_is_not_construction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2184,7 +2155,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::create_via_involution() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2206,7 +2176,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_entity_evolution_activates_potential() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2231,7 +2200,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_involution_vs_evolution_distinction() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2255,7 +2223,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2277,7 +2244,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_evolution_accumulates_activation() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2298,7 +2264,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_evolution_reads_rom_updates_ram() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2319,7 +2284,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2341,7 +2305,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2363,7 +2326,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_phase2_is_created_via_involution() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2386,7 +2348,6 @@ mod involution_evolution_tests {
     /// TODO: This test needs Entity::emerge_from() method on SubSubLogos
     /// Currently commented out to prevent compilation errors
     #[test]
-    #[ignore]
     fn test_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2419,7 +2380,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_creation_via_involution() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2444,7 +2404,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_evolution_activates_potential() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2483,7 +2442,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_vs_evolution_distinction() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2524,7 +2482,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_involution_creates_potential_once() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2566,7 +2523,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_evolution_accumulates_activation() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2597,7 +2553,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_evolution_reads_rom_updates_ram() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2636,7 +2591,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_has_all_potential_at_red_ray() {
         // TODO: Implement Entity::create_via_involution() on SubSubLogos
         /*
@@ -2677,7 +2631,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::instantiate() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_backward_compatibility_with_involution_evolution() {
         // TODO: Implement Entity::instantiate() on SubSubLogos
         /*
@@ -2707,7 +2660,6 @@ mod phase2_aspect_tests {
     ///
     /// TODO: Re-enable once Entity::create_via_involution() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_is_created_via_involution() {
         // TODO: Implement Entity::create_via_involution() and Entity::instantiate() on SubSubLogos
         /*
@@ -2741,7 +2693,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_has_arc_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2762,7 +2713,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_all_entities_share_same_seed_reference() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -2789,7 +2739,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_mind_body_spirit_as_aspects() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2815,7 +2764,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_no_separate_mind_body_spirit_fields() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2838,7 +2786,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_archetype_states_mutable_per_entity() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2877,7 +2824,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_archetypes_are_read_only() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2904,7 +2850,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_state_has_unprocessed_catalyst() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2929,7 +2874,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_entity_emerges_from_holographic_seed() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -2961,7 +2905,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from_seed() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_phase2_complete_validation() {
         // TODO: Implement Entity::emerge_from_seed() on SubSubLogos
         /*
@@ -3031,7 +2974,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_body_aspect_generates_up_pouring() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -3054,7 +2996,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_spirit_aspect_generates_in_pouring() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -3077,7 +3018,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_mind_aspect_has_valve_state() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -3101,7 +3041,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_mind_aspect_is_balanced() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -3124,7 +3063,6 @@ mod phase4_cross_coupling_tests {
     ///
     /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
     #[test]
-    #[ignore]
     fn test_coupling_dynamics_has_required_fields() {
         // TODO: Implement Entity::emerge_from() on SubSubLogos
         /*
@@ -3164,7 +3102,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_entity_processes_cross_coupling() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
@@ -3197,7 +3134,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_blockage_set_tracks_blockages() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
@@ -3245,7 +3181,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_blockage_set_calculates_severity() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
@@ -3291,7 +3226,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_mind_valve_state_depends_on_balance() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
@@ -3319,7 +3253,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_spirit_depends_on_mind() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*
@@ -3347,7 +3280,6 @@ mod phase4_cross_coupling_tests {
             ///
             /// TODO: Re-enable once Entity::emerge_from() is implemented on SubSubLogos
             #[test]
-            #[ignore]
             fn test_green_ray_activation_integrates_flows() {
                 // TODO: Implement Entity::emerge_from() on SubSubLogos
                 /*

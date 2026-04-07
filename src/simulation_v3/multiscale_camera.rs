@@ -449,16 +449,6 @@ pub struct MultiScaleCamera {
     /// Active transition (if any)
     transition: Option<ScaleTransition>,
 
-    /// Minimum zoom level (log10)
-    /// Note: Reserved for zoom limit enforcement
-    #[allow(dead_code)]
-    min_zoom_log: Float,
-
-    /// Maximum zoom level (log10)
-    /// Note: Reserved for zoom limit enforcement
-    #[allow(dead_code)]
-    max_zoom_log: Float,
-
     /// Aspect ratio
     aspect_ratio: Float,
 
@@ -474,25 +464,11 @@ pub struct MultiScaleCamera {
 /// Ensures that transitions maintain the holographic principle:
 /// "Each part contains the whole"
 #[derive(Debug, Clone)]
-pub struct HolographicContinuity {
-    /// The holographic field is the same at all scales
-    /// Resolution changes, but completeness is maintained
-    /// Note: Reserved for future resolution scaling features
-    #[allow(dead_code)]
-    field_resolution_scale: Float,
-
-    /// Continuity strength (0.0 = no continuity, 1.0 = perfect continuity)
-    /// Note: Reserved for future continuity strength calculations
-    #[allow(dead_code)]
-    continuity_strength: Float,
-}
+pub struct HolographicContinuity;
 
 impl Default for HolographicContinuity {
     fn default() -> Self {
-        HolographicContinuity {
-            field_resolution_scale: 1.0,
-            continuity_strength: 1.0,
-        }
+        Self
     }
 }
 
@@ -508,8 +484,6 @@ impl MultiScaleCamera {
             zoom_log: 0.0,
             rotation: 0.0,
             transition: None,
-            min_zoom_log: -3.0,
-            max_zoom_log: 3.0,
             aspect_ratio,
             screen_size: (1280, 720),
             holographic_continuity: HolographicContinuity::default(),

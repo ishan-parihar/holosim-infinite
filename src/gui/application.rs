@@ -154,15 +154,12 @@ pub struct GuiApplication {
     show_cosmos: bool,
 
     /// Planet Renderer (Phase 4: Planet surface visualization)
-    #[allow(dead_code)]
     planet_renderer: Option<PlanetRenderer>,
 
     /// Enable planet surface visualization
-    #[allow(dead_code)]
     show_planet_surface: bool,
 
     /// Selected planet ID for detail view
-    #[allow(dead_code)]
     selected_planet_id: u64,
 
     /// Dual-mode benchmark pass for scene clarity/performance A/B checks
@@ -231,8 +228,6 @@ pub struct GuiApplication {
 
     /// Visualization backends used by UI panels
     collective_visualizer: crate::gui::visualization::collective_viz::CollectiveVisualizer,
-    #[allow(dead_code)]
-    emergence_visualizer: crate::gui::visualization::emergence_viz::EmergenceVisualizer,
 
     /// Camera system
     camera: Camera2D,
@@ -356,8 +351,6 @@ pub struct GuiApplication {
     show_hierarchy_path: bool,
 
     /// Application state
-    #[allow(dead_code)]
-    config: GuiConfig,
     running: bool,
     last_frame_time: Instant,
     frame_count: u64,
@@ -586,8 +579,6 @@ impl GuiApplication {
             consciousness_panel_id,
             collective_visualizer:
                 crate::gui::visualization::collective_viz::CollectiveVisualizer::new(),
-            emergence_visualizer:
-                crate::gui::visualization::emergence_viz::EmergenceVisualizer::new(),
             camera,
             camera_controls,
             raycaster,
@@ -628,7 +619,6 @@ impl GuiApplication {
             hierarchy_focus_id: None,
             hierarchy_stack: Vec::new(),
             show_hierarchy_path: true,
-            config,
             running: false,
             last_frame_time: Instant::now(),
             frame_count: 0,
@@ -2083,7 +2073,6 @@ impl GuiApplication {
     }
 
     /// Save current camera position to a quick bookmark slot
-    #[allow(dead_code)]
     fn save_current_bookmark(&mut self, slot: usize) {
         let bookmark_names = [
             "Quick Slot 1",
@@ -2101,7 +2090,6 @@ impl GuiApplication {
     }
 
     /// Render the keyboard shortcuts overlay
-    #[allow(dead_code)]
     fn render_shortcuts_overlay(&self, ctx: &egui::Context) {
         egui::Window::new("Keyboard Shortcuts")
             .collapsible(false)
@@ -2435,7 +2423,6 @@ impl GuiApplication {
     }
 
     /// Get entities visible at the current hierarchy level
-    #[allow(dead_code)]
     fn get_visible_entities(&self) -> Vec<crate::entity_layer7::layer7::SubSubLogos> {
         self.simulation.get_children_of_focus(self.hierarchy_focus_id.as_ref())
     }
@@ -2485,7 +2472,6 @@ impl GuiApplication {
     }
 
     /// Render dock controls toolbar
-    #[allow(dead_code)]
     fn render_dock_controls(&mut self, ctx: &egui::Context) {
         // Collect bookmark info first to avoid borrow conflicts
         let bookmark_info: Vec<(String, String)> = self

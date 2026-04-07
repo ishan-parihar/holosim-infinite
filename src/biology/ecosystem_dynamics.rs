@@ -399,16 +399,11 @@ pub struct CoEvolutionResult {
 
 /// Species Interactor
 #[derive(Debug, Clone)]
-struct SpeciesInteractor {
-    #[allow(dead_code)]
-    interaction_matrix: HashMap<String, HashMap<String, InteractionType>>,
-}
+struct SpeciesInteractor;
 
 impl SpeciesInteractor {
     fn new() -> Self {
-        Self {
-            interaction_matrix: HashMap::new(),
-        }
+        Self
     }
 
     fn interact(
@@ -490,16 +485,11 @@ impl SpeciesInteractor {
 
 /// Energy Flow Calculator
 #[derive(Debug, Clone)]
-struct EnergyFlowCalculator {
-    #[allow(dead_code)]
-    trophic_efficiency: Float,
-}
+struct EnergyFlowCalculator;
 
 impl EnergyFlowCalculator {
     fn new() -> Self {
-        Self {
-            trophic_efficiency: 0.1, // 10% efficiency (ecological rule of thumb)
-        }
+        Self
     }
 
     fn calculate(&self, ecosystem: &Ecosystem, config: &EcosystemDynamicsConfig) -> EnergyFlow {
@@ -529,16 +519,11 @@ impl EnergyFlowCalculator {
 
 /// Population Tracker
 #[derive(Debug, Clone)]
-struct PopulationTracker {
-    #[allow(dead_code)]
-    tracking_window: usize,
-}
+struct PopulationTracker;
 
 impl PopulationTracker {
     fn new() -> Self {
-        Self {
-            tracking_window: 100,
-        }
+        Self
     }
 
     fn track(&self, ecosystem: &Ecosystem) -> PopulationDynamics {
@@ -582,16 +567,11 @@ impl PopulationTracker {
 
 /// Co-Evolution Simulator
 #[derive(Debug, Clone)]
-struct CoEvolutionSimulator {
-    #[allow(dead_code)]
-    simulation_steps: usize,
-}
+struct CoEvolutionSimulator;
 
 impl CoEvolutionSimulator {
     fn new() -> Self {
-        Self {
-            simulation_steps: 1000,
-        }
+        Self
     }
 
     fn simulate(
@@ -653,11 +633,11 @@ impl CoEvolutionSimulator {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::biology::cellular_emergence::CellType;
     use crate::biology::dna_system::DNA;
     use crate::entity_layer7::dna_encoding::DNAPattern;
     use crate::entity_layer7::IndividualSpectrumConfiguration;
     use crate::spectrum::SpectrumRatio;
-    use crate::biology::cellular_emergence::CellType;
 
     fn create_test_cell() -> Cell {
         let ratio = SpectrumRatio::space_time(1.5, 1.0);

@@ -9,9 +9,7 @@
 //! - Veil transparency indicator
 //! - Interactive spectrum filtering controls
 
-use crate::gui::visualization::spectrum_viz::{
-    SpectrumRegion, SpectrumVisualizer,
-};
+use crate::gui::visualization::spectrum_viz::{SpectrumRegion, SpectrumVisualizer};
 use crate::types::Density;
 use egui::{Context, Ui};
 use std::collections::HashMap;
@@ -188,7 +186,10 @@ impl SpectrumDashboard {
             egui::Color32::BLACK,
         );
 
-        ui.label("Veil limits access to oneness. Higher transparency = more time/space access.".to_string());
+        ui.label(
+            "Veil limits access to oneness. Higher transparency = more time/space access."
+                .to_string(),
+        );
     }
 
     /// Show spectrum graph
