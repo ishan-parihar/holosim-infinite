@@ -1,16 +1,16 @@
-use super::{EntityId, Float, PhysicsWorld};
+use super::{ColliderShape, EntityId, Float, PhysicsWorld};
 
 impl PhysicsWorld {
     pub fn set_gravity(&mut self, gravity: [Float; 3]) {
-        self.integration_params.gravity =
-            rapier3d_f64::na::Vector3::new(gravity[0], gravity[1], gravity[2]);
+        self.gravity = rapier3d_f64::na::Vector3::new(gravity[0], gravity[1], gravity[2]);
     }
 
     pub fn apply_gravity_to_entity(&mut self, entity_id: &EntityId, gravity_strength: Float) {
         if let Some(handle) = self.entity_map.get(entity_id) {
             if let Some(body) = self.rigid_body_set.get_mut(handle.rigid_body) {
-                if body.mass() > 0.0 {
-                    let force = body.mass() * gravity_strength;
+                let mass = body.mass();
+                if mass > 0.0 {
+                    let force = mass * gravity_strength;
                     body.add_force(rapier3d_f64::na::Vector3::new(0.0, -force, 0.0), true);
                 }
             }
@@ -29,7 +29,7 @@ impl PhysicsWorld {
 
                 match at_point {
                     Some(point) => {
-                        let point_vec = rapier3d_f64::na::Vector3::new(point[0], point[1], point[2]);
+                        let point_vec = rapier3d_f64::na::Point3::new(point[0], point[1], point[2]);
                         body.add_force_at_point(force_vec, point_vec, true);
                     }
                     None => {
@@ -148,7 +148,7 @@ mod tests {
     #[test]
     fn test_apply_custom_force() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(201);
         world.create_entity_body(
@@ -168,7 +168,7 @@ mod tests {
     #[test]
     fn test_apply_force_at_point() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(202);
         world.create_entity_body(
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn test_damping_reduces_velocity() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(203);
         world.create_entity_body(
@@ -214,7 +214,7 @@ mod tests {
     #[test]
     fn test_kinetic_energy_calculation() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(204);
         world.create_entity_body(
@@ -234,7 +234,7 @@ mod tests {
     #[test]
     fn test_momentum_calculation() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(205);
         world.create_entity_body(
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn test_torque_application() {
         let mut world = PhysicsWorld::new();
-        world.integration_params.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
+        world.gravity = rapier3d_f64::na::Vector3::new(0.0, 0.0, 0.0);
 
         let entity_id = test_entity_id(206);
         world.create_entity_body(

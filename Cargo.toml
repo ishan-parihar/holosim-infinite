@@ -26,6 +26,7 @@ uuid = { version = "1.0", features = ["v4"] }
 num_cpus = "1.16"
 num-complex = "0.4"
 rapier3d = "0.19"
+rapier3d-f64 = "0.19"
 
 # GUI Dependencies - Using versions compatible with each other
 # egui-wgpu 0.27 uses wgpu 0.19 internally, so we use that

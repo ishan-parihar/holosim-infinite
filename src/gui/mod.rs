@@ -497,3 +497,6 @@ pub mod observation_bridge;
 pub use observation_bridge::{
     EntityObservation, ObservationBridge, ObservationFormatter, ObservationStats,
 };
+
+pub mod observable_properties;
+pub mod observation_mapper;

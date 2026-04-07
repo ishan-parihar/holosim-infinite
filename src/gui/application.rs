@@ -9,6 +9,7 @@
 //!
 //! PHASE A.3 UPDATE: Added keyboard shortcuts overlay and bookmark system
 
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use winit::{
@@ -56,6 +57,10 @@ use crate::gui::ui::panels::MolecularPanel;
 use crate::gui::ui::panels::CellularPanel;
 // Phase D: Consciousness Panel
 use crate::gui::ui::panels::ConsciousnessPanel;
+use crate::gui::ui::panels::EntityDetailPanel;
+use crate::gui::observation_mapper::ObservationMapper;
+use crate::gui::observable_properties::ObservableProperties;
+use crate::gui::renderer::observable_entity_renderer::ObservableEntityRenderer;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VisualUxMode {
@@ -135,6 +140,8 @@ pub struct GuiApplication {
     /// Entity Renderer (Phase 1: Added)
     entity_renderer: Option<EntityRenderer>,
 
+    observable_entity_renderer: Option<ObservableEntityRenderer>,
+
     /// Connection Renderer (Phase 4: Hierarchy visualization)
     connection_renderer: Option<ConnectionRenderer>,
 
@@ -210,6 +217,8 @@ pub struct GuiApplication {
 
     /// Consciousness Panel (Phase D)
     consciousness_panel: ConsciousnessPanel,
+
+    entity_detail_panel: EntityDetailPanel,
 
     /// Panel docking state
     docking_manager: crate::gui::ui::panels::DockingManager,
@@ -340,6 +349,21 @@ pub struct GuiApplication {
     /// Simulation integration (Phase 2: Using SimulationRunnerAdapter)
     simulation: SimulationRunnerAdapter,
 
+    /// Persistent entity positions across frames (updated by velocity * dt each frame)
+    entity_positions: HashMap<crate::entity_layer7::EntityId, [f32; 2]>,
+
+    /// Persistent entity velocities across frames (updated on boundary bounce)
+    entity_velocities: HashMap<crate::entity_layer7::EntityId, [f32; 2]>,
+
+    /// Whether entity positions have been initialized from simulation data
+    positions_initialized: bool,
+
+    /// Rapier3d physics world (Phase 4.3: drives entity positions)
+    physics_world: Option<crate::physics_rapier::PhysicsWorld>,
+
+    /// Toggle between physics-driven and velocity*dt movement
+    physics_enabled: bool,
+
     /// Hierarchy navigation: Currently focused entity (what we're "inside")
     /// None means we're at the root/universe level
     hierarchy_focus_id: Option<crate::entity_layer7::EntityId>,
@@ -383,6 +407,7 @@ impl GuiApplication {
         let (
             wgpu_context,
             entity_renderer,
+            observable_entity_renderer,
             connection_renderer,
             holographic_field_renderer,
             cosmos_renderer,
@@ -397,6 +422,8 @@ impl GuiApplication {
                 println!("Creating entity renderer...");
                 let renderer = EntityRenderer::new(&ctx.device, &ctx.surface_config);
                 println!("✓ Entity renderer created");
+
+                let observable_renderer = ObservableEntityRenderer::new(&ctx.device, &ctx.surface_config);
 
                 // Phase 4: Create connection renderer
                 println!("Creating connection renderer...");
@@ -435,6 +462,7 @@ impl GuiApplication {
                 (
                     Some(ctx),
                     Some(renderer),
+                    Some(observable_renderer),
                     Some(conn_renderer),
                     field_renderer,
                     cosmos_renderer,
@@ -449,7 +477,7 @@ impl GuiApplication {
                 eprintln!("  Entity 3D rendering will not be available, but UI panels will work.");
                 eprintln!("  Hint: Try running with WGPU_BACKEND=gl for OpenGL fallback.");
                 let none_view: Option<ViewSystem> = None;
-                (None, None, None, None, None, None, none_view, None)
+                (None, None, None, None, None, None, None, none_view, None)
             }
         };
 
@@ -537,6 +565,7 @@ impl GuiApplication {
             window,
             wgpu_context,
             entity_renderer,
+            observable_entity_renderer,
             connection_renderer,          // Phase 4: Add connection renderer
             holographic_field_renderer,   // Phase B.1: Holographic field renderer
             field_visual_bridge,          // Phase B.1: Field visual bridge
@@ -564,6 +593,7 @@ impl GuiApplication {
             molecular_panel,
             cellular_panel,
             consciousness_panel,
+            entity_detail_panel: EntityDetailPanel::new(),
             docking_manager,
             entity_inspector_panel_id,
             collective_dashboard_panel_id,
@@ -616,6 +646,11 @@ impl GuiApplication {
             semantic_lod_enabled: true,
             show_semantic_lod_hud: false,
             simulation,
+            entity_positions: HashMap::new(),
+            entity_velocities: HashMap::new(),
+            positions_initialized: false,
+            physics_world: None,
+            physics_enabled: true,
             hierarchy_focus_id: None,
             hierarchy_stack: Vec::new(),
             show_hierarchy_path: true,
@@ -1113,6 +1148,255 @@ impl GuiApplication {
         let holo_entities = self.simulation.holo_entities();
         self.render_stats.legacy_entity_count = legacy_entities.len() as u64;
         self.render_stats.holo_entity_count = holo_entities.len() as u64;
+
+        let observable_entities = self.simulation.get_observable_properties();
+        self.render_stats.observable_entity_count = observable_entities.len() as u64;
+
+        let delta_seconds = self.last_frame_time.elapsed().as_secs_f32();
+        let boundary: f32 = 100.0;
+        let raw_entities = self.simulation.entities();
+
+        let mut observable_entities: Vec<ObservableProperties> = observable_entities;
+
+        if !self.positions_initialized && !observable_entities.is_empty() {
+            for (i, obs) in observable_entities.iter().enumerate() {
+                if let Some(entity) = raw_entities.get(i) {
+                    self.entity_positions
+                        .insert(entity.entity_id.clone(), obs.position);
+                    self.entity_velocities
+                        .insert(entity.entity_id.clone(), obs.velocity);
+                }
+            }
+            self.positions_initialized = true;
+        }
+
+        if self.positions_initialized && delta_seconds > 0.0 && delta_seconds < 1.0 {
+            if self.physics_enabled {
+                if self.physics_world.is_none() {
+                    self.physics_world = Some(crate::physics_rapier::PhysicsWorld::new());
+                }
+
+                let physics = self.physics_world.as_mut().unwrap();
+                let dt_f64 = delta_seconds as f64;
+
+                for (i, obs) in observable_entities.iter().enumerate() {
+                    let Some(entity) = raw_entities.get(i) else { continue };
+                    let entity_id = &entity.entity_id;
+
+                    if !physics.entity_map.contains_key(entity_id) {
+                        let shape = Self::entity_shape_to_collider(obs.shape, obs.size as f64);
+                        let mass = obs.mass as f64;
+                        let pos3d = [obs.position[0] as f64, obs.position[1] as f64, 0.0];
+                        physics.create_entity_body(entity_id.clone(), mass, pos3d, shape);
+                    }
+                }
+
+                let current_ids: std::collections::HashSet<_> = raw_entities
+                    .iter()
+                    .map(|e| e.entity_id.clone())
+                    .collect();
+                let physics_ids: Vec<_> = physics.entity_map.keys().cloned().collect();
+                for id in physics_ids {
+                    if !current_ids.contains(&id) {
+                        physics.remove_entity_body(&id);
+                    }
+                }
+
+                // Apply consciousness-driven forces before physics step
+                let entity_count = observable_entities.len();
+                for (i, obs) in observable_entities.iter().enumerate() {
+                    let Some(entity) = raw_entities.get(i) else { continue };
+                    let entity_id = &entity.entity_id;
+
+                    if physics.entity_map.get(entity_id).is_none() {
+                        continue;
+                    }
+
+                    // Service orientation: attract (STO) or repel (STS) from 3 nearest neighbors
+                    if entity_count > 1 {
+                        let mut distances: Vec<(f64, usize)> = Vec::with_capacity(entity_count.saturating_sub(1));
+                        let my_pos = [obs.position[0] as f64, obs.position[1] as f64];
+                        for (j, other) in observable_entities.iter().enumerate() {
+                            if j == i { continue; }
+                            let dx = my_pos[0] - other.position[0] as f64;
+                            let dy = my_pos[1] - other.position[1] as f64;
+                            let dist = (dx * dx + dy * dy).sqrt().max(0.01);
+                            distances.push((dist, j));
+                        }
+                        distances.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap_or(std::cmp::Ordering::Equal));
+                        let neighbor_count = distances.len().min(3);
+
+                        let orientation = obs.service_orientation as f64;
+                        let mass = obs.mass as f64;
+                        for k in 0..neighbor_count {
+                            let (_, nidx) = distances[k];
+                            let neighbor = &observable_entities[nidx];
+                            let dx = neighbor.position[0] as f64 - my_pos[0];
+                            let dy = neighbor.position[1] as f64 - my_pos[1];
+                            let dist = (dx * dx + dy * dy).sqrt().max(0.01);
+                            let nx = dx / dist;
+                            let ny = dy / dist;
+
+                            let magnitude = orientation * mass * 0.5;
+                            let force = [nx * magnitude, ny * magnitude, 0.0];
+                            physics.apply_force(entity_id, force);
+                        }
+                    }
+
+                    // Behavior-state forces and damping
+                    let (behavior_fx, behavior_fy, linear_damping) = match obs.behavior_state {
+                        crate::gui::observable_properties::BehaviorState::Seeking => {
+                            // Force toward center (0,0)
+                            let cx = -obs.position[0] as f64;
+                            let cy = -obs.position[1] as f64;
+                            let dist = (cx * cx + cy * cy).sqrt().max(0.01);
+                            let mag = 2.0;
+                            ((cx / dist) * mag, (cy / dist) * mag, 0.1)
+                        }
+                        crate::gui::observable_properties::BehaviorState::Fleeing => {
+                            // Force away from center
+                            let cx = obs.position[0] as f64;
+                            let cy = obs.position[1] as f64;
+                            let dist = (cx * cx + cy * cy).sqrt().max(0.01);
+                            let mag = 3.0;
+                            ((cx / dist) * mag, (cy / dist) * mag, 0.1)
+                        }
+                        crate::gui::observable_properties::BehaviorState::Socializing => {
+                            // Force toward nearest neighbor
+                            if entity_count > 1 {
+                                let mut best_dist = f64::MAX;
+                                let mut best_dx = 0.0;
+                                let mut best_dy = 0.0;
+                                for (j, other) in observable_entities.iter().enumerate() {
+                                    if j == i { continue; }
+                                    let dx = other.position[0] as f64 - obs.position[0] as f64;
+                                    let dy = other.position[1] as f64 - obs.position[1] as f64;
+                                    let d = (dx * dx + dy * dy).sqrt();
+                                    if d < best_dist {
+                                        best_dist = d;
+                                        best_dx = dx;
+                                        best_dy = dy;
+                                    }
+                                }
+                                let dist = best_dist.max(0.01);
+                                let mag = 1.0;
+                                ((best_dx / dist) * mag, (best_dy / dist) * mag, 0.1)
+                            } else {
+                                (0.0, 0.0, 0.3)
+                            }
+                        }
+                        crate::gui::observable_properties::BehaviorState::Leading => {
+                            (0.0, 0.0, 0.1)
+                        }
+                        crate::gui::observable_properties::BehaviorState::Contemplating => {
+                            (0.0, 0.0, 0.8)
+                        }
+                        crate::gui::observable_properties::BehaviorState::Idle => {
+                            (0.0, 0.0, 0.3)
+                        }
+                    };
+
+                    if behavior_fx.abs() > 0.001 || behavior_fy.abs() > 0.001 {
+                        physics.apply_force(entity_id, [behavior_fx, behavior_fy, 0.0]);
+                    }
+                    physics.apply_damping(entity_id, linear_damping, linear_damping);
+                }
+
+                physics.step_physics(Some(dt_f64));
+
+                // Boundary constraint: clamp positions and zero velocity at boundary
+                for (idx, _obs) in observable_entities.iter().enumerate() {
+                    let Some(entity) = raw_entities.get(idx) else { continue };
+                    let entity_id = &entity.entity_id;
+
+                    if let Some(pos) = physics.get_entity_position(entity_id) {
+                        let mut clamped = false;
+                        let mut px = pos[0] as f32;
+                        let mut py = pos[1] as f32;
+
+                        if px > boundary {
+                            px = boundary;
+                            clamped = true;
+                        } else if px < -boundary {
+                            px = -boundary;
+                            clamped = true;
+                        }
+                        if py > boundary {
+                            py = boundary;
+                            clamped = true;
+                        } else if py < -boundary {
+                            py = -boundary;
+                            clamped = true;
+                        }
+
+                        if clamped {
+                            physics.set_entity_position(entity_id, [px as f64, py as f64, 0.0]);
+                            physics.set_entity_velocity(entity_id, [0.0, 0.0, 0.0]);
+                        }
+                    }
+                }
+
+                for (idx, obs) in observable_entities.iter_mut().enumerate() {
+                    let Some(entity) = raw_entities.get(idx) else { continue };
+                    let entity_id = &entity.entity_id;
+
+                    if let Some(pos) = physics.get_entity_position(entity_id) {
+                        let new_pos = [pos[0] as f32, pos[1] as f32];
+                        obs.position = new_pos;
+                        self.entity_positions.insert(entity_id.clone(), new_pos);
+                    }
+                    if let Some(vel) = physics.get_entity_velocity(entity_id) {
+                        let new_vel = [vel[0] as f32, vel[1] as f32];
+                        obs.velocity = new_vel;
+                        self.entity_velocities.insert(entity_id.clone(), new_vel);
+                    }
+                }
+            } else {
+                // Fallback: simple velocity*dt with boundary bounce
+                for (i, obs) in observable_entities.iter_mut().enumerate() {
+                    let Some(entity) = raw_entities.get(i) else { continue };
+                    let entity_id = &entity.entity_id;
+
+                    let (mut pos, mut vel) = if let (Some(p), Some(v)) = (
+                        self.entity_positions.get(entity_id).copied(),
+                        self.entity_velocities.get(entity_id).copied(),
+                    ) {
+                        (p, v)
+                    } else {
+                        self.entity_positions.insert(entity_id.clone(), obs.position);
+                        self.entity_velocities.insert(entity_id.clone(), obs.velocity);
+                        (obs.position, obs.velocity)
+                    };
+
+                    let current_vel = obs.velocity;
+                    pos[0] += current_vel[0] * delta_seconds;
+                    pos[1] += current_vel[1] * delta_seconds;
+
+                    if pos[0] > boundary {
+                        pos[0] = boundary;
+                        vel[0] = -current_vel[0];
+                    } else if pos[0] < -boundary {
+                        pos[0] = -boundary;
+                        vel[0] = -current_vel[0];
+                    }
+                    if pos[1] > boundary {
+                        pos[1] = boundary;
+                        vel[1] = -current_vel[1];
+                    } else if pos[1] < -boundary {
+                        pos[1] = -boundary;
+                        vel[1] = -current_vel[1];
+                    }
+
+                    obs.position = pos;
+                    self.entity_positions.insert(entity_id.clone(), pos);
+                    self.entity_velocities.insert(entity_id.clone(), vel);
+                }
+            }
+        }
+
+        if let Some(ref mut obs_renderer) = self.observable_entity_renderer {
+            obs_renderer.update(&self.wgpu_context.as_ref().unwrap().queue, &observable_entities);
+        }
 
         let use_field_derived_entities = matches!(
             self.visual_ux_mode,
@@ -1807,6 +2091,10 @@ impl GuiApplication {
 
             // Phase 1: Render entities
             renderer.render(&mut render_pass);
+
+            if let Some(obs_renderer) = &self.observable_entity_renderer {
+                obs_renderer.render(&mut render_pass);
+            }
         }
 
         // First-frame diagnostics
@@ -3396,6 +3684,29 @@ impl GuiApplication {
         }
         self.consciousness_panel.show(&egui_ctx);
 
+        let selected_obs: Option<crate::gui::observable_properties::ObservableProperties> = self
+            .entity_detail_panel
+            .selected_entity_index
+            .and_then(|idx| {
+                let raw = self.simulation.get_raw_entities();
+                let entity = raw.values().nth(idx)?;
+                let density = self
+                    .simulation
+                    .get_entities()
+                    .get(idx)
+                    .map(|e| e.density_level as u8)
+                    .unwrap_or(3);
+                Some(ObservationMapper::map(
+                    &entity.archetype_activations,
+                    entity.current_state.consciousness_level,
+                    density,
+                    entity.spectrum_position,
+                    entity.polarization.polarity_bias(),
+                    idx,
+                ))
+            });
+        self.entity_detail_panel.show(&egui_ctx, selected_obs.as_ref());
+
         // Render emergence dashboard
         {
             egui::Window::new("Emergence Dashboard")
@@ -4280,10 +4591,20 @@ impl GuiApplication {
         match result {
             crate::gui::interaction::RaycastResult::Entity { entity_id, .. } => {
                 println!("Selected entity: {}", entity_id);
-                self.entity_inspector.select_entity(entity_id);
+                self.entity_inspector.select_entity(entity_id.clone());
+
+                if let Some(idx) = entities.iter().position(|(id, _, _)| id.uuid == entity_id.uuid) {
+                    let activations = self
+                        .simulation
+                        .entities()
+                        .get(idx)
+                        .map(|e| e.archetype_activations);
+                    self.entity_detail_panel.select(idx, activations);
+                }
             }
             crate::gui::interaction::RaycastResult::EmptySpace { .. } => {
                 self.entity_inspector.deselect();
+                self.entity_detail_panel.deselect();
             }
             _ => {}
         }
@@ -4298,6 +4619,23 @@ impl GuiApplication {
             4 => "Planetary",
             5 => "Integration",
             _ => "Unknown",
+        }
+    }
+
+    fn entity_shape_to_collider(
+        shape: crate::gui::observable_properties::EntityShape,
+        size: f64,
+    ) -> crate::physics_rapier::ColliderShape {
+        match shape {
+            crate::gui::observable_properties::EntityShape::Square => {
+                crate::physics_rapier::ColliderShape::Cuboid {
+                    half_extents: [size, size, size * 0.1],
+                }
+            }
+            crate::gui::observable_properties::EntityShape::Star => {
+                crate::physics_rapier::ColliderShape::Sphere { radius: size * 1.2 }
+            }
+            _ => crate::physics_rapier::ColliderShape::Sphere { radius: size },
         }
     }
 }
@@ -4322,6 +4660,8 @@ pub struct RenderStats {
 
     /// Number of entities available from holographic source
     pub holo_entity_count: u64,
+
+    pub observable_entity_count: u64,
 
     /// Number of active rendered connections
     pub active_connection_count: u64,

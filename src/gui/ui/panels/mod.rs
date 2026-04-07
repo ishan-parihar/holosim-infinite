@@ -25,6 +25,7 @@ pub mod collective_dashboard;
 pub mod consciousness_panel;
 pub mod docking;
 pub mod emergence_dashboard;
+pub mod entity_detail_panel;
 pub mod entity_inspector;
 pub mod entity_inspector_enhanced;
 pub mod molecular_panel;
@@ -46,6 +47,7 @@ pub use docking::{
 pub use emergence_dashboard::{
     EmergenceDashboard, EmergenceSummary, EventStatistics, GraphData, GraphDataPoint,
 };
+pub use entity_detail_panel::EntityDetailPanel;
 pub use entity_inspector::EntityInspector;
 pub use entity_inspector_enhanced::EntityInspectorEnhanced;
 pub use molecular_panel::{MolecularPanel, MolecularViewMode};
