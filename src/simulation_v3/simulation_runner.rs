@@ -14,10 +14,15 @@ use crate::adapters::physical_adapter::{PhysicalAdapter, PhysicalAdapterStatisti
 use crate::biology::BiologicalConfig;
 use crate::biology::BiologyPipeline;
 use crate::entity_layer7::layer7::{EntityId, EntityType};
+use crate::gpu::compute_engine::ComputeEngine;
+use crate::gpu::entity_upload::{extract_entity_data, EntityGPUData};
 use crate::physical_manifestation::consciousness_to_matter::ConsciousnessToMatterManager;
 use crate::physical_manifestation::{
     HierarchicalCompositionManager, PhysicalStructureManager, SimultaneousEmergenceManager,
 };
+use crate::physics::archetype_physics::ArchetypePhysicsMapper;
+use crate::physics::observation_sync::ObservationSync;
+use crate::physics::physics_world::PhysicsWorld;
 use crate::simulation_v3::catalyst_system::{CatalystEvent, CatalystManager};
 use crate::simulation_v3::causal_inversion::{
     CausalInversionConfig, CausalInversionRunner, CausalSimulationResult, CausalStatistics,
@@ -37,6 +42,7 @@ use crate::simulation_v3::involution_sequence::{
     InvolutionError, InvolutionResult, InvolutionSequenceRunner, InvolutionStage,
 };
 use crate::simulation_v3::multiscale_camera::{MultiScaleCamera, ScaleLevel};
+use crate::simulation_v3::observation_layer::ObservationLayer;
 use crate::simulation_v3::persistence::{
     CheckpointManager, PerformanceMetrics, PersistenceError, PersistenceManager,
 };
@@ -414,6 +420,21 @@ pub struct SimulationRunner {
 
     /// Phase 5: Biology pipeline (molecules → cells → organisms → evolution)
     biology_pipeline: Option<BiologyPipeline>,
+
+    /// GPU/CPU compute engine for holographic field computations (optional, may fall back to CPU)
+    compute_engine: Option<ComputeEngine>,
+
+    /// Observation layer bridging simulation state to game-engine-consumable data
+    observation_layer: Option<ObservationLayer>,
+
+    /// Phase 6.3: Rapier physics world for rigid-body simulation
+    physics_world: Option<PhysicsWorld>,
+
+    /// Phase 6.4: Syncs Rapier physics state back to observation layer
+    observation_sync: ObservationSync,
+
+    /// Phase 6.2: Maps archetype activations to physical properties and forces
+    archetype_mapper: ArchetypePhysicsMapper,
 }
 
 impl SimulationRunner {
@@ -505,6 +526,21 @@ impl SimulationRunner {
             } else {
                 None
             },
+
+            // GPU/CPU compute engine (async init, falls back gracefully if GPU unavailable)
+            compute_engine: Some(pollster::block_on(ComputeEngine::new())),
+
+            // Observation layer for game-engine-consumable output
+            observation_layer: Some(ObservationLayer::new()),
+
+            // Phase 6.3: Rapier physics world — initialized after involution
+            physics_world: None,
+
+            // Phase 6.4: Syncs Rapier physics state back to observation layer
+            observation_sync: ObservationSync::new(),
+
+            // Phase 6.2: Maps archetype activations to physical properties and forces
+            archetype_mapper: ArchetypePhysicsMapper::new(),
         }
     }
 
@@ -951,6 +987,9 @@ impl SimulationRunner {
         // Phase 6: Initialize collective dynamics
         self.initialize_collective_dynamics(&involution_result.entities);
 
+        // Phase 6.3: Initialize physics world with entities
+        self.initialize_physics_world(&involution_result.entities);
+
         Ok(involution_result)
     }
 
@@ -1089,6 +1128,47 @@ impl SimulationRunner {
             // Evolve entities
             let _evolution_result = self.lifecycle_manager.evolve_entities(1);
 
+            // Physics pipeline: archetype forces → Rapier → observation sync
+            if let (Some(ref mut physics_world), Some(ref mut obs_layer)) =
+                (&mut self.physics_world, &mut self.observation_layer)
+            {
+                let forces: Vec<(u64, crate::physics::archetype_physics::Force3D)> = self
+                    .lifecycle_manager
+                    .entities
+                    .iter()
+                    .filter_map(|(entity_id, lifecycle)| {
+                        let entity = self.entities.get(entity_id)?;
+                        let archetype = entity.archetype_activations;
+                        let density = match lifecycle.current_density {
+                            crate::evolution_density_octave::density_octave::Density::First(_) => 1,
+                            crate::evolution_density_octave::density_octave::Density::Second(_) => {
+                                2
+                            }
+                            crate::evolution_density_octave::density_octave::Density::Third => 3,
+                            crate::evolution_density_octave::density_octave::Density::Fourth => 4,
+                            crate::evolution_density_octave::density_octave::Density::Fifth => 5,
+                            crate::evolution_density_octave::density_octave::Density::Sixth => 6,
+                            crate::evolution_density_octave::density_octave::Density::Seventh => 7,
+                            crate::evolution_density_octave::density_octave::Density::Eighth => 8,
+                        };
+                        let id = entity_id.as_u64();
+                        let force = self
+                            .archetype_mapper
+                            .compute_force_vector_with_id(&archetype, id, density);
+                        Some((id, force))
+                    })
+                    .collect();
+                for (id, force) in forces {
+                    physics_world.apply_archetype_force(id, &force);
+                }
+                physics_world.step(self.parameters.time_step_size);
+                self.observation_sync.sync_physics_to_observations(
+                    physics_world,
+                    obs_layer,
+                    self.current_step,
+                );
+            }
+
             // Update holographic field
             // Phase 5: Use lazy updates for better performance
             if self.parameters.update_holographic_field {
@@ -1108,6 +1188,18 @@ impl SimulationRunner {
                 } else {
                     // Phase 5: Use regular update (performance optimization disabled)
                     let _ = self.holographic_manager.update_field(1);
+                }
+            }
+
+            // GPU/Holographic field computation every 10 steps
+            if step % 10 == 0 {
+                if let (Some(ref engine), Some(ref mut obs_layer)) =
+                    (&self.compute_engine, &mut self.observation_layer)
+                {
+                    let entity_data: Vec<EntityGPUData> = extract_entity_data(&self.entities);
+                    if !entity_data.is_empty() {
+                        obs_layer.observe_gpu_field(engine, &entity_data);
+                    }
                 }
             }
 
@@ -2720,6 +2812,30 @@ impl SimulationRunner {
             .get(&(from, to))
             .copied()
             .unwrap_or(0.0)
+    }
+
+    fn initialize_physics_world(&mut self, entities: &[crate::entity_layer7::layer7::SubSubLogos]) {
+        let mut world = PhysicsWorld::new();
+        for entity in entities {
+            let id: u64 = entity.entity_id.as_u64();
+            let archetype: [f64; 22] = entity.archetype_activations;
+            let density: u8 = match entity.evolutionary_attractor.current_density {
+                crate::entity_layer7::layer7::DensityLevel::First => 1,
+                crate::entity_layer7::layer7::DensityLevel::Second => 2,
+                crate::entity_layer7::layer7::DensityLevel::Third => 3,
+                crate::entity_layer7::layer7::DensityLevel::Fourth => 4,
+                crate::entity_layer7::layer7::DensityLevel::Fifth => 5,
+                crate::entity_layer7::layer7::DensityLevel::Sixth => 6,
+                crate::entity_layer7::layer7::DensityLevel::Seventh => 7,
+                crate::entity_layer7::layer7::DensityLevel::Eighth => 8,
+            };
+            let properties = self
+                .archetype_mapper
+                .compute_properties_with_id(&archetype, density, id);
+            let position: [f64; 3] = [0.0, 0.0, 0.0];
+            world.add_entity(id, position, &properties);
+        }
+        self.physics_world = Some(world);
     }
 }
 

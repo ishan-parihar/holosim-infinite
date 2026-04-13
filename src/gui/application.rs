@@ -32,6 +32,9 @@ use crate::gui::renderer::{
 };
 use crate::gui::view_system::{ViewSystem, ViewType};
 use crate::gui::{Camera2D, CameraControls};
+use crate::gui::observation_mapper::ObservationMapper;
+use crate::gui::observable_properties::ObservableProperties;
+use crate::gui::renderer::observable_entity_renderer::ObservableEntityRenderer;
 use crate::holographic_foundation::archetype_profile::NUM_ARCHETYPES;
 use crate::holographic_foundation::field_state::{
     FieldAmplitude, HolographicFieldState as FoundationFieldState, Position3D,
@@ -57,10 +60,15 @@ use crate::gui::ui::panels::MolecularPanel;
 use crate::gui::ui::panels::CellularPanel;
 // Phase D: Consciousness Panel
 use crate::gui::ui::panels::ConsciousnessPanel;
+<<<<<<< Updated upstream
 use crate::gui::ui::panels::EntityDetailPanel;
 use crate::gui::observation_mapper::ObservationMapper;
 use crate::gui::observable_properties::ObservableProperties;
 use crate::gui::renderer::observable_entity_renderer::ObservableEntityRenderer;
+=======
+// Entity Detail Panel — shows ObservableProperties for selected entity
+use crate::gui::ui::panels::entity_detail_panel::EntityDetailPanel;
+>>>>>>> Stashed changes
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VisualUxMode {
@@ -218,6 +226,10 @@ pub struct GuiApplication {
     /// Consciousness Panel (Phase D)
     consciousness_panel: ConsciousnessPanel,
 
+<<<<<<< Updated upstream
+=======
+    /// Entity detail panel — shows mapped observable properties for selected entity
+>>>>>>> Stashed changes
     entity_detail_panel: EntityDetailPanel,
 
     /// Panel docking state
@@ -423,7 +435,12 @@ impl GuiApplication {
                 let renderer = EntityRenderer::new(&ctx.device, &ctx.surface_config);
                 println!("✓ Entity renderer created");
 
+<<<<<<< Updated upstream
                 let observable_renderer = ObservableEntityRenderer::new(&ctx.device, &ctx.surface_config);
+=======
+                let observable_entity_renderer =
+                    Some(ObservableEntityRenderer::new(&ctx.device, &ctx.surface_config));
+>>>>>>> Stashed changes
 
                 // Phase 4: Create connection renderer
                 println!("Creating connection renderer...");
@@ -462,7 +479,11 @@ impl GuiApplication {
                 (
                     Some(ctx),
                     Some(renderer),
+<<<<<<< Updated upstream
                     Some(observable_renderer),
+=======
+                    observable_entity_renderer,
+>>>>>>> Stashed changes
                     Some(conn_renderer),
                     field_renderer,
                     cosmos_renderer,
@@ -477,7 +498,12 @@ impl GuiApplication {
                 eprintln!("  Entity 3D rendering will not be available, but UI panels will work.");
                 eprintln!("  Hint: Try running with WGPU_BACKEND=gl for OpenGL fallback.");
                 let none_view: Option<ViewSystem> = None;
+<<<<<<< Updated upstream
                 (None, None, None, None, None, None, None, none_view, None)
+=======
+                let none_obs: Option<ObservableEntityRenderer> = None;
+                (None, None, none_obs, None, None, None, None, none_view, None)
+>>>>>>> Stashed changes
             }
         };
 
@@ -566,9 +592,15 @@ impl GuiApplication {
             wgpu_context,
             entity_renderer,
             observable_entity_renderer,
+<<<<<<< Updated upstream
             connection_renderer,          // Phase 4: Add connection renderer
             holographic_field_renderer,   // Phase B.1: Holographic field renderer
             field_visual_bridge,          // Phase B.1: Field visual bridge
+=======
+            connection_renderer,
+            holographic_field_renderer,
+            field_visual_bridge,
+>>>>>>> Stashed changes
             show_holographic_field: true, // Scene-first onboarding default
             cosmos_renderer,              // Phase 3: Cosmos renderer
             show_cosmos: true,            // Enable cosmos visualization by default
@@ -1150,6 +1182,7 @@ impl GuiApplication {
         self.render_stats.holo_entity_count = holo_entities.len() as u64;
 
         let observable_entities = self.simulation.get_observable_properties();
+<<<<<<< Updated upstream
         self.render_stats.observable_entity_count = observable_entities.len() as u64;
 
         let delta_seconds = self.last_frame_time.elapsed().as_secs_f32();
@@ -1398,6 +1431,15 @@ impl GuiApplication {
             obs_renderer.update(&self.wgpu_context.as_ref().unwrap().queue, &observable_entities);
         }
 
+=======
+        if let Some(ref mut obs_renderer) = self.observable_entity_renderer {
+            if let Some(ref ctx) = self.wgpu_context {
+                obs_renderer.update(&ctx.queue, &observable_entities);
+            }
+        }
+        self.render_stats.observable_entity_count = observable_entities.len() as u64;
+
+>>>>>>> Stashed changes
         let use_field_derived_entities = matches!(
             self.visual_ux_mode,
             VisualUxMode::SceneFirst | VisualUxMode::FieldEnhanced
@@ -2092,7 +2134,11 @@ impl GuiApplication {
             // Phase 1: Render entities
             renderer.render(&mut render_pass);
 
+<<<<<<< Updated upstream
             if let Some(obs_renderer) = &self.observable_entity_renderer {
+=======
+            if let Some(ref obs_renderer) = self.observable_entity_renderer {
+>>>>>>> Stashed changes
                 obs_renderer.render(&mut render_pass);
             }
         }
@@ -3684,6 +3730,7 @@ impl GuiApplication {
         }
         self.consciousness_panel.show(&egui_ctx);
 
+<<<<<<< Updated upstream
         let selected_obs: Option<crate::gui::observable_properties::ObservableProperties> = self
             .entity_detail_panel
             .selected_entity_index
@@ -3704,6 +3751,15 @@ impl GuiApplication {
                     entity.polarization.polarity_bias(),
                     idx,
                 ))
+=======
+        // Entity Detail Panel — show ObservableProperties for selected entity
+        let selected_obs = self
+            .entity_detail_panel
+            .selected_entity_index
+            .and_then(|idx| {
+                let entities = self.simulation.get_observable_properties();
+                entities.get(idx).cloned()
+>>>>>>> Stashed changes
             });
         self.entity_detail_panel.show(&egui_ctx, selected_obs.as_ref());
 
@@ -4593,6 +4649,7 @@ impl GuiApplication {
                 println!("Selected entity: {}", entity_id);
                 self.entity_inspector.select_entity(entity_id.clone());
 
+<<<<<<< Updated upstream
                 if let Some(idx) = entities.iter().position(|(id, _, _)| id.uuid == entity_id.uuid) {
                     let activations = self
                         .simulation
@@ -4600,6 +4657,24 @@ impl GuiApplication {
                         .get(idx)
                         .map(|e| e.archetype_activations);
                     self.entity_detail_panel.select(idx, activations);
+=======
+                // Also select in EntityDetailPanel via observable properties index
+                let obs_entities = self.simulation.get_observable_properties();
+                let entities_ref = &entities;
+                let clicked_idx = entities_ref
+                    .iter()
+                    .position(|(id, _, _)| id.uuid == entity_id.uuid)
+                    .and_then(|render_idx| {
+                        // Map render index to observable properties index
+                        if render_idx < obs_entities.len() {
+                            Some(render_idx)
+                        } else {
+                            None
+                        }
+                    });
+                if let Some(obs_idx) = clicked_idx {
+                    self.entity_detail_panel.select(obs_idx);
+>>>>>>> Stashed changes
                 }
             }
             crate::gui::interaction::RaycastResult::EmptySpace { .. } => {

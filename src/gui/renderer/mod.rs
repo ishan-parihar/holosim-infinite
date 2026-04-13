@@ -76,3 +76,8 @@ pub use civilization_renderer::{
     create_boundary_vertices, create_density_vertices, create_settlement_vertices,
     create_trade_route_vertices,
 };
+
+// Observable entity renderer
+pub mod observable_entity_renderer;
+
+pub use observable_entity_renderer::ObservableEntityRenderer;

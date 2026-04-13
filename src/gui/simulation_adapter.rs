@@ -22,6 +22,8 @@ use crate::gui::observation_mapper::ObservationMapper;
 
 // Re-export civilization types for GUI use
 pub use crate::civilization::{CivilizationSummary, SettlementSummary};
+use crate::gui::observable_properties::ObservableProperties;
+use crate::gui::observation_mapper::ObservationMapper;
 use crate::gui::renderer::entity_instance::EntityInstance;
 use crate::gui::renderer::hierarchy_connection::HierarchyConnection;
 use crate::hpo::{FieldVisualizationData, RenderableEntity, SimulationStatistics};
@@ -97,7 +99,7 @@ pub struct SimulationRunnerAdapter {
     cached_observations: HashMap<String, EntityObservation>,
 
     /// Recent simulation events for display
-    recent_events: Vec<crate::simulation_v3::observation_layer::SimulationEvent>,
+    recent_events: Vec<crate::simulation_v3::observation_layer::GameEvent>,
 }
 
 impl SimulationRunnerAdapter {
@@ -309,6 +311,34 @@ impl SimulationRunnerAdapter {
         &self.raw_entities
     }
 
+    /// Get observable properties for ALL entities.
+    ///
+    /// This bridges HoloSim consciousness data (archetype activations,
+    /// density, polarization, spectrum position) to game-facing
+    /// ObservableProperties via ObservationMapper.
+    pub fn get_observable_properties(&self) -> Vec<ObservableProperties> {
+        self.raw_entities
+            .values()
+            .enumerate()
+            .map(|(i, entity)| {
+                let archetype_activations = entity.archetype_activations;
+                let consciousness_level = entity.consciousness_level;
+                let density = Self::density_to_u8(&entity.current_density);
+                let spectrum_position = entity.spectrum_position;
+                let polarization = entity.polarization.polarity_bias();
+
+                ObservationMapper::map(
+                    &archetype_activations,
+                    consciousness_level,
+                    density,
+                    spectrum_position,
+                    polarization,
+                    i,
+                )
+            })
+            .collect()
+    }
+
     pub fn get_entity_observation(&self, entity_uuid: &str) -> Option<&EntityObservation> {
         self.cached_observations.get(entity_uuid)
     }
@@ -317,7 +347,7 @@ impl SimulationRunnerAdapter {
         &self.cached_observations
     }
 
-    pub fn get_recent_events(&self) -> &[crate::simulation_v3::observation_layer::SimulationEvent] {
+    pub fn get_recent_events(&self) -> &[crate::simulation_v3::observation_layer::GameEvent] {
         &self.recent_events
     }
 
@@ -1830,10 +1860,20 @@ mod tests {
     fn test_get_observable_properties_are_unique() {
         let mut adapter = SimulationRunnerAdapter::new();
         adapter.initialize();
+<<<<<<< Updated upstream
         let props = adapter.get_observable_properties();
         assert!(!props.is_empty());
         let all_at_origin = props.iter().all(|p| p.position == [0.0, 0.0]);
         assert!(!all_at_origin, "Entities should have spread positions");
+=======
+
+        let props = adapter.get_observable_properties();
+        assert!(!props.is_empty(), "Should have entities after init");
+
+        let all_at_origin = props.iter().all(|p| p.position == [0.0, 0.0]);
+        assert!(!all_at_origin, "Entities should have spread positions");
+
+>>>>>>> Stashed changes
         let all_default_color = props.iter().all(|p| p.color == [0.5, 0.5, 0.5]);
         assert!(
             !all_default_color,
@@ -1842,6 +1882,7 @@ mod tests {
     }
 
     #[test]
+<<<<<<< Updated upstream
     fn test_get_observable_properties_valid_ranges() {
         let mut adapter = SimulationRunnerAdapter::new();
         adapter.initialize();
@@ -1863,6 +1904,17 @@ mod tests {
                 "Intelligence {} out of range",
                 p.intelligence
             );
+=======
+    fn test_get_observable_properties_density_mapping() {
+        let mut adapter = SimulationRunnerAdapter::new();
+        adapter.initialize();
+
+        let props = adapter.get_observable_properties();
+        for p in &props {
+            assert!(p.density >= 1 && p.density <= 8, "Density should be 1-8");
+            assert!(p.glow >= 0.0 && p.glow <= 1.0, "Glow should be 0-1");
+            assert!(p.size > 0.0, "Size should be positive");
+>>>>>>> Stashed changes
         }
     }
 }

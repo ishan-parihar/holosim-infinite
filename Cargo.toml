@@ -6,6 +6,9 @@ authors = ["Ishan Parihar <ishanbestdabang@gmail.com>"]
 description = "A comprehensive simulation of the Law of One cosmological principles"
 license = "MIT"
 
+[workspace]
+members = ["holosim_bevy"]
+
 [features]
 default = []
 sdl2_gui = ["sdl2"]
