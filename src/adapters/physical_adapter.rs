@@ -302,7 +302,7 @@ impl ChargeType {
 /// These properties emerge from the spectrum configuration and determine
 /// how the entity manifests in physical reality.
 #[derive(Debug, Clone, PartialEq)]
-pub struct PhysicalProperties {
+pub struct SpectrumPhysicalProperties {
     /// Mass (in kg)
     pub mass: Float,
 
@@ -325,7 +325,7 @@ pub struct PhysicalProperties {
     pub binding_energy: Float,
 }
 
-impl PhysicalProperties {
+impl SpectrumPhysicalProperties {
     /// Create physical properties from spectrum configuration
     pub fn from_spectrum_configuration(
         spectrum_configuration: &IndividualSpectrumConfiguration,
@@ -356,7 +356,7 @@ impl PhysicalProperties {
         // Binding energy emerges from total spectrum energy
         let binding_energy = Self::calculate_binding_energy(oneness_ratio, separation_ratio);
 
-        PhysicalProperties {
+        SpectrumPhysicalProperties {
             mass,
             charge,
             spin,
@@ -445,6 +445,19 @@ impl PhysicalProperties {
     }
 }
 
+impl From<&SpectrumPhysicalProperties> for crate::physics::archetype_physics::PhysicalProperties {
+    fn from(spectrum: &SpectrumPhysicalProperties) -> Self {
+        Self {
+            mass: spectrum.mass,
+            charge: spectrum.charge,
+            spin: spectrum.spin,
+            damping: 0.0,
+            moment_of_inertia: 0.4 * spectrum.mass,
+            force_vector: crate::physics::archetype_physics::Force3D::new(0.0, 0.0, 0.0),
+        }
+    }
+}
+
 // ============================================================================
 // PHYSICAL ENTITY
 // ============================================================================
@@ -462,7 +475,7 @@ pub struct PhysicalEntity {
     pub physical_scale: PhysicalScale,
 
     /// Physical properties (mass, charge, spin, etc.)
-    pub physical_properties: PhysicalProperties,
+    pub physical_properties: SpectrumPhysicalProperties,
 
     /// Energy level (ground, low, medium, high, etc.)
     pub energy_level: EnergyLevel,
@@ -498,7 +511,7 @@ impl PhysicalEntity {
 
         // Map spectrum configuration to physical properties
         let physical_properties =
-            PhysicalProperties::from_spectrum_configuration(&entity.spectrum_configuration);
+            SpectrumPhysicalProperties::from_spectrum_configuration(&entity.spectrum_configuration);
 
         // Map vibrational state to energy level
         let energy_level = EnergyLevel::from_vibrational_state(&current_state.vibrational_state);
@@ -546,7 +559,7 @@ impl PhysicalEntity {
     /// Create particle representation for OLD matter module
     fn create_particle_representation(
         entity_id: u64,
-        physical_properties: &PhysicalProperties,
+        physical_properties: &SpectrumPhysicalProperties,
         charge_type: &ChargeType,
         position: Coordinate3D,
     ) -> Option<Particle> {
@@ -566,7 +579,7 @@ impl PhysicalEntity {
 
     /// Convert physical properties to archetype activation pattern
     fn physical_properties_to_archetype_activation(
-        physical_properties: &PhysicalProperties,
+        physical_properties: &SpectrumPhysicalProperties,
         charge_type: &ChargeType,
     ) -> [Float; 22] {
         let mut activation = [0.0; 22];
@@ -651,7 +664,7 @@ impl PhysicalEntity {
 #[derive(Debug, Clone)]
 pub struct TranslationMappings {
     /// Map spectrum configurations to physical properties
-    pub spectrum_to_physical: HashMap<String, PhysicalProperties>,
+    pub spectrum_to_physical: HashMap<String, SpectrumPhysicalProperties>,
 }
 
 impl TranslationMappings {
@@ -666,7 +679,7 @@ impl TranslationMappings {
     pub fn add_spectrum_mapping(
         &mut self,
         spectrum_config: &IndividualSpectrumConfiguration,
-        physical_properties: PhysicalProperties,
+        physical_properties: SpectrumPhysicalProperties,
     ) {
         let ratio = &spectrum_config.ratio;
         let key = format!(
@@ -836,8 +849,11 @@ impl PhysicalAdapter {
     }
 
     /// Translate entity state to physical properties
-    pub fn translate_entity_state_to_properties(&self, entity: &SubSubLogos) -> PhysicalProperties {
-        PhysicalProperties::from_spectrum_configuration(&entity.spectrum_configuration)
+    pub fn translate_entity_state_to_properties(
+        &self,
+        entity: &SubSubLogos,
+    ) -> SpectrumPhysicalProperties {
+        SpectrumPhysicalProperties::from_spectrum_configuration(&entity.spectrum_configuration)
     }
 
     /// Translate density to physical scale
@@ -849,8 +865,8 @@ impl PhysicalAdapter {
     pub fn translate_spectrum_to_physical(
         &self,
         spectrum_config: &IndividualSpectrumConfiguration,
-    ) -> PhysicalProperties {
-        PhysicalProperties::from_spectrum_configuration(spectrum_config)
+    ) -> SpectrumPhysicalProperties {
+        SpectrumPhysicalProperties::from_spectrum_configuration(spectrum_config)
     }
 
     /// Translate vibrational state to energy level
@@ -967,7 +983,9 @@ pub struct PhysicalAdapterSummary {
 mod tests {
     use super::*;
     use crate::entity_layer7::layer7::IndividualSpectrumConfiguration;
-    use crate::evolution_density_octave::density_octave::{Density, Density1SubLevel, Density2SubLevel};
+    use crate::evolution_density_octave::density_octave::{
+        Density, Density1SubLevel, Density2SubLevel,
+    };
 
     // Helper function to create a test entity
     fn create_test_entity(entity_id: u64) -> SubSubLogos {
@@ -1167,7 +1185,7 @@ mod tests {
     }
 
     // ============================================================================
-    // PhysicalProperties Tests
+    // SpectrumPhysicalProperties Tests
     // ============================================================================
 
     #[test]
@@ -1176,7 +1194,7 @@ mod tests {
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
-        let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
+        let properties = SpectrumPhysicalProperties::from_spectrum_configuration(&spectrum_config);
 
         assert!(properties.mass > 0.0, "Mass should be positive");
         assert!(
@@ -1192,7 +1210,7 @@ mod tests {
         let spectrum_ratios = SpectrumRatio::new(0.8, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
-        let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
+        let properties = SpectrumPhysicalProperties::from_spectrum_configuration(&spectrum_config);
 
         assert!(
             properties.binding_energy > 0.0,
@@ -1210,7 +1228,7 @@ mod tests {
         let spectrum_ratios = SpectrumRatio::new(0.8, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
 
-        let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
+        let properties = SpectrumPhysicalProperties::from_spectrum_configuration(&spectrum_config);
 
         assert!(
             properties.binding_energy > 0.0,
@@ -1282,7 +1300,7 @@ mod tests {
         use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
-        let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
+        let properties = SpectrumPhysicalProperties::from_spectrum_configuration(&spectrum_config);
 
         mappings.add_spectrum_mapping(&spectrum_config, properties);
 
@@ -1296,7 +1314,7 @@ mod tests {
         use crate::spectrum::larson_framework::{SpectrumRatio, SpectrumSide};
         let spectrum_ratios = SpectrumRatio::new(0.6, SpectrumSide::SpaceTime);
         let spectrum_config = IndividualSpectrumConfiguration::new(spectrum_ratios);
-        let properties = PhysicalProperties::from_spectrum_configuration(&spectrum_config);
+        let properties = SpectrumPhysicalProperties::from_spectrum_configuration(&spectrum_config);
 
         mappings.add_spectrum_mapping(&spectrum_config, properties);
 

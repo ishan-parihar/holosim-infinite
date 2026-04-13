@@ -418,6 +418,30 @@ impl PhysicsWorld {
     pub fn set_gravity(&mut self, x: f32, y: f32, z: f32) {
         self.gravity = Vector::new(x, y, z);
     }
+
+    pub fn get_entity_properties(&self, entity_id: u64) -> Option<PhysicalProperties> {
+        let handle = self.entity_handles.get(&entity_id)?;
+        let body = self.rigid_body_set.get(*handle)?;
+
+        let mass = body.mass() as f64;
+        let charge = self.entity_charges.get(&entity_id).copied().unwrap_or(0.0);
+        let damping = body.linear_damping() as f64;
+
+        let moment_of_inertia = 0.4 * mass;
+        let spin = 0.0;
+
+        let net_force = body.user_force();
+        let force_vector = Force3D::new(net_force.x as f64, net_force.y as f64, net_force.z as f64);
+
+        Some(PhysicalProperties {
+            mass,
+            charge,
+            spin,
+            damping,
+            moment_of_inertia,
+            force_vector,
+        })
+    }
 }
 
 impl Default for PhysicsWorld {

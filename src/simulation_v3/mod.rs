@@ -247,8 +247,9 @@ pub use observer_registry::{CacheStats, ObserverRegistry, ObserverRegistryConfig
 
 pub use observation_layer::{
     BehavioralObservation, BiologyObservation, EntityObservation, EnvironmentalObservation,
-    EventType, GpuConnectionObservation, GpuFieldObservation, GpuResonanceObservation,
-    ObservationLayer, ObservationStatistics, PhysicalObservation, TerrainType,
+    GameEvent, GameEventType, GpuConnectionObservation, GpuFieldObservation,
+    GpuResonanceObservation, ObservationLayer, ObservationStatistics, PhysicalObservation,
+    TerrainType,
 };
 
 // Embodied Body (Phase 3, P1)

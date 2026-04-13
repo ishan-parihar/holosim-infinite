@@ -493,7 +493,9 @@ mod tests {
         assert!(!config.enable_vsync);
     }
 }
+pub mod observable_properties;
 pub mod observation_bridge;
+pub mod observation_mapper;
 pub use observation_bridge::{
     EntityObservation, ObservationBridge, ObservationFormatter, ObservationStats,
 };

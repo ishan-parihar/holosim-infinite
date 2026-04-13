@@ -130,6 +130,39 @@ impl HoloSimEngine {
             coherence,
         );
     }
+
+    pub fn get_archetype_profile(&self, entity_id: u64) -> Option<[Float; 22]> {
+        self.observation_layer
+            .get_all_observations()
+            .get(&entity_id)
+            .map(|obs| obs.behavioral.personality_profile)
+    }
+
+    pub fn apply_player_choice(&mut self, entity_id: u64, choice_type: ChoiceType) {
+        let obs = self
+            .observation_layer
+            .get_all_observations()
+            .get(&entity_id)
+            .cloned();
+
+        if let Some(observation) = obs {
+            let mut profile = observation.behavioral.personality_profile;
+            modify_archetype_for_choice(&mut profile, choice_type);
+
+            let physical = &observation.physical;
+            self.observation_layer.observe_entity(
+                entity_id,
+                &profile,
+                0.5,
+                3,
+                physical.position,
+                physical.velocity,
+                physical.mass,
+                physical.energy_level,
+                physical.health,
+            );
+        }
+    }
 }
 
 impl Default for HoloSimEngine {
@@ -455,6 +488,7 @@ pub fn handle_player_input(
 /// Pending choices are drained after processing.
 pub fn apply_player_choices(
     mut player_input: ResMut<PlayerInputState>,
+    mut engine: ResMut<HoloSimEngine>,
     mut entities: Query<&mut HoloSimEntity>,
 ) {
     if player_input.pending_choices.is_empty() {
@@ -468,6 +502,22 @@ pub fn apply_player_choices(
             if choice.target_entity_id == 0 || choice.target_entity_id == holo.entity_id {
                 modify_archetype_for_choice(&mut holo.archetype_profile, choice.choice_type);
             }
+        }
+    }
+
+    for choice in &choices {
+        if choice.target_entity_id == 0 {
+            let entity_ids: Vec<u64> = engine
+                .observation_layer()
+                .get_all_observations()
+                .keys()
+                .copied()
+                .collect();
+            for eid in entity_ids {
+                engine.apply_player_choice(eid, choice.choice_type);
+            }
+        } else {
+            engine.apply_player_choice(choice.target_entity_id, choice.choice_type);
         }
     }
 }

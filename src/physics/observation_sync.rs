@@ -44,7 +44,12 @@ impl ObservationSync {
 
         for &entity_id in physics_world.entity_ids() {
             if let Some(physics_state) = physics_world.get_entity_state(entity_id) {
-                self.update_entity_physics(entity_id, &physics_state, observation_layer);
+                self.update_entity_physics(
+                    entity_id,
+                    &physics_state,
+                    physics_world,
+                    observation_layer,
+                );
                 self.synced_entities.insert(entity_id);
             }
         }
@@ -56,17 +61,32 @@ impl ObservationSync {
         &self,
         entity_id: u64,
         physics_state: &EntityPhysicsState,
+        physics_world: &PhysicsWorld,
         observation_layer: &mut ObservationLayer,
     ) {
+        let props = physics_world.get_entity_properties(entity_id);
+
+        let (mass, charge, temperature, health, energy_level) = match props {
+            Some(ref p) => {
+                let mass = p.mass;
+                let charge = p.charge;
+                let temperature = mass * 300.0;
+                let health = (1.0 - p.damping).clamp(0.0, 1.0);
+                let energy_level = (p.force_vector.magnitude() * 0.1 + mass * 0.9).clamp(0.0, 1.0);
+                (mass, charge, temperature, health, energy_level)
+            }
+            None => (1.0, 0.0, 300.0, 1.0, 1.0),
+        };
+
         observation_layer.update_physical_observation(
             entity_id,
             physics_state.position,
             physics_state.velocity,
-            1.0,
-            0.0,
-            0.0,
-            1.0,
-            1.0,
+            mass,
+            temperature,
+            charge,
+            health,
+            energy_level,
         );
     }
 
