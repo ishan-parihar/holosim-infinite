@@ -31,4 +31,6 @@ cache/
 
 # Binary artifacts (prevent root-level test executables)
 /test_*
-!/tests/
+!/tests/.contexty
+.memsearch
+.hive
