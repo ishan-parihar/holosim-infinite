@@ -1,51 +1,19 @@
 # HoloSim Infinite
 
-> **A holographic universe simulation engine — the substrate for emergent games.**
+**A holographic universe simulation engine — the substrate for emergent games.**
 
-HoloSim Infinite simulates reality from consciousness outward. Every entity, from quantum particle to galactic cluster, follows the same holographic template with different parameters. This makes it a viable base for games like Dwarf Fortress, The Sims, GTA, and Age of Empires — each is just the template instantiated with different coefficient ranges.
+> **The Problem**: Traditional game engines (Unity, Unreal) are "physics-first," simulating matter and struggling to produce emergent intelligence. This limits the scale and variety of behavior possible in simulation, as intelligence is usually bolted on via rigid behavior trees or scripted events rather than emerging from the system itself.
 
----
-
-## What Is This?
-
-HoloSim is **not** a traditional game engine. It's a simulation engine that game engines build on top of.
-
-```
-┌──────────────────────────────────────────────────────────┐
-│              Game Engine (Bevy / Godot / Custom)          │
-│  Rendering │ Input │ Audio │ UI │ Animation │ Networking  │
-├──────────────────────────────────────────────────────────┤
-│          Observation Layer — API Surface                   │
-│  Physical Props │ Behaviors │ Environment │ Events        │
-├──────────────────────────────────────────────────────────┤
-│         HoloSim Simulation Engine (THIS PROJECT)           │
-│  Archetypes │ Free Will │ Holographic Field │ Densities   │
-│  MERA Compression │ Multi-Scale │ Consciousness Kernel    │
-└──────────────────────────────────────────────────────────┘
-```
-
-While physics-first engines (Unity, Unreal) simulate matter and struggle to produce intelligence, HoloSim starts with intelligence (archetypes, free will) and derives physics as an emergent property. This produces fundamentally different, more interesting behavior.
-
----
-
-## Key Capabilities
+## Engineering Highlights
 
 ### Holographic Optimization Framework
-- **UniversalTemplate\<T\>** — One template for all scales. Entity, particle, world, star, galaxy — same structure, different parameters.
-- **MERA Tensor Compression** — Memory scales O(n^2/3) not O(n). 1,000 entities at 100 bytes = 100KB vs traditional 10MB.
-- **Fractal Caching (8-level)** — Quantum → cosmic scale data cached with multi-resolution refinement.
-- **Archetype Interference Engine** — 22 coefficients generate infinite behavioral variety without behavior trees.
+To enable simulation at a cosmic scale, I implemented a universal template (`UniversalTemplate<T>`) where every entity, from a quantum particle to a galaxy, follows the same structural pattern. To manage the resulting data, I utilized **MERA (Multi-scale Entanglement Renormalization Ansatz) tensor compression**, reducing memory scaling from $O(n)$ to $O(n^{2/3})$. This allows the simulation of massive entity counts with a fraction of the traditional memory footprint.
 
-### Consciousness Architecture
-- **Three Primal Distortions** — Free Will, Love/Logos, Light as unified field equation: `dψ/dt = FreeWill(ψ) + Love(ψ) + Light(ψ)`
-- **22-Archetype System** — Mind (A1-A7), Body (A8-A14), Spirit (A15-A21), Choice (A22) as orthogonal basis vectors.
-- **Free Will Kernel** — Non-deterministic but reproducible choice-making. Every entity makes authentic choices.
-- **8-Density Octave** — Consciousness stages from 1st (basic awareness) to 8th (unity).
+### Consciousness Architecture & Archetype Interference
+Instead of traditional AI, I built a system based on **Archetype Interference**. Behavior emerges from the interaction of 22 orthogonal basis vectors (representing Mind, Body, Spirit, and Choice). This is coupled with a **Free Will Kernel** that ensures non-deterministic but reproducible choice-making for every entity, allowing for true emergence and authentic behavioral variety.
 
-### Multi-Scale Simulation
-- **9 Scale Levels** — Quantum (10^-35m) → Atomic → Molecular → Cellular → Organism → Planetary → Stellar → Galactic → Universal (10^26m)
-- **Seamless Scale Transitions** — No loading screens. Fractal caching enables instant zoom across 61 orders of magnitude.
-- **Observer Effect** — Wavefunction collapse on observation, cached collapsed states, distributed sync.
+### Fractal Multi-Scale Simulation
+I implemented a seamless simulation across 9 scale levels, from the Quantum ($10^{-35}m$) to the Universal ($10^{26}m$). By using **Fractal Caching**, the engine enables instant zoom across 61 orders of magnitude without loading screens. The entire universe is treated as a single, continuous holographic field where scale transitions are merely parameter changes rather than system switches.
 
 ### Emerging Systems
 - **Biology Pipeline** — Quantum → atoms → molecules → cells → organisms (19 files, ~40% functional)
