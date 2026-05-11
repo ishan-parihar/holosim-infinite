@@ -34,3 +34,6 @@ cache/
 !/tests/.contexty
 .memsearch
 .hive
+
+# AI agent plans
+.sisyphus/
