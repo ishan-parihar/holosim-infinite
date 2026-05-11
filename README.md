@@ -282,3 +282,7 @@ The result: exponential improvements in memory, computation, storage, and load t
 **Language:** Rust 2021 Edition  
 **License:** See [LICENSE](LICENSE)  
 **Based on:** The Law of One material (Ra sessions)
+
+---
+
+Developed by [Ishan Parihar](https://github.com/ishanparihar) — If you find this useful, [consider supporting](https://rzp.io/rzp/ishan-parihar)
