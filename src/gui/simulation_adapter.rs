@@ -1860,20 +1860,10 @@ mod tests {
     fn test_get_observable_properties_are_unique() {
         let mut adapter = SimulationRunnerAdapter::new();
         adapter.initialize();
-<<<<<<< Updated upstream
         let props = adapter.get_observable_properties();
         assert!(!props.is_empty());
         let all_at_origin = props.iter().all(|p| p.position == [0.0, 0.0]);
         assert!(!all_at_origin, "Entities should have spread positions");
-=======
-
-        let props = adapter.get_observable_properties();
-        assert!(!props.is_empty(), "Should have entities after init");
-
-        let all_at_origin = props.iter().all(|p| p.position == [0.0, 0.0]);
-        assert!(!all_at_origin, "Entities should have spread positions");
-
->>>>>>> Stashed changes
         let all_default_color = props.iter().all(|p| p.color == [0.5, 0.5, 0.5]);
         assert!(
             !all_default_color,
@@ -1882,7 +1872,6 @@ mod tests {
     }
 
     #[test]
-<<<<<<< Updated upstream
     fn test_get_observable_properties_valid_ranges() {
         let mut adapter = SimulationRunnerAdapter::new();
         adapter.initialize();
@@ -1904,17 +1893,6 @@ mod tests {
                 "Intelligence {} out of range",
                 p.intelligence
             );
-=======
-    fn test_get_observable_properties_density_mapping() {
-        let mut adapter = SimulationRunnerAdapter::new();
-        adapter.initialize();
-
-        let props = adapter.get_observable_properties();
-        for p in &props {
-            assert!(p.density >= 1 && p.density <= 8, "Density should be 1-8");
-            assert!(p.glow >= 0.0 && p.glow <= 1.0, "Glow should be 0-1");
-            assert!(p.size > 0.0, "Size should be positive");
->>>>>>> Stashed changes
         }
     }
 }
