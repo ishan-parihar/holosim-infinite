@@ -34,8 +34,8 @@ I implemented a seamless simulation across 9 scale levels, from the Quantum ($10
 ### Clone & Build
 
 ```bash
-git clone https://github.com/your-org/HoloSim_Infinite.git
-cd HoloSim_Infinite
+git clone https://github.com/ishan-parihar/holosim-infinite.git
+cd holosim-infinite
 cargo build --release
 ```
 
