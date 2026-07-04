@@ -36,4 +36,28 @@ cache/
 .hive
 
 # AI agent plans
+.sisyphus/#!/bin/bash
+# Safe tool-state-file ignore patterns
+
+cat >> .gitignore << 'EOF'
+
+# Tool state files (prevent credential leaks)
+.contexty/
+.cortexkit/
+.cursorrules
+.aider*
+.aider.chat.history.md
+.aider.input.history
+.hive/
+.memsearch/
 .sisyphus/
+.devin/
+graphify-out/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+EOF
