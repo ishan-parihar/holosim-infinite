@@ -1,4 +1,8 @@
-# HoloSim Infinite
+![Rust](https://img.shields.io/badge/Rust-1.75+-orange?logo=rust)
+![License](https://img.shields.io/badge/License-MIT-purple)
+![Status](https://img.shields.io/badge/Status-Research%20Prototype-orange)
+![Simulation](https://img.shields.io/badge/Simulation-Cosmic%20Scale-blue)
+
 
 **A holographic universe simulation engine — the substrate for emergent games.**
 
@@ -43,6 +47,8 @@ cargo build --release
 
 ```bash
 # Terminal simulation (default: 128 entities, 100 steps)
+
+<!-- T2I HERO SPEC — Subject: a cosmic-scale simulation — nested holons (fractal holonic spheres) from quantum to cosmic scale, each holon containing the pattern of the whole; simulation run controls as orbital rings. Composition: fractal nesting zoomed outward. Palette: deep space #0a0a1a → simulation cyan #22d3ee → cosmic violet #8b5cf6. Style: dark scientific flat vector, fractal recursion, no text. 16:9. -->
 cargo run --release --bin holonic_realms
 
 # Custom parameters
