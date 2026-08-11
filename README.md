@@ -293,9 +293,7 @@ The result: exponential improvements in memory, computation, storage, and load t
 
 ---
 
-Developed by [Ishan Parihar](https://github.com/ishanparihar) — If you find this useful, [consider supporting](https://rzp.io/rzp/ishan-parihar)
-
----
+Developed by [Ishan Parihar](https://github.com/ishanparihar)---
 
 ## ☕ Support & Sponsorship
 
