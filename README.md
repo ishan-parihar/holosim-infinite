@@ -294,3 +294,14 @@ The result: exponential improvements in memory, computation, storage, and load t
 ---
 
 Developed by [Ishan Parihar](https://github.com/ishanparihar) — If you find this useful, [consider supporting](https://rzp.io/rzp/ishan-parihar)
+
+---
+
+## ☕ Support & Sponsorship
+
+If you find this project useful, consider supporting ongoing development:
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?style=flat-square&logo=github)](https://github.com/sponsors/ishan-parihar)
+[![Donate](https://img.shields.io/badge/Donate-Razorpay-3395FF?style=flat-square)](https://rzp.io/rzp/ishan-parihar)
+
+Your support funds new features, releases, and infrastructure for the whole ecosystem.
