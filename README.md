@@ -1,3 +1,5 @@
+<!-- T2I HERO SPEC — Subject: a cosmic-scale simulation — nested holons (fractal holonic spheres) from quantum to cosmic scale, each holon containing the pattern of the whole; simulation run controls as orbital rings. Composition: fractal nesting zoomed outward. Palette: deep space #0a0a1a → simulation cyan #22d3ee → cosmic violet #8b5cf6. Style: dark scientific flat vector, fractal recursion, no text. 16:9. -->
+
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?logo=rust)
 ![LOC](https://img.shields.io/badge/LOC-489K-informational?style=flat-square)
 [![CI](https://github.com/ishan-parihar/holosim-infinite/actions/workflows/ci.yml/badge.svg)](https://github.com/ishan-parihar/holosim-infinite/actions/workflows/ci.yml)
@@ -50,7 +52,7 @@ cargo build --release
 ```bash
 # Terminal simulation (default: 128 entities, 100 steps)
 
-<!-- T2I HERO SPEC — Subject: a cosmic-scale simulation — nested holons (fractal holonic spheres) from quantum to cosmic scale, each holon containing the pattern of the whole; simulation run controls as orbital rings. Composition: fractal nesting zoomed outward. Palette: deep space #0a0a1a → simulation cyan #22d3ee → cosmic violet #8b5cf6. Style: dark scientific flat vector, fractal recursion, no text. 16:9. -->
+
 cargo run --release --bin holonic_realms
 
 # Custom parameters
@@ -293,7 +295,9 @@ The result: exponential improvements in memory, computation, storage, and load t
 
 ---
 
-Developed by [Ishan Parihar](https://github.com/ishanparihar)---
+Developed by [Ishan Parihar](https://github.com/ishanparihar)
+
+---
 
 ## ☕ Support & Sponsorship
 
