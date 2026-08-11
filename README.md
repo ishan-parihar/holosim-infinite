@@ -1,4 +1,5 @@
 ![Rust](https://img.shields.io/badge/Rust-1.75+-orange?logo=rust)
+![LOC](https://img.shields.io/badge/LOC-489K-informational?style=flat-square)
 [![CI](https://github.com/ishan-parihar/holosim-infinite/actions/workflows/ci.yml/badge.svg)](https://github.com/ishan-parihar/holosim-infinite/actions/workflows/ci.yml)
 ![License](https://img.shields.io/badge/License-MIT-purple)
 ![Status](https://img.shields.io/badge/Status-Research%20Prototype-orange)
