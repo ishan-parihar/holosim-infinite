@@ -1,0 +1,50 @@
+# genome.toml — modules on, role → path map, module settings. Edit freely.
+[genome]
+modules = ["core", "records", "ops", "agents"]
+
+[paths]
+agents = "AGENTS.md"
+state = "docs/handoff/STATE.md"
+entry = "docs/handoff/README.md"
+register = "TODO.md"
+ledger = "docs/kb/CLOSED.md"
+worklog = "docs/kb/WORKLOG.md"
+asks = "docs/kb/ASKS.md"
+plans = "docs/plans"
+audits = "docs/audit"
+runbook = "docs/RUNBOOK.md"
+archive = "docs/archive"
+readme = "README.md"
+docs = "docs"
+decisions = "docs/decisions"
+regressions = "docs/regressions"
+records_index = "docs/RECORDS.md"
+ownership_map = "docs/INDEX.md"
+feed = "docs/kb/feed.md"
+workflows = "docs/kb/workflows"
+
+[core]
+gate = "cargo test"
+worklog_form = "file"      # or "numbered" (worklog = a directory of NNNN-date-slug.md + INDEX.md)
+archive_form = "flat"      # or "generations" (archive/<generation>/ + README manifest, no tombstones)
+living_plans = []          # plans that evolve (phase rows, a 'Resume here' section)
+# resume = "docs/plans/<living-plan>.md#Resume here"   # what `genome wake` shows
+budgets = {}               # e.g. { "AGENTS.md" = 60000 } — bytes; entry surfaces stay cheap to read
+emitters = []              # extra commands `genome close` runs to regenerate derived files
+checklist = []             # judgement items `genome close` reminds you of
+never_commit = []          # globs `genome close` leaves out of the named-path commit list
+
+[records]
+prefix = ""                # e.g. "PQF" → PQF-AD-001
+mode = "immutable"         # or "amendable" (dated ## Amendment sections)
+
+[ops]
+owner_globs = []           # doc locations that must be listed in the ownership map
+link_surfaces = []         # docs whose backticked paths must exist
+link_prefixes = []         # e.g. ["docs/", "scripts/"]: any backticked path starting so is checked, dirs too
+code_globs = []            # code that must be reachable from a live surface
+code_roots = []            # files whose mentions make code live (bin/, tests/, ...)
+bulk_globs = ["*.parquet", "*.pkl", "*.npz"]
+max_bytes = 5000000
+secrets = []               # e.g. [".env:API_KEY", "~/.config/x/token"] — scanned in diffs, never printed
+# jobs = "bin/jobs status"   # shown by `genome wake`

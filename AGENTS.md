@@ -142,8 +142,8 @@ let access = EntitySpectrumAccess { space_time_ratio: 1.5, time_space_ratio: 0.6
 
 ## Key Files
 
-**Documentation**: `README.md`, `USER_GUIDE.md`, `COSMOLOGICAL-ARCHITECTURE.md`, `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md`
+**Documentation**: `README.md`, `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md`
 
-**Source Code**: `src/simulation_v3/simulation_runner.rs`, `src/entity_layer7/layer7.rs`, `src/simulation_v3/entity_lifecycle.rs`, `tests/comprehensive_test_suite.rs`
+**Source Code**: `src/simulation_v3/simulation_runner.rs`, `src/entity_layer7/layer7.rs`, `src/simulation_v3/entity_lifecycle.rs`
 
 **Architecture References**: Always cite source documents in code comments: `/// From COSMOLOGICAL-ARCHITECTURE.md: "The spectrum is configured at galactic and solar scales before physical matter exists."`
