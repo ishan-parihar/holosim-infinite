@@ -32,7 +32,7 @@ living_plans = []          # plans that evolve (phase rows, a 'Resume here' sect
 # resume = "docs/plans/<living-plan>.md#Resume here"   # what `genome wake` shows
 budgets = {}               # e.g. { "AGENTS.md" = 60000 } — bytes; entry surfaces stay cheap to read
 emitters = []              # extra commands `genome close` runs to regenerate derived files
-checklist = []             # judgement items `genome close` reminds you of
+checklist = ["manuals with `covers` reviewed against their code"]             # judgement items `genome close` reminds you of
 never_commit = []          # globs `genome close` leaves out of the named-path commit list
 
 [records]
@@ -49,3 +49,6 @@ bulk_globs = ["**/*.parquet", "**/*.pkl", "**/*.npz"]
 max_bytes = 5000000
 secrets = []               # e.g. [".env:API_KEY", "~/.config/x/token"] — scanned in diffs, never printed
 # jobs = "bin/jobs status"   # shown by `genome wake`
+
+[drift]
+warn_until = "2026-11-18"  # warn until rollout+30d; after it a stale manual blocks close
