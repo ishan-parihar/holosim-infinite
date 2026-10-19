@@ -52,3 +52,6 @@ secrets = []               # e.g. [".env:API_KEY", "~/.config/x/token"] — scan
 
 [drift]
 warn_until = "2026-11-18"  # warn until rollout+30d; after it a stale manual blocks close
+
+[card]
+status_into = "docs/handoff/STATE.md"
