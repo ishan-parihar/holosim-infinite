@@ -53,6 +53,32 @@ cargo build --release
 # Terminal simulation (default: 128 entities, 100 steps)
 
 
+## Contents
+
+- [Engineering Highlights](#engineering-highlights)
+  - [Holographic Optimization Framework](#holographic-optimization-framework)
+  - [Consciousness Architecture & Archetype Interference](#consciousness-architecture-archetype-interference)
+  - [Fractal Multi-Scale Simulation](#fractal-multi-scale-simulation)
+  - [Emerging Systems](#emerging-systems)
+- [Quick Start](#quick-start)
+  - [Prerequisites](#prerequisites)
+  - [Clone & Build](#clone-build)
+  - [Run the Simulation](#run-the-simulation)
+  - [Run the GUI](#run-the-gui)
+- [Project Structure](#project-structure)
+- [Architecture Overview](#architecture-overview)
+  - [Creation Cascade (Top-Down Involution)](#creation-cascade-top-down-involution)
+  - [The Holographic Template](#the-holographic-template)
+- [Current State](#current-state)
+  - [What Works](#what-works)
+  - [What's In Progress](#whats-in-progress)
+  - [What's Planned](#whats-planned)
+- [Testing](#testing)
+- [Documentation](#documentation)
+- [Development](#development)
+- [Philosophy](#philosophy)
+- [☕ Support & Sponsorship](#support-sponsorship)
+
 cargo run --release --bin holonic_realms
 
 # Custom parameters

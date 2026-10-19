@@ -1,5 +1,34 @@
 # HOLOSIM INFINITE — Master Development Roadmap
 
+## Contents
+
+- [Executive Summary](#executive-summary)
+  - [Current State (Honest Assessment)](#current-state-honest-assessment)
+  - [The Core Problem](#the-core-problem)
+  - [The Strategic Position](#the-strategic-position)
+  - [Competitive Landscape](#competitive-landscape)
+- [Industry Trends Alignment (2025–2026)](#industry-trends-alignment-20252026)
+- [Research Foundation](#research-foundation)
+  - [Key Academic Papers Informing This Roadmap](#key-academic-papers-informing-this-roadmap)
+  - [Research Gaps HoloSim Can Fill](#research-gaps-holosim-can-fill)
+- [Phase Roadmap](#phase-roadmap)
+  - [Phase 0: Triage & Build Health (Weeks 1–2) — IMMEDIATE](#phase-0-triage-build-health-weeks-12-immediate)
+  - [Phase 1: Observation Layer — The Missing Bridge (Weeks 3–8)](#phase-1-observation-layer-the-missing-bridge-weeks-38)
+  - [Phase 2: GUI Completion & Visualization (Weeks 9–14)](#phase-2-gui-completion-visualization-weeks-914)
+  - [Phase 3: Bevy ECS Integration (Weeks 15–24) ✅ COMPLETE](#phase-3-bevy-ecs-integration-weeks-1524-complete)
+  - [Phase 4: Biology Pipeline Integration (Weeks 25–30) ✅ COMPLETE](#phase-4-biology-pipeline-integration-weeks-2530-complete)
+  - [Phase 5: GPU Acceleration — MERA on Compute Shaders (Weeks 31–42)](#phase-5-gpu-acceleration-mera-on-compute-shaders-weeks-3142)
+  - [Phase 6: Physics Unification (Weeks 43–52)](#phase-6-physics-unification-weeks-4352)
+  - [Phase 7: Production Readiness (Weeks 53–60)](#phase-7-production-readiness-weeks-5360)
+- [Dependency Timeline](#dependency-timeline)
+- [What We're NOT Doing (Ruthless Prioritization)](#what-were-not-doing-ruthless-prioritization)
+- [Risk Assessment](#risk-assessment)
+- [Success Metrics](#success-metrics)
+- [Technology Stack](#technology-stack)
+- [Unique Value Propositions](#unique-value-propositions)
+- [Appendix A: Module Status Matrix](#appendix-a-module-status-matrix)
+- [Appendix B: Research Paper Index](#appendix-b-research-paper-index)
+
 **Date:** April 7, 2026
 **Version:** 10.0
 **Status:** Living Document — update as phases complete

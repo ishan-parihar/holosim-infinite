@@ -1,5 +1,35 @@
 # Quick Start Guide: Begin GUI Development Immediately
 
+## Contents
+
+- [Day 1: Fix WGPU Initialization](#day-1-fix-wgpu-initialization)
+  - [Task 1.1: Modify GuiApplication to Initialize WGPU](#task-11-modify-guiapplication-to-initialize-wgpu)
+  - [Task 1.2: Add Render Loop](#task-12-add-render-loop)
+  - [Task 1.3: Test](#task-13-test)
+- [Day 2-3: Create Entity Renderer](#day-2-3-create-entity-renderer)
+  - [Task 2.1: Create Entity Instance Structure](#task-21-create-entity-instance-structure)
+  - [Task 2.2: Create Simple Shader](#task-22-create-simple-shader)
+  - [Task 2.3: Create EntityRenderer](#task-23-create-entityrenderer)
+- [Day 4-5: Connect Everything](#day-4-5-connect-everything)
+  - [Task 3.1: Update GuiApplication](#task-31-update-guiapplication)
+  - [Task 3.2: Update Render Loop](#task-32-update-render-loop)
+  - [Task 3.3: Test](#task-33-test)
+- [Day 6-7: Debug and Refine](#day-6-7-debug-and-refine)
+  - [Common Issues](#common-issues)
+  - [Debug Steps](#debug-steps)
+  - [Success Criteria](#success-criteria)
+- [Week 1 Complete!](#week-1-complete)
+- [Quick Reference](#quick-reference)
+  - [Build Commands](#build-commands)
+  - [Test Commands](#test-commands)
+  - [Key Files](#key-files)
+  - [Helpful Resources](#helpful-resources)
+- [Getting Unstuck](#getting-unstuck)
+  - [If WGPU fails to initialize](#if-wgpu-fails-to-initialize)
+  - [If no entities appear](#if-no-entities-appear)
+  - [If performance is bad](#if-performance-is-bad)
+- [Remember](#remember)
+
 **Start Date**: Today  
 **First Milestone**: See entities on screen (1 week)  
 
