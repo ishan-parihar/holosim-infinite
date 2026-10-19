@@ -222,13 +222,13 @@ cargo test --release --lib
 
 ### Keep (10 files - 83%)
 - `COSMOLOGICAL-ARCHITECTURE.md` - Essential research
-- `HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md` - Essential research
+- `docs/kb/HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md` - Essential research
 - `SIMULATION_AUDIT_REPORT.md` - Essential research
 - `REFACTOR_ROADMAP_HOLOGRAPHIC.md` - Essential plan
 - `MASTER_R&D_ROADMAP.md` - Essential plan
 - `GAMING_ENGINE_ROADMAP_v2.md` - Essential plan
 - `PROJECT_ROADMAP.md` - Essential plan
-- `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` - Essential plan
+- `docs/audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` - Essential plan
 - `README.md` - Essential guide
 - `QUICK_START_GUIDE.md` - Essential guide
 - `AGENTS.md` - Essential guide

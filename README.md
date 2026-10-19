@@ -266,15 +266,7 @@ cargo test --release test_entity_has_evolution_clock
 
 | Document | Purpose |
 |----------|---------|
-| [STRATEGIC_INTELLIGENCE_REPORT_2026.md](docs/STRATEGIC_INTELLIGENCE_REPORT_2026.md) | Competitive landscape, tech trends, roadmap |
-| [GAMING_ENGINE_ROADMAP_v2.md](docs/GAMING_ENGINE_ROADMAP_v2.md) | Fractal-holographic engine roadmap |
-| [HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md](HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md) | MERA compression, template architecture |
-| [COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md](COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md) | 8-phase refactor plan |
-| [SIMULATION_AUDIT_REPORT.md](docs/SIMULATION_AUDIT_REPORT.md) | Brutal reality assessment |
-| [IMPLEMENTATION_GAP_REPORT.md](docs/IMPLEMENTATION_GAP_REPORT.md) | Gap analysis |
-| [HOLOSIM_MASTER_CONTEXT.md](HOLOSIM_MASTER_CONTEXT.md) | Master context document |
 | [AGENTS.md](AGENTS.md) | AI assistant coding guide |
-| [QUICK_START_GUIDE.md](docs/QUICK_START_GUIDE.md) | Quick start guide |
 | `docs/` | API, architecture, benchmarks, phase findings |
 
 Every doc in `docs/` is listed with the question it answers in [docs/PAGE-INDEX.md](docs/PAGE-INDEX.md).

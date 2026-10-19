@@ -8,8 +8,8 @@
 
 **Reference Frameworks:**
 - `COSMOLOGICAL-ARCHITECTURE.md` — The metaphysical foundation
-- `HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md` — The computational strategy
-- `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` — The technical implementation
+- `docs/kb/HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md` — The computational strategy
+- `docs/audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` — The technical implementation
 
 ---
 

@@ -26,7 +26,7 @@ Phase 2 successfully consolidated all project documentation, archived old refact
 ### 2.1 Archive Old Refactor Plans
 
 **Files Moved to `archive/` directory:**
-- `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` (38,892 bytes)
+- `docs/audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` (38,892 bytes)
 - `COMPREHENSIVE_REFACTOR_PLAN_PHASE_10.md` (73,866 bytes)
 - `UPGRADE_Proposal_Correcting_Logoic_Archetypical_Mind_Architecture.md` (20,641 bytes)
 

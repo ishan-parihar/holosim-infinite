@@ -435,7 +435,7 @@ src/
 
 2. Archive old refactor plans:
    - Create `archive/` directory
-   - Move `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` → `archive/`
+   - Move `docs/audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md` → `archive/`
    - Move `COMPREHENSIVE_REFACTOR_PLAN_PHASE_10.md` → `archive/`
    - Move `UPGRADE_Proposal_*.md` → `archive/`
 

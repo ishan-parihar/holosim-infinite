@@ -142,7 +142,7 @@ let access = EntitySpectrumAccess { space_time_ratio: 1.5, time_space_ratio: 0.6
 
 ## Key Files
 
-**Documentation**: `README.md`, `COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md`
+**Documentation**: `README.md`, `docs/audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md`
 
 **Source Code**: `src/simulation_v3/simulation_runner.rs`, `src/entity_layer7/layer7.rs`, `src/simulation_v3/entity_lifecycle.rs`
 
