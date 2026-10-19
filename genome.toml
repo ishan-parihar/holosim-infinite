@@ -1,5 +1,6 @@
 # genome.toml — modules on, role → path map, module settings. Edit freely.
 [genome]
+schema_version = 2
 modules = ["core", "records", "ops", "agents"]
 
 [paths]
@@ -44,7 +45,7 @@ link_surfaces = []         # docs whose backticked paths must exist
 link_prefixes = []         # e.g. ["docs/", "scripts/"]: any backticked path starting so is checked, dirs too
 code_globs = []            # code that must be reachable from a live surface
 code_roots = []            # files whose mentions make code live (bin/, tests/, ...)
-bulk_globs = ["*.parquet", "*.pkl", "*.npz"]
+bulk_globs = ["**/*.parquet", "**/*.pkl", "**/*.npz"]
 max_bytes = 5000000
 secrets = []               # e.g. [".env:API_KEY", "~/.config/x/token"] — scanned in diffs, never printed
 # jobs = "bin/jobs status"   # shown by `genome wake`
