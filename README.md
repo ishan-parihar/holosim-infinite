@@ -251,6 +251,8 @@ cargo test --release test_entity_has_evolution_clock
 | [QUICK_START_GUIDE.md](docs/QUICK_START_GUIDE.md) | Quick start guide |
 | `docs/` | API, architecture, benchmarks, phase findings |
 
+Every doc in `docs/` is listed with the question it answers in [docs/PAGE-INDEX.md](docs/PAGE-INDEX.md).
+
 ---
 
 ## Development
