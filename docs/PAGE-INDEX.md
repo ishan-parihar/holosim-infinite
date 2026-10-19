@@ -44,3 +44,9 @@ Every page under `docs/`, with the question it answers. Pages named `README.md` 
 | [`phase6_rd_findings.md`](phase6_rd_findings.md) | EVIDENCE | Phase 6 R&D Findings: Integration + Visualization Pipeline | — |
 | [`phase7_rd_findings.md`](phase7_rd_findings.md) | EVIDENCE | Phase 7 R&D Findings: Quantum Field as Consciousness Substrate | — |
 | [`phase9_rd_findings.md`](phase9_rd_findings.md) | EVIDENCE | Phase 9 R&D Findings: Molecular Chemistry as Archetype Bonding | — |
+| [`2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md`](audit/2026-02-12-COMPREHENSIVE_SIMULATION_REFACTOR_PLAN.md) | Comprehensive Simulation Refactor Plan — The Holonic Realms simulation has excellent foundational implementation but suffers from critical integration… |
+| [`HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md`](kb/HOLOGRAPHIC_OPTIMIZATION_FRAMEWORK.md) | HOLOGRAPHIC OPTIMIZATION FRAMEWORK — 1. [The Universal Holographic Template](#1-the-universal-holographic-template)
+2. [Holographic Principle as Op… |
+| [`HOLOSIM_MASTER_CONTEXT.md`](HOLOSIM_MASTER_CONTEXT.md) | HOLOSIM INFINITE - MASTER CONTEXT DOCUMENT — HoloSim Infinite is a Rust-based simulation of consciousness evolution based on the Law of One cosmological fr… |
+| [`2026-03-03-MEMORY.md`](plans/2026-03-03-MEMORY.md) | Implementing the HoloSim Infinite Complete R&D Refactor Roadmap - a 22-26 week project to transform the simulation from |
+| [`VISUALIZATION_CONTEXT_DOCUMENT.md`](VISUALIZATION_CONTEXT_DOCUMENT.md) | HoloSim Infinite - Visualization Integration Context Document — > Purpose: This document provides complete context for AI agents to continue development on the HoloSim Infini… |
