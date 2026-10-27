@@ -14,7 +14,7 @@
 
 ## Engineering Highlights
 
-### Holographic Optimization Framework
+### Cosmic-Scale Compression (the Holographic Template)
 To enable simulation at a cosmic scale, I implemented a universal template (`UniversalTemplate<T>`) where every entity, from a quantum particle to a galaxy, follows the same structural pattern. To manage the resulting data, I utilized **MERA (Multi-scale Entanglement Renormalization Ansatz) tensor compression**, reducing memory scaling from $O(n)$ to $O(n^{2/3})$. This allows the simulation of massive entity counts with a fraction of the traditional memory footprint.
 
 ### Consciousness Architecture & Archetype Interference
@@ -56,7 +56,7 @@ cargo build --release
 ## Contents
 
 - [Engineering Highlights](#engineering-highlights)
-  - [Holographic Optimization Framework](#holographic-optimization-framework)
+  - [Cosmic-Scale Compression (the Holographic Template)](#cosmic-scale-compression-the-holographic-template)
   - [Consciousness Architecture & Archetype Interference](#consciousness-architecture-archetype-interference)
   - [Fractal Multi-Scale Simulation](#fractal-multi-scale-simulation)
   - [Emerging Systems](#emerging-systems)

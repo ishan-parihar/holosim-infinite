@@ -45,7 +45,7 @@ The simulator implements:
 
 ---
 
-## Prerequisites
+## System Prerequisites
 
 ### System Requirements
 
@@ -120,7 +120,7 @@ This will generate Rustdoc documentation in `target/doc/`.
 
 ---
 
-## Quick Start
+## Your First Program
 
 ### Your First Program
 
@@ -345,7 +345,7 @@ fn main() {
 - **Veil System**: Understand the illusion of separation
 - **Multi-Scale**: Work with different scale hierarchies
 
-### Development
+### Development Workflow
 
 - **Contribute**: See the contribution guidelines
 - **Run Tests**: `cargo test --lib`
@@ -356,7 +356,7 @@ fn main() {
 
 ## Resources
 
-### Documentation
+### Further Reading
 
 - [API Documentation](API.md) - Complete API reference
 - [Getting Started Guide](GETTING_STARTED.md) - This guide

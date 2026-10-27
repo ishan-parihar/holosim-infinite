@@ -1,6 +1,6 @@
 # Quick Start Guide: Begin GUI Development Immediately
 
-## Contents
+## GUI Dev Sprint Contents
 
 - [Day 1: Fix WGPU Initialization](#day-1-fix-wgpu-initialization)
   - [Task 1.1: Modify GuiApplication to Initialize WGPU](#task-11-modify-guiapplication-to-initialize-wgpu)

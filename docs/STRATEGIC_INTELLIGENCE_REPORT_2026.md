@@ -1,6 +1,6 @@
 # HOLOSIM INFINITE — Strategic Intelligence Report 2026
 
-## Contents
+## Report Contents
 
 - [1. Executive Summary](#1-executive-summary)
 - [2. Industry Landscape Analysis](#2-industry-landscape-analysis)

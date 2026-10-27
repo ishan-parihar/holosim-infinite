@@ -1,6 +1,6 @@
 # HoloSim Infinite: GUI Vision & Development Roadmap
 
-## Contents
+## GUI Vision Roadmap Contents
 
 - [A Comprehensive Plan for Transforming the Simulation Viewer into a Holographic Consciousness Explorer](#a-comprehensive-plan-for-transforming-the-simulation-viewer-into-a-holographic-consciousness-explorer)
 - [Executive Summary](#executive-summary)

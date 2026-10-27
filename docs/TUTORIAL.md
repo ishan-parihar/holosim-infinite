@@ -24,7 +24,7 @@
 
 This tutorial will guide you through the Holographic Multi-Scale Cosmic Creation Simulator step by step. Each tutorial builds on the previous one, so we recommend completing them in order.
 
-### Prerequisites
+### Tutorial Prerequisites
 
 - Completed the [Getting Started Guide](GETTING_STARTED.md)
 - Rust installed and working

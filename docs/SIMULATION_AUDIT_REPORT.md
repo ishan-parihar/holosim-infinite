@@ -1,5 +1,5 @@
 # Comprehensive Simulation Audit Report
-## Contents
+## Audit Report Contents
 
 - [HoloSimInfinite: A Brutal Reality Assessment](#holosiminfinite-a-brutal-reality-assessment)
 - [Executive Summary](#executive-summary)

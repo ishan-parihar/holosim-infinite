@@ -28,7 +28,7 @@ From `COSMOLOGICAL-ARCHITECTURE.md`:
 
 ---
 
-## PROJECT STRUCTURE
+## MASTER CONTEXT: MODULE MAP
 
 ```
 /home/ishanp/Documents/GitHub/HoloSim_Infinite/
